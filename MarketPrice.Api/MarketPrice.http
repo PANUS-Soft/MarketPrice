@@ -1,0 +1,6 @@
+@MarketPrice_HostAddress = http://localhost:5278
+
+GET {{MarketPrice_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
