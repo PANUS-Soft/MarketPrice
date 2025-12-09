@@ -16,7 +16,6 @@ namespace MarketPrice.Ui
                 .UseDevExpressControls()
                 .UseDevExpressDataGrid()
                 .UseDevExpressEditors()
-                .UseDevExpressHtmlEditor()
                 .UseDevExpressTreeView()
                 .ConfigureFonts(fonts =>
                 {

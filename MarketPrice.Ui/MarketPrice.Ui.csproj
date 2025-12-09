@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
@@ -65,8 +65,6 @@
 		<PackageReference Include="DevExpress.Maui.Controls" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.Core" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.DataGrid" Version="25.1.7" />
-		<PackageReference Include="DevExpress.Maui.Editors" Version="25.1.7" />
-		<PackageReference Include="DevExpress.Maui.HtmlEditor" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.Mvvm" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.TreeView" Version="25.1.7" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
