@@ -14,7 +14,7 @@ namespace MarketPrice.Data.Models
         public required int CurrentVerificationStatusId { get; set; }
         public string? Notes { get; set; }
         public required DateTime DateStarted { get; set; }
-        public  DateTime? DateCompleted { get; set; }
+        public  DateTimeOffset? DateCompleted { get; set; }
 
 
     }
