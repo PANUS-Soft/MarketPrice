@@ -20,7 +20,7 @@ namespace MarketPrice.Data.Models
         public required string PasswordHash { get; set; }
         public required DateTimeOffset DateRecorded { get; set; } = DateTimeOffset.UtcNow;
         public string? Note { get; set; }
-        public DateTimeOffset DateUpdate { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? DateUpdate { get; set; } 
 
 
     }
