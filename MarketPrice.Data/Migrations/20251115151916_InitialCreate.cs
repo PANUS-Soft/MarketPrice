@@ -11,6 +11,7 @@ namespace MarketPrice.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // This up method is the copy of the up method from the ModelDatePropertyModifications migration file.
             migrationBuilder.CreateTable(
                 name: "LookupDataTypes",
                 columns: table => new
@@ -98,14 +99,15 @@ namespace MarketPrice.Migrations
                     AccountTypeId = table.Column<int>(type: "int", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FamilyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OtherNames = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IdCardNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OtherNames = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IdCardNumber = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsPremiumUser = table.Column<bool>(type: "bit", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateRecorded = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    DateRecorded = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateUpdate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -190,8 +192,8 @@ namespace MarketPrice.Migrations
                     RatedUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Score = table.Column<byte>(type: "tinyint", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateRecorded = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DateRecorded = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -220,8 +222,8 @@ namespace MarketPrice.Migrations
                     VerificationTypeId = table.Column<int>(type: "int", nullable: false),
                     CurrentVerificationStatusId = table.Column<int>(type: "int", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateStarted = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateCompleted = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    DateStarted = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DateCompleted = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -257,10 +259,10 @@ namespace MarketPrice.Migrations
                     Quantity = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
                     Grade = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ExpiryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -403,7 +405,8 @@ namespace MarketPrice.Migrations
                 name: "IX_Users_IdCardNumber",
                 table: "Users",
                 column: "IdCardNumber",
-                unique: true);
+                unique: true,
+                filter: "[IdCardNumber] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Verifications_CurrentVerificationStatusId",
