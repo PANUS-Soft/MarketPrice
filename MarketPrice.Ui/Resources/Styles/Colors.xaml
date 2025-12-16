@@ -6,6 +6,21 @@
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
+    <!-- Primary Colors -->
+    <Color x:Key="PrimaryBase">#004D99</Color>
+    <Color x:Key="PrimaryAccent">#007FFF</Color>
+
+    <!-- Secondary Colors -->
+    <Color x:Key="SecondaryBase">#2ECC71</Color>
+    <Color x:Key="Danger">#E74C3C</Color>
+
+    <!-- Neutral Colors -->
+    <Color x:Key="Background">#FAFAFA</Color>
+    <Color x:Key="TextPrimary">#333333</Color>
+    <Color x:Key="TextSecondary">#808080</Color>
+    <Color x:Key="Separator">#CCCCCC</Color>
+
+
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>
