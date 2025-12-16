@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Services.Implementations
 {
-    internal class MarketPricePasswordHashService
+    public class PasswordHashService
     {
     }
 }

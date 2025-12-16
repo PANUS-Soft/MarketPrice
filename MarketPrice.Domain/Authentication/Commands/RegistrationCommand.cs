@@ -18,4 +18,5 @@ namespace MarketPrice.Domain.Authentication.Commands
 
     }
 
+
 }

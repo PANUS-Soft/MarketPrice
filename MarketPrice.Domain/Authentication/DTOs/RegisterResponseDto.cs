@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Domain.Authentication.DTOs
 {
-    internal class RegisterResponseDto
+    public class RegisterResponseDto
     {
+
+        public string EmailAddress { get; set; } = string.Empty;
+        public string CreationStatus { get; set; } = string.Empty;
     }
 }

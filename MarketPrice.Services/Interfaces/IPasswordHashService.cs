@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Services.Interfaces
 {
+
     public interface IPasswordHashService
     {
         /// <summary>

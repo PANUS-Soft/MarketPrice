@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Services.Implementations
 {
+
     public class RegistrationService
     {
+
     }
+
 }
