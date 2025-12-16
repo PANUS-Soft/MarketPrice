@@ -8,15 +8,15 @@ namespace MarketPrice.Domain.Authentication.DTOs
 {
     public class LoginResponseDto
     {
-        public string? Username { get; set; }
-
-        public string FirstName { get; set; } = string.Empty;
-
-        public string FamilyName { get; set; } = string.Empty;
-
-        public bool RememberMe { get; set; }
-
-        public bool IsAuthenticated { get; set; } // did login request suceed
+        public string FirstName { get; set; } 
+        public string FamilyName { get; set; }
+        public string EmailAddress { get; set; }
+        public string PhoneNumber { get; set; }
+        public string AccountType { get; set; }
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+        public bool LoginStatus { get; set; }
+        public DateTimeOffset ExpiryDate { get; set; }
 
     }
 }
