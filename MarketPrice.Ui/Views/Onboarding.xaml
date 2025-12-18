@@ -2,9 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MarketPrice.Ui.Views.Onboarding"
+             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              Shell.NavBarIsVisible="False"
              Title="Onboarding"
              BackgroundColor="{StaticResource Background}">
+
+    <ContentPage.BindingContext>
+        <viewModels:OnboardingViewModel />
+    </ContentPage.BindingContext>
+
     <VerticalStackLayout>
         <Grid RowDefinitions="Auto,*,Auto,Auto"
               Padding="30"
@@ -32,6 +38,7 @@
 
             <Button Grid.Row="3"
                     Text="Next"
+                    Command="{Binding NavigateToWelcomeCommand}"
                     FontFamily="RobotoSerifBold"
                     TextColor="{StaticResource White}"
                     BackgroundColor="{StaticResource PrimaryBase}"

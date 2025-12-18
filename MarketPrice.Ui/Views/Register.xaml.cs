@@ -3,9 +3,9 @@ using MarketPrice.Ui.ViewModels;
 
 namespace MarketPrice.Ui.Views;
 
-public partial class Register2 : ContentPage
+public partial class Register : ContentPage
 {
-	public Register2()
+	public Register()
 	{
 		InitializeComponent();
         BindingContext = new RegisterViewModel();

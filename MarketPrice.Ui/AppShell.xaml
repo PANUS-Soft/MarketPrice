@@ -7,9 +7,19 @@
     Title="MarketPrice.Ui">
 
     <ShellContent
-        Title="Register2"
-        ContentTemplate="{DataTemplate views:Register2}"
-        Route="Register2" />
+        Title="Onboarding"
+        ContentTemplate="{DataTemplate views:Onboarding}"
+        Route="Onboarding" />
+
+    <ShellContent
+        Title="Welcome"
+        ContentTemplate="{DataTemplate views:Welcome}"
+        Route="Welcome" />
+
+    <ShellContent
+        Title="Register"
+        ContentTemplate="{DataTemplate views:Register}"
+        Route="Register" />
 
     <ShellContent
         Title="Login"
