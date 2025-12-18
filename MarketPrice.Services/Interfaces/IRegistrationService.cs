@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Domain.Authentication.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,29 +8,27 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Services.Interfaces
 {
+    /// <summary>
+    /// here is the contract for the user registration business logic
+    /// </summary>
     public interface IRegistrationService
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="UserId"></param>
-        /// <returns></returns>
+     /// <summary>
+     /// checks if a user already exists with the given email or phone number. 
+     /// </summary>
+     /// <param name="email"></param>
+     /// <param name="phoneNumber"></param>
+     /// <returns></returns>
 
-        public bool UserExists(string UserId);
+        //Task<bool> UserExists(string email, string phoneNumber);
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="FirstName"></param>
-        /// <param name="FamilyName"></param>
-        /// <param name="OtherName"></param>
-        /// <param name="AccountName"></param>
-        /// <param name="EmailAddress"></param>
-        /// <param name="PhoneNumber"></param>
-        /// <param name="Password"></param>
-        /// <returns></returns>
-        public string Register(string FirstName, string FamilyName, string OtherName, string AccountName, string EmailAddress, string PhoneNumber, string Password);
+      /// <summary>
+      /// Registration create a new user by taking all the command from the MarketPrice Domain>
+      /// </summary>
+      /// <param name="registrationCommand"></param>
+      /// <returns></returns>
+        Task<RegisterResponseDto> RegisterAsync(RegistrationCommand Command);
 
     }
 }

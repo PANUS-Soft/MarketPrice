@@ -18,7 +18,7 @@ namespace MarketPrice.Data.Models
         public required string  PhoneNumber { get; set; }
         public required bool IsPremiumUser { get; set; }
         public required string PasswordHash { get; set; }
-        public required DateTimeOffset DateRecorded { get; set; } = DateTimeOffset.UtcNow;
+        public required DateTimeOffset DateRecorded { get; set; } = DateTimeOffset.Now;
         public string? Note { get; set; }
         public DateTimeOffset? DateUpdate { get; set; } 
 

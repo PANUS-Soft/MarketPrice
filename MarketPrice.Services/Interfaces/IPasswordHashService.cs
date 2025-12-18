@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 namespace MarketPrice.Services.Interfaces
 {
 
+    /// <summary>
+    /// Contract for secure password management.
+    /// </summary>
+
     public interface IPasswordHashService
     {
         /// <summary>
@@ -14,27 +18,25 @@ namespace MarketPrice.Services.Interfaces
         /// </summary>
         /// <param name="salt"></param>
         /// <returns></returns>
-        public string GenerateSalt(string salt);
+        string GenerateSalt();
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="password"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
+        string HashPassword(string password, string salt);
 
-        public string HashPassword(string key, string salt);
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="passwor"></param>
+       /// <param name="hash"></param>
+       /// <param name="salt"></param>
+       /// <returns></returns>
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="salt"></param>
-        /// <returns></returns>
-
-
-        public string VerifyPassword(string key, string salt);
-
+        string VerifyPassword(string password, string hash, string salt);
 
 
     }
