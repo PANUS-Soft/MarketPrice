@@ -7,8 +7,13 @@
     Title="MarketPrice.Ui">
 
     <ShellContent
-        Title="Home"
+        Title="Register2"
+        ContentTemplate="{DataTemplate views:Register2}"
+        Route="Register2" />
+
+    <ShellContent
+        Title="Login"
         ContentTemplate="{DataTemplate views:Login}"
-        Route="Login" />
+        Route="Login"/>
 
 </Shell>

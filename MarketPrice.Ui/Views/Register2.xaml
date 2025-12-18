@@ -1,12 +1,213 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxdf="clr-namespace:DevExpress.Maui.DataForm;assembly=DevExpress.Maui.Editors"
+             xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Register2"
-             Title="Register2">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Register2"
+             Shell.NavBarIsVisible="False">
+    
+    <ContentPage.BindingContext>
+        <viewModel:RegisterViewModel/>
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="6*,4*">
+        <VerticalStackLayout
+            Padding="15,25"
+            Grid.Row="0"
+            BackgroundColor="{StaticResource Background}">
+            <Label
+                Text="Register"
+                TextColor="{StaticResource PrimaryBase}"
+                FontFamily="RobotoSerifBold"
+                HorizontalTextAlignment="Center"
+                FontSize="40"
+                Padding="15"/>
+
+            <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto">
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Image Source="check" WidthRequest="40" HeightRequest="50"/>
+                </Border>
+                <Label 
+                    Text="Personal Information" 
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    FontSize="11"
+                    LineBreakMode="WordWrap"
+                    MaxLines="2"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium">
+                    <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnStepOneTapped"></TapGestureRecognizer>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource Separator}"
+                    Stroke="Transparent"
+                    Grid.Column="2"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="2"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+                </Border>
+                <Label 
+                    Text="Contact &amp; Account Info" 
+                    Grid.Column="2"
+                    Grid.Row="1"
+                    FontSize="10"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource PrimaryAccent}" 
+                    FontFamily="RobotoSerifMedium">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnStepTwoTapped"></TapGestureRecognizer>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource Separator}"
+                    Stroke="Transparent"
+                    Grid.Column="4"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="3"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+                </Border>
+                <Label 
+                    Text="Security Details" 
+                    FontSize="11"
+                    Grid.Column="4"
+                    Grid.Row="1"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnStepTwoTapped"></TapGestureRecognizer>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+        </VerticalStackLayout>
+
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            BackgroundColor="{StaticResource PrimaryBase}">
+        </VerticalStackLayout>
+
+        <Border
+            StrokeShape="RoundRectangle 35"
+            Stroke="Transparent"
+            BackgroundColor="White"
+            Margin="25,250,25,-300"
+            Padding="25">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.8" Radius="15" />
+            </Border.Shadow>
+
+            <ScrollView>
+                <VerticalStackLayout>
+                    <Label
+                        Text="{Binding CurrentStepDisplay, StringFormat='Please fill in your {0}'}"
+                        FontFamily="RobotoSerifMedium"
+                        TextColor="{StaticResource TextPrimary}"
+                        HorizontalTextAlignment="Center"/>
+
+                    <dxdf:DataFormView
+                        x:Name="PersonalInfoForm"
+                        IsVisible="{Binding IsPersonalStep}"
+                        DataObject="{Binding PersonalInfo}"
+                        EditorLabelPosition="Top"
+                        EditorLabelFontFamily="RobotoSerifBold"
+                        EditorLabelHorizontalAlignment="Start"
+                        IsGroupHeaderVisible="False"
+                        IsAutoGenerationEnabled="True"
+                        ValidationMode="Manually"
+                        BackgroundColor="White"/>
+
+                    <dxdf:DataFormView
+                        x:Name="ContactInfoForm"
+                        IsVisible="{Binding IsContactStep}"
+                        DataObject="{Binding ContactInfo}"
+                        EditorLabelPosition="Top"
+                        EditorLabelFontFamily="RobotoSerifBold"
+                        EditorLabelHorizontalAlignment="Start"
+                        IsGroupHeaderVisible="False"
+                        IsAutoGenerationEnabled="True"
+                        ValidationMode="Manually"
+                        BackgroundColor="White"/>
+
+                    <dxdf:DataFormView
+                        x:Name="SecurityDetailForm"
+                        IsVisible="{Binding IsSecurityStep}"
+                        DataObject="{Binding Security}"
+                        EditorLabelPosition="Top"
+                        EditorLabelFontFamily="RobotoSerifBold"
+                        EditorLabelHorizontalAlignment="Start"
+                        IsGroupHeaderVisible="False"
+                        IsAutoGenerationEnabled="True"
+                        ValidationMode="Manually"
+                        BackgroundColor="White"/>
+
+
+                    <Button
+                        Text="Continue"
+                        Command="{Binding ContinueCommand}"
+                        BackgroundColor="{StaticResource PrimaryBase}"
+                        FontFamily="RobotoSerifBold"
+                        FontSize="15"
+                        CornerRadius="35"
+                        HeightRequest="50"/>
+                   
+                    <Label 
+                        HorizontalOptions="Center"
+                        Margin="0,10">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span 
+                                    Text="Already have an account? " 
+                                    TextColor="{StaticResource TextPrimary}" 
+                                    FontFamily="RobotoSerifMedium" />
+                                <Span 
+                                    Text="Login" 
+                                    TextColor="{StaticResource PrimaryBase}" 
+                                    FontFamily="RobotoSerifBold">
+                                    <Span.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding NavigateToLoginCommand}" />
+                                    </Span.GestureRecognizers>
+                                </Span>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+
+
+    </Grid>
 </ContentPage>
