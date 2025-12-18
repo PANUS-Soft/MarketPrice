@@ -13,7 +13,7 @@ namespace MarketPrice.Data.Models
         public Guid RatedUserId { get; set; }
         public required byte Score { get; set; }
         public string? Comment { get; set; }
-        public DateTimeOffset DateRecorded { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset DateRecorded { get; set; } = DateTimeOffset.Now;
         public DateTimeOffset? DateUpdated { get; set; }
     }
 }

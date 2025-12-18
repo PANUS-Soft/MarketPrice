@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MarketPrice.Data\MarketPrice.Data.csproj" />
+    <ProjectReference Include="..\MarketPrice.Domain\MarketPrice.Domain.csproj" />
   </ItemGroup>
 
 </Project>
