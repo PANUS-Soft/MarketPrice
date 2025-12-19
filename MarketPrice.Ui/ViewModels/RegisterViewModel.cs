@@ -40,6 +40,8 @@ namespace MarketPrice.Ui.ViewModels
         public ICommand ContinueCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand NavigateToLoginCommand { get; }
+        public ICommand ShowTermsOfServiceCommand { get; }
+        public ICommand ShowPrivacyPolicyCommand { get; }
 
         public event Func<Task<bool>> ValidateCurrentStepRequested;
 
@@ -49,6 +51,9 @@ namespace MarketPrice.Ui.ViewModels
             ContinueCommand = new Command(async () => await TryContinueAsync());
             BackCommand = new Command(PreviousStep);
             NavigateToLoginCommand = new Command(NavigateToLogin);
+            ShowTermsOfServiceCommand = new Command(ShowTermsOfService);
+            ShowPrivacyPolicyCommand = new Command(ShowPrivacyPolicy);
+
         }
 
         private async Task TryContinueAsync()
@@ -80,14 +85,27 @@ namespace MarketPrice.Ui.ViewModels
                 CurrentStep = RegistrationStep.PersonalInfo;
         }
 
-        private async void NavigateToLogin()
+        private void NavigateToLogin()
         {
-            await Shell.Current.GoToAsync("//Login");
+            Shell.Current.GoToAsync("//Login");
+        }
+
+        private void ShowPrivacyPolicy(object obj)
+        {
+        }
+
+        private void ShowTermsOfService()
+        {
         }
 
         private void CreateAccount()
         {
-            throw new NotImplementedException();
+            var user = new UserRegistrationModel
+            {
+                PersonalInfo = this.PersonalInfo,
+                ContactAccountInfo = this.ContactInfo,
+                SecurityInfo = this.Security
+            };
         }
     }
 

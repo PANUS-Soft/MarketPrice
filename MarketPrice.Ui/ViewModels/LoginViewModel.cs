@@ -1,11 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text.RegularExpressions;
+using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
     public partial class LoginViewModel : ObservableObject
     {
+        public ICommand NavigateToRegisterCommand { get; }
+
+        public LoginViewModel()
+        {
+            NavigateToRegisterCommand = new Command(NavigateToRegister);
+        }
+
+        private async void NavigateToRegister()
+        {
+            await Shell.Current.GoToAsync("//Register");
+        }
+
         [ObservableProperty] private string email;
         [ObservableProperty] private string emailError;
         [ObservableProperty] private bool isEmailInvalid;

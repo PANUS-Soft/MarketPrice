@@ -14,12 +14,13 @@
     <VerticalStackLayout>
         <Grid RowDefinitions="Auto,*,Auto,Auto"
               Padding="30"
-              RowSpacing="30">
+              RowSpacing="60">
 
             <Label Grid.Row="0"
-                   Text="See The Market Before Anyone Else"
+                   Text="See the Market Before Anyone Else"
                    FontSize="30"
                    FontFamily="RobotoSerifBold"
+                   Padding="0,30,0,0"
                    TextColor="{StaticResource Black}"
                    HorizontalTextAlignment="Center"/>
 
@@ -33,16 +34,18 @@
                    Text="Stop guessing. Access real-time, consolidated pricing data across local market, instantly."
                    FontFamily="RobotoSerifSemibold"
                    FontSize="16"
-                   TextColor="{StaticResource Black}"
+                   TextColor="{StaticResource TextPrimary}"
+                   
                    HorizontalTextAlignment="Center"/>
 
             <Button Grid.Row="3"
                     Text="Next"
+                    FontSize="15"
                     Command="{Binding NavigateToWelcomeCommand}"
                     FontFamily="RobotoSerifBold"
                     TextColor="{StaticResource White}"
                     BackgroundColor="{StaticResource PrimaryBase}"
-                    CornerRadius="25"
+                    CornerRadius="35"
                     HeightRequest="50"
                     Margin="0,50,0,0"/>
 

@@ -13,16 +13,13 @@ namespace MarketPrice.Ui.Models
         // Personal Information
         [Required(ErrorMessage = "First Name is required")]
         [DataFormDisplayOptions(LabelText = "First Name", GroupName = "Personal Information")]
-        [Display(Prompt = "Enter your first name")]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Family name is required")]
         [DataFormDisplayOptions(LabelText = "Family Name", GroupName = "Personal Information")]
-        [Display(Prompt = "Enter your family name")]
         public string FamilyName { get; set; }
 
         [DataFormDisplayOptions(LabelText = "Other Name", GroupName = "Personal Information")]
-        [Display(Prompt = "Enter your other name")]
         public string? OtherName { get; set; }
 
     }

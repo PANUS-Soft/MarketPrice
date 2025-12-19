@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Welcome"
              Shell.NavBarIsVisible ="False"
              BackgroundColor="{StaticResource Background}"
              Title="Welcome">
 
+    <ContentPage.BindingContext>
+        <viewModel:WelcomeViewModel/>
+    </ContentPage.BindingContext>
+
+
     <Grid RowDefinitions="*, Auto" Padding="30">
         <VerticalStackLayout Grid.Row="0" Spacing="15" VerticalOptions="Center">
             <VerticalStackLayout Spacing="0" Margin="0,0,0,20">
                 <Label
-                        Text="Welcome"
-                        FontSize="32"
-                        FontFamily="RobotoSerifMedium"
-                        HorizontalOptions="Center"/>
-                <Label Text="to MarketPrice"
-                           FontFamily="RobotoSerifBold"
-                           FontSize="24"
-                           HorizontalOptions="Center"/>
+                    Text="Welcome"
+                    FontSize="55"
+                    FontFamily="RobotoSerifBold"
+                    HorizontalOptions="Center"/>
+                <Label
+                    Text="to MarketPrice"
+                    FontFamily="RobotoSerifBold"
+                    FontSize="24"
+                    HorizontalOptions="Center"/>
             </VerticalStackLayout>
 
             <Image Source="welcome.png"
@@ -26,12 +33,12 @@
                        Margin="0,10"/>
 
             <Label Text="Create your account"
-                       FontSize="20"
+                       FontSize="25"
                        FontFamily="RobotoSerifBold"
                        HorizontalOptions="Center"
                        Margin="0,10, 0, 5"/>
 
-            <Label Text="MarketPrice help you get instant access to the latest price and make smarter decision..."
+            <Label Text="MarketPrice helps you get instant access to the latest prices and make smarter decisions ..."
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center"
                        FontFamily="RobotoSerifRegular"
@@ -43,13 +50,15 @@
                                  Margin="0,30,0,10">
             <Button Text="Register"
                         Command="{Binding NavigateToRegisterCommand}"
+                        FontFamily="RobotoSerifBold"
                         Background="{StaticResource PrimaryBase}"
                         CornerRadius="35"
                         HeightRequest="50"/>
 
             <Button Text="Login"
                         Command="{Binding NavigateToLoginCommand}"
-                        Background="{StaticResource Background}"
+                        FontFamily="RobotoSerifBold"
+                        Background="White"
                         BorderColor="{StaticResource PrimaryBase}"
                         BorderWidth="2"
                         TextColor="{StaticResource PrimaryBase}"

@@ -26,6 +26,13 @@ public partial class Register : ContentPage
         if (BindingContext is not RegisterViewModel viewModel)
             return Task.FromResult(false);
 
+        if (viewModel.IsPersonalStep)
+            PersonalInfoForm.Commit();
+        else if (viewModel.IsContactStep)
+            ContactInfoForm.Commit();
+        else if (viewModel.IsSecurityStep)
+            SecurityDetailForm.Commit();
+
         bool isValid = 
             viewModel.IsPersonalStep && PersonalInfoForm.Validate() ||
             viewModel.IsContactStep && ContactInfoForm.Validate() ||
@@ -34,12 +41,4 @@ public partial class Register : ContentPage
         return Task.FromResult(isValid);
     }
 
-
-    private void OnStepOneTapped(object? sender, TappedEventArgs e)
-    {
-    }
-
-    private void OnStepTwoTapped(object? sender, TappedEventArgs e)
-    {
-    }
 }

@@ -19,6 +19,8 @@ namespace MarketPrice.Ui.Models
         public string EmailAddress { get; set; }
 
         [Required(ErrorMessage = "Phone Number is required")]
+        [MaxLength(9, ErrorMessage = "Phone number can only be 9 digits")]
+        [MinLength(9, ErrorMessage = "Phone number can't be less than 9 digits")]
         [DataFormDisplayOptions(LabelText = "Phone Number", GroupName = "Contact & Account Info")]
         [Display(Prompt = "Enter your phone number")]
         [DataType(DataType.PhoneNumber)]
