@@ -65,10 +65,32 @@
 		<PackageReference Include="DevExpress.Maui.Controls" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.Core" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.DataGrid" Version="25.1.7" />
+		<PackageReference Include="DevExpress.Maui.Editors" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.Mvvm" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.TreeView" Version="25.1.7" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Views\Register.xaml.cs">
+	    <DependentUpon>Register.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\Login.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Onboarding.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Register.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Welcome.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

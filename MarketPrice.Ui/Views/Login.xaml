@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxc="http://schemas.devexpress.com/maui"
+             xmlns:dxe="http://schemas.devexpress.com/maui"
+             xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
+             x:Class="MarketPrice.Ui.Views.Login"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource Background}"
+             Title="Login">
+
+    <ContentPage.BindingContext>
+        <viewModel:LoginViewModel/>
+    </ContentPage.BindingContext>
+
+    <Grid>
+        <BoxView VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
+        <VerticalStackLayout Spacing="0" VerticalOptions="Center" Margin="0,0,0,40">
+            <Image Source="Smile.png"
+                   HeightRequest="140" 
+                   Margin="0, 40, 0, 20"/>
+            
+            <Label Text="Login"
+                   FontSize="38"
+                   FontFamily="RobotoSerifBold" 
+                   TextColor="{StaticResource PrimaryBase}"
+                   HorizontalOptions="Center" 
+                   Margin="0, 0, 0,30"/>
+
+            <dxc:DXBorder BackgroundColor="{StaticResource Background}"
+                          CornerRadius="40" 
+                          Padding="30" 
+                          Margin="30,0" >
+                <dxc:DXBorder.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0,10"
+                            Radius="20"
+                            Opacity="0.8"/>
+                </dxc:DXBorder.Shadow>
+
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Welcome back!"
+                           FontSize="24"
+                           FontFamily="RobotoSerifBold"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,10"/>
+
+                    <dxe:TextEdit
+                        LabelText="Email Address"
+                        Keyboard="Email" 
+                        CornerRadius="12" 
+                        BoxMode="Outlined"
+                        HeightRequest="60" 
+                        TextFontFamily="RobotoSerifRegular"/>
+            
+                    <dxe:PasswordEdit 
+                        LabelText="Password"
+                        CornerRadius="12" 
+                        BoxMode="Outlined"
+                        HeightRequest="60" 
+                        TextFontFamily="RobotoSerifRegular"/>
+
+                    <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight"/>
+
+                    <dxe:CheckEdit Label="Remember me?"
+                                   LabelFontFamily="RobotoSerifMedium"
+                                   CheckBoxColor="{StaticResource TextSecondary}"
+                                   CheckedCheckBoxColor="{StaticResource PrimaryBase}"/>
+
+                    <dxc:DXButton Content="Login"
+                                  BackgroundColor= "{StaticResource PrimaryBase }"
+                                  CornerRadius="35" HeightRequest="55" 
+                                  Margin="0,10" PressedScale="0.95" 
+                                  FontFamily="RobotoSerifBold"/>
+
+                    <Label 
+                        HorizontalOptions="Center"
+                        Margin="0,10">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span 
+                                    Text="Don't have an account? " 
+                                    TextColor="{StaticResource TextPrimary}" 
+                                    FontFamily="RobotoSerifMedium" />
+                                <Span 
+                                    Text="Register" 
+                                    TextColor="{StaticResource PrimaryBase}" 
+                                    FontFamily="RobotoSerifBold">
+                                    <Span.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
+                                    </Span.GestureRecognizers>
+                                </Span>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </dxc:DXBorder>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>
