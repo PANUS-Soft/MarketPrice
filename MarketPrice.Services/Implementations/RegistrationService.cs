@@ -49,21 +49,22 @@ namespace MarketPrice.Services.Implementations
             if (exists)
                 return RegisterResponseDto.Failed("A user with email address or phone number already exist");
             //Hash password securely
-            var salt = _passwordHasherservice.GenerateSalt();
-            var hashedPassword = _passwordHasherservice.HashPassword(Command.Password, salt);
+            var PasswordSalt = _passwordHasherservice.GenerateSalt();
+            var hashedPassword = _passwordHasherservice.HashPassword(Command.Password, PasswordSalt);
+
+            //var UserType = 
 
             // create the user entity
             var user = new User
             {
-                UserId = Guid.NewGuid(),
                 FirstName = Command.FirstName,
                 FamilyName = Command.FamilyName,
-                OtherNames = null,
+                OtherNames = Command.OtherNames,
                 EmailAddress = Command.EmailAddress,
                 PhoneNumber = Command.PhoneNumber,
                 PasswordHash = hashedPassword,
-                AccountTypeId = 1002,
-                IsPremiumUser = true,
+                AccountTypeId = Command.AccountTypeId,
+                IsPremiumUser = false,
                 DateRecorded = DateTimeOffset.Now,
                 IdCardNumber = null,
                 Note = null,
@@ -74,7 +75,7 @@ namespace MarketPrice.Services.Implementations
             await _marketPriceDbContext.SaveChangesAsync();
 
             //Return success reponse
-            return RegisterResponseDto.Success("User Registered successfully");
+            return RegisterResponseDto.Success(user.EmailAddress, "User Registered successfully");
         }
 
     }

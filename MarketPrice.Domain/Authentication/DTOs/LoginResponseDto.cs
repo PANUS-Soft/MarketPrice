@@ -8,10 +8,11 @@ namespace MarketPrice.Domain.Authentication.DTOs
 {
     public class LoginResponseDto
     {
-        public string FirstName { get; set; } 
+        public  string FirstName { get; set; } 
         public string FamilyName { get; set; }
         public string EmailAddress { get; set; }
         public string PhoneNumber { get; set; }
+        // Account type needs to removed since it is not essential in this response.
         public string AccountType { get; set; }
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }

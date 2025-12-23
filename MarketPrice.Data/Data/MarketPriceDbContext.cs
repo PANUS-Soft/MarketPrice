@@ -21,6 +21,7 @@ namespace MarketPrice.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Verification> Verifications { get; set; }
         public DbSet<CommodityType> CommodityTypes { get; set; }
+        public DbSet<UserSecurityDetail> UserSecurityDetails { get; set; }
 
 
         public MarketPriceDbContext(DbContextOptions<MarketPriceDbContext> options)
@@ -90,6 +91,18 @@ namespace MarketPrice.Data
 
             modelBuilder.Entity<User>()
                 .Property(u => u.UserId)
+                .HasDefaultValueSql("NEWID()");
+
+            // # UserSecurityDetail
+            modelBuilder.Entity<UserSecurityDetail>()
+                .HasKey(us => us.SecurityId); // Define primary key.
+
+            modelBuilder.Entity<UserSecurityDetail>()
+                .HasIndex(u => u.UserId)
+                .IsUnique();
+
+            modelBuilder.Entity<UserSecurityDetail>()
+                .Property(us => us.SecurityId)
                 .HasDefaultValueSql("NEWID()");
 
             // # Rating

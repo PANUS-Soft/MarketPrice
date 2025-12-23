@@ -44,15 +44,15 @@ namespace MarketPrice.Services.Implementations
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
 
-        public string HashPassword(string password, string salt)
+        public string HashPassword(string password, string passwordSalt)
         {
             if(String.IsNullOrEmpty(password))
                 throw new ArgumentNullException(nameof(password), "password cannot be null or empty");
 
-            if(String.IsNullOrEmpty(salt))
-                throw new ArgumentNullException(nameof(salt), "Salt connot be null or empty");
+            if(String.IsNullOrEmpty(passwordSalt))
+                throw new ArgumentNullException(nameof(passwordSalt), "Salt connot be null or empty");
             
-            byte[] saltBytes = Convert.FromBase64String(salt);
+            byte[] saltBytes = Convert.FromBase64String(passwordSalt);
 
             using var pbkdf2 = new Rfc2898DeriveBytes(password,saltBytes, Iterations, HashAlgorithmName.SHA256);
 
@@ -69,18 +69,18 @@ namespace MarketPrice.Services.Implementations
         /// <param name="salt"></param>
         /// <returns></returns>
 
-        public string VerifyPassword(string password, string hash, string salt)
+        public bool VerifyPassword(string password, string passwordHash, string passwordSalt)
         {
-            if (String.IsNullOrEmpty(hash))
-                return "Invalid";
+            if (String.IsNullOrEmpty(passwordHash))
+                return false;
 
-            string computedHash = HashPassword(password, salt);
+            string computedHash = HashPassword(password, passwordSalt);
 
             // Timing-safe comparison
             bool matches = CryptographicOperations.FixedTimeEquals(Convert.FromBase64String(computedHash),
-                Convert.FromBase64String(hash));
+                Convert.FromBase64String(passwordHash));
 
-            return matches ? "Valid" : "Invalid";
+            return matches ? true : false;
 
         }
     }

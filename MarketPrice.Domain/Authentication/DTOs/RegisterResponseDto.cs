@@ -20,7 +20,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
         /// <param name="email"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static RegisterResponseDto Success(string email, string message = "User created successfully!")
+        public static RegisterResponseDto Success(string email, string message)
         {
             return new RegisterResponseDto
             {
@@ -36,7 +36,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
         /// <param name="errorMessage"></param>
         /// <returns></returns>
 
-        public static RegisterResponseDto Failed(string errorMessage = "User with this EmailAddress already existe!")
+        public static RegisterResponseDto Failed(string errorMessage)
         {
             return new RegisterResponseDto
             {

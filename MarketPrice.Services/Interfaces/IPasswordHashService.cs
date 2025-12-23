@@ -26,7 +26,7 @@ namespace MarketPrice.Services.Interfaces
         /// <param name="password"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-        string HashPassword(string password, string salt);
+        string HashPassword(string password, string passwordSalt);
 
        /// <summary>
        /// 
@@ -36,7 +36,7 @@ namespace MarketPrice.Services.Interfaces
        /// <param name="salt"></param>
        /// <returns></returns>
 
-        string VerifyPassword(string password, string hash, string salt);
+        bool VerifyPassword(string password, string passwordHash, string passwordSalt);
 
 
     }
