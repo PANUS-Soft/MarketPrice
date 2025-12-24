@@ -27,7 +27,7 @@ namespace MarketPrice.Services.Implementations
             if (user == null) return new LoginResponseDto { LoginStatus = false };
 
             // 2. Verify Password
-            bool isValid = hashService.VerifyPassword(command.Password, user.PasswordHash, hashService.GenerateSalt());
+            bool isValid = hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
             if (!isValid) return new LoginResponseDto { LoginStatus = false };
 
             // 3. Generate Tokens
@@ -35,7 +35,7 @@ namespace MarketPrice.Services.Implementations
             var refreshToken = tokenService.CreateRefreshToken(user);
 
             // 4. APPLY "REMEMBER ME" LOGIC
-            // If RememberMe is true, token lasts 3 months. Otherwise, 7 days.
+            // If RememberMe is true, token lasts 6 months. Otherwise, 7 days.
             DateTime refreshTokenExpiry = command.RememberMe
                 ? DateTime.UtcNow.AddMonths(6)
                 : DateTime.UtcNow.AddDays(7);

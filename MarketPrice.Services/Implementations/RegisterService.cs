@@ -49,8 +49,8 @@ namespace MarketPrice.Services.Implementations
             if (exists)
                 return RegisterResponseDto.Failed("A user with email address or phone number already exist");
             //Hash password securely
-            var PasswordSalt = _passwordHasherservice.GenerateSalt();
-            var hashedPassword = _passwordHasherservice.HashPassword(Command.Password, PasswordSalt);
+            var passwordSalt = _passwordHasherservice.GenerateSalt();
+            var hashedPassword = _passwordHasherservice.HashPassword(Command.Password, passwordSalt);
 
             //var UserType = 
 
@@ -66,6 +66,7 @@ namespace MarketPrice.Services.Implementations
                 AccountTypeId = Command.AccountTypeId,
                 IsPremiumUser = false,
                 DateRecorded = DateTimeOffset.Now,
+                PasswordSalt = passwordSalt,
                 IdCardNumber = null,
                 Note = null,
 
