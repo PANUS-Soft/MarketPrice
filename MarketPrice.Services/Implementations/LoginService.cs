@@ -24,11 +24,21 @@ namespace MarketPrice.Services.Implementations
         {
             // 1. Find User
             var user = await context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
-            if (user == null) return new LoginResponseDto { LoginStatus = false };
+            if (user == null)
+                return new LoginResponseDto 
+                { 
+                    success = false,
+                    LoginStatus = "The email or password you entered is incorrect"
+                };
 
             // 2. Verify Password
             bool isValid = hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
-            if (!isValid) return new LoginResponseDto { LoginStatus = false };
+            if (!isValid) 
+                return new LoginResponseDto 
+                { 
+                    success = false,
+                    LoginStatus = "The email or password you entered is incorrect"
+                };
 
             // 3. Generate Tokens
             var accessToken = tokenService.CreateAccessToken(user);
@@ -74,7 +84,8 @@ namespace MarketPrice.Services.Implementations
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 ExpiryDate = DateTime.UtcNow.AddMinutes(10), // Access token expiry
-                LoginStatus = true
+                success = true,
+                LoginStatus = "User logged in successfully"
             };
         }
 

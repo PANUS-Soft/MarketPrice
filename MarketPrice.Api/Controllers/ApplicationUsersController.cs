@@ -9,55 +9,48 @@ namespace MarketPrice.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ApplicationUsersController : ControllerBase
+    public class ApplicationUsersController(
+        IRegisterService registerService,
+        ILoginService loginService,
+        ILogger<ApplicationUsersController> logger) : ControllerBase
     {
-        readonly ILogger _logger;
-        private IRegisterService _registerService;
-        private ILoginService _loginService;
+        private readonly ILogger _logger = logger;
+        private readonly IRegisterService _registerService = registerService;
+        private readonly ILoginService _loginService = loginService;
 
-        public ApplicationUsersController(
-            IRegisterService registerService,
-            ILoginService loginService,
-            ILogger<ApplicationUsersController> logger)
-        {
-            _registerService = registerService;
-            _loginService = loginService;
-            _logger = logger;
-        }
-
-        [HttpPost("auth/register")]
+        [HttpPost("/auth/register")]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
             if (registerCommand == null)
-                return BadRequest();
+                return BadRequest("Invalid request data");
 
             var result = await _registerService.RegisterAsync(registerCommand);
 
             if (result.success)
                 return Ok(result);
             else
-                return BadRequest("User registration failed");
+                return Conflict(result.CreationStatus);
         }
 
-        [HttpPost("auth/login")]
+        [HttpPost("/auth/login")]
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
         {
             if(loginCommand == null)
-                return BadRequest();
+                return BadRequest("Invalid request data");
 
             var result = await _loginService.LoginAsync(loginCommand);
 
-            if (result.LoginStatus)
+            if (result.success)
                 return Ok(result);
             else
-                return Unauthorized("Invalid credentials");
+                return Unauthorized(result.LoginStatus);
         }
 
-        [HttpPost("auth/logout")]
+        [HttpPost("/auth/logout")]
         public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
         {
             if (logoutCommand == null)
-                return BadRequest();
+                return BadRequest("Invalid request data");
 
             var result = await _loginService.LogoutAsync(logoutCommand);
 

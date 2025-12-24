@@ -31,39 +31,43 @@ namespace MarketPrice.Services.Implementations
             _passwordHasherservice = passwordHasherservice;
         }
 
-        public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand Command)
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand command)
         {
             // validate required fields
             
-            if(string.IsNullOrEmpty(Command.EmailAddress) 
-                || string.IsNullOrEmpty(Command.Password))
+            if(string.IsNullOrEmpty(command.FirstName)
+                || string.IsNullOrEmpty(command.FamilyName)
+                || string.IsNullOrEmpty(command.PhoneNumber)
+                || string.IsNullOrEmpty(command.AccountTypeId.ToString())
+                || string.IsNullOrEmpty(command.EmailAddress) 
+                || string.IsNullOrEmpty(command.Password))
             {
-                return RegisterResponseDto.Failed("Email and Password are required.");
+                return RegisterResponseDto.Failed("Invalid request data");
             }
 
             //now check if the user with one of this exists (check if a user already exists with email or phone)
             bool exists = await _marketPriceDbContext.Users.AnyAsync(u => 
-            u.EmailAddress == Command.EmailAddress 
-            || u.PhoneNumber == Command.PhoneNumber);
+            u.EmailAddress == command.EmailAddress 
+            || u.PhoneNumber == command.PhoneNumber);
 
             if (exists)
                 return RegisterResponseDto.Failed("A user with email address or phone number already exist");
             //Hash password securely
             var passwordSalt = _passwordHasherservice.GenerateSalt();
-            var hashedPassword = _passwordHasherservice.HashPassword(Command.Password, passwordSalt);
+            var hashedPassword = _passwordHasherservice.HashPassword(command.Password, passwordSalt);
 
             //var UserType = 
 
             // create the user entity
             var user = new User
             {
-                FirstName = Command.FirstName,
-                FamilyName = Command.FamilyName,
-                OtherNames = Command.OtherNames,
-                EmailAddress = Command.EmailAddress,
-                PhoneNumber = Command.PhoneNumber,
+                FirstName = command.FirstName,
+                FamilyName = command.FamilyName,
+                OtherNames = command.OtherNames,
+                EmailAddress = command.EmailAddress,
+                PhoneNumber = command.PhoneNumber,
                 PasswordHash = hashedPassword,
-                AccountTypeId = Command.AccountTypeId,
+                AccountTypeId = command.AccountTypeId,
                 IsPremiumUser = false,
                 DateRecorded = DateTimeOffset.Now,
                 PasswordSalt = passwordSalt,
