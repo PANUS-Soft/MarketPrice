@@ -11,7 +11,7 @@ namespace MarketPrice.Services.Interfaces
     /// <summary>
     /// here is the contract for the user registration business logic
     /// </summary>
-    public interface IRegistrationService
+    public interface IRegisterService
     {
      /// <summary>
      /// checks if a user already exists with the given email or phone number. 
@@ -28,7 +28,7 @@ namespace MarketPrice.Services.Interfaces
       /// </summary>
       /// <param name="registrationCommand"></param>
       /// <returns></returns>
-        Task<RegisterResponseDto> RegisterAsync(RegistrationCommand Command);
+        Task<RegisterResponseDto> RegisterAsync(RegisterCommand Command);
 
     }
 }

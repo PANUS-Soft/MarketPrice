@@ -21,17 +21,17 @@ namespace MarketPrice.Services.Implementations
     /// Handels user Registration using the custom MarketPrice user Model.
     /// </summary>
 
-    public class RegistrationService : IRegistrationService
+    public class RegisterService : IRegisterService
     {
         private readonly MarketPriceDbContext _marketPriceDbContext;
         private readonly IPasswordHashService _passwordHasherservice;
-        public RegistrationService(MarketPriceDbContext marketPriceDbContext, IPasswordHashService passwordHasherservice)
+        public RegisterService(MarketPriceDbContext marketPriceDbContext, IPasswordHashService passwordHasherservice)
         {
             _marketPriceDbContext = marketPriceDbContext;
             _passwordHasherservice = passwordHasherservice;
         }
 
-        public async Task<RegisterResponseDto> RegisterAsync(RegistrationCommand Command)
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand Command)
         {
             // validate required fields
             

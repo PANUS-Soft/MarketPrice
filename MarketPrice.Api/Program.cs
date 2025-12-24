@@ -14,7 +14,7 @@ builder.Services.AddDbContext<MarketPriceDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // --- 2. SERVICE REGISTRATION ---
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();

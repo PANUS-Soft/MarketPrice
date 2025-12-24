@@ -12,15 +12,15 @@ namespace MarketPrice.Api.Controllers
     [ApiController]
     public class RegistrationUserController : ControllerBase 
     {
-        private readonly IRegistrationService _registeredServices;
+        private readonly IRegisterService _registeredServices;
 
-        public RegistrationUserController(IRegistrationService registeredServices)
+        public RegistrationUserController(IRegisterService registeredServices)
         {
             _registeredServices = registeredServices;
         }
 
         [HttpPost("CreateUser")]
-        public async Task<IActionResult> Register([FromBody] RegistrationCommand command)
+        public async Task<IActionResult> Register([FromBody] RegisterCommand command)
         {
             if(!ModelState.IsValid)
             {

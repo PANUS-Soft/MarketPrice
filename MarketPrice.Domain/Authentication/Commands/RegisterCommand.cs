@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Domain.Authentication.Commands
 {
-    public class RegistrationCommand
+    public class RegisterCommand
     {
         public required string FirstName { get; set; }
         public required string FamilyName { get; set; }

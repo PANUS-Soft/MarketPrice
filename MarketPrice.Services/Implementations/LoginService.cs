@@ -71,7 +71,6 @@ namespace MarketPrice.Services.Implementations
                 FamilyName = user.FamilyName,
                 EmailAddress = user.EmailAddress,
                 PhoneNumber = user.PhoneNumber,
-                AccountType = user.AccountTypeId.ToString(),
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 ExpiryDate = DateTime.UtcNow.AddMinutes(10), // Access token expiry

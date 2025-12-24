@@ -71,16 +71,16 @@ namespace MarketPrice.Services.Implementations
 
         public bool VerifyPassword(string password, string passwordHash, string passwordSalt)
         {
-            if (String.IsNullOrEmpty(passwordHash))
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(passwordHash) || string.IsNullOrEmpty(passwordSalt))
                 return false;
 
             string computedHash = HashPassword(password, passwordSalt);
 
             // Timing-safe comparison
-            bool matches = CryptographicOperations.FixedTimeEquals(Convert.FromBase64String(computedHash),
+            return CryptographicOperations.FixedTimeEquals(Convert.FromBase64String(computedHash),
                 Convert.FromBase64String(passwordHash));
 
-            return matches ? true : false;
+            //return matches ? true : false;
 
         }
     }
