@@ -9,10 +9,10 @@ namespace MarketPrice.Domain.Authentication.DTOs
     public class RegisterResponseDto
     {
 
-        public bool success { get; set; }
+        public bool Success { get; set; }
         public string EmailAddress { get; set; } = string.Empty;
         public string CreationStatus { get; set; } = string.Empty;
-        public IEnumerable<string> Errors { get; set; }  = new List<string>();
+        public IEnumerable<string> Errors { get; set; } = [];
 
         /// <summary>
         /// User successfuly register to the platform
@@ -20,13 +20,13 @@ namespace MarketPrice.Domain.Authentication.DTOs
         /// <param name="email"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static RegisterResponseDto Success(string email, string message)
+        public static RegisterResponseDto Succeed(string email, string message)
         {
             return new RegisterResponseDto
             {
                 EmailAddress = email,
                 CreationStatus = message,
-                success = true
+                Success = true
             };
         }
 
@@ -42,7 +42,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
             {
                 EmailAddress = string.Empty,
                 CreationStatus = errorMessage,  
-                success = false,
+                Success = false,
             };
         }
         /// <summary>
@@ -54,7 +54,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
         {
             return new RegisterResponseDto
             {
-                success = false,
+                Success = false,
                 Errors = error,
                 CreationStatus = "Registration failed",
                 

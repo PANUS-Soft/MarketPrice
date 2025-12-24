@@ -16,6 +16,7 @@ builder.Services.AddDbContext<MarketPriceDbContext>(options =>
 // --- 2. SERVICE REGISTRATION ---
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<ILogoutService, LogoutService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 

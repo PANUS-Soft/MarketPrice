@@ -14,7 +14,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
         public string PhoneNumber { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
-        public bool success { get; set; }
+        public bool Success { get; set; }
         public string LoginStatus { get; set; } = string.Empty;
         public DateTimeOffset ExpiryDate { get; set; }
 

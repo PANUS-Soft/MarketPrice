@@ -21,15 +21,10 @@ namespace MarketPrice.Services.Implementations
     /// Handels user Registration using the custom MarketPrice user Model.
     /// </summary>
 
-    public class RegisterService : IRegisterService
+    public class RegisterService(MarketPriceDbContext context, IPasswordHashService passwordHasherservice) : IRegisterService
     {
-        private readonly MarketPriceDbContext _marketPriceDbContext;
-        private readonly IPasswordHashService _passwordHasherservice;
-        public RegisterService(MarketPriceDbContext marketPriceDbContext, IPasswordHashService passwordHasherservice)
-        {
-            _marketPriceDbContext = marketPriceDbContext;
-            _passwordHasherservice = passwordHasherservice;
-        }
+        private readonly MarketPriceDbContext _context = context;
+        private readonly IPasswordHashService _passwordHasherservice = passwordHasherservice;
 
         public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand command)
         {
@@ -46,7 +41,7 @@ namespace MarketPrice.Services.Implementations
             }
 
             //now check if the user with one of this exists (check if a user already exists with email or phone)
-            bool exists = await _marketPriceDbContext.Users.AnyAsync(u => 
+            bool exists = await _context.Users.AnyAsync(u => 
             u.EmailAddress == command.EmailAddress 
             || u.PhoneNumber == command.PhoneNumber);
 
@@ -76,11 +71,11 @@ namespace MarketPrice.Services.Implementations
 
             };
             //Save the user info to the database 
-            _marketPriceDbContext.Users.Add(user);
-            await _marketPriceDbContext.SaveChangesAsync();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
 
-            //Return success reponse
-            return RegisterResponseDto.Success(user.EmailAddress, "User Registered successfully");
+            //Return Success reponse
+            return RegisterResponseDto.Succeed(user.EmailAddress, "User Registered successfully");
         }
 
     }

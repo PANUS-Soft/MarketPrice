@@ -20,23 +20,26 @@ namespace MarketPrice.Services.Implementations
     {
         // Your EF Core DB Context
 
+        private readonly MarketPriceDbContext _context = context;
+        private readonly IPasswordHashService _hashService = hashService;
+
         public async Task<LoginResponseDto> LoginAsync(LoginCommand command)
         {
             // 1. Find User
-            var user = await context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
             if (user == null)
                 return new LoginResponseDto 
                 { 
-                    success = false,
+                    Success = false,
                     LoginStatus = "The email or password you entered is incorrect"
                 };
 
             // 2. Verify Password
-            bool isValid = hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
+            bool isValid = _hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
             if (!isValid) 
                 return new LoginResponseDto 
                 { 
-                    success = false,
+                    Success = false,
                     LoginStatus = "The email or password you entered is incorrect"
                 };
 
@@ -51,7 +54,7 @@ namespace MarketPrice.Services.Implementations
                 : DateTime.UtcNow.AddDays(7);
 
             
-            var security = await context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
+            var security = await _context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
 
             if (security == null)
             {
@@ -63,7 +66,7 @@ namespace MarketPrice.Services.Implementations
                     RefreshTokenExpiryTime = refreshTokenExpiry,
                     LastActivityDate = DateTime.Now
                 };
-                context.UserSecurityDetails.Add(security);
+                _context.UserSecurityDetails.Add(security);
             }
             else
             {
@@ -72,7 +75,7 @@ namespace MarketPrice.Services.Implementations
                 security.RefreshTokenExpiryTime = refreshTokenExpiry;
                 security.LastActivityDate = DateTime.UtcNow;
             }
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             // 6. Return Data to Client
             return new LoginResponseDto
@@ -84,29 +87,9 @@ namespace MarketPrice.Services.Implementations
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 ExpiryDate = DateTime.UtcNow.AddMinutes(10), // Access token expiry
-                success = true,
+                Success = true,
                 LoginStatus = "User logged in successfully"
             };
-        }
-
-        // Implementation for Logout (matching the LogoutCommand signature)
-        public async Task<LogoutResponseDto> LogoutAsync(LogoutCommand command)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
-
-            if (user != null)
-            {
-                var security = await context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
-                if (security != null)
-                {
-                    // Invalidate the refresh token so it cannot be used again
-                    security.RefreshToken = null;
-                    security.RefreshTokenExpiryTime = null;
-                    await context.SaveChangesAsync();
-                }
-            }
-
-            return new LogoutResponseDto { LogoutStatus = true };
         }
     }
 

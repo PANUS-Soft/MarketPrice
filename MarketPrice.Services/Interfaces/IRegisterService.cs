@@ -13,16 +13,6 @@ namespace MarketPrice.Services.Interfaces
     /// </summary>
     public interface IRegisterService
     {
-     /// <summary>
-     /// checks if a user already exists with the given email or phone number. 
-     /// </summary>
-     /// <param name="email"></param>
-     /// <param name="phoneNumber"></param>
-     /// <returns></returns>
-
-        //Task<bool> UserExists(string email, string phoneNumber);
-
-
       /// <summary>
       /// Registration create a new user by taking all the command from the MarketPrice Domain>
       /// </summary>

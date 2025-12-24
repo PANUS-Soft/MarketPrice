@@ -12,11 +12,13 @@ namespace MarketPrice.Api.Controllers
     public class ApplicationUsersController(
         IRegisterService registerService,
         ILoginService loginService,
+        ILogoutService logoutService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
         private readonly IRegisterService _registerService = registerService;
         private readonly ILoginService _loginService = loginService;
+        private readonly ILogoutService _logoutService = logoutService;
 
         [HttpPost("/auth/register")]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
@@ -26,7 +28,7 @@ namespace MarketPrice.Api.Controllers
 
             var result = await _registerService.RegisterAsync(registerCommand);
 
-            if (result.success)
+            if (result.Success)
                 return Ok(result);
             else
                 return Conflict(result.CreationStatus);
@@ -40,7 +42,7 @@ namespace MarketPrice.Api.Controllers
 
             var result = await _loginService.LoginAsync(loginCommand);
 
-            if (result.success)
+            if (result.Success)
                 return Ok(result);
             else
                 return Unauthorized(result.LoginStatus);
@@ -52,7 +54,7 @@ namespace MarketPrice.Api.Controllers
             if (logoutCommand == null)
                 return BadRequest("Invalid request data");
 
-            var result = await _loginService.LogoutAsync(logoutCommand);
+            var result = await _logoutService.LogoutAsync(logoutCommand);
 
             return Ok(result);
         }
