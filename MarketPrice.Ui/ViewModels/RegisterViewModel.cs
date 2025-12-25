@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Models;
 
@@ -12,9 +13,9 @@ namespace MarketPrice.Ui.ViewModels
 {
     public class RegisterViewModel : BindableObject
     {
-        public PersonalInfoModel PersonalInfo { get; } = new();
-        public ContactAccountModel ContactInfo { get; } = new();
-        public SecurityModel Security { get; } = new();
+        public PersonalInformation PersonalInfo { get; } = new();
+        public ContactInformation ContactInfo { get; } = new();
+        public SecurityDetails SecurityDetail { get; } = new();
 
         public string CurrentStepDisplay => CurrentStep.GetDisplayName();
 
@@ -100,11 +101,9 @@ namespace MarketPrice.Ui.ViewModels
 
         private void CreateAccount()
         {
-            var user = new UserRegistrationModel
+            var user = new RegisterCommand
             {
-                PersonalInfo = this.PersonalInfo,
-                ContactAccountInfo = this.ContactInfo,
-                SecurityInfo = this.Security
+              
             };
         }
     }

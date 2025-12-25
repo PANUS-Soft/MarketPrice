@@ -73,6 +73,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\MarketPrice.Domain\MarketPrice.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Update="Views\Register.xaml.cs">
 	    <DependentUpon>Register.xaml</DependentUpon>
 	  </Compile>
