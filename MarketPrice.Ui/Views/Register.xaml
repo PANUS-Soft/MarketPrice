@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxdf="clr-namespace:DevExpress.Maui.DataForm;assembly=DevExpress.Maui.Editors"
+             xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
+             x:Class="MarketPrice.Ui.Views.Register"
+             Title="Register"
+             Shell.NavBarIsVisible="False">
+    
+    <ContentPage.BindingContext>
+        <viewModel:RegisterViewModel/>
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="6*,4*">
+        <VerticalStackLayout
+            Padding="15,25"
+            Grid.Row="0"
+            BackgroundColor="{StaticResource Background}">
+
+            <Grid 
+                ColumnDefinitions="40,*,40"
+                VerticalOptions="Center"
+                Padding="10,0">
+                <ImageButton
+                    Grid.Column="0"
+                    Source="back"
+                    IsVisible="{Binding IsContactStep }"
+                    WidthRequest="15"
+                    HeightRequest="15"
+                    Command="{Binding BackCommand}"/>
+
+                <ImageButton
+                    Grid.Column="0"
+                    Source="back"
+                    IsVisible="{Binding IsSecurityStep }"
+                    WidthRequest="15"
+                    HeightRequest="15"
+                    Command="{Binding BackCommand}"/>
+
+                <Label
+                    Grid.Column="1"
+                    Text="Register"
+                    TextColor="{StaticResource PrimaryBase}"
+                    FontFamily="RobotoSerifBold"
+                    HorizontalTextAlignment="Center"
+                    HorizontalOptions="Center"
+                    FontSize="40"
+                    Padding="0,10"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto" IsVisible="{Binding IsPersonalStep}">
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="1"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        FontFamily="RobotoSerifMedium"
+                        FontSize="25"/>
+                </Border>
+                <Label 
+                    Text="Personal Information" 
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    FontSize="11"
+                    LineBreakMode="WordWrap"
+                    MaxLines="2"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource PrimaryAccent}" 
+                    FontFamily="RobotoSerifMedium" />
+
+                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource Separator}"
+                    Stroke="Transparent"
+                    Grid.Column="2"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="2"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center" />
+                </Border>
+                <Label 
+                    Text="Contact &amp; Account Info" 
+                    Grid.Column="2"
+                    Grid.Row="1"
+                    FontSize="10"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium" />
+
+                <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource Separator}"
+                    Stroke="Transparent"
+                    Grid.Column="4"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="3"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+                </Border>
+                <Label 
+                    Text="Security Details" 
+                    FontSize="11"
+                    Grid.Column="4"
+                    Grid.Row="1"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium" />
+            </Grid>
+            <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto" IsVisible="{Binding IsContactStep}">
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Image Source="check" WidthRequest="40" HeightRequest="50"/>
+                </Border>
+                <Label 
+                    Text="Personal Information" 
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    FontSize="11"
+                    LineBreakMode="WordWrap"
+                    MaxLines="2"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium" />
+
+                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource PrimaryAccent}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="2"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="2"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center" />
+                </Border>
+                <Label 
+                    Text="Contact &amp; Account Info" 
+                    Grid.Column="2"
+                    Grid.Row="1"
+                    FontSize="10"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource PrimaryAccent}" 
+                    FontFamily="RobotoSerifMedium" />
+
+                <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource Separator}"
+                    Stroke="Transparent"
+                    Grid.Column="4"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="3"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center" />
+                </Border>
+                <Label 
+                    Text="Security Details" 
+                    FontSize="11"
+                    Grid.Column="4"
+                    Grid.Row="1"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium" />
+            </Grid>
+            <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto" IsVisible="{Binding IsSecurityStep}">
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Image Source="check" WidthRequest="40" HeightRequest="50"/>
+                </Border>
+                <Label 
+                    Text="Personal Information" 
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    FontSize="11"
+                    LineBreakMode="WordWrap"
+                    MaxLines="2"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium" />
+
+                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource PrimaryAccent}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="2"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Image Source="check" WidthRequest="40" HeightRequest="50"/>
+                </Border>
+                <Label 
+                    Text="Contact &amp; Account Info" 
+                    Grid.Column="2"
+                    Grid.Row="1"
+                    FontSize="10"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource TextPrimary}" 
+                    FontFamily="RobotoSerifMedium" />
+
+                <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource PrimaryAccent}" VerticalOptions="Center"/>
+
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    Stroke="Transparent"
+                    Grid.Column="4"
+                    Grid.Row="0"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="55"
+                    HeightRequest="55">
+                    <Label
+                        Text="3"
+                        FontFamily="RobotoSerifSemibold"
+                        FontSize="25"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center" />
+                </Border>
+                <Label 
+                    Text="Security Details" 
+                    FontSize="11"
+                    Grid.Column="4"
+                    Grid.Row="1"
+                    HorizontalTextAlignment="Center" 
+                    TextColor="{StaticResource PrimaryAccent}" 
+                    FontFamily="RobotoSerifMedium" />
+            </Grid>
+        </VerticalStackLayout>
+
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            BackgroundColor="{StaticResource PrimaryBase}">
+        </VerticalStackLayout>
+
+        <Border
+            StrokeShape="RoundRectangle 35"
+            Stroke="Transparent"
+            BackgroundColor="White"
+            Margin="25,250,25,-300"
+            Padding="25">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.8" Radius="15" />
+            </Border.Shadow>
+
+            <ScrollView>
+                <VerticalStackLayout>
+                    <Label
+                        Text="{Binding CurrentStepDisplay, StringFormat='Please fill in your {0}'}"
+                        FontFamily="RobotoSerifMedium"
+                        TextColor="{StaticResource TextPrimary}"
+                        HorizontalTextAlignment="Center" />
+
+                    <dxdf:DataFormView
+                        x:Name="PersonalInfoForm"
+                        IsVisible="{Binding IsPersonalStep}"
+                        DataObject="{Binding PersonalInfo}"
+                        EditorLabelPosition="Top"
+                        EditorLabelFontFamily="RobotoSerifBold"
+                        EditorLabelHorizontalAlignment="Start"
+                        IsGroupHeaderVisible="False"
+                        IsAutoGenerationEnabled="True"
+                        ValidationMode="Manually"
+                        BackgroundColor="White">
+                        <dxdf:DataFormView.Items>
+                            <dxdf:DataFormTextItem
+                                FieldName="FirstName"
+                                LabelText="First Name"
+                                Placeholder="Enter your first name"
+                                BottomTextFontFamily="RobotoSerifRegular"
+                                HelpText="*Required"/>
+                            <dxdf:DataFormTextItem
+                                FieldName="FamilyName"
+                                LabelText="Family Name"
+                                Placeholder="Enter your family name"
+                                BottomTextFontFamily="RobotoSerifRegular"
+                                HelpText="*Required"/>
+                            <dxdf:DataFormTextItem
+                                FieldName="OtherName"
+                                LabelText="Other Name"
+                                Placeholder="Enter your other name"
+                                BottomTextFontFamily="RobotoSerifRegular"
+                                HelpText="*Optional"/>
+                        </dxdf:DataFormView.Items>
+                    </dxdf:DataFormView>
+
+                    <dxdf:DataFormView
+                        x:Name="ContactInfoForm"
+                        IsVisible="{Binding IsContactStep}"
+                        DataObject="{Binding ContactInfo}"
+                        EditorLabelPosition="Top"
+                        EditorLabelFontFamily="RobotoSerifBold"
+                        EditorLabelHorizontalAlignment="Start"
+                        IsGroupHeaderVisible="False"
+                        IsAutoGenerationEnabled="True"
+                        ValidationMode="Manually"
+                        BackgroundColor="White">
+                        <dxdf:DataFormTextItem
+                            FieldName="EmailAddress"
+                            LabelText="Email Address"
+                            Placeholder="Enter your email address"
+                            BottomTextFontFamily="RobotoSerifRegular"
+                            HelpText="*Required"/>
+                        <dxdf:DataFormMaskedItem
+                            Keyboard="Telephone"
+                            FieldName="PhoneNumber"
+                            LabelText="Phone Number"
+                            Prefix="+237"
+                            BottomTextFontFamily="RobotoSerifRegular"
+                            HelpText="*Required"/>
+                        <dxdf:DataFormComboBoxItem
+                            FieldName="AccountType"
+                            LabelText="Account Type"
+                            Placeholder="Select an account type"
+                            BottomTextFontFamily="RobotoSerifRegular"
+                            HelpText="*Required"/>
+                    </dxdf:DataFormView>
+
+                    <dxdf:DataFormView
+                        x:Name="SecurityDetailForm"
+                        IsVisible="{Binding IsSecurityStep}"
+                        DataObject="{Binding Security}"
+                        EditorLabelPosition="Top"
+                        EditorLabelFontFamily="RobotoSerifBold"
+                        EditorLabelHorizontalAlignment="Start"
+                        IsGroupHeaderVisible="False"
+                        IsAutoGenerationEnabled="False"
+                        ValidationMode="Manually"
+                        BackgroundColor="White">
+                        <dxdf:DataFormView.Items>
+                            <dxdf:DataFormPasswordItem
+                                FieldName="Password"
+                                Placeholder="Enter your password"
+                                LabelText="Password"
+                                BottomTextFontFamily="RobotoSerifRegular"
+                                HelpText="*Required"/>
+                            <dxdf:DataFormPasswordItem
+                                FieldName="ConfirmPassword"
+                                Placeholder="Confirm your password"
+                                LabelText="Confirm Password"
+                                BottomTextFontFamily="RobotoSerifRegular"
+                                HelpText="*Required"/>
+                        </dxdf:DataFormView.Items>
+                    </dxdf:DataFormView>
+                    <HorizontalStackLayout
+                        IsVisible="{Binding IsSecurityStep}"
+                        HorizontalOptions="Start">
+
+                        <CheckBox
+                            HorizontalOptions="Start"
+                            IsChecked="{Binding Security.IsTermAccepted, Mode=TwoWay}" />
+
+                        <Label
+                            LineBreakMode="WordWrap"
+                            VerticalOptions="Center">
+
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span
+                                        Text="Accepts terms and conditions"
+                                        FontFamily="RobotoSerifMedium"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </HorizontalStackLayout>
+
+
+                    <Label
+                        IsVisible="{Binding IsSecurityStep}"
+                        LineBreakMode="WordWrap"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        Padding="0,5,0,25">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span
+                                    Text="By creating an account, you agree to MarketPrice's "
+                                    FontFamily="RobotoSerifRegular"
+                                    FontSize="11"/>
+
+                                <Span
+                                    Text="Terms of Services"
+                                    FontFamily="RobotoSerifSemibold"
+                                    TextDecorations="Underline"
+                                    FontSize="11">
+                                    <Span.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ShowTermsOfServiceCommand}"/>
+                                    </Span.GestureRecognizers>
+                                </Span>
+
+                                <Span
+                                    Text=" and "
+                                    FontFamily="RobotoSerifRegular"
+                                    FontSize="11"/>
+
+                                <Span
+                                    Text="Privacy Policy"
+                                    FontFamily="RobotoSerifSemibold"
+                                    TextDecorations="Underline"
+                                    FontSize="11">
+                                    <Span.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ShowPrivacyPolicyCommand}" />
+                                    </Span.GestureRecognizers>
+                                </Span>
+                            </FormattedString>
+                        </Label.FormattedText>
+
+                    </Label>
+
+                    <Button
+                        Text="Continue"
+                        Command="{Binding ContinueCommand}"
+                        BackgroundColor="{StaticResource PrimaryBase}"
+                        FontFamily="RobotoSerifBold"
+                        FontSize="15"
+                        CornerRadius="35"
+                        HeightRequest="50"/>
+                   
+                    <Label 
+                        HorizontalOptions="Center"
+                        Margin="0,10">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span 
+                                    Text="Already have an account? " 
+                                    TextColor="{StaticResource TextPrimary}" 
+                                    FontFamily="RobotoSerifMedium" />
+                                <Span 
+                                    Text="Login" 
+                                    TextColor="{StaticResource PrimaryBase}" 
+                                    FontFamily="RobotoSerifBold">
+                                    <Span.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding NavigateToLoginCommand}" />
+                                    </Span.GestureRecognizers>
+                                </Span>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+
+
+    </Grid>
+</ContentPage>

@@ -3,12 +3,27 @@
     x:Class="MarketPrice.Ui.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:MarketPrice.Ui"
+    xmlns:views="clr-namespace:MarketPrice.Ui.Views"
     Title="MarketPrice.Ui">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Onboarding"
+        ContentTemplate="{DataTemplate views:Onboarding}"
+        Route="Onboarding" />
+
+    <ShellContent
+        Title="Welcome"
+        ContentTemplate="{DataTemplate views:Welcome}"
+        Route="Welcome" />
+
+    <ShellContent
+        Title="Register"
+        ContentTemplate="{DataTemplate views:Register}"
+        Route="Register" />
+
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate views:Login}"
+        Route="Login"/>
 
 </Shell>
