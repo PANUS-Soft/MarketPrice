@@ -17,11 +17,10 @@ namespace MarketPrice.Data.Models
         public required decimal Quantity { get; set; }
         public string? Grade { get; set; }
         public string? Description { get; set; }
-        public required DateTime StartDate { get; set; }
-        public required DateTime ExpiryDate { get; set; }
-        public required DateTime Date { get; set; }
-        public DateTime? DateUpdated { get; set; }
-
+        public DateTimeOffset StartDate { get; set; } = DateTimeOffset.Now;
+        public required DateTimeOffset ExpiryDate { get; set; }
+        public DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset? DateUpdated { get; set; }
 
     }
 

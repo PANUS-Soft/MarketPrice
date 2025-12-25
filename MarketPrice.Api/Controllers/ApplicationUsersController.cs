@@ -9,55 +9,54 @@ namespace MarketPrice.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ApplicationUsersController : ControllerBase
+    public class ApplicationUsersController(
+        IRegisterService registerService,
+        ILoginService loginService,
+        ILogoutService logoutService,
+        ILogger<ApplicationUsersController> logger) : ControllerBase
     {
-        readonly ILogger _logger;
-        private IMarketPriceAuthenticationService _marketPriceauthenticationService;
+        private readonly ILogger _logger = logger;
+        private readonly IRegisterService _registerService = registerService;
+        private readonly ILoginService _loginService = loginService;
+        private readonly ILogoutService _logoutService = logoutService;
 
-        public ApplicationUsersController(
-            IMarketPriceAuthenticationService marketPriceAuthenticationService,
-            ILogger<ApplicationUsersController> logger) {
-
-            _marketPriceauthenticationService = marketPriceAuthenticationService;
-            _logger  = logger;
-        }
-
-        
-        // here was to create a new User.
-        [HttpPost]
-        public async Task<ActionResult<LoginResponseDto>> AuthenticateUser(LoginCommand command)
+        [HttpPost("/auth/register")]
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
-            var authenticated = _marketPriceauthenticationService.Authenticate(command.Username, command.Password);
+            if (registerCommand == null)
+                return BadRequest("Invalid request data");
 
-            LoginResponseDto response;
-            if (authenticated)
-            {
-                response = new LoginResponseDto
-                {
-                    IsAuthenticated = authenticated,
-                    FirstName = "Gerald",
-                    FamilyName = "Nupa",
-                    RememberMe = command.RememberMe,
-                    Username = command.Username,
-                };
+            var result = await _registerService.RegisterAsync(registerCommand);
 
-            }
+            if (result.Success)
+                return Ok(result);
             else
-            {
-                response = new LoginResponseDto
-                {
-                    IsAuthenticated = false,
-                    RememberMe = command.RememberMe,
-                    Username = command.Username,
-                };
-            }
-
-            return await Task.FromResult(response);
+                return Conflict(result.CreationStatus);
         }
 
+        [HttpPost("/auth/login")]
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
+        {
+            if(loginCommand == null)
+                return BadRequest("Invalid request data");
 
+            var result = await _loginService.LoginAsync(loginCommand);
 
+            if (result.Success)
+                return Ok(result);
+            else
+                return Unauthorized(result.LoginStatus);
+        }
 
+        [HttpPost("/auth/logout")]
+        public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
+        {
+            if (logoutCommand == null)
+                return BadRequest("Invalid request data");
 
+            var result = await _logoutService.LogoutAsync(logoutCommand);
+
+            return Ok(result);
+        }
     }
 }

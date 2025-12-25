@@ -21,6 +21,11 @@ namespace MarketPrice.Ui
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("RobotoSerif-Bold.ttf", "RobotoSerifBold");
+                    fonts.AddFont("RobotoSerif-Light.ttf", "RobotoSerifLight");
+                    fonts.AddFont("RobotoSerif-Medium.ttf", "RobotoSerifMedium");
+                    fonts.AddFont("RobotoSerif-Regular.ttf", "RobotoSerifRegular");
+                    fonts.AddFont("RobotoSerif-SemiBold.ttf", "RobotoSerifSemibold");
                 });
 
 #if DEBUG

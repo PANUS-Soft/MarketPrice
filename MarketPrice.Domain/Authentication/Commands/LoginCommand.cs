@@ -8,9 +8,9 @@ namespace MarketPrice.Domain.Authentication.Commands
 {
     public class LoginCommand
     {
-        public DateTime LoginDate { get; set; }
+        public DateTimeOffset LoginDate { get; set; }
+        public required string EmailAddress { get; set; }
         public required string Password { get; set; }
-        public required string Username { get; set; }
         public bool RememberMe { get; set; }
 
     }
