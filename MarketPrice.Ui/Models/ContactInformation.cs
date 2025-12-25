@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Models
 {
-    public class ContactAccountModel
+    public class ContactInformation
     {
         // Contact and Account Info
         [Required(ErrorMessage = "Email is required")]
@@ -31,5 +31,10 @@ namespace MarketPrice.Ui.Models
         [DataFormDisplayOptions(LabelText = "Account Type", GroupName = "Contact & Account Info")]
         [Display(Prompt = "Select an account type")]
         public AccountType AccountType { get; set; }
+    }
+    public enum AccountType
+    {
+        Business,
+        Personal
     }
 }

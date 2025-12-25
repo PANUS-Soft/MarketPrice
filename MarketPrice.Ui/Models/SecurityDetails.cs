@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Models
 {
-    public class SecurityModel : INotifyPropertyChanged, INotifyDataErrorInfo
+    public class SecurityDetails : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private string password;
         private string confirmPassword;
         private readonly Dictionary<string, List<string>> _errors = new();
 
-        // Security Details
+        // SecurityDetails Details
         [Required(ErrorMessage = "Password is required")]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
         [DataFormPasswordEditor]

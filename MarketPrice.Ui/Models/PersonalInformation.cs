@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Models
 {
-    public class PersonalInfoModel
+    public class PersonalInformation
     {
         // Personal Information
         [Required(ErrorMessage = "First Name is required")]
