@@ -4,6 +4,7 @@ using MarketPrice.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketPrice.Data.Migrations
 {
     [DbContext(typeof(MarketPriceDbContext))]
-    partial class MarketPriceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251224082041_UpdatePasswordSaltRequirability")]
+    partial class UpdatePasswordSaltRequirability
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

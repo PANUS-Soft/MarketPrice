@@ -8,7 +8,7 @@ using MarketPrice.Data.Models;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations
 {
@@ -20,41 +20,53 @@ namespace MarketPrice.Services.Implementations
     {
         // Your EF Core DB Context
 
+        private readonly MarketPriceDbContext _context = context;
+        private readonly IPasswordHashService _hashService = hashService;
+
         public async Task<LoginResponseDto> LoginAsync(LoginCommand command)
         {
             // 1. Find User
-            var user = await context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
-            if (user == null) return new LoginResponseDto { LoginStatus = false };
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
+            if (user == null)
+                return new LoginResponseDto 
+                { 
+                    Success = false,
+                    LoginStatus = "The email or password you entered is incorrect"
+                };
 
             // 2. Verify Password
-            bool isValid = hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
-            if (!isValid) return new LoginResponseDto { LoginStatus = false };
+            bool isValid = _hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
+            if (!isValid) 
+                return new LoginResponseDto 
+                { 
+                    Success = false,
+                    LoginStatus = "The email or password you entered is incorrect"
+                };
 
             // 3. Generate Tokens
             var accessToken = tokenService.CreateAccessToken(user);
             var refreshToken = tokenService.CreateRefreshToken(user);
 
             // 4. APPLY "REMEMBER ME" LOGIC
-            // If RememberMe is true, token lasts 3 months. Otherwise, 7 days.
+            // If RememberMe is true, token lasts 6 months. Otherwise, 7 days.
             DateTime refreshTokenExpiry = command.RememberMe
-                ? DateTime.UtcNow.AddMonths(3)
+                ? DateTime.UtcNow.AddMonths(6)
                 : DateTime.UtcNow.AddDays(7);
 
             
-            var security = await context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
+            var security = await _context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
 
             if (security == null)
             {
                 // Create new record if first time logging in or record was deleted
                 security = new UserSecurityDetail()
                 {
-                    SecurityId = Guid.NewGuid(),
                     UserId = user.UserId,
                     RefreshToken = refreshToken,
                     RefreshTokenExpiryTime = refreshTokenExpiry,
-                    LastActivityDate = DateTime.UtcNow
+                    LastActivityDate = DateTime.Now
                 };
-                context.UserSecurityDetails.Add(security);
+                _context.UserSecurityDetails.Add(security);
             }
             else
             {
@@ -63,7 +75,7 @@ namespace MarketPrice.Services.Implementations
                 security.RefreshTokenExpiryTime = refreshTokenExpiry;
                 security.LastActivityDate = DateTime.UtcNow;
             }
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             // 6. Return Data to Client
             return new LoginResponseDto
@@ -72,32 +84,12 @@ namespace MarketPrice.Services.Implementations
                 FamilyName = user.FamilyName,
                 EmailAddress = user.EmailAddress,
                 PhoneNumber = user.PhoneNumber,
-                AccountType = user.AccountTypeId.ToString(),
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 ExpiryDate = DateTime.UtcNow.AddMinutes(10), // Access token expiry
-                LoginStatus = true
+                Success = true,
+                LoginStatus = "User logged in successfully"
             };
-        }
-
-        // Implementation for Logout (matching the LogoutCommand signature)
-        public async Task<LogoutResponseDto> LogoutAsync(LogoutCommand command)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
-
-            if (user != null)
-            {
-                var security = await context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
-                if (security != null)
-                {
-                    // Invalidate the refresh token so it cannot be used again
-                    security.RefreshToken = null;
-                    security.RefreshTokenExpiryTime = null;
-                    await context.SaveChangesAsync();
-                }
-            }
-
-            return new LogoutResponseDto { LogoutStatus = true };
         }
     }
 

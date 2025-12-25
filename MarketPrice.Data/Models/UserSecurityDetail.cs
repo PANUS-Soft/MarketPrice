@@ -17,6 +17,9 @@ namespace MarketPrice.Data.Models
 
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
+
+        // Have to update DateTime.UtcNow to DateTimeOffset.UtcNow for global time (GMT) and
+        // offset (Difference between the local time and standard global time.)
         public DateTime LastActivityDate { get; set; } = DateTime.UtcNow;
     }
 }
