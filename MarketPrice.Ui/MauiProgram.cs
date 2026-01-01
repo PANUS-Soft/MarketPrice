@@ -1,5 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using DevExpress.Maui;
+﻿using DevExpress.Maui;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.ViewModels;
+using MarketPrice.Ui.Views;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace MarketPrice.Ui
 {
@@ -28,11 +33,47 @@ namespace MarketPrice.Ui
                     fonts.AddFont("RobotoSerif-SemiBold.ttf", "RobotoSerifSemibold");
                 });
 
+            builder.AddAppSettings();
+
+            string marketPriceApiBaseUrl = builder.Configuration.GetValue<string>("MarketPriceApiBaseUrl")
+                ?? throw new InvalidOperationException("MarketPrice API Base URL is missing ... Couldn't be loaded.");
+
+            builder.Services.AddSingleton(sp =>
+            {
+                return new HttpClient
+                {
+                    BaseAddress = new Uri(marketPriceApiBaseUrl)
+                };
+            });
+
+            builder.Services.AddTransient<RegisterApiService>();
+            builder.Services.AddTransient<RegisterViewModel>();
+            builder.Services.AddTransient<Register>();
+
+
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
         }
+
+        private static void AddAppSettings(this MauiAppBuilder builder)
+        {
+            using Stream stream = Assembly
+                .GetExecutingAssembly()
+                .GetManifestResourceStream("MarketPrice.Ui.appsettings.json");
+
+            if (stream != null)
+            {
+                IConfigurationRoot config = new ConfigurationBuilder()
+                    .AddJsonStream(stream)
+                    .Build();
+                builder.Configuration.AddConfiguration(config);
+            }
+
+        }
     }
+
 }

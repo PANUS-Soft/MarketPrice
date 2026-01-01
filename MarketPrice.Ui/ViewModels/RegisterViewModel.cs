@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using MarketPrice.Domain.Authentication.Commands;
+﻿    using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Services.Api;
+using System.ComponentModel.DataAnnotations;
+using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
     public class RegisterViewModel : BindableObject
     {
+        private readonly RegisterApiService _registerApi;
+
         public PersonalInformation PersonalInfo { get; } = new();
         public ContactInformation ContactInfo { get; } = new();
         public SecurityDetails SecurityDetail { get; } = new();
@@ -31,6 +29,7 @@ namespace MarketPrice.Ui.ViewModels
                 OnPropertyChanged(nameof(IsContactStep));
                 OnPropertyChanged(nameof(IsSecurityStep));
                 OnPropertyChanged(nameof(CurrentStepDisplay));
+                OnPropertyChanged(nameof(ButtonText));
             }
         }
 
@@ -46,15 +45,17 @@ namespace MarketPrice.Ui.ViewModels
 
         public event Func<Task<bool>> ValidateCurrentStepRequested;
 
-        public RegisterViewModel()
+        public string ButtonText => CurrentStep == RegistrationStep.Security ? "Create my account" : "Continue";
+
+        public RegisterViewModel(RegisterApiService? registerApi)
         {
+            _registerApi = registerApi;
             CurrentStep = RegistrationStep.PersonalInfo;
             ContinueCommand = new Command(async () => await TryContinueAsync());
             BackCommand = new Command(PreviousStep);
             NavigateToLoginCommand = new Command(NavigateToLogin);
             ShowTermsOfServiceCommand = new Command(ShowTermsOfService);
             ShowPrivacyPolicyCommand = new Command(ShowPrivacyPolicy);
-
         }
 
         private async Task TryContinueAsync()
@@ -65,6 +66,13 @@ namespace MarketPrice.Ui.ViewModels
                 if (!isValid)
                     return;
             }
+
+            if (CurrentStep == RegistrationStep.Security)
+            {
+                await CreateAccountAsync();
+                return;
+            }
+
             NextStep();
         }
 
@@ -74,13 +82,11 @@ namespace MarketPrice.Ui.ViewModels
                 CurrentStep = RegistrationStep.ContactAccount;
             else if (CurrentStep == RegistrationStep.ContactAccount)
                 CurrentStep = RegistrationStep.Security;
-            else
-                CreateAccount();
         }
 
         private void PreviousStep()
         {
-            if(CurrentStep == RegistrationStep.Security)
+            if (CurrentStep == RegistrationStep.Security)
                 CurrentStep = RegistrationStep.ContactAccount;
             else if (CurrentStep == RegistrationStep.ContactAccount)
                 CurrentStep = RegistrationStep.PersonalInfo;
@@ -90,7 +96,6 @@ namespace MarketPrice.Ui.ViewModels
         {
             Shell.Current.GoToAsync("//Login");
         }
-
         private void ShowPrivacyPolicy(object obj)
         {
         }
@@ -99,12 +104,49 @@ namespace MarketPrice.Ui.ViewModels
         {
         }
 
-        private void CreateAccount()
+        private async Task CreateAccountAsync()
         {
-            var user = new RegisterCommand
+            try
             {
-              
-            };
+                var accounTypeId = ContactInfo.AccountType == AccountType.Personal ? 1001 : 1002;
+
+                var registerRequest = new RegisterCommand
+                {
+                    FirstName = PersonalInfo.FirstName,
+                    FamilyName = PersonalInfo.FamilyName,
+                    OtherNames = PersonalInfo.OtherName,
+                    AccountTypeId = accounTypeId,
+                    EmailAddress = ContactInfo.EmailAddress,
+                    PhoneNumber = $"+237{ContactInfo.PhoneNumber}",
+                    Password = SecurityDetail.Password
+                };
+
+                var response = await _registerApi.RegisterUserAsync(registerRequest);
+                string errorCount = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await Shell.Current.DisplayAlert("Success", "Your account has been created successfully.", "OK");
+                    await Shell.Current.GoToAsync("//Login");
+                }
+
+                else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    await Shell.Current.DisplayAlert("Error", "There was an error creating your account. An account already exists with these details.", "OK");
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    await Shell.Current.DisplayAlert("Error", $"Invalid request data. {errorCount}", "OK");
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", $"There was an error creating your account. {errorCount}", "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", e.Message, "OK");
+            }
         }
     }
 

@@ -4,15 +4,6 @@ using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using LinqToDB;
-using System.Security.Principal;
 
 
 namespace MarketPrice.Services.Implementations
@@ -29,20 +20,20 @@ namespace MarketPrice.Services.Implementations
         public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand command)
         {
             // validate required fields
-            
-            if(string.IsNullOrEmpty(command.FirstName)
+
+            if (string.IsNullOrEmpty(command.FirstName)
                 || string.IsNullOrEmpty(command.FamilyName)
                 || string.IsNullOrEmpty(command.PhoneNumber)
                 || string.IsNullOrEmpty(command.AccountTypeId.ToString())
-                || string.IsNullOrEmpty(command.EmailAddress) 
+                || string.IsNullOrEmpty(command.EmailAddress)
                 || string.IsNullOrEmpty(command.Password))
             {
                 return RegisterResponseDto.Failed("Invalid request data");
             }
 
             //now check if the user with one of this exists (check if a user already exists with email or phone)
-            bool exists = await _context.Users.AnyAsync(u => 
-            u.EmailAddress == command.EmailAddress 
+            bool exists = await _context.Users.AnyAsync(u =>
+            u.EmailAddress == command.EmailAddress
             || u.PhoneNumber == command.PhoneNumber);
 
             if (exists)
@@ -82,4 +73,4 @@ namespace MarketPrice.Services.Implementations
 
 }
 
-    
+

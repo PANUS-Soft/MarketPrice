@@ -1,9 +1,7 @@
 ﻿using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
-using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace MarketPrice.Api.Controllers
 {
@@ -20,7 +18,7 @@ namespace MarketPrice.Api.Controllers
         private readonly ILoginService _loginService = loginService;
         private readonly ILogoutService _logoutService = logoutService;
 
-        [HttpPost("/auth/register")]
+        [HttpPost("auth/register")]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
             if (registerCommand == null)
@@ -34,10 +32,10 @@ namespace MarketPrice.Api.Controllers
                 return Conflict(result.CreationStatus);
         }
 
-        [HttpPost("/auth/login")]
+        [HttpPost("auth/login")]
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
         {
-            if(loginCommand == null)
+            if (loginCommand == null)
                 return BadRequest("Invalid request data");
 
             var result = await _loginService.LoginAsync(loginCommand);
@@ -48,7 +46,7 @@ namespace MarketPrice.Api.Controllers
                 return Unauthorized(result.LoginStatus);
         }
 
-        [HttpPost("/auth/logout")]
+        [HttpPost("auth/logout")]
         public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
         {
             if (logoutCommand == null)

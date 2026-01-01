@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Domain.Authentication.DTOs
+﻿namespace MarketPrice.Domain.Authentication.DTOs
 {
     public class RegisterResponseDto
     {
@@ -41,7 +35,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
             return new RegisterResponseDto
             {
                 EmailAddress = string.Empty,
-                CreationStatus = errorMessage,  
+                CreationStatus = errorMessage,
                 Success = false,
             };
         }
@@ -57,7 +51,7 @@ namespace MarketPrice.Domain.Authentication.DTOs
                 Success = false,
                 Errors = error,
                 CreationStatus = "Registration failed",
-                
+
             };
 
         }

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketPrice.Data;
+﻿using MarketPrice.Data;
 using MarketPrice.Data.Models;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
-    using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations
 {
@@ -28,17 +23,17 @@ namespace MarketPrice.Services.Implementations
             // 1. Find User
             var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
             if (user == null)
-                return new LoginResponseDto 
-                { 
+                return new LoginResponseDto
+                {
                     Success = false,
                     LoginStatus = "The email or password you entered is incorrect"
                 };
 
             // 2. Verify Password
             bool isValid = _hashService.VerifyPassword(command.Password, user.PasswordHash, user.PasswordSalt);
-            if (!isValid) 
-                return new LoginResponseDto 
-                { 
+            if (!isValid)
+                return new LoginResponseDto
+                {
                     Success = false,
                     LoginStatus = "The email or password you entered is incorrect"
                 };
@@ -53,7 +48,7 @@ namespace MarketPrice.Services.Implementations
                 ? DateTime.UtcNow.AddMonths(6)
                 : DateTime.UtcNow.AddDays(7);
 
-            
+
             var security = await _context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
 
             if (security == null)

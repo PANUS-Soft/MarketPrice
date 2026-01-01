@@ -1,10 +1,5 @@
 ﻿using DevExpress.Maui.DataForm;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Models
 {
@@ -34,7 +29,8 @@ namespace MarketPrice.Ui.Models
     }
     public enum AccountType
     {
-        Business,
-        Personal
+        Personal,
+        Business
+
     }
 }
