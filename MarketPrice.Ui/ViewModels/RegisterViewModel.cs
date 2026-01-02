@@ -3,6 +3,7 @@ using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
@@ -54,8 +55,8 @@ namespace MarketPrice.Ui.ViewModels
             ContinueCommand = new Command(async () => await TryContinueAsync());
             BackCommand = new Command(PreviousStep);
             NavigateToLoginCommand = new Command(NavigateToLogin);
-            ShowTermsOfServiceCommand = new Command(ShowTermsOfService);
-            ShowPrivacyPolicyCommand = new Command(ShowPrivacyPolicy);
+            ShowTermsOfServiceCommand = new Command(async () => await ShowTermsOfService());
+            ShowPrivacyPolicyCommand = new Command(async () => await ShowPrivacyPolicy());
         }
 
         private async Task TryContinueAsync()
@@ -96,12 +97,14 @@ namespace MarketPrice.Ui.ViewModels
         {
             Shell.Current.GoToAsync("//Login");
         }
-        private void ShowPrivacyPolicy(object obj)
+        private async Task ShowPrivacyPolicy()
         {
+            await Shell.Current.DisplayAlert("Terms of Services", "By using MarketPrice, you agree to use the platform responsibly and provide accurate information.\n\n" + "Market prices are shared for guidance and change over time. Missue, fraud, or manipulation of data may lead to account suspension\n\n" + "MarketPrice may update or modify services to improve performance ad security.", "OK");
         }
 
-        private void ShowTermsOfService()
+        private async Task ShowTermsOfService()
         {
+            await Shell.Current.DisplayAlert("Privacy Policy", "Marketprice collects only essential information required to operate the app and improve user experience.\n\n" + "Your data is not sold or shared without consent. Reasonable security measures are applied to protect you information.\n\n" + "You may access or delete your data at any time.", "OK");
         }
 
         private async Task CreateAccountAsync()
@@ -122,25 +125,16 @@ namespace MarketPrice.Ui.ViewModels
                 };
 
                 var response = await _registerApi.RegisterUserAsync(registerRequest);
-                string errorCount = await response.Content.ReadAsStringAsync();
+                string errorMessage = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
                     await Shell.Current.DisplayAlert("Success", "Your account has been created successfully.", "OK");
                     await Shell.Current.GoToAsync("//Login");
                 }
-
-                else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
-                {
-                    await Shell.Current.DisplayAlert("Error", "There was an error creating your account. An account already exists with these details.", "OK");
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    await Shell.Current.DisplayAlert("Error", $"Invalid request data. {errorCount}", "OK");
-                }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", $"There was an error creating your account. {errorCount}", "OK");
+                    await Shell.Current.DisplayAlert("Error", $"There was an error creating your account. {errorMessage}", "OK");
                 }
             }
             catch (Exception e)

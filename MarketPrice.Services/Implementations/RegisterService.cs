@@ -19,7 +19,7 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand command)
         {
-            // validate required fields
+            // Validate required fields
 
             if (string.IsNullOrEmpty(command.FirstName)
                 || string.IsNullOrEmpty(command.FamilyName)
@@ -31,20 +31,23 @@ namespace MarketPrice.Services.Implementations
                 return RegisterResponseDto.Failed("Invalid request data");
             }
 
-            //now check if the user with one of this exists (check if a user already exists with email or phone)
-            bool exists = await _context.Users.AnyAsync(u =>
-            u.EmailAddress == command.EmailAddress
-            || u.PhoneNumber == command.PhoneNumber);
+            // Now check if the user with one of this exists (check if a user already exists with email or phone)
+            bool emailAddressExists = await _context.Users.AnyAsync(u => u.EmailAddress == command.EmailAddress);
 
-            if (exists)
-                return RegisterResponseDto.Failed("A user with email address or phone number already exist");
-            //Hash password securely
+            bool phoneNumberExists = await _context.Users.AnyAsync(u => u.PhoneNumber == command.PhoneNumber);
+
+            if (emailAddressExists)
+                return RegisterResponseDto.Failed("A user with email address already exist.");
+            if (phoneNumberExists)
+                return RegisterResponseDto.Failed("A user with phone number already exist.");
+            if (emailAddressExists && phoneNumberExists)
+                return RegisterResponseDto.Failed("A user with email address and phone number already exists.");
+
+            // Hash password securely
             var passwordSalt = _passwordHasherservice.GenerateSalt();
             var hashedPassword = _passwordHasherservice.HashPassword(command.Password, passwordSalt);
 
-            //var UserType = 
-
-            // create the user entity
+            // Create the user entity
             var user = new User
             {
                 FirstName = command.FirstName,
@@ -61,11 +64,11 @@ namespace MarketPrice.Services.Implementations
                 Note = null,
 
             };
-            //Save the user info to the database 
+            // Save the user info to the database 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            //Return Success reponse
+            // Return Success reponse
             return RegisterResponseDto.Succeed(user.EmailAddress, "User Registered successfully");
         }
 
