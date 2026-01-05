@@ -32,16 +32,11 @@ namespace MarketPrice.Services.Implementations
             }
 
             // Now check if the user with one of this exists (check if a user already exists with email or phone)
-            bool emailAddressExists = await _context.Users.AnyAsync(u => u.EmailAddress == command.EmailAddress);
 
-            bool phoneNumberExists = await _context.Users.AnyAsync(u => u.PhoneNumber == command.PhoneNumber);
+            bool userExists = await _context.Users.AnyAsync(u => u.EmailAddress == command.EmailAddress || u.PhoneNumber == command.PhoneNumber);
 
-            if (emailAddressExists)
-                return RegisterResponseDto.Failed("A user with email address already exist.");
-            if (phoneNumberExists)
-                return RegisterResponseDto.Failed("A user with phone number already exist.");
-            if (emailAddressExists && phoneNumberExists)
-                return RegisterResponseDto.Failed("A user with email address and phone number already exists.");
+            if (userExists)
+                return RegisterResponseDto.Failed("An account alreay exists with the provided email address or phone number.");
 
             // Hash password securely
             var passwordSalt = _passwordHasherservice.GenerateSalt();

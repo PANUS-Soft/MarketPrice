@@ -46,7 +46,7 @@ namespace MarketPrice.Ui
                 };
             });
 
-            builder.Services.AddTransient<RegisterApiService>();
+            builder.Services.AddTransient<AuthenticationApiService>();
             builder.Services.AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<Register>();
 

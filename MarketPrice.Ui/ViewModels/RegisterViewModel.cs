@@ -1,4 +1,6 @@
-﻿    using MarketPrice.Domain.Authentication.Commands;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
@@ -8,58 +10,45 @@ using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public class RegisterViewModel : BindableObject
+    public partial class RegisterViewModel : ObservableObject
     {
-        private readonly RegisterApiService _registerApi;
+        private readonly AuthenticationApiService _authenticationApi;
 
         public PersonalInformation PersonalInfo { get; } = new();
         public ContactInformation ContactInfo { get; } = new();
         public SecurityDetails SecurityDetail { get; } = new();
 
-        public string CurrentStepDisplay => CurrentStep.GetDisplayName();
-
-        private RegistrationStep _currentStep;
-        public RegistrationStep CurrentStep
-        {
-            get => _currentStep;
-            set
-            {
-                _currentStep = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsPersonalStep));
-                OnPropertyChanged(nameof(IsContactStep));
-                OnPropertyChanged(nameof(IsSecurityStep));
-                OnPropertyChanged(nameof(CurrentStepDisplay));
-                OnPropertyChanged(nameof(ButtonText));
-            }
-        }
+        [ObservableProperty]
+        private RegistrationStep currentStep;
 
         public bool IsPersonalStep => CurrentStep == RegistrationStep.PersonalInfo;
         public bool IsContactStep => CurrentStep == RegistrationStep.ContactAccount;
         public bool IsSecurityStep => CurrentStep == RegistrationStep.Security;
 
-        public ICommand ContinueCommand { get; }
-        public ICommand BackCommand { get; }
-        public ICommand NavigateToLoginCommand { get; }
-        public ICommand ShowTermsOfServiceCommand { get; }
-        public ICommand ShowPrivacyPolicyCommand { get; }
-
-        public event Func<Task<bool>> ValidateCurrentStepRequested;
-
+        public string CurrentStepDisplay => CurrentStep.GetDisplayName();
         public string ButtonText => CurrentStep == RegistrationStep.Security ? "Create my account" : "Continue";
 
-        public RegisterViewModel(RegisterApiService? registerApi)
+        public event Func<Task<bool>>? ValidateCurrentStepRequested;
+
+        public RegisterViewModel(AuthenticationApiService authenticationApi)
         {
-            _registerApi = registerApi;
+            _authenticationApi = authenticationApi;
             CurrentStep = RegistrationStep.PersonalInfo;
-            ContinueCommand = new Command(async () => await TryContinueAsync());
-            BackCommand = new Command(PreviousStep);
-            NavigateToLoginCommand = new Command(NavigateToLogin);
-            ShowTermsOfServiceCommand = new Command(async () => await ShowTermsOfService());
-            ShowPrivacyPolicyCommand = new Command(async () => await ShowPrivacyPolicy());
         }
 
-        private async Task TryContinueAsync()
+
+        partial void OnCurrentStepChanged(RegistrationStep value)
+        {
+            OnPropertyChanged(nameof(IsPersonalStep));
+            OnPropertyChanged(nameof(IsContactStep));
+            OnPropertyChanged(nameof(IsSecurityStep));
+            OnPropertyChanged(nameof(CurrentStepDisplay));
+            OnPropertyChanged(nameof(ButtonText));
+        }
+
+
+        [RelayCommand]
+        private async Task ContinueAsync()
         {
             if (ValidateCurrentStepRequested != null)
             {
@@ -74,18 +63,11 @@ namespace MarketPrice.Ui.ViewModels
                 return;
             }
 
-            NextStep();
+            MoveToNextStep();
         }
 
-        private void NextStep()
-        {
-            if (CurrentStep == RegistrationStep.PersonalInfo)
-                CurrentStep = RegistrationStep.ContactAccount;
-            else if (CurrentStep == RegistrationStep.ContactAccount)
-                CurrentStep = RegistrationStep.Security;
-        }
-
-        private void PreviousStep()
+        [RelayCommand]
+        private void Back()
         {
             if (CurrentStep == RegistrationStep.Security)
                 CurrentStep = RegistrationStep.ContactAccount;
@@ -93,20 +75,33 @@ namespace MarketPrice.Ui.ViewModels
                 CurrentStep = RegistrationStep.PersonalInfo;
         }
 
+        [RelayCommand]
         private void NavigateToLogin()
         {
             Shell.Current.GoToAsync("//Login");
         }
-        private async Task ShowPrivacyPolicy()
+
+        [RelayCommand]
+        private async Task ShowTermsOfService()
         {
             await Shell.Current.DisplayAlert("Terms of Services", "By using MarketPrice, you agree to use the platform responsibly and provide accurate information.\n\n" + "Market prices are shared for guidance and change over time. Missue, fraud, or manipulation of data may lead to account suspension\n\n" + "MarketPrice may update or modify services to improve performance ad security.", "OK");
         }
 
-        private async Task ShowTermsOfService()
+        [RelayCommand]
+        private async Task ShowPrivacyPolicy()
         {
             await Shell.Current.DisplayAlert("Privacy Policy", "Marketprice collects only essential information required to operate the app and improve user experience.\n\n" + "Your data is not sold or shared without consent. Reasonable security measures are applied to protect you information.\n\n" + "You may access or delete your data at any time.", "OK");
         }
 
+        private void MoveToNextStep()
+        {
+            if (CurrentStep == RegistrationStep.PersonalInfo)
+                CurrentStep = RegistrationStep.ContactAccount;
+            else if (CurrentStep == RegistrationStep.ContactAccount)
+                CurrentStep = RegistrationStep.Security;
+        }
+
+        
         private async Task CreateAccountAsync()
         {
             try
@@ -124,8 +119,8 @@ namespace MarketPrice.Ui.ViewModels
                     Password = SecurityDetail.Password
                 };
 
-                var response = await _registerApi.RegisterUserAsync(registerRequest);
-                string errorMessage = await response.Content.ReadAsStringAsync();
+                var response = await _authenticationApi.RegisterUserAsync(registerRequest);
+                string responseMessage = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -134,7 +129,7 @@ namespace MarketPrice.Ui.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", $"There was an error creating your account. {errorMessage}", "OK");
+                    await Shell.Current.DisplayAlert("Registration Failed", $"There was an error creating your account. {responseMessage}", "OK");
                 }
             }
             catch (Exception e)
