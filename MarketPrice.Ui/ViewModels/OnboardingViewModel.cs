@@ -1,17 +1,14 @@
-﻿using System.Windows.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public class OnboardingViewModel : BindableObject
+    public partial class OnboardingViewModel : ObservableObject
     {
-        public ICommand NavigateToWelcomeCommand { get; }
 
-        public OnboardingViewModel()
-        {
-            NavigateToWelcomeCommand = new Command(NavigateToWelcome);
-        }
-
-        private async void NavigateToWelcome()
+        [RelayCommand]
+        private async Task NavigateToWelcomeAsync()
         {
             await Shell.Current.GoToAsync("//Welcome");
         }
