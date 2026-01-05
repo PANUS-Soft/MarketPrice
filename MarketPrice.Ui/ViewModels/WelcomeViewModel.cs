@@ -1,27 +1,22 @@
-﻿using System.Windows.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public class WelcomeViewModel : BindableObject
-
+    public partial class WelcomeViewModel : ObservableObject
     {
-        public ICommand NavigateToRegisterCommand { get; }
-        public ICommand NavigateToLoginCommand { get; }
 
-        public WelcomeViewModel()
+        [RelayCommand]
+        private async Task NavigateToRegisterAsync()
         {
-            NavigateToRegisterCommand = new Command(NavigateToRegister);
-            NavigateToLoginCommand = new Command(NavigateToLogin);
+            await Shell.Current.GoToAsync("//Register");
         }
 
-        private void NavigateToLogin()
+        [RelayCommand]
+        private async Task NavigateToLoginAsync()
         {
-            Shell.Current.GoToAsync("//Login");
-        }
-
-        private void NavigateToRegister()
-        {
-            Shell.Current.GoToAsync("//Register");
+            await Shell.Current.GoToAsync("//Login");
         }
     }
 }
