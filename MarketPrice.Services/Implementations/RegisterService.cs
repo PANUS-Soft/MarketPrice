@@ -12,9 +12,10 @@ namespace MarketPrice.Services.Implementations
     /// Handels user Registration using the custom MarketPrice user Model.
     /// </summary>
 
-    public class RegisterService(MarketPriceDbContext context, IPasswordHashService passwordHasherservice) : IRegisterService
+    public class RegisterService(MarketPriceDbContext context, IPasswordHashService passwordHasherservice, ITokenService tokenService) : IRegisterService
     {
         private readonly MarketPriceDbContext _context = context;
+        private readonly ITokenService _tokenService = tokenService;
         private readonly IPasswordHashService _passwordHasherservice = passwordHasherservice;
 
         public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand command)
@@ -63,8 +64,26 @@ namespace MarketPrice.Services.Implementations
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            var accessToken = _tokenService.CreateAccessToken(user);
+            var refreshToken = _tokenService.CreateRefreshToken(user);
+            DateTime refreshTokenExpiry = DateTime.Now.AddMonths(1);
+
+            var security = new UserSecurityDetail()
+            {
+                UserId = user.UserId,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = refreshTokenExpiry,
+                LastActivityDate = DateTime.Now
+            };
+
+            // Save security details to the database
+            _context.UserSecurityDetails.Add(security);
+            await _context.SaveChangesAsync();
+
+            var expiryDate = DateTimeOffset.Now.AddMinutes(10); 
+
             // Return Success reponse
-            return RegisterResponseDto.Succeed(user.EmailAddress, "User Registered successfully");
+            return RegisterResponseDto.Succeed(user.EmailAddress, "User created successfully", user.FirstName, accessToken, refreshToken, expiryDate);
         }
 
     }

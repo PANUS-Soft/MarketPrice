@@ -13,9 +13,8 @@ namespace MarketPrice.Services.Implementations
         ITokenService tokenService)
         : ILoginService
     {
-        // Your EF Core DB Context
-
         private readonly MarketPriceDbContext _context = context;
+        private readonly ITokenService _tokenService = tokenService;
         private readonly IPasswordHashService _hashService = hashService;
 
         public async Task<LoginResponseDto> LoginAsync(LoginCommand command)
@@ -39,14 +38,14 @@ namespace MarketPrice.Services.Implementations
                 };
 
             // 3. Generate Tokens
-            var accessToken = tokenService.CreateAccessToken(user);
-            var refreshToken = tokenService.CreateRefreshToken(user);
+            var accessToken = _tokenService.CreateAccessToken(user);
+            var refreshToken = _tokenService.CreateRefreshToken(user);
 
             // 4. APPLY "REMEMBER ME" LOGIC
             // If RememberMe is true, token lasts 6 months. Otherwise, 7 days.
             DateTime refreshTokenExpiry = command.RememberMe
-                ? DateTime.UtcNow.AddMonths(6)
-                : DateTime.UtcNow.AddDays(7);
+                ? DateTime.Now.AddMonths(6)
+                : DateTime.Now.AddDays(7);
 
 
             var security = await _context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
@@ -68,7 +67,7 @@ namespace MarketPrice.Services.Implementations
                 // Update existing record (IsUnique constraint ensures only one exists)
                 security.RefreshToken = refreshToken;
                 security.RefreshTokenExpiryTime = refreshTokenExpiry;
-                security.LastActivityDate = DateTime.UtcNow;
+                security.LastActivityDate = DateTime.Now;
             }
             await _context.SaveChangesAsync();
 
@@ -81,7 +80,7 @@ namespace MarketPrice.Services.Implementations
                 PhoneNumber = user.PhoneNumber,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiryDate = DateTime.UtcNow.AddMinutes(10), // Access token expiry
+                ExpiryDate = DateTimeOffset.Now.AddMinutes(10), // Access token expiry
                 Success = true,
                 LoginStatus = "User logged in successfully"
             };
