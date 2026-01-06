@@ -80,7 +80,7 @@ namespace MarketPrice.Services.Implementations
                 PhoneNumber = user.PhoneNumber,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiryDate = DateTimeOffset.Now.AddMinutes(10), // Access token expiry
+                ExpiryDate = DateTime.Now.AddMinutes(10), // Access token expiry
                 Success = true,
                 LoginStatus = "User logged in successfully"
             };

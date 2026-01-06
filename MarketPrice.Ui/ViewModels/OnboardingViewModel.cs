@@ -10,6 +10,7 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToWelcomeAsync()
         {
+            Preferences.Set("HasCompletedOnboarding", true);
             await Shell.Current.GoToAsync("//Welcome");
         }
     }

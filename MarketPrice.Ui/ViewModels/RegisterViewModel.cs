@@ -1,10 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -13,6 +18,8 @@ namespace MarketPrice.Ui.ViewModels
     public partial class RegisterViewModel : ObservableObject
     {
         private readonly AuthenticationApiService _authenticationApi;
+        private readonly SessionService _sessionService;
+        private readonly SessionStorage _sessionStorage;
 
         public PersonalInformation PersonalInfo { get; } = new();
         public ContactInformation ContactInfo { get; } = new();
@@ -30,9 +37,11 @@ namespace MarketPrice.Ui.ViewModels
 
         public event Func<Task<bool>>? ValidateCurrentStepRequested;
 
-        public RegisterViewModel(AuthenticationApiService authenticationApi)
+        public RegisterViewModel(AuthenticationApiService authenticationApi, SessionService sessionService, SessionStorage sessionStorage)
         {
             _authenticationApi = authenticationApi;
+            _sessionService = sessionService;
+            _sessionStorage = sessionStorage;
             CurrentStep = RegistrationStep.PersonalInfo;
         }
 
@@ -124,8 +133,37 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (response.IsSuccessStatusCode)
                 {
-                    await Shell.Current.DisplayAlert("Success", "Your account has been created successfully.", "OK");
-                    await Shell.Current.GoToAsync("//Login");
+                    var dto = JsonSerializer.Deserialize<RegisterResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (dto != null)
+                    {
+                        var session = new UserSession
+                        {
+                            AccessToken = dto.AccessToken,
+                            RefreshToken = dto.RefreshToken,
+                            ExpireAt = dto.ExpiryDate,
+                            FirstName = dto.FirstName,
+                            EmailAddress = dto.EmailAddress
+                        };
+
+                        _sessionService.StartSession(session);
+                        await _sessionStorage.SaveAsync(session);
+                        await Toast.Make("Your account was successfully created.", ToastDuration.Long).Show();
+                        //await Snackbar.Make(
+                        //    "Your account was creating successfully.",
+                        //    action: null,
+                        //    actionButtonText: "",
+                        //    TimeSpan.FromSeconds(3),
+                        //    new SnackbarOptions
+                        //    {
+                        //        BackgroundColor = Colors.DarkSlateBlue,
+                        //        TextColor = Colors.White,
+                        //        CornerRadius = new CornerRadius(10),
+                        //        Font = Microsoft.Maui.Font.OfSize("RobotoSerifLight", 5),
+                        //        CharacterSpacing = 0
+                        //    }).Show();
+                        await Shell.Current.GoToAsync("//Home");
+                    }
                 }
                 else
                 {

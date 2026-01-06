@@ -68,6 +68,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui.Core" Version="9.0.0" />
 		<PackageReference Include="DevExpress.Maui.Charts" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.CollectionView" Version="25.1.7" />
 		<PackageReference Include="DevExpress.Maui.Controls" Version="25.1.7" />
@@ -93,6 +95,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\Home.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Login.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

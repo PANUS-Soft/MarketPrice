@@ -5,7 +5,7 @@
       {
         "Path": "MarketPrice.Api\\MarketPrice.Api.csproj",
         "Action": "Start",
-        "DebugTarget": "https"
+        "DebugTarget": "http"
       },
       {
         "Path": "MarketPrice.Ui\\MarketPrice.Ui.csproj",

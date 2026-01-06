@@ -26,4 +26,9 @@
         ContentTemplate="{DataTemplate views:Login}"
         Route="Login"/>
 
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate views:Home}"
+        Route="Home"/>
+
 </Shell>

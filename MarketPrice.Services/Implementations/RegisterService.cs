@@ -80,7 +80,7 @@ namespace MarketPrice.Services.Implementations
             _context.UserSecurityDetails.Add(security);
             await _context.SaveChangesAsync();
 
-            var expiryDate = DateTimeOffset.Now.AddMinutes(10); 
+            var expiryDate = DateTime.Now.AddMinutes(10); 
 
             // Return Success reponse
             return RegisterResponseDto.Succeed(user.EmailAddress, "User created successfully", user.FirstName, accessToken, refreshToken, expiryDate);

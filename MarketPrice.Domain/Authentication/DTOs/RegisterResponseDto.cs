@@ -8,7 +8,7 @@
         public string EmailAddress { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
-        public DateTimeOffset ExpiryDate { get; set; }
+        public DateTime ExpiryDate { get; set; }
         public string CreationStatus { get; set; } = string.Empty;
         public IEnumerable<string> Errors { get; set; } = [];
 
@@ -18,7 +18,7 @@
         /// <param name="email"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static RegisterResponseDto Succeed(string email, string message, string firstName, string accessToken, string refreshToken, DateTimeOffset expiryDate)
+        public static RegisterResponseDto Succeed(string email, string message, string firstName, string accessToken, string refreshToken, DateTime expiryDate)
         {
             return new RegisterResponseDto
             {
@@ -45,7 +45,7 @@
                 FirstName = string.Empty,
                 AccessToken = string.Empty,
                 RefreshToken = string.Empty,
-                ExpiryDate = DateTimeOffset.MinValue,
+                ExpiryDate = DateTime.MinValue,
                 EmailAddress = string.Empty,
                 CreationStatus = errorMessage,
                 Success = false,

@@ -10,7 +10,7 @@
         public string RefreshToken { get; set; } = string.Empty;
         public bool Success { get; set; }
         public string LoginStatus { get; set; } = string.Empty;
-        public DateTimeOffset ExpiryDate { get; set; }
+        public DateTime ExpiryDate { get; set; }
 
     }
 }

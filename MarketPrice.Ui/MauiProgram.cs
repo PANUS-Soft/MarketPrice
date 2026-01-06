@@ -1,10 +1,13 @@
 ﻿using DevExpress.Maui;
+using CommunityToolkit.Maui;
 using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
 using MarketPrice.Ui.ViewModels;
 using MarketPrice.Ui.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using CommunityToolkit.Maui.Core;
 
 namespace MarketPrice.Ui
 {
@@ -15,6 +18,8 @@ namespace MarketPrice.Ui
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkitCore()
                 .UseDevExpress(useLocalization: false)
                 .UseDevExpressCharts()
                 .UseDevExpressCollectionView()
@@ -46,9 +51,16 @@ namespace MarketPrice.Ui
                 };
             });
 
+            // Register application services
             builder.Services.AddSingleton<AuthenticationApiService>();
+            builder.Services.AddSingleton<SessionService>();
+            builder.Services.AddSingleton<SessionStorage>();
+
+            // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<LoginViewModel>();
+
+            // Register views
             builder.Services.AddTransient<Register>();
             builder.Services.AddTransient<Login>();
 
