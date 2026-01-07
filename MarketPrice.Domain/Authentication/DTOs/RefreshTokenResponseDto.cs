@@ -8,8 +8,26 @@ namespace MarketPrice.Domain.Authentication.DTOs
 {
     public class RefreshTokenResponseDto
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
-        public DateTime ExpiryDate { get; set; }
+        public string AccessToken { get; init; }
+        public string RefreshToken { get; init; }
+        public DateTime ExpiryDate { get; init; }
+        public bool Success { get; init; }
+        public string? Message { get; init; }
+
+        public static RefreshTokenResponseDto Failed(string message) =>
+            new()
+            {
+                Success = false,
+                Message = message
+            };
+
+        public static RefreshTokenResponseDto Succeed(string accessToken, string refreshToken, DateTime expiryDate) =>
+            new()
+            {
+                Success = true,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                ExpiryDate = expiryDate
+            };
     }
 }
