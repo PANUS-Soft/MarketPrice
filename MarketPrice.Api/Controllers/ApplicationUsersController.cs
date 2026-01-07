@@ -11,12 +11,14 @@ namespace MarketPrice.Api.Controllers
         IRegisterService registerService,
         ILoginService loginService,
         ILogoutService logoutService,
+        IRefreshTokenService refreshTokenService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
         private readonly IRegisterService _registerService = registerService;
         private readonly ILoginService _loginService = loginService;
         private readonly ILogoutService _logoutService = logoutService;
+        private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
 
         [HttpPost("auth/register")]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
@@ -53,6 +55,17 @@ namespace MarketPrice.Api.Controllers
                 return BadRequest("Invalid request data");
 
             var result = await _logoutService.LogoutAsync(logoutCommand);
+
+            return Ok(result);
+        }
+
+        [HttpPost("auth/refreshToken")]
+        public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+        {
+            if (refreshTokenCommand == null)
+                return BadRequest("Invalid request data");
+
+            var result = await _refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
 
             return Ok(result);
         }
