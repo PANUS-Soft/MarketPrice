@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using CommunityToolkit.Maui.Core;
+using MarketPrice.Ui.Common;
 
 namespace MarketPrice.Ui
 {
@@ -40,21 +41,26 @@ namespace MarketPrice.Ui
 
             builder.AddAppSettings();
 
-            string marketPriceApiBaseUrl = builder.Configuration.GetValue<string>("MarketPriceApiBaseUrl")
-                ?? throw new InvalidOperationException("MarketPrice API Base URL is missing ... Couldn't be loaded.");
-
-            builder.Services.AddSingleton(sp =>
-            {
-                return new HttpClient
+            builder.Services.AddOptions<ApiSettings>()
+                .Configure<IConfiguration>((settings, configuration) =>
                 {
-                    BaseAddress = new Uri(marketPriceApiBaseUrl)
-                };
-            });
+                    configuration.GetSection("ApiSettings").Bind(settings);
+                });
+
 
             // Register application services
+            builder.Services.AddSingleton<SessionStorage>();
             builder.Services.AddSingleton<AuthenticationApiService>();
             builder.Services.AddSingleton<SessionService>();
-            builder.Services.AddSingleton<SessionStorage>();
+            builder.Services.AddTransient<AuthHandler>();
+
+            // 2. Apply it to ALL HttpClients
+            builder.Services.ConfigureHttpClientDefaults(builder =>
+            {
+                builder.AddHttpMessageHandler<AuthHandler>();
+            });
+
+            builder.Services.AddHttpClient<AuthenticationApiService>(); 
 
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();

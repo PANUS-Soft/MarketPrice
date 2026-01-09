@@ -21,7 +21,7 @@ namespace MarketPrice.Ui.Services.Session
         public async Task<UserSession?> LoadAsync()
         {
             var json = await SecureStorage.GetAsync(SessionKey);
-            return json == null ? null : JsonSerializer.Deserialize<UserSession>(json);
+            return json == null ? null : JsonSerializer.Deserialize<UserSession>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
         public void Clear()

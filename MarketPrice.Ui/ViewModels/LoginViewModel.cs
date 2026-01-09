@@ -13,20 +13,13 @@ using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class LoginViewModel : ObservableObject
+    public partial class LoginViewModel(
+        AuthenticationApiService authenticationApi,
+        SessionService sessionService,
+        SessionStorage sessionStorage)
+        : ObservableObject
     {
-        private readonly AuthenticationApiService _authenticationApi;
-        private readonly SessionService _sessionService;
-        private readonly SessionStorage _sessionStorage;
-
         public LoginInformation LoginInfo { get; } = new();
-
-        public LoginViewModel(AuthenticationApiService authenticationApi, SessionService sessionService, SessionStorage sessionStorage)
-        {
-            _authenticationApi = authenticationApi;
-            _sessionService = sessionService;
-            _sessionStorage = sessionStorage;
-        }
 
         [RelayCommand]
         private async Task NavigateToRegisterAsync()
@@ -47,7 +40,7 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
-                var loginCommand = new LoginCommand
+                var command = new LoginCommand
                 {
                     LoginDate = DateTime.Now,
                     EmailAddress = LoginInfo.EmailAddress,
@@ -55,12 +48,12 @@ namespace MarketPrice.Ui.ViewModels
                     RememberMe = LoginInfo.RememberMe
                 };
 
-                var response = await _authenticationApi.LoginUserAsync(loginCommand);
+                var response = await authenticationApi.LoginUserAsync(command);
                 var responseMessage = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+                    var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                     if (dto != null)
                     {
@@ -73,28 +66,16 @@ namespace MarketPrice.Ui.ViewModels
                             EmailAddress = dto.EmailAddress
                         };
 
-                        _sessionService.StartSession(session);
-                        await _sessionStorage.SaveAsync(session);
-                        await Toast.Make($"Welcome back, {dto.FirstName}!!!", ToastDuration.Long).Show();
-                        //await Snackbar.Make(
-                        //    $"Welcome back, {dto.FirstName}! Good to see you again.", 
-                        //    action: null, 
-                        //    actionButtonText: "", 
-                        //    TimeSpan.FromSeconds(3), 
-                        //    new SnackbarOptions
-                        //    {
-                        //        BackgroundColor = Colors.DarkSlateBlue,
-                        //        TextColor = Colors.White,
-                        //        CornerRadius = new CornerRadius(10),
-                        //        Font = Microsoft.Maui.Font.OfSize("RobotoSerifRegular", 12),
-                        //        CharacterSpacing = 0.5
-                        //    }).Show();
+                        sessionService.StartSession(session);
+                        await sessionStorage.SaveAsync(session);
+                        await Toast.Make($"Welcome back, {dto.FirstName} 👋", ToastDuration.Long).Show();
                         await Shell.Current.GoToAsync("//Home");
                     }
                 }
                 else
                 {
                     await Shell.Current.DisplayAlert("Error", responseMessage, "OK");
+                    return;
                 }
             }
             catch(Exception e)

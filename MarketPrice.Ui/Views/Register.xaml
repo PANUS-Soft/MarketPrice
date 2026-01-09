@@ -395,7 +395,7 @@
 
                         <CheckBox
                             HorizontalOptions="Start"
-                            IsChecked="{Binding Security.IsTermAccepted, Mode=TwoWay}" />
+                            IsChecked="{Binding SecurityDetail.IsTermAccepted, Mode=TwoWay}" />
 
                         <Label
                             LineBreakMode="WordWrap"

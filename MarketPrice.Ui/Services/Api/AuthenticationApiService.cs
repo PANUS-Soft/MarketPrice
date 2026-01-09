@@ -2,12 +2,14 @@
 using MarketPrice.Domain.Authentication.Commands;
 using System.Net.Http.Json;
 using MarketPrice.Domain;
+using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Services.Session;
+using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class AuthenticationApiService(HttpClient httpClient, SessionStorage sessionStorage)
-        : BaseApiService(httpClient, sessionStorage)
+    public class AuthenticationApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingOptions)
+        : BaseApiService(httpClient, apiSettingOptions)
     {
         public async Task<HttpResponseMessage> RegisterUserAsync(RegisterCommand registerCommand)
         {
@@ -45,12 +47,24 @@ namespace MarketPrice.Ui.Services.Api
         }
     }
 
-    public class BaseApiService(HttpClient httpClient, SessionStorage sessionStorage)
+    public class BaseApiService
     {
-        public HttpClient HttpClient { get; } = httpClient;
+        public BaseApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingsOptions)
+        {
+            var apiSettings = apiSettingsOptions.Value;
+            // set base address
+            httpClient.BaseAddress = new Uri(apiSettings.BaseUrl);
+            httpClient.DefaultRequestHeaders.Add("client-name",apiSettings.ClientNameHeader);
+            HttpClient = httpClient;
+        }
+
+        public HttpClient HttpClient { get; }
 
         // Create base method to send post requests
-        public Task<HttpResponseMessage> PostAsync(string url, object data) => HttpClient.PostAsJsonAsync(url, data);
+        public Task<HttpResponseMessage> PostAsync(string url, object data)
+        {
+            return HttpClient.PostAsJsonAsync(url, data);
+        }
 
         // Create base method to send get requests
         public Task<HttpResponseMessage> GettingAsync(string url) => HttpClient.GetAsync(url);

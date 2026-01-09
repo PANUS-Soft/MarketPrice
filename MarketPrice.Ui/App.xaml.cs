@@ -13,13 +13,14 @@ namespace MarketPrice.Ui
 
             _sessionService = sessionService;
             _sessionStorage = sessionStorage;
-
+        
             MainPage = new AppShell();
         }
 
         protected override async void OnStart()
         {
             base.OnStart();
+            await _sessionService.InitializeAsync();
 
             try
             {
@@ -40,10 +41,10 @@ namespace MarketPrice.Ui
                 return;
             }
 
-            var session = await _sessionStorage.LoadAsync();
-            if (session != null && session.ExpireAt > DateTime.Now)
+            bool hasValidSession = await _sessionService.ValidateAndRefreshSessionAsync();
+
+            if (hasValidSession)
             {
-                _sessionService.StartSession(session);
                 await Shell.Current.GoToAsync("//Home");
             }
             else
