@@ -8,10 +8,10 @@ namespace MarketPrice.Ui.Models
 {
     public class UserSession
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
         public DateTime ExpireAt { get; set; }
-        public string FirstName { get; set; }
-        public string EmailAddress { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string EmailAddress { get; set; } = string.Empty;
     }
 }

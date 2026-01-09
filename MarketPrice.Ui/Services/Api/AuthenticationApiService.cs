@@ -6,7 +6,8 @@ using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class AuthenticationApiService(HttpClient httpClient, SessionStorage sessionStorage) : BaseApiService(httpClient, sessionStorage)
+    public class AuthenticationApiService(HttpClient httpClient, SessionStorage sessionStorage)
+        : BaseApiService(httpClient, sessionStorage)
     {
         public async Task<HttpResponseMessage> RegisterUserAsync(RegisterCommand registerCommand)
         {
@@ -29,10 +30,17 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
-        public async Task<HttpResponseMessage> RefreshTokenAsync(string refreshToken)
+        public async Task<HttpResponseMessage> RefreshTokenAsync(RefreshTokenCommand refreshTokenCommand)
         {
             var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH_REFRESH_TOKEN);
-            var response = await PostAsync(url, refreshToken);
+            var response = await PostAsync(url, refreshTokenCommand);
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> PingAsync()
+        {
+            var url = ApiControllers.ApplicationUsers.AppendRoute("auth/ping");
+            var response = await GettingAsync(url);
             return response;
         }
     }
@@ -40,21 +48,13 @@ namespace MarketPrice.Ui.Services.Api
     public class BaseApiService(HttpClient httpClient, SessionStorage sessionStorage)
     {
         public HttpClient HttpClient { get; } = httpClient;
-        public SessionStorage SessionStorage { get; } = sessionStorage;
 
-        // create base method to send post requests
-        public async Task<HttpResponseMessage> PostAsync(string url, object data)
-        {
-            // before posting, append the bearer token if available
-            var sessionStorage = await SessionStorage.LoadAsync();
-            if (sessionStorage != null && !string.IsNullOrEmpty(sessionStorage.AccessToken))
-            {
-                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessionStorage.AccessToken);
-            }
-            return await HttpClient.PostAsJsonAsync(url, data);
-        }
+        // Create base method to send post requests
+        public Task<HttpResponseMessage> PostAsync(string url, object data) => HttpClient.PostAsJsonAsync(url, data);
+
+        // Create base method to send get requests
+        public Task<HttpResponseMessage> GettingAsync(string url) => HttpClient.GetAsync(url);
+
 
     }
-
-
 }
