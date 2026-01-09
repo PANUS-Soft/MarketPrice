@@ -1,11 +1,13 @@
-﻿using MarketPrice.Domain.Authentication.Commands;
+﻿using MarketPrice.Domain;
+using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketPrice.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ApplicationUsersController(
         IRegisterService registerService,
@@ -15,59 +17,63 @@ namespace MarketPrice.Api.Controllers
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
-        private readonly IRegisterService _registerService = registerService;
-        private readonly ILoginService _loginService = loginService;
-        private readonly ILogoutService _logoutService = logoutService;
-        private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
 
-        [HttpPost("auth/register")]
+        [HttpPost(ApiRoutes.AUTH_REGISTER)]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
-            if (registerCommand == null)
-                return BadRequest("Invalid request data");
-
-            var result = await _registerService.RegisterAsync(registerCommand);
+            var result = await registerService.RegisterAsync(registerCommand);
 
             if (result.Success)
                 return Ok(result);
             else
-                return Conflict(result.CreationStatus);
+                return Conflict(result.Status);
         }
 
-        [HttpPost("auth/login")]
+        [HttpPost(ApiRoutes.AUTH_LOGIN)]
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
         {
-            if (loginCommand == null)
-                return BadRequest("Invalid request data");
+            Console.WriteLine($"{loginCommand.EmailAddress} is attempting to login into the platform ...");
 
-            var result = await _loginService.LoginAsync(loginCommand);
+            var result = await loginService.LoginAsync(loginCommand);
 
             if (result.Success)
+            {
+                Console.WriteLine($"User successfully logged in with access token expiration in {result.ExpiryDate} minutes");
                 return Ok(result);
+            }
             else
-                return Unauthorized(result.LoginStatus);
+                return Unauthorized(result.Status);
+
+            Console.WriteLine($"{result.Errors}");
         }
 
-        [HttpPost("auth/logout")]
+        [HttpPost(ApiRoutes.AUTH_LOGOUT)]
         public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
         {
-            if (logoutCommand == null)
-                return BadRequest("Invalid request data");
-
-            var result = await _logoutService.LogoutAsync(logoutCommand);
+            var result = await logoutService.LogoutAsync(logoutCommand);
 
             return Ok(result);
         }
 
-        [HttpPost("auth/refreshToken")]
+        [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
         public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
         {
-            if (refreshTokenCommand == null)
-                return BadRequest("Invalid request data");
-
-            var result = await _refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
-
+            Console.WriteLine("Tokens refresh request from a client ...");
+            Console.WriteLine($"Access token: {refreshTokenCommand.AccessToken}");
+            Console.WriteLine($"Refresh token: {refreshTokenCommand.RefreshToken}");
+            var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
+            Console.WriteLine("Tokens refresh process completed successfully with new information as ... ");
+            Console.WriteLine($"New access token: {result.AccessToken}");
+            Console.WriteLine($"New access token: {result.RefreshToken}");
+            Console.WriteLine($"New access token: {result.ExpiryDate}");
             return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("auth/ping")]
+        public IActionResult Ping()
+        {
+            return Ok("Alive 😁😁😁");
         }
     }
 }
