@@ -22,7 +22,7 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
-// Note: Updated to match your new appsettings key "PUBLIC_KEY"
+// Note: Updated to match your new app settings key "PUBLIC_KEY"
 var publicKeyBase64 = builder.Configuration["Authentication:PUBLIC_KEY"];
 var privateKeyBase64 = builder.Configuration["PRIVATE_KEY"];
 
@@ -80,6 +80,8 @@ catch (Exception ex)
     // If this hits, there is still a formatting issue in the strings themselves
     Console.WriteLine($"Warning: Authentication setup failed: {ex.Message}");
 }
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {
