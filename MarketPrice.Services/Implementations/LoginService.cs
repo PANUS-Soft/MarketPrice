@@ -25,7 +25,7 @@ namespace MarketPrice.Services.Implementations
                 return new LoginResponseDto
                 {
                     Success = false,
-                    LoginStatus = "The email or password you entered is incorrect"
+                    Status = "The email or password you entered is incorrect"
                 };
 
             // 2. Verify Password
@@ -34,7 +34,7 @@ namespace MarketPrice.Services.Implementations
                 return new LoginResponseDto
                 {
                     Success = false,
-                    LoginStatus = "The email or password you entered is incorrect"
+                    Status = "The email or password you entered is incorrect"
                 };
 
             // 3. Generate Tokens
@@ -80,9 +80,9 @@ namespace MarketPrice.Services.Implementations
                 PhoneNumber = user.PhoneNumber,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiryDate = DateTime.Now.AddMinutes(10), // Access token expiry
+                ExpiryDate = DateTime.Now.AddMinutes(3), // Access token expiry
                 Success = true,
-                LoginStatus = "User logged in successfully"
+                Status = "User logged in successfully"
             };
         }
     }

@@ -8,20 +8,19 @@ namespace MarketPrice.Services.Implementations
 {
     public class LogoutService(MarketPriceDbContext context) : ILogoutService
     {
-        private readonly MarketPriceDbContext _context = context;
         public async Task<LogoutResponseDto> LogoutAsync(LogoutCommand command)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.EmailAddress == command.EmailAddress);
 
             if (user != null)
             {
-                var security = await _context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
+                var security = await context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
                 if (security != null)
                 {
                     // Invalidate the refresh token so it cannot be used again
                     security.RefreshToken = null;
                     security.RefreshTokenExpiryTime = null;
-                    await _context.SaveChangesAsync();
+                    await context.SaveChangesAsync();
                 }
             }
 

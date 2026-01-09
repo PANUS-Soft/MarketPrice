@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,14 +19,34 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<RefreshTokenResponseDto> RefreshTokenAsync(RefreshTokenCommand command)
         {
+            ClaimsPrincipal principal;
+
+            try
+            {
+                principal = _tokenService.GetPrincipalFromExpiredToken(command.AccessToken);
+            }
+            catch
+            {
+                return RefreshTokenResponseDto.Failed("Invalid access token");
+            }
+
+            var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return RefreshTokenResponseDto.Failed("Invalid token claims");
+
+            var userId = Guid.Parse(userIdClaim.Value);
+
             var securityDetail = await _context.UserSecurityDetails.FirstOrDefaultAsync(x => x.RefreshToken == command.RefreshToken);
             if (securityDetail == null)
                 return RefreshTokenResponseDto.Failed("Invalid refresh token");
 
+            if (securityDetail.UserId != userId)
+                return RefreshTokenResponseDto.Failed("Token mismatch ... Refresh token does not match the user");
+
             if (securityDetail.RefreshTokenExpiryTime < DateTime.Now)
                 return RefreshTokenResponseDto.Failed("Refresh token expired");
 
-            var user = _context.Users.FirstOrDefault(u => u.UserId == securityDetail.UserId);
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
 
             if (user == null)
                 return RefreshTokenResponseDto.Failed("User not found");
