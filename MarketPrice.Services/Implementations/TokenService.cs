@@ -2,28 +2,15 @@
 using MarketPrice.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarketPrice.Services.Implementations
 {
-    public class TokenService : ITokenService
+    public class TokenService(SigningCredentials credentials, IConfiguration config) : ITokenService
     {
-        private readonly SigningCredentials _credentials;
-        private readonly IConfiguration _config;
-
         // The SigningCredentials (containing the Private Key) is injected from Program.cs
-        public TokenService(SigningCredentials credentials, IConfiguration config)
-        {
-            _credentials = credentials;
-            _config = config;
-        }
 
         public string CreateAccessToken(User user)
         {
@@ -37,10 +24,10 @@ namespace MarketPrice.Services.Implementations
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(10), // Short-lived
-                SigningCredentials = _credentials,
-                Issuer = _config["Authentication:Issuer"],
-                Audience = _config["Authentication:Audience"]
+                Expires = DateTime.Now.AddMinutes(10), // Short-lived
+                SigningCredentials = credentials,
+                Issuer = config["Authentication:Issuer"],
+                Audience = config["Authentication:Audience"]
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -64,10 +51,10 @@ namespace MarketPrice.Services.Implementations
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 // We use the Public Key for validation (usually found in the credentials or config)
-                IssuerSigningKey = _credentials.Key,
+                IssuerSigningKey = credentials.Key,
                 ValidateLifetime = false, // <--- CRITICAL: Ignore expiration date
-                ValidIssuer = _config["Authentication:Issuer"],
-                ValidAudience = _config["Authentication:Audience"]
+                ValidIssuer = config["Authentication:Issuer"],
+                ValidAudience = config["Authentication:Audience"]
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

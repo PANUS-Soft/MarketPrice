@@ -1,33 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Domain.Authentication.DTOs
+﻿namespace MarketPrice.Domain.Authentication.DTOs
 {
-    public class RegisterResponseDto
+    public class RegisterResponseDto : BaseResponseDto
     {
-
-        public bool Success { get; set; }
+        public string FirstName { get; set; } = string.Empty;
         public string EmailAddress { get; set; } = string.Empty;
-        public string CreationStatus { get; set; } = string.Empty;
-        public IEnumerable<string> Errors { get; set; } = [];
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public DateTime ExpiryDate { get; set; }
+    }
 
+
+    public static class DtoManager
+    {
         /// <summary>
-        /// User successfuly register to the platform
+        ///Returns a successful response
         /// </summary>
-        /// <param name="email"></param>
-        /// <param name="message"></param>
         /// <returns></returns>
-        public static RegisterResponseDto Succeed(string email, string message)
+        public static T Succeed<T>(T valueToReturn) where T : BaseResponseDto, new()
         {
-            return new RegisterResponseDto
-            {
-                EmailAddress = email,
-                CreationStatus = message,
-                Success = true
-            };
+            var response = valueToReturn;
+            response.Success = true;
+            return response;
         }
 
         /// <summary>
@@ -36,30 +29,24 @@ namespace MarketPrice.Domain.Authentication.DTOs
         /// <param name="errorMessage"></param>
         /// <returns></returns>
 
-        public static RegisterResponseDto Failed(string errorMessage)
+        public static T Failed<T>(string status, params string[] errors) where T : BaseResponseDto, new()
         {
-            return new RegisterResponseDto
+            var response = new T
             {
-                EmailAddress = string.Empty,
-                CreationStatus = errorMessage,  
-                Success = false,
+                Status = status,
+                Errors = errors.ToArray()
             };
+            return response;
         }
-        /// <summary>
-        /// A list of errors that occurred during registration.
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        public static RegisterResponseDto Failed(IEnumerable<string> error)
-        {
-            return new RegisterResponseDto
-            {
-                Success = false,
-                Errors = error,
-                CreationStatus = "Registration failed",
-                
-            };
 
-        }
+    }
+
+    public abstract class BaseResponseDto
+    {
+        public string? Status { get; set; }
+        public IEnumerable<string> Errors { get; set; } = [];
+
+        public bool Success { get; set; }
     }
 }
+

@@ -4,56 +4,45 @@ using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using LinqToDB;
-using System.Security.Principal;
 
 
 namespace MarketPrice.Services.Implementations
 {
     /// <summary>
-    /// Handels user Registration using the custom MarketPrice user Model.
+    /// Handles user Registration using the custom MarketPrice user Model.
     /// </summary>
 
-    public class RegisterService(MarketPriceDbContext context, IPasswordHashService passwordHasherservice) : IRegisterService
+    public class RegisterService(MarketPriceDbContext context, IPasswordHashService passwordHasherService, ITokenService tokenService) : IRegisterService
     {
-        private readonly MarketPriceDbContext _context = context;
-        private readonly IPasswordHashService _passwordHasherservice = passwordHasherservice;
+        private readonly ITokenService _tokenService = tokenService;
+        private readonly IPasswordHashService _passwordHasherService = passwordHasherService;
 
         public async Task<RegisterResponseDto> RegisterAsync(RegisterCommand command)
         {
-            // validate required fields
-            
-            if(string.IsNullOrEmpty(command.FirstName)
+            // Validate required fields
+
+            if (string.IsNullOrEmpty(command.FirstName)
                 || string.IsNullOrEmpty(command.FamilyName)
                 || string.IsNullOrEmpty(command.PhoneNumber)
                 || string.IsNullOrEmpty(command.AccountTypeId.ToString())
-                || string.IsNullOrEmpty(command.EmailAddress) 
+                || string.IsNullOrEmpty(command.EmailAddress)
                 || string.IsNullOrEmpty(command.Password))
             {
-                return RegisterResponseDto.Failed("Invalid request data");
+                return DtoManager.Failed<RegisterResponseDto>("Invalid request data");
             }
 
-            //now check if the user with one of this exists (check if a user already exists with email or phone)
-            bool exists = await _context.Users.AnyAsync(u => 
-            u.EmailAddress == command.EmailAddress 
-            || u.PhoneNumber == command.PhoneNumber);
+            // Now check if the user with one of this exists (check if a user already exists with email or phone)
 
-            if (exists)
-                return RegisterResponseDto.Failed("A user with email address or phone number already exist");
-            //Hash password securely
-            var passwordSalt = _passwordHasherservice.GenerateSalt();
-            var hashedPassword = _passwordHasherservice.HashPassword(command.Password, passwordSalt);
+            bool userExists = await context.Users.AnyAsync(u => u.EmailAddress == command.EmailAddress || u.PhoneNumber == command.PhoneNumber);
 
-            //var UserType = 
+            if (userExists)
+                return DtoManager.Failed<RegisterResponseDto>("An account already exists with the provided email address or phone number.");
 
-            // create the user entity
+            // Hash password securely
+            var passwordSalt = _passwordHasherService.GenerateSalt();
+            var hashedPassword = _passwordHasherService.HashPassword(command.Password, passwordSalt);
+
+            // Create the user entity
             var user = new User
             {
                 FirstName = command.FirstName,
@@ -70,16 +59,43 @@ namespace MarketPrice.Services.Implementations
                 Note = null,
 
             };
-            //Save the user info to the database 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            // Save the user info to the database 
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
 
-            //Return Success reponse
-            return RegisterResponseDto.Succeed(user.EmailAddress, "User Registered successfully");
+            var accessToken = _tokenService.CreateAccessToken(user);
+            var refreshToken = _tokenService.CreateRefreshToken(user);
+            DateTime refreshTokenExpiry = DateTime.Now.AddMonths(1);
+
+            var security = new UserSecurityDetail()
+            {
+                UserId = user.UserId,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = refreshTokenExpiry,
+                LastActivityDate = DateTime.Now
+            };
+
+            // Save security details to the database
+            context.UserSecurityDetails.Add(security);
+            await context.SaveChangesAsync();
+
+            var expiryDate = DateTime.Now.AddMinutes(10); 
+
+            // Return Success response
+            var responseDto = new RegisterResponseDto
+            {
+                FirstName = user.FirstName,
+                EmailAddress = user.EmailAddress,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                ExpiryDate = expiryDate,
+                Status = "User created successfully"
+            };
+            return DtoManager.Succeed(responseDto);
         }
 
     }
 
 }
 
-    
+

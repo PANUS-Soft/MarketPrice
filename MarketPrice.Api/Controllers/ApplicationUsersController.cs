@@ -1,62 +1,67 @@
-﻿using MarketPrice.Domain.Authentication.Commands;
+﻿using MarketPrice.Domain;
+using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
-using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace MarketPrice.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ApplicationUsersController(
         IRegisterService registerService,
         ILoginService loginService,
         ILogoutService logoutService,
+        IRefreshTokenService refreshTokenService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
-        private readonly IRegisterService _registerService = registerService;
-        private readonly ILoginService _loginService = loginService;
-        private readonly ILogoutService _logoutService = logoutService;
 
-        [HttpPost("/auth/register")]
+        [HttpPost(ApiRoutes.AUTH_REGISTER)]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
-            if (registerCommand == null)
-                return BadRequest("Invalid request data");
-
-            var result = await _registerService.RegisterAsync(registerCommand);
+            var result = await registerService.RegisterAsync(registerCommand);
 
             if (result.Success)
                 return Ok(result);
             else
-                return Conflict(result.CreationStatus);
+                return Conflict(result.Status);
         }
 
-        [HttpPost("/auth/login")]
+        [HttpPost(ApiRoutes.AUTH_LOGIN)]
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
         {
-            if(loginCommand == null)
-                return BadRequest("Invalid request data");
-
-            var result = await _loginService.LoginAsync(loginCommand);
+            var result = await loginService.LoginAsync(loginCommand);
 
             if (result.Success)
+            {
                 return Ok(result);
+            }
             else
-                return Unauthorized(result.LoginStatus);
+                return Unauthorized(result.Status);
         }
 
-        [HttpPost("/auth/logout")]
+        [HttpPost(ApiRoutes.AUTH_LOGOUT)]
         public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
         {
-            if (logoutCommand == null)
-                return BadRequest("Invalid request data");
-
-            var result = await _logoutService.LogoutAsync(logoutCommand);
+            var result = await logoutService.LogoutAsync(logoutCommand);
 
             return Ok(result);
+        }
+
+        [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
+        public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+        {
+            var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.AUTH_PING)]
+        public IActionResult Ping()
+        {
+            return Ok("Alive 😁😁😁");
         }
     }
 }

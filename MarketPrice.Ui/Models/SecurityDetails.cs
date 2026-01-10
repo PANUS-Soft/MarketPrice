@@ -1,23 +1,18 @@
 ﻿using DevExpress.Maui.DataForm;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Models
 {
-    public class SecurityModel : INotifyPropertyChanged, INotifyDataErrorInfo
+    public class SecurityDetails : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private string password;
         private string confirmPassword;
         private readonly Dictionary<string, List<string>> _errors = new();
 
-        // Security Details
+        // SecurityDetails Details
         [Required(ErrorMessage = "Password is required")]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
         [DataFormPasswordEditor]
@@ -42,7 +37,7 @@ namespace MarketPrice.Ui.Models
         [DataType(DataType.Password)]
         public string ConfirmPassword
         {
-            get => confirmPassword; 
+            get => confirmPassword;
             set
             {
                 confirmPassword = value;

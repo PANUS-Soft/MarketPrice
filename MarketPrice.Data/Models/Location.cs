@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Data.Models
+﻿namespace MarketPrice.Data.Models
 {
     public class Location
     {
@@ -17,5 +11,5 @@ namespace MarketPrice.Data.Models
         public required string Quarter { get; set; }
         public decimal? Longitude { get; set; }
         public decimal? Latitude { get; set; }
-    }   
+    }
 }

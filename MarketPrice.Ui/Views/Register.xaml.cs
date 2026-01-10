@@ -1,14 +1,13 @@
-using MarketPrice.Ui.Models;
 using MarketPrice.Ui.ViewModels;
 
 namespace MarketPrice.Ui.Views;
 
 public partial class Register : ContentPage
 {
-	public Register()
-	{
-		InitializeComponent();
-        BindingContext = new RegisterViewModel();
+    public Register(RegisterViewModel registerViewModel)
+    {
+        InitializeComponent();
+        BindingContext = registerViewModel;
     }
 
     protected override void OnAppearing()
@@ -17,7 +16,8 @@ public partial class Register : ContentPage
 
         if (BindingContext is RegisterViewModel viewModel)
         {
-            viewModel.ValidateCurrentStepRequested += ValidateCurrentFormAsync;
+            //viewModel.ValidateCurrentStepRequested -= ValidateCurrentFormAsync; // Remove old one
+            viewModel.ValidateCurrentStepRequested += ValidateCurrentFormAsync; // Add fresh one
         }
     }
 
@@ -33,10 +33,14 @@ public partial class Register : ContentPage
         else if (viewModel.IsSecurityStep)
             SecurityDetailForm.Commit();
 
-        bool isValid = 
-            viewModel.IsPersonalStep && PersonalInfoForm.Validate() ||
-            viewModel.IsContactStep && ContactInfoForm.Validate() ||
-            viewModel.IsSecurityStep && SecurityDetailForm.Validate();
+        bool isValid = false;
+
+        if (viewModel.IsPersonalStep)
+            isValid = PersonalInfoForm.Validate();
+        else if (viewModel.IsContactStep)
+            isValid = ContactInfoForm.Validate();
+        else if (viewModel.IsSecurityStep)
+            isValid = SecurityDetailForm.Validate();
 
         return Task.FromResult(isValid);
     }
