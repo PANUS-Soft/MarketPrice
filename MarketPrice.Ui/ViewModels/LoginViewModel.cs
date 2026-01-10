@@ -49,11 +49,11 @@ namespace MarketPrice.Ui.ViewModels
                 };
 
                 var response = await authenticationApi.LoginUserAsync(command);
-                var responseMessage = await response.Content.ReadAsStringAsync();
+                var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                     if (dto != null)
                     {
@@ -74,7 +74,7 @@ namespace MarketPrice.Ui.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", responseMessage, "OK");
+                    await Shell.Current.DisplayAlert("Error", responseContent, "OK");
                     return;
                 }
             }

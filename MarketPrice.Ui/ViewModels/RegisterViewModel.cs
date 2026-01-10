@@ -129,11 +129,11 @@ namespace MarketPrice.Ui.ViewModels
                 };
 
                 var response = await _authenticationApi.RegisterUserAsync(registerRequest);
-                string responseMessage = await response.Content.ReadAsStringAsync();
+                string responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var dto = JsonSerializer.Deserialize<RegisterResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var dto = JsonSerializer.Deserialize<RegisterResponseDto>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                     if (dto != null)
                     {
@@ -167,7 +167,7 @@ namespace MarketPrice.Ui.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Registration Failed", $"There was an error creating your account. {responseMessage}", "OK");
+                    await Shell.Current.DisplayAlert("Registration Failed", $"There was an error creating your account. {responseContent}", "OK");
                 }
             }
             catch (Exception e)

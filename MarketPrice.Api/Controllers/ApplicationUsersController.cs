@@ -32,19 +32,14 @@ namespace MarketPrice.Api.Controllers
         [HttpPost(ApiRoutes.AUTH_LOGIN)]
         public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
         {
-            Console.WriteLine($"{loginCommand.EmailAddress} is attempting to login into the platform ...");
-
             var result = await loginService.LoginAsync(loginCommand);
 
             if (result.Success)
             {
-                Console.WriteLine($"User successfully logged in with access token expiration in {result.ExpiryDate} minutes");
                 return Ok(result);
             }
             else
                 return Unauthorized(result.Status);
-
-            Console.WriteLine($"{result.Errors}");
         }
 
         [HttpPost(ApiRoutes.AUTH_LOGOUT)]
@@ -58,19 +53,12 @@ namespace MarketPrice.Api.Controllers
         [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
         public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
         {
-            Console.WriteLine("Tokens refresh request from a client ...");
-            Console.WriteLine($"Access token: {refreshTokenCommand.AccessToken}");
-            Console.WriteLine($"Refresh token: {refreshTokenCommand.RefreshToken}");
             var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
-            Console.WriteLine("Tokens refresh process completed successfully with new information as ... ");
-            Console.WriteLine($"New access token: {result.AccessToken}");
-            Console.WriteLine($"New access token: {result.RefreshToken}");
-            Console.WriteLine($"New access token: {result.ExpiryDate}");
             return Ok(result);
         }
 
         [Authorize]
-        [HttpGet("auth/ping")]
+        [HttpGet(ApiRoutes.AUTH_PING)]
         public IActionResult Ping()
         {
             return Ok("Alive 😁😁😁");
