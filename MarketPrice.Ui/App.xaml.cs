@@ -5,14 +5,12 @@ namespace MarketPrice.Ui
     public partial class App : Application
     {
         private readonly SessionService _sessionService;
-        private readonly SessionStorage _sessionStorage;
 
-        public App(SessionService sessionService, SessionStorage sessionStorage)
+        public App(SessionService sessionService)
         {
             InitializeComponent();
 
             _sessionService = sessionService;
-            _sessionStorage = sessionStorage;
         
             MainPage = new AppShell();
         }
@@ -21,6 +19,7 @@ namespace MarketPrice.Ui
         {
             base.OnStart();
             await _sessionService.InitializeAsync();
+            await _sessionService.ValidateAndRefreshSessionAsync();
 
             try
             {

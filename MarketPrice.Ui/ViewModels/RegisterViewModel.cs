@@ -9,6 +9,7 @@ using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -19,7 +20,6 @@ namespace MarketPrice.Ui.ViewModels
     {
         private readonly AuthenticationApiService _authenticationApi;
         private readonly SessionService _sessionService;
-        private readonly SessionStorage _sessionStorage;
 
         public PersonalInformation PersonalInfo { get; } = new();
         public ContactInformation ContactInfo { get; } = new();
@@ -37,11 +37,10 @@ namespace MarketPrice.Ui.ViewModels
 
         public event Func<Task<bool>>? ValidateCurrentStepRequested;
 
-        public RegisterViewModel(AuthenticationApiService authenticationApi, SessionService sessionService, SessionStorage sessionStorage)
+        public RegisterViewModel(AuthenticationApiService authenticationApi, SessionService sessionService)
         {
             _authenticationApi = authenticationApi;
             _sessionService = sessionService;
-            _sessionStorage = sessionStorage;
             CurrentStep = RegistrationStep.PersonalInfo;
         }
 
@@ -99,7 +98,7 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task ShowPrivacyPolicy()
         {
-            await Shell.Current.DisplayAlert("Privacy Policy", "Marketprice collects only essential information required to operate the app and improve user experience.\n\n" + "Your data is not sold or shared without consent. Reasonable security measures are applied to protect you information.\n\n" + "You may access or delete your data at any time.", "OK");
+            await Shell.Current.DisplayAlert("Privacy Policy", "MarketPrice collects only essential information required to operate the app and improve user experience.\n\n" + "Your data is not sold or shared without consent. Reasonable security measures are applied to protect you information.\n\n" + "You may access or delete your data at any time.", "OK");
         }
 
         private void MoveToNextStep()
@@ -133,36 +132,15 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var dto = JsonSerializer.Deserialize<RegisterResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
+                  //  var dto = JsonSerializer.Deserialize<RegisterResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                  var dto = await response.Content.ReadFromJsonAsync<RegisterResponseDto>();
                     if (dto != null)
                     {
-                        var session = new UserSession
+                        if (await _sessionService.StartSessionAsync(dto))
                         {
-                            AccessToken = dto.AccessToken,
-                            RefreshToken = dto.RefreshToken,
-                            ExpireAt = dto.ExpiryDate,
-                            FirstName = dto.FirstName,
-                            EmailAddress = dto.EmailAddress
-                        };
-
-                        _sessionService.StartSession(session);
-                        await _sessionStorage.SaveAsync(session);
-                        await Toast.Make("Your account was successfully created.", ToastDuration.Long).Show();
-                        //await Snackbar.Make(
-                        //    "Your account was creating successfully.",
-                        //    action: null,
-                        //    actionButtonText: "",
-                        //    TimeSpan.FromSeconds(3),
-                        //    new SnackbarOptions
-                        //    {
-                        //        BackgroundColor = Colors.DarkSlateBlue,
-                        //        TextColor = Colors.White,
-                        //        CornerRadius = new CornerRadius(10),
-                        //        Font = Microsoft.Maui.Font.OfSize("RobotoSerifLight", 5),
-                        //        CharacterSpacing = 0
-                        //    }).Show();
-                        await Shell.Current.GoToAsync("//Home");
+                            await Toast.Make("Your account was successfully created.", ToastDuration.Long).Show();
+                            await Shell.Current.GoToAsync("//Home");
+                        }
                     }
                 }
                 else

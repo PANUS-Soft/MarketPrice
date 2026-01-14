@@ -1,4 +1,5 @@
 ﻿using MarketPrice.Data;
+using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
@@ -17,39 +18,39 @@ namespace MarketPrice.Services.Implementations
         private readonly MarketPriceDbContext _context = context;
         private readonly ITokenService _tokenService = tokenService;
 
-        public async Task<RefreshTokenResponseDto> RefreshTokenAsync(RefreshTokenCommand command)
+        public async Task<AuthenticationResponseDto> RefreshTokenAsync(RefreshTokenCommand command)
         {
-            ClaimsPrincipal principal;
+            //ClaimsPrincipal principal;
 
-            try
-            {
-                principal = _tokenService.GetPrincipalFromExpiredToken(command.AccessToken);
-            }
-            catch
-            {
-                return RefreshTokenResponseDto.Failed("Invalid access token");
-            }
+            //try
+            //{
+            //    principal = _tokenService.GetPrincipalFromExpiredToken(command.AccessToken);
+            //}
+            //catch
+            //{
+            //    return RefreshTokenResponseDto.Failed("Invalid access token");
+            //}
 
-            var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-                return RefreshTokenResponseDto.Failed("Invalid token claims");
+            //var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            //if (userIdClaim == null)
+            //    return RefreshTokenResponseDto.Failed("Invalid token claims");
 
-            var userId = Guid.Parse(userIdClaim.Value);
+            //var userId = Guid.Parse(userIdClaim.Value);
 
             var securityDetail = await _context.UserSecurityDetails.FirstOrDefaultAsync(x => x.RefreshToken == command.RefreshToken);
             if (securityDetail == null)
-                return RefreshTokenResponseDto.Failed("Invalid refresh token");
+                return DtoManager.Failed<AuthenticationResponseDto>("Invalid refresh token");
 
-            if (securityDetail.UserId != userId)
-                return RefreshTokenResponseDto.Failed("Token mismatch ... Refresh token does not match the user");
+            if (securityDetail.UserId != command.UserId)
+                return DtoManager.Failed<AuthenticationResponseDto>("Token mismatch ... Refresh token does not match the user");
 
             if (securityDetail.RefreshTokenExpiryTime < DateTime.Now)
-                return RefreshTokenResponseDto.Failed("Refresh token expired");
+                return DtoManager.Failed<AuthenticationResponseDto>("Refresh token expired");
 
-            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            var user = _context.Users.FirstOrDefault(u => u.UserId == command.UserId);
 
             if (user == null)
-                return RefreshTokenResponseDto.Failed("User not found");
+                return DtoManager.Failed<AuthenticationResponseDto>("User not found");
 
             var newAccessToken = _tokenService.CreateAccessToken(user);
             var newRefreshToken = _tokenService.CreateRefreshToken(user);
@@ -59,7 +60,13 @@ namespace MarketPrice.Services.Implementations
 
             await _context.SaveChangesAsync();
 
-            return RefreshTokenResponseDto.Succeed(newAccessToken, newRefreshToken, DateTime.Now.AddMinutes(10));
+            var dto = new AuthenticationResponseDto()
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken,
+                ExpiryDate = DateTime.Now.AddMinutes(10)
+            };
+            return DtoManager.Succeed(dto );
         }
     }
 }

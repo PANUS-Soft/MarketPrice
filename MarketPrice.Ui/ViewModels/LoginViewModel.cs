@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Alerts;
+﻿using System.Net.Http.Json;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,8 +16,7 @@ namespace MarketPrice.Ui.ViewModels
 {
     public partial class LoginViewModel(
         AuthenticationApiService authenticationApi,
-        SessionService sessionService,
-        SessionStorage sessionStorage)
+        SessionService sessionService)
         : ObservableObject
     {
         public LoginInformation LoginInfo { get; } = new();
@@ -49,12 +49,12 @@ namespace MarketPrice.Ui.ViewModels
                 };
 
                 var response = await authenticationApi.LoginUserAsync(command);
-                var responseMessage = await response.Content.ReadAsStringAsync();
-
+                //var responseMessage = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+                    //var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var dto  = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
                     if (dto != null)
                     {
                         var session = new UserSession
@@ -65,16 +65,15 @@ namespace MarketPrice.Ui.ViewModels
                             FirstName = dto.FirstName,
                             EmailAddress = dto.EmailAddress
                         };
-
-                        sessionService.StartSession(session);
-                        await sessionStorage.SaveAsync(session);
+                        
+                        await sessionService.StartSessionAsync(dto);
                         await Toast.Make($"Welcome back, {dto.FirstName} 👋", ToastDuration.Long).Show();
                         await Shell.Current.GoToAsync("//Home");
                     }
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", responseMessage, "OK");
+                    await Shell.Current.DisplayAlert("Error", "Something went wrong, try again or contact support.", "OK");
                     return;
                 }
             }

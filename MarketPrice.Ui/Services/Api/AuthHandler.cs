@@ -26,16 +26,16 @@ namespace MarketPrice.Ui.Services.Api
 
             // 1️ Ensure session is valid (refresh if close to expiry)
             var sessionService = serviceProvider.GetRequiredService<SessionService>();
-            var ok = await sessionService.ValidateAndRefreshSessionAsync();
-            if (!ok)
+            var isValidToken = await sessionService.ValidateAndRefreshSessionAsync();
+            if (!isValidToken)
                 throw new Exception("Session expired");
 
             // 2️ Attach fresh token
-            var token = sessionService.CurrentSession?.AccessToken;
-            if (!string.IsNullOrEmpty(token))
+            var currentSession = await sessionService.GetCurrentSessionAsync();
+            if (!string.IsNullOrEmpty(currentSession!.AccessToken))
             {
                 request.Headers.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
+                    new AuthenticationHeaderValue("Bearer", currentSession.AccessToken);
             }
 
             return await base.SendAsync(request, cancellationToken);

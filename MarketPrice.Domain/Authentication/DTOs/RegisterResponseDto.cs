@@ -1,13 +1,10 @@
 ﻿namespace MarketPrice.Domain.Authentication.DTOs
 {
-    public class RegisterResponseDto : BaseResponseDto
+    public class RegisterResponseDto : AuthenticationResponseDto
     {
-        public string FirstName { get; set; } = string.Empty;
-        public string EmailAddress { get; set; } = string.Empty;
-        public string AccessToken { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
-        public DateTime ExpiryDate { get; set; }
+
     }
+
 
 
     public static class DtoManager

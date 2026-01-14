@@ -13,5 +13,6 @@ namespace MarketPrice.Ui.Models
         public DateTime ExpireAt { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string EmailAddress { get; set; } = string.Empty;
+        public Guid UserId { get; set; }
     }
 }

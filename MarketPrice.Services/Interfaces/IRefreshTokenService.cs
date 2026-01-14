@@ -1,4 +1,5 @@
-﻿using MarketPrice.Domain.Authentication.Commands;
+﻿using MarketPrice.Domain.Authentication;
+using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,6 @@ namespace MarketPrice.Services.Interfaces
 {
     public interface IRefreshTokenService
     {
-        Task<RefreshTokenResponseDto> RefreshTokenAsync(RefreshTokenCommand command);
+        Task<AuthenticationResponseDto> RefreshTokenAsync(RefreshTokenCommand command);
     }
 }

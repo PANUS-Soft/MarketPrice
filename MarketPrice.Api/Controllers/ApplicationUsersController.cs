@@ -1,4 +1,6 @@
-﻿using MarketPrice.Domain;
+﻿using System.Diagnostics;
+using MarketPrice.Domain;
+using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Services.Interfaces;
@@ -56,16 +58,15 @@ namespace MarketPrice.Api.Controllers
         }
 
         [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
-        public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+        public async Task<ActionResult<AuthenticationResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
         {
-            Console.WriteLine("Tokens refresh request from a client ...");
-            Console.WriteLine($"Access token: {refreshTokenCommand.AccessToken}");
-            Console.WriteLine($"Refresh token: {refreshTokenCommand.RefreshToken}");
+            Debug.WriteLine("Tokens refresh request from a client ...");
+            Debug.WriteLine($"Refresh token: {refreshTokenCommand.RefreshToken}");
             var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
-            Console.WriteLine("Tokens refresh process completed successfully with new information as ... ");
-            Console.WriteLine($"New access token: {result.AccessToken}");
-            Console.WriteLine($"New access token: {result.RefreshToken}");
-            Console.WriteLine($"New access token: {result.ExpiryDate}");
+            Debug.WriteLine("Tokens refresh process completed successfully with new information as ... ");
+           
+            Debug.WriteLine($"New Refresh token: {result.RefreshToken}");
+            Debug.WriteLine($"Expires: {result.ExpiryDate}");
             return Ok(result);
         }
 

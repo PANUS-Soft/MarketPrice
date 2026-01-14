@@ -1,30 +1,56 @@
-﻿using MarketPrice.Domain.Authentication.DTOs;
-using MarketPrice.Ui.Models;
+﻿using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+using System.Net.Http.Json;
+using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Ui.Extensions;
 
 namespace MarketPrice.Ui.Services.Session
 {
-    public class SessionService(SessionStorage sessionStorage, AuthenticationApiService authenticationApiService)
+    public class SessionService(AuthenticationApiService authenticationApiService)
     {
-        public UserSession? CurrentSession { get; private set; }
+        private readonly string _sessionKey = "UserSession";
 
-        public bool IsAuthenticated => CurrentSession != null && CurrentSession.ExpireAt > DateTime.Now;
-
-        public bool IsExpired() => CurrentSession == null || CurrentSession.ExpireAt <= DateTime.Now;
-
-        public void StartSession(UserSession session) => CurrentSession = session;
-
-        public void EndSession()
+        public async Task<UserSession?> GetCurrentSessionAsync()
         {
-            CurrentSession = null;
-            sessionStorage.Clear();
+            var sessionString = await SecureStorage.GetAsync(_sessionKey);
+            if (string.IsNullOrEmpty(sessionString))
+                return null;
+
+            return sessionString.FromJson<UserSession?>();
+        }
+
+        public async Task<bool> StartSessionAsync(UserSession session)
+        {
+            try
+            {
+                // Persist session in storage
+                await SecureStorage.SetAsync(_sessionKey, session.ToJson());
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                // TODO: Use a logger to log to a logging service
+                return false;
+            }
+        }
+
+        public async Task<bool> EndSessionAsync()
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    SecureStorage.Remove(_sessionKey);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            });
+
         }
 
         /// <summary>
@@ -35,15 +61,16 @@ namespace MarketPrice.Ui.Services.Session
         {
             try
             {
-                var session = await sessionStorage.LoadAsync();
+                var session = await GetCurrentSessionAsync();
 
                 if (session == null) return false;
 
-                if (string.IsNullOrEmpty(session.RefreshToken)) return false;
+                var refreshToken = session.RefreshToken;
+                if (string.IsNullOrEmpty(refreshToken)) return false;
 
                 var command = new RefreshTokenCommand
                 {
-                    AccessToken = session.AccessToken,
+                    UserId = session.UserId,
                     RefreshToken = session.RefreshToken
                 };
 
@@ -51,37 +78,22 @@ namespace MarketPrice.Ui.Services.Session
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    EndSession();
+                    await EndSessionAsync();
                     return false;
                 }
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var dto = JsonSerializer.Deserialize<RefreshTokenResponseDto>(responseContent,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
+                
+                var dto = await response.Content.ReadFromJsonAsync<AuthenticationResponseDto>();
                 if (dto == null || !dto.Success)
                 {
-                    EndSession();
+                    await EndSessionAsync();
                     return false;
                 }
 
-                var updateSession = new UserSession
-                {
-                    AccessToken = dto.AccessToken,
-                    RefreshToken = dto.RefreshToken,
-                    ExpireAt = dto.ExpiryDate,
-                    FirstName = session.FirstName,
-                    EmailAddress = session.EmailAddress
-                };
-
-                StartSession(updateSession);
-                await sessionStorage.SaveAsync(updateSession);
-
-                return true;
+                return await StartSessionAsync(dto);
             }
             catch (Exception e)
             {
-                EndSession();
+                await EndSessionAsync();
                 return false;
             }
         }
@@ -92,15 +104,14 @@ namespace MarketPrice.Ui.Services.Session
         /// <returns>True if user has valid session (or token was refreshed), false otherwise.</returns>
         public async Task<bool> ValidateAndRefreshSessionAsync()
         {
-            var session = await sessionStorage.LoadAsync();
+            var session = await GetCurrentSessionAsync();
 
             if (session == null)
                 return false;
 
             if (session.ExpireAt > DateTime.Now)
             {
-                StartSession(session);
-                return true;
+                return await StartSessionAsync(session);
             }
 
             // Access token expired, try to refresh
@@ -109,36 +120,26 @@ namespace MarketPrice.Ui.Services.Session
 
         public async Task InitializeAsync()
         {
-            CurrentSession = await sessionStorage.LoadAsync();
+            var currentSession = await GetCurrentSessionAsync();
+            if(currentSession is null) return;
+
+            await StartSessionAsync(currentSession);
         }
 
-        //public async Task<bool> RefreshSessionAsync()
-        //{
-        //    if (CurrentSession == null) return false;
+        public async Task<bool> StartSessionAsync(AuthenticationResponseDto authResponseDto)
+        {
+            // Create session
+           var session =  new UserSession
+            {
+                UserId = authResponseDto.UserId,
+                AccessToken = authResponseDto.AccessToken,
+                EmailAddress = authResponseDto.EmailAddress,
+                ExpireAt = authResponseDto.ExpiryDate,
+                FirstName = authResponseDto.FirstName,
+                RefreshToken = authResponseDto.RefreshToken
+            };
 
-        //    var response = await authenticationApiService.RefreshTokenAsync(new RefreshTokenCommand { AccessToken = CurrentSession.AccessToken, RefreshToken = CurrentSession.RefreshToken });
-        //    if (!response.IsSuccessStatusCode) return false;
-            
-        //    var responseMessage = await response.Content.ReadAsStringAsync();
-        //    var dto = JsonSerializer.Deserialize<RefreshTokenResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            
-        //    if (dto == null || string.IsNullOrEmpty(dto.AccessToken)) return false;
-
-        //    UpdateAccessToken(dto.AccessToken, dto.RefreshToken, dto.ExpiryDate);
-        //    await sessionStorage.SaveAsync(CurrentSession);
-            
-        //    return true;
-        //}
-
-        //public async Task<bool> EnsureValidSessionAsync()
-        //{
-        //    if (CurrentSession == null) return false;
-
-        //    var timeLeft = CurrentSession.ExpireAt - DateTime.Now;
-
-        //    if (timeLeft.TotalSeconds > 90) return true;
-
-        //    return await RefreshSessionAsync();
-        //}
+            return await StartSessionAsync(session);
+        }
     }
 }

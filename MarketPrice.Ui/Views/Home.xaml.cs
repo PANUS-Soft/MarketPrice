@@ -1,13 +1,17 @@
 using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.Views;
 
 public partial class Home : ContentPage
 {
-    private readonly AuthenticationApiService _api;
-	public Home(AuthenticationApiService api)
+    private readonly AuthenticationApiService _authenticationApiService;
+    private readonly SessionService _sessionService;
+
+	public Home(AuthenticationApiService authenticationApiService, SessionService sessionService)
     {
-        _api = api;
+        _authenticationApiService = authenticationApiService;
+        _sessionService = sessionService;
 		InitializeComponent();
 	}
 
@@ -17,7 +21,8 @@ public partial class Home : ContentPage
 
         try
         {
-            await _api.PingAsync();
+            await _sessionService.ValidateAndRefreshSessionAsync();
+            await _authenticationApiService.PingAsync();
         }
         catch
         {

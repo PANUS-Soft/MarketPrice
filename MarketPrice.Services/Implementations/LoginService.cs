@@ -74,13 +74,14 @@ namespace MarketPrice.Services.Implementations
             // 6. Return Data to Client
             return new LoginResponseDto
             {
+                UserId = user.UserId,
                 FirstName = user.FirstName,
                 FamilyName = user.FamilyName,
                 EmailAddress = user.EmailAddress,
                 PhoneNumber = user.PhoneNumber,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiryDate = DateTime.Now.AddMinutes(3), // Access token expiry
+                ExpiryDate = DateTime.Now.AddMinutes(10), // Access token expiry
                 Success = true,
                 Status = "User logged in successfully"
             };

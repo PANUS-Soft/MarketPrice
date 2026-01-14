@@ -84,6 +84,7 @@ namespace MarketPrice.Services.Implementations
             // Return Success response
             var responseDto = new RegisterResponseDto
             {
+                UserId = user.UserId,
                 FirstName = user.FirstName,
                 EmailAddress = user.EmailAddress,
                 AccessToken = accessToken,

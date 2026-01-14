@@ -49,7 +49,6 @@ namespace MarketPrice.Ui
 
 
             // Register application services
-            builder.Services.AddSingleton<SessionStorage>();
             builder.Services.AddSingleton<AuthenticationApiService>();
             builder.Services.AddSingleton<SessionService>();
             builder.Services.AddTransient<AuthHandler>();
