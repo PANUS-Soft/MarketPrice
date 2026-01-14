@@ -1,10 +1,5 @@
 ﻿using MarketPrice.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace MarketPrice.Data
 {
@@ -12,15 +7,16 @@ namespace MarketPrice.Data
     {
         public DbSet<Commodity> Commodities { get; set; }
         public DbSet<DeliveryDetail> DeliveryDetails { get; set; }
-        public DbSet<Location> Locations{ get; set; }
+        public DbSet<Location> Locations { get; set; }
         public DbSet<Position> Positions { get; set; }
         public DbSet<LookupDataType> LookupDataTypes { get; set; }
         public DbSet<LookupData> LookupData { get; set; }
         public DbSet<Rating> Ratings { get; set; }
-        public DbSet<UnitOfMeasure> UnitOfMeasures{ get; set; }
+        public DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Verification> Verifications { get; set; }
         public DbSet<CommodityType> CommodityTypes { get; set; }
+        public DbSet<UserSecurityDetail> UserSecurityDetails { get; set; }
 
 
         public MarketPriceDbContext(DbContextOptions<MarketPriceDbContext> options)
@@ -46,7 +42,7 @@ namespace MarketPrice.Data
 
             modelBuilder.Entity<Position>()
                 .HasOne<DeliveryDetail>()
-                .WithOne() 
+                .WithOne()
                 .HasForeignKey<DeliveryDetail>(dd => dd.PositionId)
                 .IsRequired();
 
@@ -90,6 +86,18 @@ namespace MarketPrice.Data
 
             modelBuilder.Entity<User>()
                 .Property(u => u.UserId)
+                .HasDefaultValueSql("NEWID()");
+
+            // # UserSecurityDetail
+            modelBuilder.Entity<UserSecurityDetail>()
+                .HasKey(us => us.SecurityId); // Define primary key.
+
+            modelBuilder.Entity<UserSecurityDetail>()
+                .HasIndex(u => u.UserId)
+                .IsUnique();
+
+            modelBuilder.Entity<UserSecurityDetail>()
+                .Property(us => us.SecurityId)
                 .HasDefaultValueSql("NEWID()");
 
             // # Rating
@@ -187,7 +195,7 @@ namespace MarketPrice.Data
                 .Property(ct => ct.CommodityTypeId)
                 .HasDefaultValueSql("NEWID()");
 
-           // # Location
+            // # Location
             modelBuilder.Entity<Location>()
                 .HasOne<LookupData>()
                 .WithMany()
@@ -224,7 +232,7 @@ namespace MarketPrice.Data
             // # LookupData
             modelBuilder.Entity<LookupData>()
                 .HasOne<LookupDataType>()
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(ld => ld.LookupDataTypeId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
@@ -264,4 +272,4 @@ namespace MarketPrice.Data
         }
 
     }
-} 
+}

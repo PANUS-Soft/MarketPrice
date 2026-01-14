@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MarketPrice.Ui.Views.Onboarding"
+             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             Shell.NavBarIsVisible="False"
+             Title="Onboarding"
+             BackgroundColor="{StaticResource Background}">
+
+    <ContentPage.BindingContext>
+        <viewModels:OnboardingViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout>
+        <Grid RowDefinitions="Auto,*,Auto,Auto"
+              Padding="30"
+              RowSpacing="60">
+
+            <Label Grid.Row="0"
+                   Text="See the Market Before Anyone Else"
+                   FontSize="30"
+                   FontFamily="RobotoSerifBold"
+                   Padding="0,30,0,0"
+                   TextColor="{StaticResource Black}"
+                   HorizontalTextAlignment="Center"/>
+
+            <Image Grid.Row="1"
+                   Source="onboarding.png"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   Aspect="AspectFit"/>
+
+            <Label Grid.Row="2"
+                   Text="Stop guessing. Access real-time, consolidated pricing data across local market, instantly."
+                   FontFamily="RobotoSerifSemibold"
+                   FontSize="16"
+                   TextColor="{StaticResource TextPrimary}"
+                   
+                   HorizontalTextAlignment="Center"/>
+
+            <Button Grid.Row="3"
+                    Text="Next"
+                    FontSize="15"
+                    Command="{Binding NavigateToWelcomeCommand}"
+                    FontFamily="RobotoSerifBold"
+                    TextColor="{StaticResource White}"
+                    BackgroundColor="{StaticResource PrimaryBase}"
+                    CornerRadius="35"
+                    HeightRequest="50"
+                    Margin="0,50,0,0"/>
+
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>
