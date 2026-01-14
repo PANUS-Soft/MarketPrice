@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
+    Shell.TabBarTitleColor="{StaticResource PrimaryAccent}"
+    Shell.TabBarForegroundColor="{StaticResource PrimaryAccent}"
+    Shell.NavBarIsVisible="False"
     x:Class="MarketPrice.Ui.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -26,9 +29,26 @@
         ContentTemplate="{DataTemplate views:Login}"
         Route="Login"/>
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate views:Home}"
-        Route="Home"/>
+    <TabBar>
+        <Tab Title="Home" Icon="home.png" Route="Home">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:Home}" />
+        </Tab>
+
+        <Tab Title="Market" Icon="market.png" Route="Market">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:Market}" />
+        </Tab>
+
+        <Tab Title="Activity" Icon="activity.png" Route="Activity">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:Activity}" />
+        </Tab>
+        
+        <Tab Title="Profile" Icon="profile.png" Route="Profile">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:Profile}" />
+        </Tab>
+    </TabBar>
 
 </Shell>
