@@ -1,63 +1,69 @@
-﻿using MarketPrice.Domain.Authentication.Commands;
+﻿using System.Diagnostics;
+using MarketPrice.Domain;
+using MarketPrice.Domain.Authentication;
+using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
-using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace MarketPrice.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class ApplicationUsersController : ControllerBase
+    public class ApplicationUsersController(
+        IRegisterService registerService,
+        ILoginService loginService,
+        ILogoutService logoutService,
+        IRefreshTokenService refreshTokenService,
+        ILogger<ApplicationUsersController> logger) : ControllerBase
     {
-        readonly ILogger _logger;
-        private IMarketPriceAuthenticationService _marketPriceauthenticationService;
+        private readonly ILogger _logger = logger;
 
-        public ApplicationUsersController(
-            IMarketPriceAuthenticationService marketPriceAuthenticationService,
-            ILogger<ApplicationUsersController> logger) {
-
-            _marketPriceauthenticationService = marketPriceAuthenticationService;
-            _logger  = logger;
-        }
-
-        
-        // here was to create a new User.
-        [HttpPost]
-        public async Task<ActionResult<LoginResponseDto>> AuthenticateUser(LoginCommand command)
+        [HttpPost(ApiRoutes.AUTH_REGISTER)]
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
-            var authenticated = _marketPriceauthenticationService.Authenticate(command.Username, command.Password);
+            var result = await registerService.RegisterAsync(registerCommand);
 
-            LoginResponseDto response;
-            if (authenticated)
-            {
-                response = new LoginResponseDto
-                {
-                    IsAuthenticated = authenticated,
-                    FirstName = "Gerald",
-                    FamilyName = "Nupa",
-                    RememberMe = command.RememberMe,
-                    Username = command.Username,
-                };
-
-            }
+            if (result.Success)
+                return Ok(result);
             else
-            {
-                response = new LoginResponseDto
-                {
-                    IsAuthenticated = false,
-                    RememberMe = command.RememberMe,
-                    Username = command.Username,
-                };
-            }
-
-            return await Task.FromResult(response);
+                return Conflict(result.Status);
         }
 
+        [HttpPost(ApiRoutes.AUTH_LOGIN)]
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
+        {
+            var result = await loginService.LoginAsync(loginCommand);
 
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            
+            return Unauthorized(result.Status);
+        }
 
+        [HttpPost(ApiRoutes.AUTH_LOGOUT)]
+        public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
+        {
+            var result = await logoutService.LogoutAsync(logoutCommand);
 
+            return Ok(result);
+        }
 
+        [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
+        public async Task<ActionResult<AuthenticationResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+        {
+            var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.AUTH_PING)]
+        public IActionResult Ping()
+        {
+            return Ok("Alive 😁😁😁");
+        }
     }
 }
