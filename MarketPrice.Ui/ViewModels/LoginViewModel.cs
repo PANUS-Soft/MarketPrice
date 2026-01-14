@@ -1,75 +1,84 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Net.Http.Json;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Domain.Authentication.DTOs;
+using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class LoginViewModel : ObservableObject
+    public partial class LoginViewModel(
+        AuthenticationApiService authenticationApi,
+        SessionService sessionService)
+        : ObservableObject
     {
-        public ICommand NavigateToRegisterCommand { get; }
+        public LoginInformation LoginInfo { get; } = new();
 
-        public LoginViewModel()
-        {
-            NavigateToRegisterCommand = new Command(NavigateToRegister);
-        }
-
-        private async void NavigateToRegister()
+        [RelayCommand]
+        private async Task NavigateToRegisterAsync()
         {
             await Shell.Current.GoToAsync("//Register");
         }
 
-        [ObservableProperty] private string email;
-        [ObservableProperty] private string emailError;
-        [ObservableProperty] private bool isEmailInvalid;
-        [ObservableProperty] private bool rememberMe;
-        [ObservableProperty] private string password;
-
-        public void LoadingSavedCredentials()
-        {
-            var savedEmail = Preferences.Default.Get("SavedEmail", string.Empty);
-
-            if (!string.IsNullOrEmpty(savedEmail))
-            {
-                Email = savedEmail;
-                RememberMe = true;
-            }
-        }
-        partial void OnEmailChanged(string value)
-        {
-            if (RememberMe)
-                Preferences.Default.Set("SavedEmail", Email);
-
-            else
-            {
-                Preferences.Default.Remove("SavedEmail");
-            }
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                EmailError = string.Empty;
-                IsEmailInvalid = false;
-                return;
-            }
-
-            var isValid = Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-
-            IsEmailInvalid = !isValid;
-            EmailError = isValid ? string.Empty : "Invalid email format";
-        }
 
         [RelayCommand]
-        private async Task Login()
+        private async Task LoginAsync()
         {
 
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            if (string.IsNullOrWhiteSpace(LoginInfo.EmailAddress) || string.IsNullOrWhiteSpace(LoginInfo.Password))
             {
                 await Shell.Current.DisplayAlert("Error", "Please enter credentials", "OK");
                 return;
             }
 
-            OnEmailChanged(Email);
+            try
+            {
+                var command = new LoginCommand
+                {
+                    LoginDate = DateTime.Now,
+                    EmailAddress = LoginInfo.EmailAddress,
+                    Password = LoginInfo.Password,
+                    RememberMe = LoginInfo.RememberMe
+                };
 
-            await Shell.Current.DisplayAlert("Success", $"Logged in as: {Email}", "OK");
+                var response = await authenticationApi.LoginUserAsync(command);
+                if (response.IsSuccessStatusCode)
+                {
+
+                    var dto  = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+                    if (dto != null)
+                    {
+                        var session = new UserSession
+                        {
+                            AccessToken = dto.AccessToken,
+                            RefreshToken = dto.RefreshToken,
+                            ExpireAt = dto.ExpiryDate,
+                            FirstName = dto.FirstName,
+                            EmailAddress = dto.EmailAddress
+                        };
+                        
+                        await sessionService.StartSessionAsync(dto);
+                        await Toast.Make($"Welcome back, {dto.FirstName} 👋", ToastDuration.Long).Show();
+                        await Shell.Current.GoToAsync("//Home");
+                    }
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", "Something went wrong, try again or contact support.", "OK");
+                    return;
+                }
+            }
+            catch(Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"{e.Message}", "OK");
+            }
         }
     }
 }

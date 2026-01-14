@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Services.Interfaces
+﻿namespace MarketPrice.Services.Interfaces
 {
+
+    /// <summary>
+    /// Contract for secure password management.
+    /// </summary>
 
     public interface IPasswordHashService
     {
@@ -14,27 +12,25 @@ namespace MarketPrice.Services.Interfaces
         /// </summary>
         /// <param name="salt"></param>
         /// <returns></returns>
-        public string GenerateSalt(string salt);
+        string GenerateSalt();
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="password"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-
-        public string HashPassword(string key, string salt);
+        string HashPassword(string password, string passwordSalt);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="passwor"></param>
+        /// <param name="hash"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
 
-
-        public string VerifyPassword(string key, string salt);
-
+        bool VerifyPassword(string password, string passwordHash, string passwordSalt);
 
 
     }

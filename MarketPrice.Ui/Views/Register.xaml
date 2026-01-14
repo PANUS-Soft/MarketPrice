@@ -6,10 +6,6 @@
              x:Class="MarketPrice.Ui.Views.Register"
              Title="Register"
              Shell.NavBarIsVisible="False">
-    
-    <ContentPage.BindingContext>
-        <viewModel:RegisterViewModel/>
-    </ContentPage.BindingContext>
 
     <Grid RowDefinitions="6*,4*">
         <VerticalStackLayout
@@ -370,7 +366,7 @@
                     <dxdf:DataFormView
                         x:Name="SecurityDetailForm"
                         IsVisible="{Binding IsSecurityStep}"
-                        DataObject="{Binding Security}"
+                        DataObject="{Binding SecurityDetail}"
                         EditorLabelPosition="Top"
                         EditorLabelFontFamily="RobotoSerifBold"
                         EditorLabelHorizontalAlignment="Start"
@@ -399,7 +395,7 @@
 
                         <CheckBox
                             HorizontalOptions="Start"
-                            IsChecked="{Binding Security.IsTermAccepted, Mode=TwoWay}" />
+                            IsChecked="{Binding SecurityDetail.IsTermAccepted, Mode=TwoWay}" />
 
                         <Label
                             LineBreakMode="WordWrap"
@@ -461,7 +457,7 @@
                     </Label>
 
                     <Button
-                        Text="Continue"
+                        Text="{Binding ButtonText}"
                         Command="{Binding ContinueCommand}"
                         BackgroundColor="{StaticResource PrimaryBase}"
                         FontFamily="RobotoSerifBold"

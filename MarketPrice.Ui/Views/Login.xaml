@@ -9,10 +9,6 @@
              BackgroundColor="{StaticResource Background}"
              Title="Login">
 
-    <ContentPage.BindingContext>
-        <viewModel:LoginViewModel/>
-    </ContentPage.BindingContext>
-
     <Grid>
         <BoxView VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
         <VerticalStackLayout Spacing="0" VerticalOptions="Center" Margin="0,0,0,40">
@@ -51,19 +47,22 @@
                         CornerRadius="12" 
                         BoxMode="Outlined"
                         HeightRequest="60" 
+                        Text="{Binding LoginInfo.EmailAddress, Mode=TwoWay}"
                         TextFontFamily="RobotoSerifRegular"/>
             
                     <dxe:PasswordEdit 
                         LabelText="Password"
                         CornerRadius="12" 
                         BoxMode="Outlined"
-                        HeightRequest="60" 
+                        HeightRequest="60"
+                        Text="{Binding LoginInfo.Password, Mode=TwoWay}"
                         TextFontFamily="RobotoSerifRegular"/>
 
                     <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight"/>
 
                     <dxe:CheckEdit Label="Remember me?"
                                    LabelFontFamily="RobotoSerifMedium"
+                                   IsChecked="{Binding LoginInfo.RememberMe, Mode=TwoWay}"
                                    CheckBoxColor="{StaticResource TextSecondary}"
                                    CheckedCheckBoxColor="{StaticResource PrimaryBase}"/>
 
@@ -71,6 +70,7 @@
                                   BackgroundColor= "{StaticResource PrimaryBase }"
                                   CornerRadius="35" HeightRequest="55" 
                                   Margin="0,10" PressedScale="0.95" 
+                                  Command="{Binding LoginCommand}"
                                   FontFamily="RobotoSerifBold"/>
 
                     <Label 

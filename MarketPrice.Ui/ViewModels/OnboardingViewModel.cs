@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public class OnboardingViewModel : BindableObject
+    public partial class OnboardingViewModel : ObservableObject
     {
-        public ICommand NavigateToWelcomeCommand { get; }
 
-        public OnboardingViewModel()
+        [RelayCommand]
+        private async Task NavigateToWelcomeAsync()
         {
-            NavigateToWelcomeCommand = new Command(NavigateToWelcome);
-        }
-
-        private async void NavigateToWelcome()
-        {
+            Preferences.Set("HasCompletedOnboarding", true);
             await Shell.Current.GoToAsync("//Welcome");
         }
     }
