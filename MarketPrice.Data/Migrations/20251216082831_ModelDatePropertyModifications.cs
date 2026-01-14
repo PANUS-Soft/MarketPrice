@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -14,7 +13,7 @@ namespace MarketPrice.Data.Migrations
             /*
              * Commented the up method of this file since it was conflicting with the previous up method of InitialCreate migration file.
              */
-            
+
             //migrationBuilder.CreateTable(
             //    name: "LookupDataTypes",
             //    columns: table => new

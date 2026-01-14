@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Services.Interfaces
+﻿namespace MarketPrice.Services.Interfaces
 {
 
     /// <summary>
@@ -28,13 +22,13 @@ namespace MarketPrice.Services.Interfaces
         /// <returns></returns>
         string HashPassword(string password, string passwordSalt);
 
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="passwor"></param>
-       /// <param name="hash"></param>
-       /// <param name="salt"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="passwor"></param>
+        /// <param name="hash"></param>
+        /// <param name="salt"></param>
+        /// <returns></returns>
 
         bool VerifyPassword(string password, string passwordHash, string passwordSalt);
 

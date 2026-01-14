@@ -1,15 +1,10 @@
-﻿using MarketPrice.Domain.Authentication.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketPrice.Domain.Authentication.Commands;
+﻿using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Domain.Authentication.DTOs;
 
 namespace MarketPrice.Services.Interfaces
 {
-     public interface ILoginService
-     {
+    public interface ILoginService
+    {
         /// <summary>
         /// Handles user authentication, password verification and token issuance.
         /// </summary>
@@ -17,5 +12,5 @@ namespace MarketPrice.Services.Interfaces
         /// <returns>A DTO containing tokens, user details, and status.</returns>
         Task<LoginResponseDto> LoginAsync(LoginCommand command);
 
-     }
+    }
 }

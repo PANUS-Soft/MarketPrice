@@ -1,14 +1,9 @@
 ﻿using DevExpress.Maui.DataForm;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Models
 {
-    public class ContactAccountModel
+    public class ContactInformation
     {
         // Contact and Account Info
         [Required(ErrorMessage = "Email is required")]
@@ -31,5 +26,11 @@ namespace MarketPrice.Ui.Models
         [DataFormDisplayOptions(LabelText = "Account Type", GroupName = "Contact & Account Info")]
         [Display(Prompt = "Select an account type")]
         public AccountType AccountType { get; set; }
+    }
+    public enum AccountType
+    {
+        Personal,
+        Business
+
     }
 }

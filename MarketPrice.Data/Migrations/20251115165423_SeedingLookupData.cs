@@ -8,7 +8,7 @@ namespace MarketPrice.Migrations
     public partial class SeedingLookupData : Migration
     {
         /// <inheritdoc />
-            protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder migrationBuilder)
         {
             // --- Type 1000: Account Types ---
             migrationBuilder.Sql("INSERT INTO [LookupData] (LookupDataId, LookupDataTypeId, LookupDataValue, LookupDataTextEnglish, LookupDataTextFrench) VALUES (1001, 1000, 'Personal', 'Personal', N'Individuel')");
