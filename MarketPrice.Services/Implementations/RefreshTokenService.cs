@@ -20,23 +20,6 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<AuthenticationResponseDto> RefreshTokenAsync(RefreshTokenCommand command)
         {
-            //ClaimsPrincipal principal;
-
-            //try
-            //{
-            //    principal = _tokenService.GetPrincipalFromExpiredToken(command.AccessToken);
-            //}
-            //catch
-            //{
-            //    return RefreshTokenResponseDto.Failed("Invalid access token");
-            //}
-
-            //var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            //if (userIdClaim == null)
-            //    return RefreshTokenResponseDto.Failed("Invalid token claims");
-
-            //var userId = Guid.Parse(userIdClaim.Value);
-
             var securityDetail = await _context.UserSecurityDetails.FirstOrDefaultAsync(x => x.RefreshToken == command.RefreshToken);
             if (securityDetail == null)
                 return DtoManager.Failed<AuthenticationResponseDto>("Invalid refresh token");
@@ -66,7 +49,7 @@ namespace MarketPrice.Services.Implementations
                 RefreshToken = newRefreshToken,
                 ExpiryDate = DateTime.Now.AddMinutes(10)
             };
-            return DtoManager.Succeed(dto );
+            return DtoManager.Succeed(dto);
         }
     }
 }

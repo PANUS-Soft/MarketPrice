@@ -52,7 +52,7 @@ namespace MarketPrice.Ui.Services.Api
         public BaseApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingsOptions)
         {
             var apiSettings = apiSettingsOptions.Value;
-            // set base address
+            // Set base address
             httpClient.BaseAddress = new Uri(apiSettings.BaseUrl);
             httpClient.DefaultRequestHeaders.Add("client-name",apiSettings.ClientNameHeader);
             HttpClient = httpClient;

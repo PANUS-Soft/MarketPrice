@@ -49,11 +49,9 @@ namespace MarketPrice.Ui.ViewModels
                 };
 
                 var response = await authenticationApi.LoginUserAsync(command);
-                //var responseMessage = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
 
-                    //var dto = JsonSerializer.Deserialize<LoginResponseDto>(responseMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     var dto  = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
                     if (dto != null)
                     {

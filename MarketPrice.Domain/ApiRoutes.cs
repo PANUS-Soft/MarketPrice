@@ -3,10 +3,11 @@
 public static class ApiRoutes
 {
     public const string AUTH="auth";
-    public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_LOGIN = "auth/login";
     public const string AUTH_LOGOUT = "auth/logout";
+    public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
+    public const string AUTH_PING = "auth/ping";
 }
 
 public static class ApiControllers
