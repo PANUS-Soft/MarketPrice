@@ -8,11 +8,16 @@ public static class ApiRoutes
     public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
+
+    public const string REF_REGION = "regions";
+    public const string REF_COMMODITY = "commodities";
+    public const string REF_COMMODITY_TYPE = "commodityTypes";
 }
 
 public static class ApiControllers
 {
     public const string ApplicationUsers = "ApplicationUsers";
+    public const string ReferenceData = "ReferenceData";
 }
 
 public static class StringExtensions

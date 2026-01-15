@@ -20,6 +20,7 @@ builder.Services.AddScoped<ILogoutService, LogoutService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
