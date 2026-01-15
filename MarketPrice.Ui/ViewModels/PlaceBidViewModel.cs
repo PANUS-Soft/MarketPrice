@@ -4,12 +4,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Reference;
 using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class PlaceBidViewModel (ReferenceDataApiService referenceDataApi) : ObservableValidator
+    public partial class PlaceBidViewModel (ReferenceDataApiService referenceDataApi, SessionService sessionService) : ObservableValidator
     {
         public ObservableCollection<RegionDto> Regions { get; } = new();
         public ObservableCollection<CommodityTypeDto> CommodityTypes { get; } = new();
@@ -35,8 +37,35 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] 
         private string _description;
 
-        [ObservableProperty] private DateTime? _startDate;
-        [ObservableProperty] private DateTime? _endDate;
+        [ObservableProperty]
+        [Required(ErrorMessage = "Start Date is required.")]
+        [NotifyPropertyChangedFor(nameof(EndDate))]
+        private DateTime? _startDate;
+        
+        [ObservableProperty]
+        [Required(ErrorMessage = "End Date is required.")]
+        [CustomValidation(typeof(PlaceBidViewModel), nameof(ValidateEndDate))]
+        private DateTime? _endDate;
+
+        public static ValidationResult? ValidateEndDate(DateTime? endDate, ValidationContext context)
+        {
+            // We get access to the whole ViewModel instance here
+            var instance = (PlaceBidViewModel)context.ObjectInstance;
+
+            // If either date is missing, let the [Required] attribute handle that error instead
+            if (endDate == null || instance.StartDate == null)
+            {
+                return ValidationResult.Success;
+            }
+
+            // The actual logic: End Date must be greater than Start Date
+            if (endDate <= instance.StartDate)
+            {
+                return new ValidationResult("End date must be later than the start date.");
+            }
+
+            return ValidationResult.Success;
+        }
 
         [ObservableProperty]
         [Required(ErrorMessage = "Town is required.")]
@@ -121,6 +150,35 @@ namespace MarketPrice.Ui.ViewModels
             if (HasErrors)
                 return;
 
+            var location = new LocationCommand
+            {
+                RegionId = SelectedRegion.Id,
+                Town = Town,
+                Quarter = Quarter,
+                Street = Street
+            };
+
+            var userSession = sessionService.GetCurrentSessionAsync().Result;
+
+            if (userSession != null && StartDate != null && EndDate != null)
+            {           
+                var command = new CreatePositionCommand
+                    {
+                        UserId = userSession.UserId,
+                        CommodityId = SelectedCommodity.Id,
+                        UnitPrice = UnitPrice,
+                        Quantity = Quantity,
+                        Grade = SelectedGrade,
+                        Description = Description,
+                        StartDate = StartDate.Value,
+                        EndDate = EndDate.Value,
+                        Origin = location
+                    };
+
+                await Shell.Current.DisplayAlert("Position Summary", $"Quantity: {command.Quantity} \n\n Unit Price: {command.UnitPrice} \n\n Duration: {command.EndDate - command.StartDate}","OK");
+            }
+
+            await Shell.Current.DisplayAlert("Error", "There was an error while placing your bid ...", "OK");
         }
     }
 }
