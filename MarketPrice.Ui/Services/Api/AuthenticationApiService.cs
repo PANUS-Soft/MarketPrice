@@ -41,7 +41,7 @@ namespace MarketPrice.Ui.Services.Api
 
         public async Task<HttpResponseMessage> PingAsync()
         {
-            var url = ApiControllers.ApplicationUsers.AppendRoute("auth/ping");
+            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH_PING);
             var response = await GettingAsync(url);
             return response;
         }
