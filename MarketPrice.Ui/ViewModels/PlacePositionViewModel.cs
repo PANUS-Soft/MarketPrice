@@ -63,6 +63,20 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private bool _isDeliverable;
 
 
+        //The Back Button
+        [RelayCommand]
+        public async Task BackNavigation()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
+        //The A/B/C Buttons
+        [RelayCommand]
+        public void SelectGrade(string grade)
+        {
+            SelectedGrade = grade;
+        }
+
         public static ValidationResult? ValidateEndDate(DateTime? endDate, ValidationContext context)
         {
             // We get access to the whole ViewModel instance here
