@@ -498,7 +498,7 @@
                                 WidthRequest="100"/>
 
                         <Button Grid.Column="1" 
-                                Text="Post Offer" 
+                                Text="Post Bid" 
                                 BackgroundColor="{StaticResource PrimaryBase}" 
                                 TextColor="White" 
                                 FontAttributes="Bold" 
