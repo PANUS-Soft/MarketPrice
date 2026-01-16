@@ -18,6 +18,7 @@ namespace MarketPrice.Domain.Position.Commands
         public required DateTime EndDate { get; set; }
         public string? LeadTime { get; set; }
         public decimal? DeliveryFee { get; set; }
+        public decimal? MaxDistance { get; set; }
         public required LocationCommand Origin { get; set; }
         public LocationCommand? Destination
         {

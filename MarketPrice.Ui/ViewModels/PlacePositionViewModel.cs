@@ -11,16 +11,21 @@ using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class PlaceBidViewModel(ReferenceDataApiService referenceDataApi, SessionService sessionService) : ObservableValidator
+    public partial class PlacePositionViewModel(ReferenceDataApiService referenceDataApi, SessionService sessionService)
+        : ObservableValidator
     {
         public ObservableCollection<RegionDto> Regions { get; } = new();
         public ObservableCollection<CommodityTypeDto> CommodityTypes { get; } = new();
         public ObservableCollection<CommodityDto> Commodities { get; } = new();
         public LocationViewModel Origin { get; } = new();
+        public LocationViewModel Destination { get; } = new();
 
+        [ObservableProperty] private CommodityTypeDto _selectedCommodityType;
 
-        [ObservableProperty]
-        [Required(ErrorMessage = "Grade is required.")]
+        [ObservableProperty] [Required(ErrorMessage = "Commodity is required.")]
+        private CommodityDto _selectedCommodity;
+
+        [ObservableProperty] [Required(ErrorMessage = "Grade is required.")]
         private string _selectedGrade;
 
         [ObservableProperty]
@@ -35,24 +40,33 @@ namespace MarketPrice.Ui.ViewModels
         [NotifyPropertyChangedFor(nameof(TotalBidValue))]
         private decimal _unitPrice;
 
-        [ObservableProperty]
-        private string _description;
+        [ObservableProperty] private string _description;
 
         [ObservableProperty]
         [Required(ErrorMessage = "Start Date is required.")]
         [NotifyPropertyChangedFor(nameof(EndDate))]
-        private DateTime? _startDate;
+        private DateTime _startDate;
 
         [ObservableProperty]
         [Required(ErrorMessage = "End Date is required.")]
-        [CustomValidation(typeof(PlaceBidViewModel), nameof(ValidateEndDate))]
-        private DateTime? _endDate;
+        [CustomValidation(typeof(PlacePositionViewModel), nameof(ValidateEndDate))]
+        private DateTime _endDate;
+
+        [ObservableProperty] private decimal? _deliveryFee;
+
+        [ObservableProperty] private decimal? _maxDistance;
+
+        [ObservableProperty] private decimal _fee;
+
+        [ObservableProperty] private string _leadTime;
+
+        [ObservableProperty] private bool _isDeliverable;
 
 
         public static ValidationResult? ValidateEndDate(DateTime? endDate, ValidationContext context)
         {
             // We get access to the whole ViewModel instance here
-            var instance = (PlaceBidViewModel)context.ObjectInstance;
+            var instance = (PlacePositionViewModel)context.ObjectInstance;
 
             // If either date is missing, let the [Required] attribute handle that error instead
             if (endDate == null || instance.StartDate == null)
@@ -69,22 +83,12 @@ namespace MarketPrice.Ui.ViewModels
             return ValidationResult.Success;
         }
 
-        [ObservableProperty]
-        private int _shelfLifeInDays;
+        [ObservableProperty] private int _shelfLifeInDays;
 
-        [ObservableProperty]
-        private decimal _lotSize;
+        [ObservableProperty] private decimal _lotSize;
 
         public decimal TotalBidValue => UnitPrice * Quantity;
 
-        [ObservableProperty]
-        private CommodityTypeDto _selectedCommodityType;
-
-        [ObservableProperty]
-        [Required(ErrorMessage = "Commodity is required.")]
-        private CommodityDto _selectedCommodity;
-
-        
         async partial void OnSelectedCommodityTypeChanged(CommodityTypeDto value)
         {
             await LoadCommoditiesForSelectedType();
@@ -119,15 +123,14 @@ namespace MarketPrice.Ui.ViewModels
             var commoditiesResponse = await referenceDataApi.GetCommoditiesByIdAsync(SelectedCommodityType.Id);
 
             var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
-            
+
             foreach (var c in commodities)
                 Commodities.Add(c);
         }
 
         public bool CanPostBid => !HasErrors;
 
-        [ObservableProperty]
-        private bool _showValidationErrors;
+        [ObservableProperty] private bool _showValidationErrors;
 
         [RelayCommand(CanExecute = nameof(CanPostBid))]
         public async Task PostBidAsync()
@@ -152,16 +155,69 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = Quantity,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = StartDate.Value,
-                    EndDate = EndDate.Value,
+                    StartDate = StartDate,
+                    EndDate = EndDate,
                     Origin = Origin.ToCommand()
                 };
 
-                await Shell.Current.DisplayAlert("Position Summary", $"UserId: {userSession.UserId} \n\n Quantity: {command.Quantity} \n\n Unit Price: {command.UnitPrice} \n\n Duration: {command.EndDate - command.StartDate}", "OK");
+                await Shell.Current.DisplayAlert("Position Summary",
+                    $"UserId: {userSession.UserId} \n\n Quantity: {command.Quantity} \n\n Unit Price: {command.UnitPrice} \n\n Duration: {command.EndDate - command.StartDate}",
+                    "OK");
                 return;
             }
 
             await Shell.Current.DisplayAlert("Error", "There was an error while placing your bid ...", "OK");
+        }
+
+        public bool CanPostOffer => !HasErrors;
+
+        [RelayCommand(CanExecute = nameof(CanPostOffer))]
+        public async Task PostOfferAsync()
+        {
+            _showValidationErrors = true;
+            ValidateAllProperties();
+
+            var originIsValid = Origin.Validate();
+            var destinationIsValid = Destination.Validate();
+
+            if (IsDeliverable)
+            {
+                if (HasErrors || !originIsValid || !destinationIsValid)
+                    return;
+            }
+            else
+            {
+                if (HasErrors || !originIsValid)
+                    return;
+            }
+
+            var userSession = await sessionService.GetCurrentSessionAsync();
+
+            if (userSession != null && StartDate != null && EndDate != null)
+            {
+                var command = new CreatePositionCommand
+                {
+                    UserId = userSession.UserId,
+                    CommodityId = SelectedCommodity.CommodityTypeId,
+                    DeliveryFee = IsDeliverable ? DeliveryFee : null,
+                    Grade = SelectedGrade,
+                    Description = Description,
+                    UnitPrice = UnitPrice,
+                    StartDate = StartDate,
+                    EndDate = EndDate,
+                    Quantity = Quantity,
+                    MaxDistance = MaxDistance,
+                    LeadTime = IsDeliverable ? $"{LeadTime} days" : null,
+                    Destination = IsDeliverable ? Destination.ToCommand() : null,
+                    Origin = Origin.ToCommand(),
+                };
+                await Shell.Current.DisplayAlert("Position Summary",
+                    $"UserId: {userSession.UserId} \n\n Quantity: {command.Quantity} \n\n Unit Price: {command.UnitPrice} \n\n Duration: {command.EndDate - command.StartDate}",
+                    "OK");
+                return;
+            }
+
+            await Shell.Current.DisplayAlert("Error", "There was an error while placing your offer ...", "OK");
         }
     }
 }
