@@ -12,12 +12,17 @@ public static class ApiRoutes
     public const string BID_CREATE = "bid/create";
     public const string OFFER_CREATE = "offer/create";
 
+
+    public const string REF_REGION = "regions";
+    public const string REF_COMMODITY = "commodities";
+    public const string REF_COMMODITY_TYPE = "commodityTypes";
 }
 
 public static class ApiControllers
 {
     public const string ApplicationUsers = "ApplicationUsers";
     public const string Positions = "Positions";
+    public const string ReferenceData = "ReferenceData";
 }
 
 public static class StringExtensions

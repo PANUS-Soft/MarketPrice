@@ -59,7 +59,8 @@ namespace MarketPrice.Ui
                 builder.AddHttpMessageHandler<AuthHandler>();
             });
 
-            builder.Services.AddHttpClient<AuthenticationApiService>(); 
+            builder.Services.AddHttpClient<AuthenticationApiService>();
+            builder.Services.AddHttpClient<ReferenceDataApiService>();
 
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
