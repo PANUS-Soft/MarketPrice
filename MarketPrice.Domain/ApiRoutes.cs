@@ -8,11 +8,16 @@ public static class ApiRoutes
     public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
+
+    public const string BID_CREATE = "bid/create";
+    public const string OFFER_CREATE = "offer/create";
+
 }
 
 public static class ApiControllers
 {
     public const string ApplicationUsers = "ApplicationUsers";
+    public const string Positions = "Positions";
 }
 
 public static class StringExtensions

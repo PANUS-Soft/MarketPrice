@@ -20,6 +20,8 @@ builder.Services.AddScoped<ILogoutService, LogoutService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+builder.Services.AddSingleton<ILookupProviderService, LookupProviderService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
@@ -96,6 +98,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Initialize the lookups from the DB at startup
+using (var scope = app.Services.CreateScope())
+{
+    var lookupProvider = scope.ServiceProvider.GetRequiredService<ILookupProviderService>();
+    await lookupProvider.InitializeAsync();
+}
 
 // --- 4. MIDDLEWARE ---
 if (app.Environment.IsDevelopment())

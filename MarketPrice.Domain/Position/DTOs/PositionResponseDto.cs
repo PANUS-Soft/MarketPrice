@@ -9,6 +9,7 @@ namespace MarketPrice.Domain.Position.DTOs
     public class PositionResponseDto
     {
         public Guid PositionId { get; set; }
-        public string Message { get; set; }
+        public required string Message { get; set; }
+        public int StatusId { get; set; }
     }
 }
