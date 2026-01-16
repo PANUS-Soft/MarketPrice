@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Domain.Position.Commands
 {
-    public class CreatePositionCommand
+    public class PositionCommand
     {
         public Guid UserId { get; set; }
         public Guid CommodityId { get; set; }
@@ -18,6 +18,7 @@ namespace MarketPrice.Domain.Position.Commands
         public required DateTime EndDate { get; set; }
         public string? LeadTime { get; set; }
         public decimal? DeliveryFee { get; set; }
+        public decimal? MaxDistance { get; set; }
         public required LocationCommand Origin { get; set; }
         public LocationCommand? Destination
         {
