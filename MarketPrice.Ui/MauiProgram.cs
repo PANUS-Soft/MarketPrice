@@ -65,10 +65,12 @@ namespace MarketPrice.Ui
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<PlaceBidViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
             builder.Services.AddTransient<Login>();
+            builder.Services.AddTransient<PlaceBid>();
 
 
 
