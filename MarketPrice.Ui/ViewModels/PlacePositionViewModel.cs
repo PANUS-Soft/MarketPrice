@@ -8,6 +8,7 @@ using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Reference;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
+using Microsoft.Extensions.Logging;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -30,14 +31,12 @@ namespace MarketPrice.Ui.ViewModels
 
         [ObservableProperty]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater then zero.")]
-        [NotifyPropertyChangedFor(nameof(TotalBidValue))]
+        [NotifyPropertyChangedFor(nameof(TotalValue))]
         private int _quantity;
-
-        [ObservableProperty] private string _unitOfMeasure;
 
         [ObservableProperty]
         [Range(0.01, double.MaxValue, ErrorMessage = "Unit Price must be greater then zero.")]
-        [NotifyPropertyChangedFor(nameof(TotalBidValue))]
+        [NotifyPropertyChangedFor(nameof(TotalValue))]
         private decimal _unitPrice;
 
         [ObservableProperty] private string _description;
@@ -64,18 +63,11 @@ namespace MarketPrice.Ui.ViewModels
 
 
         //The Back Button
-        [RelayCommand]
-        public async Task BackNavigation()
-        {
-            await Shell.Current.GoToAsync("..");
-        }
-
-        //The A/B/C Buttons
-        [RelayCommand]
-        public void SelectGrade(string grade)
-        {
-            SelectedGrade = grade;
-        }
+        //[RelayCommand]
+        //public async Task BackNavigation()
+        //{
+        //    await Shell.Current.GoToAsync("..");
+        //}
 
         public static ValidationResult? ValidateEndDate(DateTime? endDate, ValidationContext context)
         {
@@ -97,11 +89,13 @@ namespace MarketPrice.Ui.ViewModels
             return ValidationResult.Success;
         }
 
-        [ObservableProperty] private int _shelfLifeInDays;
+        public decimal TotalValue => UnitPrice * Quantity;
 
-        [ObservableProperty] private decimal _lotSize;
+        public string? UnitOfMeasure => SelectedCommodityType.UnitOfMeasure;
 
-        public decimal TotalBidValue => UnitPrice * Quantity;
+        public int? ShelfLifeInDays => (int)SelectedCommodity.ShelfLifeInDays;
+
+        public decimal? LotSize => (decimal)SelectedCommodity.LotSize;
 
         async partial void OnSelectedCommodityTypeChanged(CommodityTypeDto value)
         {

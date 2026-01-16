@@ -33,25 +33,23 @@ namespace MarketPrice.Ui
 
         private async Task HandleStartupNavigationAsync()
         {
-            await Shell.Current.GoToAsync("//PlaceBid");
-            return;
-            //var hasOnboarded = Preferences.Get("HasCompletedOnboarding", false);
-            //if (!hasOnboarded)
-            //{
-            //    await Shell.Current.GoToAsync("//Onboarding");
-            //    return;
-            //}
+            var hasOnboarded = Preferences.Get("HasCompletedOnboarding", false);
+            if (!hasOnboarded)
+            {
+                await Shell.Current.GoToAsync("//Onboarding");
+                return;
+            }
 
-            //bool hasValidSession = await _sessionService.ValidateAndRefreshSessionAsync();
+            bool hasValidSession = await _sessionService.ValidateAndRefreshSessionAsync();
 
-            //if (hasValidSession)
-            //{
-            //    await Shell.Current.GoToAsync("//Home");
-            //}
-            //else
-            //{
-            //    await Shell.Current.GoToAsync("//Welcome");
-            //}
+            if (hasValidSession)
+            {
+                await Shell.Current.GoToAsync("//Home");
+            }
+            else
+            {
+                await Shell.Current.GoToAsync("//Welcome");
+            }
         }
 
         //protected override Window CreateWindow(IActivationState? activationState)

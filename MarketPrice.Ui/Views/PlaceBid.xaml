@@ -2,8 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dxe="http://schemas.devexpress.com/maui"
-             xmlns:viewmodels="clr-namespace:MarketPrice.Ui.ViewModels"
-             x:DataType="viewmodels:PlacePositionViewModel"
+             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             x:DataType="viewModels:PlacePositionViewModel"
              x:Class="MarketPrice.Ui.Views.PlaceBid"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False"
@@ -43,10 +43,10 @@
                         <Grid ColumnDefinitions="*, Auto">
 
                             <Picker Grid.Column="0" 
-                                    Title="Select" 
-                                    ItemsSource="{Binding Commodities}" 
+                                    Title="Select Commodity" 
+                                    ItemsSource="{Binding CommodityTypes}" 
                                     ItemDisplayBinding="{Binding Name}"
-                                    SelectedItem="{Binding SelectedCommodity}"
+                                    SelectedItem="{Binding SelectedCommodityType}"
                                     TextColor="Black" 
                                     FontAttributes="Bold" 
                                     FontSize="16" 
@@ -67,7 +67,7 @@
                                 JustifyContent="Start" 
                                 AlignItems="Center">
 
-                        <Label Text="Shelf Life: 2days" 
+                        <Label Text="{Binding ShelfLifeInDays, StringFormat:'Shelf Life: {0} days'}" 
                                FontSize="12" 
                                TextColor="#666666" 
                                Margin="0,0,15,0"/>
@@ -148,7 +148,7 @@
                                        TextColor="Black"/>
 
                                 <dxe:ComboBoxEdit ItemsSource="{Binding Commodities}" 
-                                                  DisplayMember="Name"
+                                                  DisplayMember="{Binding Name}"
                                                   SelectedItem="{Binding SelectedCommodity}"
                                                   PlaceholderText="Select Commodity" 
                                                   BorderColor="{StaticResource PrimaryBase}" 
@@ -170,7 +170,7 @@
 
                                     <Button Grid.Column="0" 
                                             Text="A" 
-                                            Command="{Binding SelectGradeCommand}"
+                                            Command="{Binding SelectedGrade}"
                                             CommandParameter="A"
                                             TextColor="White" 
                                             BackgroundColor="{StaticResource PrimaryBase}" 
@@ -180,7 +180,7 @@
 
                                     <Button Grid.Column="1" 
                                             Text="B" 
-                                            Command="{Binding SelectGradeCommand}"
+                                            Command="{Binding SelectedGrade}"
                                             CommandParameter="B"
                                             TextColor="Black" 
                                             BackgroundColor="White" 
@@ -192,7 +192,7 @@
 
                                     <Button Grid.Column="2" 
                                             Text="C" 
-                                            Command="{Binding SelectGradeCommand}"
+                                            Command="{Binding SelectedGrade}"
                                             CommandParameter="C"
                                             TextColor="Black" 
                                             BackgroundColor="White" 
@@ -242,8 +242,7 @@
                                             BackgroundColor="#F5F5F5" 
                                             StrokeShape="RoundRectangle 5">
 
-                                        <dxe:TextEdit Text="{Binding UnitOfMeasure}" 
-                                                      PlaceholderText="Kg" 
+                                        <dxe:TextEdit Text="{Binding UnitOfMeasure}"
                                                       TextColor="Black" 
                                                       BoxMode="Filled" 
                                                       BackgroundColor="Transparent"/>
@@ -377,7 +376,7 @@
                                 </VerticalStackLayout>
                             </Grid>
 
-                            <Label Text="{Binding TotalBidValue, StringFormat='Total Offer Value: {0:N0} CFA'}" 
+                            <Label Text="{Binding TotalValue, StringFormat='Total Bid Value: {0:N0} CFA'}" 
                                    HorizontalOptions="End" 
                                    FontAttributes="Bold" 
                                    TextColor="Black" 
@@ -434,7 +433,7 @@
                                                      Spacing="0">
 
                                     <dxe:ComboBoxEdit ItemsSource="{Binding Regions}" 
-                                                       DisplayMember="Name"
+                                                       DisplayMember="{Binding Origin.SelectedRegion.NameInEnglish}"
                                                        SelectedItem="{Binding Origin.SelectedRegion}"
                                                        PlaceholderText="Region" 
                                                        BorderColor="Gray" 
@@ -507,7 +506,7 @@
                                 WidthRequest="100"/>
 
                         <Button Grid.Column="1" 
-                                Text="Post Offer" 
+                                Text="Post Bid" 
                                 Command="{Binding PostBidCommand}"
                                 BackgroundColor="{StaticResource PrimaryBase}" 
                                 TextColor="White" 
