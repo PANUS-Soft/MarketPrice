@@ -3,131 +3,133 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              xmlns:dxco="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+             xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.PlaceOffer"
              Shell.TabBarIsVisible="False"
              BackgroundColor="#F2F4F7"
              Title="PlaceOffer">
-    <Grid RowDefinitions="Auto, Auto, *, Auto">
 
-        <Border Grid.Row="0" Background="White" Padding="15,10" StrokeThickness="0">
-            <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="5"/>
-            </Border.Shadow>
+        <Grid RowDefinitions="Auto, Auto, *, Auto">
 
-            <Grid ColumnDefinitions="45,*">
-                <ImageButton Source="back.png" HeightRequest="25" WidthRequest="25"
-                             MaximumHeightRequest="22" MaximumWidthRequest="22"
-                             Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" Clicked="{Binding BackCommand}"/>
-                <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" HorizontalOptions="Start" Background="Transparent">
-                    <VerticalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer/>
-                    </VerticalStackLayout.GestureRecognizers>
+            <Border Grid.Row="0" Background="White" Padding="15,10" StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="5"/>
+                </Border.Shadow>
 
-                    <HorizontalStackLayout Spacing="5">
-                        <Label Text="CORN" FontAttributes="Bold" FontSize="18" TextColor="#1A1C1E"/>
-                        <Label Text="▾" FontSize="14" VerticalOptions="Center" TextColor="Gray"/>
-                    </HorizontalStackLayout>
+                <Grid ColumnDefinitions="45,*">
+                    <ImageButton Source="back.png" HeightRequest="25" WidthRequest="25"
+                                 MaximumHeightRequest="22" MaximumWidthRequest="22"
+                                 Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" Command="{Binding BackCommand}"/>
+                    <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" HorizontalOptions="Start" Background="Transparent">
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer/>
+                        </VerticalStackLayout.GestureRecognizers>
 
-                    <HorizontalStackLayout Spacing="10">
-                        <Label Text="Shelf Life: 2days" FontSize="11" TextColor="#6C757D"/>
-                        <Label Text="Lot Size: 25kg" FontSize="11" TextColor="#6C757D"/>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Grid>
-        </Border>
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="CORN" FontAttributes="Bold" FontSize="18" TextColor="#1A1C1E"/>
+                            <Label Text="▾" FontSize="14" VerticalOptions="Center" TextColor="Gray"/>
+                        </HorizontalStackLayout>
 
-        <VerticalStackLayout Grid.Row="1" Padding="20,15,20,5" Spacing="8">
-            <Label Text="Place an Offer" HorizontalOptions="Center" FontSize="18" FontAttributes="Bold" TextColor="#1A1C1E"/>
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" HeightRequest="4">
-                <BoxView Grid.Column="0" Color="#0056A0" CornerRadius="2"/>
-                <BoxView Grid.Column="1" Color="#D1D5DB" CornerRadius="2"/>
-                <BoxView Grid.Column="2" Color="#D1D5DB" CornerRadius="2"/>
-            </Grid>
-        </VerticalStackLayout>
+                        <HorizontalStackLayout Spacing="10">
+                        <Label Text="{Binding ShelfLifeInDays, StringFormat:'Shelf Life: {0}'}" FontSize="11" TextColor="#6C757D"/>
+                            <Label Text="Lot Size: 25kg" FontSize="11" TextColor="#6C757D"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
 
-        <ScrollView Grid.Row="2" Padding="20,0">
-            <Grid>
-                <VerticalStackLayout Spacing="15" IsVisible="{Binding IsStep1}">
-                    <Label Text="Step 1 of 3: Commodity Details" FontSize="14" FontAttributes="Bold" TextColor="#495057"/>
+            <VerticalStackLayout Grid.Row="1" Padding="20,15,20,5" Spacing="8">
+                <Label Text="Place an Offer" HorizontalOptions="Center" FontSize="18" FontAttributes="Bold" TextColor="#1A1C1E"/>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" HeightRequest="4">
+                    <BoxView Grid.Column="0" Color="{Binding Step1Color}" CornerRadius="2"/>
+                    <BoxView Grid.Column="1" Color="{Binding Step2Color}" CornerRadius="2"/>
+                    <BoxView Grid.Column="2" Color="{Binding Step3Color}" CornerRadius="2"/>
+                </Grid>
+            </VerticalStackLayout>
 
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="12">
-                            <dxe:ComboBoxEdit x:Name="cmbCommodityStep1" LabelText="Commodity" BoxMode="Outlined" CornerRadius="8"/>
-                            <Label Text="Grade" FontSize="13" FontAttributes="Bold" TextColor="#495057"/>
-                            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" HeightRequest="40">
-                                <Button Grid.Column="0" Text="A" BackgroundColor="#007BFF" CornerRadius="8"/>
-                                <Button Grid.Column="1" Text="B" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
-                                <Button Grid.Column="2" Text="C" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
-                            </Grid>
+            <ScrollView Grid.Row="2" Padding="20,0">
+                <Grid>
+                    <VerticalStackLayout Spacing="15" IsVisible="{Binding IsCommodityDetailsStep}">
+                        <Label Text="{Binding CurrentStepDisplay}" FontSize="14" FontAttributes="Bold" TextColor="#495057"/>
 
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                                <dxe:TextEdit Grid.Column="0" x:Name="txtQuantity" LabelText="Quantity" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="8"/>
-                                <dxe:TextEdit Grid.Column="1" x:Name="txtTotalDisplay" LabelText="Total Weight/Vol" IsReadOnly="True" Text="0 Kg" BoxMode="Outlined" CornerRadius="8" BackgroundColor="#F8F9FA"/>
-                            </Grid>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="12">
+                                <dxe:ComboBoxEdit x:Name="cmbCommodityStep1" LabelText="Commodity" BoxMode="Outlined" CornerRadius="8"/>
+                                <Label Text="Grade" FontSize="13" FontAttributes="Bold" TextColor="#495057"/>
+                                <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" HeightRequest="40">
+                                    <Button Grid.Column="0" Text="A" BackgroundColor="#007BFF" CornerRadius="8"/>
+                                    <Button Grid.Column="1" Text="B" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
+                                    <Button Grid.Column="2" Text="C" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
+                                </Grid>
 
-                            <dxe:MultilineEdit LabelText="Description (Optional)" HeightRequest="120" BoxMode="Outlined" CornerRadius="8"/>
-                        </VerticalStackLayout>
-                    </Border>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                                    <dxe:TextEdit Grid.Column="0" x:Name="txtQuantity" LabelText="Quantity" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="8"/>
+                                    <dxe:TextEdit Grid.Column="1" x:Name="txtTotalDisplay" LabelText="Total Weight/Vol" IsReadOnly="True" Text="0 Kg" BoxMode="Outlined" CornerRadius="8" BackgroundColor="#F8F9FA"/>
+                                </Grid>
 
-                </VerticalStackLayout>
+                                <dxe:MultilineEdit LabelText="Description (Optional)" HeightRequest="120" BoxMode="Outlined" CornerRadius="8"/>
+                            </VerticalStackLayout>
+                        </Border>
 
-                <VerticalStackLayout Spacing="15" IsVisible="{Binding IsStep2}">
-                    <Label Text="Step 2 of 3: Pricing and Timing" FontSize="14" FontAttributes="Bold" TextColor="#495057"/>
+                    </VerticalStackLayout>
 
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="20">
-                            <dxe:TextEdit LabelText="Unit Price" Prefix="CFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="8"/>
+                    <VerticalStackLayout Spacing="15" IsVisible="{Binding IsPricingAndTimingStep}">
+                        <Label Text="Step 2 of 3: Pricing and Timing" FontSize="14" FontAttributes="Bold" TextColor="#495057"/>
 
-                            <Label Text="Time Line" FontSize="13" FontAttributes="Bold" TextColor="#495057"/>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                                <dxe:DateEdit  Grid.Column="0" LabelText="Start Date" BoxMode="Outlined" CornerRadius="8" DisplayFormat="G"/>
-                                <dxe:DateEdit Grid.Column="1" LabelText="End Date" BoxMode="Outlined" CornerRadius="8" DisplayFormat="G"/>
-                            </Grid>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="20">
+                                <dxe:TextEdit LabelText="Unit Price" Prefix="CFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="8"/>
 
-                            <Label Text="Total Offer Value: 1000CFA" HorizontalOptions="End" FontAttributes="Bold" FontSize="16" TextColor="#1A1C1E" Margin="0,10,0,0"/>
-                        </VerticalStackLayout>
-                    </Border>
+                                <Label Text="Time Line" FontSize="13" FontAttributes="Bold" TextColor="#495057"/>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                                    <dxe:DateEdit  Grid.Column="0" LabelText="Start Date" BoxMode="Outlined" CornerRadius="8" DisplayFormat="G"/>
+                                    <dxe:DateEdit Grid.Column="1" LabelText="End Date" BoxMode="Outlined" CornerRadius="8" DisplayFormat="G"/>
+                                </Grid>
 
-                </VerticalStackLayout>
+                                <Label Text="Total Offer Value: 1000CFA" HorizontalOptions="End" FontAttributes="Bold" FontSize="16" TextColor="#1A1C1E" Margin="0,10,0,0"/>
+                            </VerticalStackLayout>
+                        </Border>
 
-                <VerticalStackLayout Spacing="15" IsVisible="{Binding IsStep3}">
-                    <Label Text="Step 3 of 3: Logistics" FontSize="14" FontAttributes="Bold" TextColor="#495057"/>
+                    </VerticalStackLayout>
 
-                    <Label Text="Original Location" FontAttributes="Bold" TextColor="#495057"/>
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="10">
-                            <dxe:ComboBoxEdit LabelText="Region" BoxMode="Outlined" CornerRadius="8"/>
-                            <dxe:TextEdit LabelText="Town" BoxMode="Outlined" CornerRadius="8"/>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                <dxe:TextEdit Grid.Column="0" LabelText="Quarter" BoxMode="Outlined" CornerRadius="8"/>
-                                <dxe:TextEdit Grid.Column="1" LabelText="Street" BoxMode="Outlined" CornerRadius="8"/>
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
+                    <VerticalStackLayout Spacing="15" IsVisible="{Binding IsLogisticsInformationStep}">
+                        <Label Text="Step 3 of 3: Logistics" FontSize="14" FontAttributes="Bold" TextColor="#495057"/>
 
-                    <Label Text="Destination Location" FontAttributes="Bold" TextColor="#495057" Margin="0,10,0,0"/>
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="10">
-                            <dxe:ComboBoxEdit LabelText="Region" BoxMode="Outlined" CornerRadius="8"/>
-                            <dxe:TextEdit LabelText="Town" BoxMode="Outlined" CornerRadius="8"/>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                <dxe:TextEdit Grid.Column="0" LabelText="Quarter" BoxMode="Outlined" CornerRadius="8"/>
-                                <dxe:TextEdit Grid.Column="1" LabelText="Street" BoxMode="Outlined" CornerRadius="8"/>
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
+                        <Label Text="Original Location" FontAttributes="Bold" TextColor="#495057"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="10">
+                                <dxe:ComboBoxEdit LabelText="Region" BoxMode="Outlined" CornerRadius="8"/>
+                                <dxe:TextEdit LabelText="Town" BoxMode="Outlined" CornerRadius="8"/>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <dxe:TextEdit Grid.Column="0" LabelText="Quarter" BoxMode="Outlined" CornerRadius="8"/>
+                                    <dxe:TextEdit Grid.Column="1" LabelText="Street" BoxMode="Outlined" CornerRadius="8"/>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
 
-                </VerticalStackLayout>
-            </Grid>
+                        <Label Text="Destination Location" FontAttributes="Bold" TextColor="#495057" Margin="0,10,0,0"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="10">
+                                <dxe:ComboBoxEdit LabelText="Region" BoxMode="Outlined" CornerRadius="8"/>
+                                <dxe:TextEdit LabelText="Town" BoxMode="Outlined" CornerRadius="8"/>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <dxe:TextEdit Grid.Column="0" LabelText="Quarter" BoxMode="Outlined" CornerRadius="8"/>
+                                    <dxe:TextEdit Grid.Column="1" LabelText="Street" BoxMode="Outlined" CornerRadius="8"/>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
 
-        </ScrollView>
-      
-        <Border Grid.Row="3" BackgroundColor="White" Padding="20,15" StrokeThickness="0">
-            <Grid ColumnDefinitions="*,*">
-                <Button Grid.Column="0" x:Name="BtnBack" Text="Back" BackgroundColor="Transparent" TextColor="#0056A0" FontAttributes="Bold" HorizontalOptions="Start"/>
-                <Button Grid.Column="1" x:Name="BtnNext" Text="Continue" BackgroundColor="#0056A0" TextColor="White" CornerRadius="5" HeightRequest="50" Padding="30,0" HorizontalOptions="End"/>
-            </Grid>
-        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+
+            </ScrollView>
+          
+            <Border Grid.Row="3" BackgroundColor="White" Padding="20,15" StrokeThickness="0">
+                <Grid ColumnDefinitions="*,*">
+                    <Button Grid.Column="0" Command="{Binding BackCommand}" Text="Back" BackgroundColor="Transparent" TextColor="#0056A0" FontAttributes="Bold" HorizontalOptions="Start"/>
+                    <Button Grid.Column="1" Command="{Binding OfferContinueCommand}" Text="{Binding OfferButtonText}" BackgroundColor="#0056A0" TextColor="White" CornerRadius="5" HeightRequest="50" Padding="30,0" HorizontalOptions="End"/>
+                </Grid>
+            </Border>
 
     </Grid>
 

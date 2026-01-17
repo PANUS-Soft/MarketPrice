@@ -128,7 +128,7 @@ namespace MarketPrice.Ui.ViewModels
 
             if (SelectedCommodityType == null) return;
 
-            var commoditiesResponse = await referenceDataApi.GetCommoditiesByIdAsync(SelectedCommodityType.Id);
+            var commoditiesResponse = await referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(SelectedCommodityType.Id);
 
             var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
 

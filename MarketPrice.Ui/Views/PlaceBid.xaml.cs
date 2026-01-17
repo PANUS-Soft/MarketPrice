@@ -10,20 +10,20 @@ public partial class PlaceBid : ContentPage
         InitializeComponent();
     }
 
-    public PlaceBid(PlacePositionViewModel viewModel)
+    public PlaceBid(PositionViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
     }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
+    //protected override async void OnAppearing()
+    //{
+    //    base.OnAppearing();
 
         
-        if (BindingContext is PlacePositionViewModel vm)
-        {
-            await vm.LoadInitialDataAsync();
-        }
-    }
+    //    if (BindingContext is PositionViewModel vm)
+    //    {
+    //        await vm.LoadInitialDataAsync();
+    //    }
+    //}
 }

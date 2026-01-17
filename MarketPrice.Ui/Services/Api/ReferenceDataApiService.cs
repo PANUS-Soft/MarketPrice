@@ -25,7 +25,7 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
-        public async Task<HttpResponseMessage> GetCommoditiesByIdAsync(Guid id)
+        public async Task<HttpResponseMessage> GetCommoditiesByCommodityTypeIdAsync(Guid id)
         {
             var url = ApiControllers.ReferenceData.AppendRoute(ApiRoutes.REF_COMMODITY + $"/{id}");
             var response = await GettingAsync(url);
