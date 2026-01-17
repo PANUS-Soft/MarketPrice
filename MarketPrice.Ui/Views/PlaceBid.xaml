@@ -2,24 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dxe="http://schemas.devexpress.com/maui"
+             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             x:DataType="viewModels:PlacePositionViewModel"
              x:Class="MarketPrice.Ui.Views.PlaceBid"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False"
              Title="PlaceBid"
              BackgroundColor="{StaticResource Background}">
-
-    <ContentPage.Resources>
-        <x:Array x:Key="FakeCommodities" Type="{x:Type x:String}">
-            <x:String>CORN</x:String>
-            <x:String>COCOA</x:String>
-            <x:String>COFFEE</x:String>
-        </x:Array>
-        <x:Array x:Key="FakeRegions" Type="{x:Type x:String}">
-            <x:String>Littoral</x:String>
-            <x:String>Centre</x:String>
-            <x:String>West</x:String>
-        </x:Array>
-    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, Auto, *">
 
@@ -36,7 +25,8 @@
                              HeightRequest="15" 
                              WidthRequest="15" 
                              VerticalOptions="Start" 
-                             Margin="0,8,0,0"/>
+                             Margin="0,8,0,0"
+                             Command="{Binding BackNavigationCommand}"/>
 
                 <VerticalStackLayout Grid.Column="1" 
                                      Spacing="5" 
@@ -51,10 +41,12 @@
                             BackgroundColor="White">
 
                         <Grid ColumnDefinitions="*, Auto">
+
                             <Picker Grid.Column="0" 
-                                    Title="Select" 
-                                    ItemsSource="{StaticResource FakeCommodities}" 
-                                    SelectedIndex="0"
+                                    Title="Select Commodity" 
+                                    ItemsSource="{Binding CommodityTypes}" 
+                                    ItemDisplayBinding="{Binding Name}"
+                                    SelectedItem="{Binding SelectedCommodityType}"
                                     TextColor="Black" 
                                     FontAttributes="Bold" 
                                     FontSize="16" 
@@ -75,7 +67,7 @@
                                 JustifyContent="Start" 
                                 AlignItems="Center">
 
-                        <Label Text="Shelf Life: 2days" 
+                        <Label Text="{Binding ShelfLifeInDays, StringFormat:'Shelf Life: {0} days'}" 
                                FontSize="12" 
                                TextColor="#666666" 
                                Margin="0,0,15,0"/>
@@ -155,7 +147,9 @@
                                        FontAttributes="Bold" 
                                        TextColor="Black"/>
 
-                                <dxe:ComboBoxEdit ItemsSource="{StaticResource FakeCommodities}" 
+                                <dxe:ComboBoxEdit ItemsSource="{Binding Commodities}" 
+                                                  DisplayMember="{Binding Name}"
+                                                  SelectedItem="{Binding SelectedCommodity}"
                                                   PlaceholderText="Select Commodity" 
                                                   BorderColor="{StaticResource PrimaryBase}" 
                                                   BoxMode="Outlined" 
@@ -176,6 +170,8 @@
 
                                     <Button Grid.Column="0" 
                                             Text="A" 
+                                            Command="{Binding SelectedGrade}"
+                                            CommandParameter="A"
                                             TextColor="White" 
                                             BackgroundColor="{StaticResource PrimaryBase}" 
                                             CornerRadius="5" 
@@ -184,6 +180,8 @@
 
                                     <Button Grid.Column="1" 
                                             Text="B" 
+                                            Command="{Binding SelectedGrade}"
+                                            CommandParameter="B"
                                             TextColor="Black" 
                                             BackgroundColor="White" 
                                             BorderColor="#CCCCCC" 
@@ -194,6 +192,8 @@
 
                                     <Button Grid.Column="2" 
                                             Text="C" 
+                                            Command="{Binding SelectedGrade}"
+                                            CommandParameter="C"
                                             TextColor="Black" 
                                             BackgroundColor="White" 
                                             BorderColor="#CCCCCC" 
@@ -209,7 +209,6 @@
 
                                 <VerticalStackLayout Grid.Column="0" 
                                                      Spacing="5">
-
                                     <Label Text="Quantity" 
                                            FontSize="16" 
                                            FontAttributes="Bold" 
@@ -221,7 +220,8 @@
                                             BackgroundColor="#F5F5F5" 
                                             StrokeShape="RoundRectangle 5">
 
-                                        <dxe:TextEdit Keyboard="Numeric" 
+                                        <dxe:TextEdit Text="{Binding Quantity}" 
+                                                      Keyboard="Numeric" 
                                                       PlaceholderText="0.00" 
                                                       TextColor="Black" 
                                                       BoxMode="Filled" 
@@ -231,7 +231,6 @@
 
                                 <VerticalStackLayout Grid.Column="1" 
                                                      Spacing="5">
-
                                     <Label Text="Unit" 
                                            FontSize="16" 
                                            FontAttributes="Bold" 
@@ -243,7 +242,7 @@
                                             BackgroundColor="#F5F5F5" 
                                             StrokeShape="RoundRectangle 5">
 
-                                        <dxe:TextEdit PlaceholderText="Kg" 
+                                        <dxe:TextEdit Text="{Binding UnitOfMeasure}"
                                                       TextColor="Black" 
                                                       BoxMode="Filled" 
                                                       BackgroundColor="Transparent"/>
@@ -264,7 +263,8 @@
                                         BackgroundColor="#F5F5F5" 
                                         StrokeShape="RoundRectangle 5">
 
-                                    <dxe:MultilineEdit PlaceholderText="Enter details..." 
+                                    <dxe:MultilineEdit Text="{Binding Description}" 
+                                                       PlaceholderText="Enter details..." 
                                                        TextColor="Black" 
                                                        BoxMode="Filled" 
                                                        BackgroundColor="Transparent"/>
@@ -322,6 +322,7 @@
                                                  Color="Black"/>
 
                                         <dxe:TextEdit Grid.Column="2" 
+                                                      Text="{Binding UnitPrice}" 
                                                       Keyboard="Numeric" 
                                                       PlaceholderText="0.00" 
                                                       TextColor="Black" 
@@ -342,7 +343,6 @@
 
                                 <VerticalStackLayout Grid.Column="0" 
                                                      Spacing="5">
-
                                     <Label Text="Start Date" 
                                            FontSize="14" 
                                            TextColor="#666666"/>
@@ -352,14 +352,14 @@
                                             StrokeShape="RoundRectangle 5" 
                                             HeightRequest="45">
 
-                                        <DatePicker TextColor="Black" 
+                                        <DatePicker Date="{Binding StartDate}" 
+                                                    TextColor="Black" 
                                                     Margin="5,0"/>
                                     </Border>
                                 </VerticalStackLayout>
 
                                 <VerticalStackLayout Grid.Column="1" 
                                                      Spacing="5">
-
                                     <Label Text="End Date" 
                                            FontSize="14" 
                                            TextColor="#666666"/>
@@ -369,13 +369,14 @@
                                             StrokeShape="RoundRectangle 5" 
                                             HeightRequest="45">
 
-                                        <DatePicker TextColor="Black" 
+                                        <DatePicker Date="{Binding EndDate}" 
+                                                    TextColor="Black" 
                                                     Margin="5,0"/>
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>
 
-                            <Label Text="Total Offer Value: 0 CFA" 
+                            <Label Text="{Binding TotalValue, StringFormat='Total Bid Value: {0:N0} CFA'}" 
                                    HorizontalOptions="End" 
                                    FontAttributes="Bold" 
                                    TextColor="Black" 
@@ -389,6 +390,7 @@
 
                         <Button Grid.Column="0" 
                                 Text="Back" 
+                                Command="{Binding BackNavigationCommand}"
                                 BackgroundColor="Transparent" 
                                 TextColor="{StaticResource PrimaryBase}" 
                                 FontAttributes="Bold" 
@@ -430,7 +432,9 @@
                                 <VerticalStackLayout Grid.Column="0" 
                                                      Spacing="0">
 
-                                    <dxe:ComboBoxEdit ItemsSource="{StaticResource FakeRegions}" 
+                                    <dxe:ComboBoxEdit ItemsSource="{Binding Regions}" 
+                                                       DisplayMember="{Binding Origin.SelectedRegion.NameInEnglish}"
+                                                       SelectedItem="{Binding Origin.SelectedRegion}"
                                                        PlaceholderText="Region" 
                                                        BorderColor="Gray" 
                                                        BoxMode="Outlined" 
@@ -446,7 +450,8 @@
                                         BackgroundColor="#F5F5F5" 
                                         StrokeShape="RoundRectangle 5">
 
-                                    <dxe:TextEdit PlaceholderText="Town" 
+                                    <dxe:TextEdit Text="{Binding Origin.Town}" 
+                                                  PlaceholderText="Town" 
                                                   TextColor="Black" 
                                                   BoxMode="Filled" 
                                                   BackgroundColor="Transparent"/>
@@ -463,7 +468,8 @@
                                         BackgroundColor="#F5F5F5" 
                                         StrokeShape="RoundRectangle 5">
 
-                                    <dxe:TextEdit PlaceholderText="Quarter" 
+                                    <dxe:TextEdit Text="{Binding Origin.Quarter}" 
+                                                  PlaceholderText="Quarter" 
                                                   TextColor="Black" 
                                                   BoxMode="Filled" 
                                                   BackgroundColor="Transparent"/>
@@ -476,7 +482,8 @@
                                         BackgroundColor="#F5F5F5" 
                                         StrokeShape="RoundRectangle 5">
 
-                                    <dxe:TextEdit PlaceholderText="Street" 
+                                    <dxe:TextEdit Text="{Binding Origin.Street}" 
+                                                  PlaceholderText="Street" 
                                                   TextColor="Black" 
                                                   BoxMode="Filled" 
                                                   BackgroundColor="Transparent"/>
@@ -491,6 +498,7 @@
 
                         <Button Grid.Column="0" 
                                 Text="Back" 
+                                Command="{Binding BackNavigationCommand}"
                                 BackgroundColor="Transparent" 
                                 TextColor="{StaticResource PrimaryBase}" 
                                 FontAttributes="Bold" 
@@ -499,6 +507,7 @@
 
                         <Button Grid.Column="1" 
                                 Text="Post Bid" 
+                                Command="{Binding PostBidCommand}"
                                 BackgroundColor="{StaticResource PrimaryBase}" 
                                 TextColor="White" 
                                 FontAttributes="Bold" 

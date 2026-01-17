@@ -33,7 +33,6 @@ namespace MarketPrice.Ui
 
         private async Task HandleStartupNavigationAsync()
         {
-             
             var hasOnboarded = Preferences.Get("HasCompletedOnboarding", false);
             if (!hasOnboarded)
             {
