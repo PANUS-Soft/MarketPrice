@@ -34,14 +34,29 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty]
         private RegionDto? selectedRegion;
 
-        public int? SelectedShelfLifeInDays => SelectedCommodity?.ShelfLifeInDays;
-        public short? SelectedLotSize => SelectedCommodity?.LotSize;
+        [ObservableProperty] 
+        private decimal quantity;
+
+        [ObservableProperty]
+        private decimal unitPrice;
+
+        public int? ShelfLifeInDays => SelectedCommodity?.ShelfLifeInDays;
+        public short? LotSize => SelectedCommodity?.LotSize;
         public string? UnitOfMeasure => SelectedCommodityType?.UnitOfMeasure;
+
+        public decimal? TotalQuantity => SelectedCommodityType == null ? 0 : LotSize * Quantity;
+        public string? TotalQuantityDisplay => $"{TotalQuantity} {UnitOfMeasure}";
+        public string? ShelfLifeInDaysDisplay => SelectedCommodity == null ? "" : $"Shelf Life: {ShelfLifeInDays} days";
+        public string? LotSizeDisplay => SelectedCommodity == null ? "" : $"Lot Size: {LotSize} {UnitOfMeasure}";
+        public string? OfferTotalValue => SelectedCommodity == null && UnitPrice == null ? "" : $"Total Offer Value: {LotSize * UnitPrice} FCFA";
+        public string? BidTotalValue => SelectedCommodity == null && UnitPrice == null ? "" : $"Total Bid Value: {LotSize * UnitPrice} FCFA";
 
         public bool IsCommodityDetailsStep => CurrentStep == PositionStep.CommodityDetails;
         public bool IsPricingAndTimingStep => CurrentStep == PositionStep.PricingInformation;
         public bool IsLogisticsInformationStep => CurrentStep == PositionStep.LogisticsInformation;
+        public bool IsBackTextVisible => CurrentStep >= PositionStep.PricingInformation;
         public string CurrentStepDisplay => CurrentStep.GetDisplayName();
+
 
         public event Func<Task<bool>>? ValidateCurrentStepRequested;
         public string BidButtonText => CurrentStep == PositionStep.LogisticsInformation ? "Place a Bid" : "Continue";
@@ -69,6 +84,7 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(IsCommodityDetailsStep));
             OnPropertyChanged(nameof(IsPricingAndTimingStep));
             OnPropertyChanged(nameof(IsLogisticsInformationStep));
+            OnPropertyChanged(nameof(IsBackTextVisible));
             OnPropertyChanged(nameof(CurrentStepDisplay));
             OnPropertyChanged(nameof(BidButtonText));
             OnPropertyChanged(nameof(OfferButtonText));
@@ -84,6 +100,12 @@ namespace MarketPrice.Ui.ViewModels
                 CurrentStep = PositionStep.PricingInformation;
             else if (CurrentStep == PositionStep.PricingInformation)
                 CurrentStep = PositionStep.CommodityDetails;
+        }
+
+        [RelayCommand]
+        private void BackToMarket()
+        {
+            Shell.Current.GoToAsync("Market");
         }
 
         [RelayCommand]
@@ -161,6 +183,19 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
+        partial void OnQuantityChanged(decimal value)
+        {
+            OnPropertyChanged(nameof(TotalQuantityDisplay));
+        }
+
+        partial void OnUnitPriceChanged(decimal value)
+        {
+            OnPropertyChanged(nameof(OfferTotalValue));
+            OnPropertyChanged(nameof(BidTotalValue));
+        }
+
+        
+
         partial void OnSelectedCommodityTypeChanged(CommodityTypeDto? value)
         {
             SelectedCommodity = null;
@@ -175,8 +210,11 @@ namespace MarketPrice.Ui.ViewModels
 
         partial void OnSelectedCommodityChanged(CommodityDto? value)
         {
-            OnPropertyChanged(nameof(SelectedShelfLifeInDays));
-            OnPropertyChanged(nameof(SelectedLotSize));
+            OnPropertyChanged(nameof(LotSize));
+            OnPropertyChanged(nameof(ShelfLifeInDays));
+            OnPropertyChanged(nameof(TotalQuantityDisplay));
+            OnPropertyChanged(nameof(LotSizeDisplay));
+            OnPropertyChanged(nameof(ShelfLifeInDaysDisplay));
         }
 
         [RelayCommand]

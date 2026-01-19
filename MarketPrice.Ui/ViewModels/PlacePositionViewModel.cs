@@ -93,9 +93,9 @@ namespace MarketPrice.Ui.ViewModels
 
         public string? UnitOfMeasure => SelectedCommodityType.UnitOfMeasure;
 
-        public int? ShelfLifeInDays => (int)SelectedCommodity.ShelfLifeInDays;
+        public int? ShelfLifeInDays => (int)SelectedCommodity.ShelfLifeInDays!;
 
-        public decimal? LotSize => (decimal)SelectedCommodity.LotSize;
+        public decimal? LotSize => (decimal)SelectedCommodity.LotSize!;
 
         async partial void OnSelectedCommodityTypeChanged(CommodityTypeDto value)
         {
@@ -109,16 +109,20 @@ namespace MarketPrice.Ui.ViewModels
 
             if (regionsResponse.IsSuccessStatusCode)
             {
-                var regions = await regionsResponse.Content.ReadFromJsonAsync<List<RegionDto>>();
                 Regions.Clear();
-                foreach (var r in regions) Regions.Add(r);
+
+                var regions = await regionsResponse.Content.ReadFromJsonAsync<List<RegionDto>>();
+                if (regions != null)
+                    foreach (var r in regions) Regions.Add(r);
             }
 
             if (commodityTypesResponse.IsSuccessStatusCode)
             {
-                var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
                 CommodityTypes.Clear();
-                foreach (var ct in commodityTypes) CommodityTypes.Add(ct);
+
+                var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
+                if (commodityTypes != null) 
+                    foreach (var ct in commodityTypes) CommodityTypes.Add(ct);
             }
         }
 
@@ -126,14 +130,16 @@ namespace MarketPrice.Ui.ViewModels
         {
             Commodities.Clear();
 
-            if (SelectedCommodityType == null) return;
+            //if (SelectedCommodityType == null) return;
 
             var commoditiesResponse = await referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(SelectedCommodityType.Id);
 
-            var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
-
-            foreach (var c in commodities)
-                Commodities.Add(c);
+            if (commoditiesResponse.IsSuccessStatusCode)
+            {
+                var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                if (commodities != null)
+                    foreach (var c in commodities) Commodities.Add(c);
+            }
         }
 
         public bool CanPostBid => !HasErrors;

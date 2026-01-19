@@ -114,14 +114,14 @@ namespace MarketPrice.Ui.ViewModels
         {
             try
             {
-                var accounTypeId = ContactInfo.AccountType == AccountType.Personal ? 1001 : 1002;
+                var accountTypeId = ContactInfo.AccountType == AccountType.Personal ? 1001 : 1002;
 
                 var registerRequest = new RegisterCommand
                 {
                     FirstName = PersonalInfo.FirstName,
                     FamilyName = PersonalInfo.FamilyName,
                     OtherNames = PersonalInfo.OtherName,
-                    AccountTypeId = accounTypeId,
+                    AccountTypeId = accountTypeId,
                     EmailAddress = ContactInfo.EmailAddress,
                     PhoneNumber = $"+237{ContactInfo.PhoneNumber}",
                     Password = SecurityDetail.Password
