@@ -90,6 +90,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\PlacePosition.xaml.cs">
+	    <DependentUpon>PlacePosition.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\Register.xaml.cs">
 	    <DependentUpon>Register.xaml</DependentUpon>
 	  </Compile>
@@ -114,7 +117,7 @@
 	  <MauiXaml Update="Views\PlaceBid.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\PlaceOffer.xaml">
+	  <MauiXaml Update="Views\PlacePosition.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Profile.xaml">

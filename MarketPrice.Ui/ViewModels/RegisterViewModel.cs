@@ -10,9 +10,6 @@ using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {

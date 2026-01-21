@@ -1,237 +1,704 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Json;
-using System.Text.Json;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Json;
 using MarketPrice.Domain.Position.Commands;
+using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Domain.Reference;
+using MarketPrice.Ui.Common;
+using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
-using Microsoft.Extensions.Logging;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class PlacePositionViewModel(ReferenceDataApiService referenceDataApi, SessionService sessionService)
-        : ObservableValidator
+    [QueryProperty(nameof(PositionType), "PositionType")]
+    public partial class PlacePositionViewModel : ObservableObject
     {
-        public ObservableCollection<RegionDto> Regions { get; } = new();
+        private readonly ReferenceDataApiService _referenceDataApi;
+        private readonly SessionService _sessionService;
+        private readonly PositionApiService _positionApi;
+
+        [ObservableProperty] private PositionStep currentStep;
+        [ObservableProperty] private PositionType positionType;
+
+        // Collections used to store reference data 
         public ObservableCollection<CommodityTypeDto> CommodityTypes { get; } = new();
         public ObservableCollection<CommodityDto> Commodities { get; } = new();
-        public LocationViewModel Origin { get; } = new();
-        public LocationViewModel Destination { get; } = new();
+        public ObservableCollection<RegionDto> Regions { get; } = new();
 
-        [ObservableProperty] private CommodityTypeDto _selectedCommodityType;
+        // Properties used to bound data to the view
+        [ObservableProperty] private CommodityTypeDto? selectedCommodityType;
+        [ObservableProperty] private CommodityDto? selectedCommodity;
+        [ObservableProperty] private RegionDto? selectedOriginRegion;
+        [ObservableProperty] private RegionDto? selectedDestinationRegion;
+        [ObservableProperty] private decimal quantity;
+        [ObservableProperty] private decimal unitPrice;
+        [ObservableProperty] private bool isDeliverable;
+        [ObservableProperty] private string grade;
+        [ObservableProperty] private string description;
+        [ObservableProperty] private DateTime? startDate;
+        [ObservableProperty] private DateTime? endDate;
+        [ObservableProperty] private string originTown;
+        [ObservableProperty] private string destinationTown;
+        [ObservableProperty] private string originStreet;
+        [ObservableProperty] private string destinationStreet;
+        [ObservableProperty] private string originQuarter;
+        [ObservableProperty] private string destinationQuarter;
+        [ObservableProperty] private decimal deliveryFee;
+        [ObservableProperty] private string leadTime;
 
-        [ObservableProperty] [Required(ErrorMessage = "Commodity is required.")]
-        private CommodityDto _selectedCommodity;
+        // Properties for handling data validation
+        [ObservableProperty] private string? commodityTypeError;
+        [ObservableProperty] private string? commodityError;
+        [ObservableProperty] private string? gradeError;
+        [ObservableProperty] private string? quantityError;
+        [ObservableProperty] private string? unitPriceError;
+        [ObservableProperty] private string? startDateError;
+        [ObservableProperty] private string? endDateError;
+        [ObservableProperty] private string? dateError;
+        [ObservableProperty] private string? originRegionError;
+        [ObservableProperty] private string? originTownError;
+        [ObservableProperty] private string? originQuarterError;
+        [ObservableProperty] private string? originStreetError;
+        [ObservableProperty] private string? originDetailError;
+        [ObservableProperty] private string? destinationRegionError;
+        [ObservableProperty] private string? destinationTownError;
+        [ObservableProperty] private string? destinationQuarterError;
+        [ObservableProperty] private string? destinationStreetError; 
+        [ObservableProperty] private string? destinationDetailError;
+        [ObservableProperty] private string? leadTimeError;
+        [ObservableProperty] private string? deliveryFeeError;
 
-        [ObservableProperty] [Required(ErrorMessage = "Grade is required.")]
-        private string _selectedGrade;
+        // Derived and notifying properties based on UI contexts 
+        public int? ShelfLifeInDays => SelectedCommodity?.ShelfLifeInDays;
+        public short? LotSize => SelectedCommodity?.LotSize;
+        public string? UnitOfMeasure => SelectedCommodityType?.UnitOfMeasure;
+        public decimal? TotalQuantity => SelectedCommodityType == null ? 0 : LotSize * Quantity;
+        public string? TotalQuantityDisplay => $"{TotalQuantity} {UnitOfMeasure}";
+        public string? ShelfLifeInDaysDisplay => SelectedCommodity == null ? "" : $"Shelf Life: {ShelfLifeInDays} days";
+        public string? LotSizeDisplay => SelectedCommodity == null ? "" : $"Lot Size: {LotSize} {UnitOfMeasure}";
+        public string? TotalValueDisplay => SelectedCommodity == null || UnitPrice <= 0 ? "" : PositionType == PositionType.Bid ? $"Total Bid Value: {LotSize * UnitPrice} FCFA" : $"Total Offer Value: {LotSize * UnitPrice} FCFA";
 
-        [ObservableProperty]
-        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater then zero.")]
-        [NotifyPropertyChangedFor(nameof(TotalValue))]
-        private int _quantity;
+        // Properties handling UI visibility (state indicators)
+        public bool IsCommodityDetailsStep => CurrentStep == PositionStep.CommodityDetails;
+        public bool IsPricingAndTimingStep => CurrentStep == PositionStep.PricingInformation;
+        public bool IsLogisticsInformationStep => CurrentStep == PositionStep.LogisticsInformation;
+        public bool IsBackTextVisible => CurrentStep >= PositionStep.PricingInformation;
+        public string CurrentStepDisplay => CurrentStep.GetDisplayName();
+        public bool IsOffer => PositionType == PositionType.Offer;
+        public bool IsCommodityTypeEditable => IsCommodityDetailsStep;
+        public bool IsCommodityEditable => SelectedCommodityType != null;
+        public string PageTitle => PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer";
+        public string ContinueButtonText => CurrentStep == PositionStep.LogisticsInformation ? (PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer") : "Continue";
+        
+        private readonly Color _activeColor = Color.FromArgb("#0056A0");
+        private readonly Color _inactiveColor = Color.FromArgb("#D1D5DB");
 
-        [ObservableProperty]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Unit Price must be greater then zero.")]
-        [NotifyPropertyChangedFor(nameof(TotalValue))]
-        private decimal _unitPrice;
-
-        [ObservableProperty] private string _description;
-
-        [ObservableProperty]
-        [Required(ErrorMessage = "Start Date is required.")]
-        [NotifyPropertyChangedFor(nameof(EndDate))]
-        private DateTime _startDate;
-
-        [ObservableProperty]
-        [Required(ErrorMessage = "End Date is required.")]
-        [CustomValidation(typeof(PlacePositionViewModel), nameof(ValidateEndDate))]
-        private DateTime _endDate;
-
-        [ObservableProperty] private decimal? _deliveryFee;
-
-        [ObservableProperty] private decimal? _maxDistance;
-
-        [ObservableProperty] private decimal _fee;
-
-        [ObservableProperty] private string _leadTime;
-
-        [ObservableProperty] private bool _isDeliverable;
-
-
-        //The Back Button
-        //[RelayCommand]
-        //public async Task BackNavigation()
-        //{
-        //    await Shell.Current.GoToAsync("..");
-        //}
-
-        public static ValidationResult? ValidateEndDate(DateTime? endDate, ValidationContext context)
+        public Color Step1Color => _activeColor;
+        public Color Step2Color => CurrentStep >= PositionStep.PricingInformation ? _activeColor : _inactiveColor;
+        public Color Step3Color => CurrentStep == PositionStep.LogisticsInformation ? _activeColor : _inactiveColor;
+        
+        public PlacePositionViewModel(ReferenceDataApiService referenceDataApiService, SessionService sessionService, PositionApiService positionApiService)
         {
-            // We get access to the whole ViewModel instance here
-            var instance = (PlacePositionViewModel)context.ObjectInstance;
-
-            // If either date is missing, let the [Required] attribute handle that error instead
-            if (endDate == null || instance.StartDate == null)
-            {
-                return ValidationResult.Success;
-            }
-
-            // The actual logic: End Date must be greater than Start Date
-            if (endDate <= instance.StartDate)
-            {
-                return new ValidationResult("End date must be later than the start date.");
-            }
-
-            return ValidationResult.Success;
+            CurrentStep = PositionStep.CommodityDetails;
+            _referenceDataApi = referenceDataApiService;
+            _sessionService = sessionService;
+            _positionApi = positionApiService;
         }
 
-        public decimal TotalValue => UnitPrice * Quantity;
-
-        public string? UnitOfMeasure => SelectedCommodityType.UnitOfMeasure;
-
-        public int? ShelfLifeInDays => (int)SelectedCommodity.ShelfLifeInDays!;
-
-        public decimal? LotSize => (decimal)SelectedCommodity.LotSize!;
-
-        async partial void OnSelectedCommodityTypeChanged(CommodityTypeDto value)
+        partial void OnPositionTypeChanged(PositionType value)
         {
-            await LoadCommoditiesForSelectedType();
+            OnPropertyChanged(nameof(PageTitle));
+            OnPropertyChanged(nameof(IsOffer));
+            OnPropertyChanged(nameof(IsDeliverable));
         }
 
-        public async Task LoadInitialDataAsync()
+        
+
+        partial void OnCurrentStepChanged(PositionStep value)
         {
-            var regionsResponse = await referenceDataApi.GetRegionsAsync();
-            var commodityTypesResponse = await referenceDataApi.GetCommodityTypesAsync();
-
-            if (regionsResponse.IsSuccessStatusCode)
-            {
-                Regions.Clear();
-
-                var regions = await regionsResponse.Content.ReadFromJsonAsync<List<RegionDto>>();
-                if (regions != null)
-                    foreach (var r in regions) Regions.Add(r);
-            }
-
-            if (commodityTypesResponse.IsSuccessStatusCode)
-            {
-                CommodityTypes.Clear();
-
-                var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
-                if (commodityTypes != null) 
-                    foreach (var ct in commodityTypes) CommodityTypes.Add(ct);
-            }
+            OnPropertyChanged(nameof(IsCommodityDetailsStep));
+            OnPropertyChanged(nameof(IsPricingAndTimingStep));
+            OnPropertyChanged(nameof(IsLogisticsInformationStep));
+            OnPropertyChanged(nameof(IsBackTextVisible));
+            OnPropertyChanged(nameof(CurrentStepDisplay));
+            OnPropertyChanged(nameof(ContinueButtonText));
+            OnPropertyChanged(nameof(Step1Color));
+            OnPropertyChanged(nameof(Step2Color));
+            OnPropertyChanged(nameof(Step3Color));
+            OnPropertyChanged(nameof(IsCommodityTypeEditable));
         }
 
-        private async Task LoadCommoditiesForSelectedType()
+
+        [RelayCommand]
+        private void Back()
         {
-            Commodities.Clear();
-
-            //if (SelectedCommodityType == null) return;
-
-            var commoditiesResponse = await referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(SelectedCommodityType.Id);
-
-            if (commoditiesResponse.IsSuccessStatusCode)
-            {
-                var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
-                if (commodities != null)
-                    foreach (var c in commodities) Commodities.Add(c);
-            }
+            if (CurrentStep == PositionStep.LogisticsInformation)
+                CurrentStep = PositionStep.PricingInformation;
+            else if (CurrentStep == PositionStep.PricingInformation)
+                CurrentStep = PositionStep.CommodityDetails;
         }
 
-        public bool CanPostBid => !HasErrors;
-
-        [ObservableProperty] private bool _showValidationErrors;
-
-        [RelayCommand(CanExecute = nameof(CanPostBid))]
-        public async Task PostBidAsync()
+        [RelayCommand]
+        private async Task BackToMarketAsync()
         {
-            _showValidationErrors = true;
-            ValidateAllProperties();
+            await Shell.Current.GoToAsync("..");
+        }
 
-            var originIsValid = Origin.Validate();
-
-            if (HasErrors || !originIsValid)
-                return;
-
-            var userSession = await sessionService.GetCurrentSessionAsync();
-
-            if (userSession != null && StartDate != null && EndDate != null)
+        [RelayCommand]
+        private async Task ContinueAsync()
+        {
+            if (IsCommodityDetailsStep)
             {
-                var command = new CreatePositionCommand
+                bool isValid = ValidateCommodityDetails();
+                if (!isValid) return;
+            }
+
+            else if (IsPricingAndTimingStep)
+            {
+                bool isValid = ValidatePricingAndTiming();
+                if (!isValid) return;
+            }
+
+            else
+            {
+                bool isValid = ValidateLogistics();
+                if (!isValid) return;
+
+                if (PositionType == PositionType.Bid)
                 {
-                    UserId = userSession.UserId,
-                    CommodityId = SelectedCommodity.Id,
-                    UnitPrice = UnitPrice,
-                    Quantity = Quantity,
-                    Grade = SelectedGrade,
-                    Description = Description,
-                    StartDate = StartDate,
-                    EndDate = EndDate,
-                    Origin = Origin.ToCommand()
-                };
-
-                await Shell.Current.DisplayAlert("Position Summary",
-                    $"UserId: {userSession.UserId} \n\n Quantity: {command.Quantity} \n\n Unit Price: {command.UnitPrice} \n\n Duration: {command.EndDate - command.StartDate}",
-                    "OK");
+                    await CreateBidAsync();
+                }
+                else
+                {
+                    await CreateOfferAsync();
+                }
                 return;
             }
 
-            await Shell.Current.DisplayAlert("Error", "There was an error while placing your bid ...", "OK");
+            MoveToNextStep();
+        }
+        private void MoveToNextStep()
+        {
+            if (CurrentStep == PositionStep.CommodityDetails)
+                CurrentStep = PositionStep.PricingInformation;
+            else if (CurrentStep == PositionStep.PricingInformation)
+                CurrentStep = PositionStep.LogisticsInformation;
         }
 
-        public bool CanPostOffer => !HasErrors;
-
-        [RelayCommand(CanExecute = nameof(CanPostOffer))]
-        public async Task PostOfferAsync()
+        public async Task LoadReferenceDataAsync()
         {
-            _showValidationErrors = true;
-            ValidateAllProperties();
+            try
+            {
+                // Logic to load reference data for CommodityTypes and Regions
+                var commodityTypesResponse = await _referenceDataApi.GetCommodityTypesAsync();
+                var regionsResponse = await _referenceDataApi.GetRegionsAsync();
 
-            var originIsValid = Origin.Validate();
-            var destinationIsValid = Destination.Validate();
+                if (commodityTypesResponse.IsSuccessStatusCode)
+                {
+                    CommodityTypes.Clear();
+                    var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
+                    if (commodityTypes != null)
+                        foreach (var ct in commodityTypes) CommodityTypes.Add(ct);
+                }
+
+                if (regionsResponse.IsSuccessStatusCode)
+                {
+                    Regions.Clear();
+                    var regions = await regionsResponse.Content.ReadFromJsonAsync<List<RegionDto>>();
+                    if (regions != null)
+                        foreach (var region in regions) Regions.Add(region);
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error while loading reference data. {e.Message}.", "OK");
+            }
+        }
+
+        // Methods notifying property changes
+        partial void OnQuantityChanged(decimal value)
+        {
+            if (value > 0) QuantityError = null;
+            OnPropertyChanged(nameof(TotalQuantityDisplay));
+        }
+
+        partial void OnUnitPriceChanged(decimal value)
+        {
+            if (value > 0) UnitPriceError = null;
+            OnPropertyChanged(nameof(TotalValueDisplay));
+        }
+
+        partial void OnStartDateChanged(DateTime? value)
+        {
+            if (value != null && value >= DateTime.Now) StartDateError = null;
+            CombineDateError();
+            OnPropertyChanged(nameof(DateError));
+        }
+
+        partial void OnEndDateChanged(DateTime? value)
+        {
+            if (value != null && value > StartDate) EndDateError = null;
+            CombineDateError();
+            OnPropertyChanged(nameof(DateError));
+        }
+
+        partial void OnSelectedOriginRegionChanged(RegionDto? value)
+        {
+            if (value != null) OriginRegionError = null;
+            CombineOriginDetailError();
+            OnPropertyChanged(nameof(OriginDetailError));
+        }
+
+        partial void OnOriginTownChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) OriginTownError = null;
+            CombineOriginDetailError();
+            OnPropertyChanged(nameof(OriginDetailError));
+        }
+
+        partial void OnOriginQuarterChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) OriginQuarterError = null;
+            CombineOriginDetailError();
+            OnPropertyChanged(nameof(OriginDetailError));
+        }
+
+        partial void OnOriginStreetChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) OriginStreetError = null;
+            CombineOriginDetailError();
+            OnPropertyChanged(nameof(OriginDetailError));
+        }
+
+        partial void OnSelectedDestinationRegionChanged(RegionDto? value)
+        {
+            if (value != null) DestinationRegionError = null;
+            CombineDestinationDetailError();
+            OnPropertyChanged(nameof(DestinationDetailError));
+        }
+
+        partial void OnDestinationTownChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) DestinationTownError = null;
+            CombineDestinationDetailError();
+            OnPropertyChanged(nameof(DestinationDetailError));
+        }
+
+        partial void OnDestinationQuarterChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) DestinationQuarterError = null;
+            CombineDestinationDetailError();
+            OnPropertyChanged(nameof(DestinationDetailError));
+        }
+
+        partial void OnDestinationStreetChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) DestinationStreetError = null;
+            CombineDestinationDetailError();
+            OnPropertyChanged(nameof(DestinationDetailError));
+        }
+
+        partial void OnDeliveryFeeChanged(decimal value)
+        {
+            if (value > 0) DeliveryFeeError = null;
+        }
+
+        partial void OnLeadTimeChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) LeadTimeError = null;
+        }
+
+        partial void OnSelectedCommodityTypeChanged(CommodityTypeDto? value)
+        {
+            if (value != null) CommodityTypeError = null;
+            SelectedCommodity = null;
+            Commodities.Clear();
+            if (value == null)
+                return;
+            
+            LoadCommoditiesByCommodityTypesCommand.Execute(value.Id);
+
+            OnPropertyChanged(nameof(UnitOfMeasure));
+            OnPropertyChanged(nameof(IsCommodityEditable));
+        }
+
+        partial void OnSelectedCommodityChanged(CommodityDto? value)
+        {
+            if (value != null) CommodityError = null;
+
+            OnPropertyChanged(nameof(LotSize));
+            OnPropertyChanged(nameof(ShelfLifeInDays));
+            OnPropertyChanged(nameof(TotalQuantityDisplay));
+            OnPropertyChanged(nameof(LotSizeDisplay));
+            OnPropertyChanged(nameof(ShelfLifeInDaysDisplay));
+        }
+
+        // Methods to load data from APIs
+        [RelayCommand]
+        private async Task LoadCommoditiesByCommodityTypesAsync(Guid id)
+        {
+            try
+            {
+                var commoditiesResponse = await _referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(id);
+                if (commoditiesResponse.IsSuccessStatusCode)
+                {
+                    Commodities.Clear();
+                    var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                    if (commodities != null)
+                        foreach (var c in commodities) Commodities.Add(c);
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error while loading commodities. {e.Message}.", "OK");
+            }
+        }
+
+        private void CombineDateError()
+        {
+            DateError = StartDateError + EndDateError;
+        }
+
+        private void CombineOriginDetailError()
+        {
+            OriginDetailError = OriginRegionError + OriginTownError + OriginQuarterError + OriginStreetError;
+        }
+
+        private void CombineDestinationDetailError()
+        {
+            DestinationDetailError = DestinationRegionError + DestinationTownError + DestinationQuarterError + DestinationStreetError;
+        }
+
+        // Data Validation Methods
+        public bool ValidateCommodityDetails()
+        {
+            bool isValid = true;
+
+            CommodityTypeError = null;
+            CommodityError = null;
+            QuantityError = null;
+            GradeError = null;
+
+            if (SelectedCommodityType == null)
+            {
+                CommodityTypeError = "Please select a commodity type";
+                isValid = false;
+            }
+
+            if (SelectedCommodity == null)
+            {
+                CommodityError = "Please select a commodity";
+                isValid = false;
+            }
+
+            if (Quantity <= 0)
+            {
+                QuantityError = "Quantity must be greater than 0";
+                isValid = false;
+            }
+
+            //if (string.IsNullOrEmpty(Grade))
+            //{
+            //    GradeError = "Please select a grade";
+            //    isValid = false;
+            //}
+
+            return isValid;
+        }
+
+        private bool ValidatePricingAndTiming()
+        {
+            bool isValid = true;
+
+            UnitPriceError = null;
+            StartDateError = null;
+            EndDateError = null;
+
+            if (UnitPrice <= 0)
+            {
+                UnitPriceError = "Unit Price should be greater than 0";
+                isValid = false;
+            }
+
+            if (StartDate == null)
+            {
+                StartDateError = "- Start Date is required.\n";
+                isValid = false;
+            }
+
+            if (EndDate == null)
+            {
+                EndDateError = "- End Date is required.\n";
+                isValid = false;
+            }
+
+            if (StartDate < DateTime.Now)
+            {
+                StartDateError = "- Start of the position cannot be in the past.\n";
+                isValid = false;
+            }
+
+            if (EndDate != null && EndDate < StartDate)
+            {
+                EndDateError = "- End Date must be after Start Date.\n";
+                isValid = false;
+            }
+
+            CombineDateError();
+            return isValid;
+        }
+
+
+        private bool ValidateLogistics()
+        {
+            bool isValid = true;
+
+            OriginRegionError = null;
+            OriginTownError = null;
+            OriginQuarterError = null;
+            OriginStreetError = null;
+            OriginDetailError = null;
+
+            if (SelectedOriginRegion == null)
+            {
+                OriginRegionError = "- Please select a region.\n";
+                OriginDetailError += OriginRegionError;
+                isValid = false;
+            }
+
+            if (string.IsNullOrEmpty(OriginTown))
+            {
+                OriginTownError = "- Town is required.\n";
+                OriginDetailError += OriginTownError;
+                isValid = false;
+            }
+
+            if (string.IsNullOrEmpty(OriginQuarter))
+            {
+                OriginQuarterError = "- Quarter is required.\n";
+                OriginDetailError += OriginQuarterError;
+                isValid = false;
+            }
+
+            if (string.IsNullOrEmpty(OriginStreet))
+            {
+                OriginStreetError = "- Street is required.\n";
+                OriginDetailError += OriginStreetError;
+                isValid = false;
+            }
 
             if (IsDeliverable)
             {
-                if (HasErrors || !originIsValid || !destinationIsValid)
-                    return;
-            }
-            else
-            {
-                if (HasErrors || !originIsValid)
-                    return;
+                DestinationRegionError = null;
+                DestinationTownError = null;
+                DestinationQuarterError = null;
+                DestinationStreetError = null;
+                DestinationDetailError = null;
+                DeliveryFeeError = null;
+                LeadTimeError = null;
+
+                if (SelectedDestinationRegion == null)
+                {
+                    DestinationRegionError = "- Please select a destination region.\n";
+                    DestinationDetailError += DestinationRegionError;
+                    isValid = false;
+                }
+
+                if (string.IsNullOrEmpty(DestinationTown))
+                {
+                    DestinationTownError = "- Destination town is required.\n";
+                    DestinationDetailError += DestinationTownError;
+                    isValid = false;
+                }
+
+                if (string.IsNullOrEmpty(DestinationQuarter))
+                {
+                    DestinationQuarterError = "- Destination quarter is required.\n";
+                    DestinationDetailError += DestinationQuarterError;
+                    isValid = false;
+                }
+
+                if (string.IsNullOrEmpty(DestinationStreet))
+                {
+                    DestinationStreetError = "- Destination street is required.\n";
+                    DestinationDetailError += DestinationStreetError;
+                    isValid = false;
+                }
+                
+                if (DeliveryFee <= 0)
+                {
+                    DeliveryFeeError = "Delivery Fee should be greater than 0";
+                    isValid = false;
+                }
+
+                if (string.IsNullOrEmpty(LeadTime))
+                {
+                    LeadTimeError = "Lead time should not be empty";
+                    isValid = false;
+                }
             }
 
-            var userSession = await sessionService.GetCurrentSessionAsync();
+            return isValid;
+        }
 
-            if (userSession != null && StartDate != null && EndDate != null)
+        // Methods to create bids and offers
+        private async Task CreateBidAsync()
+        {
+            try
             {
+                // Logic to create a bid
+                var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+
+                if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
+                else await _sessionService.TryRefreshTokenAsync();
+                
+                var userSession = await _sessionService.GetCurrentSessionAsync();
                 var command = new CreatePositionCommand
                 {
-                    UserId = userSession.UserId,
-                    CommodityId = SelectedCommodity.CommodityTypeId,
-                    DeliveryFee = IsDeliverable ? DeliveryFee : null,
-                    Grade = SelectedGrade,
+                    UserId = userSession!.UserId,
+                    CommodityId = SelectedCommodity!.Id,
+                    UnitPrice = (decimal)UnitPrice!,
+                    Quantity = (decimal)Quantity!,
+                    Grade = Grade,
                     Description = Description,
-                    UnitPrice = UnitPrice,
-                    StartDate = StartDate,
-                    EndDate = EndDate,
-                    Quantity = Quantity,
-                    MaxDistance = MaxDistance,
-                    LeadTime = IsDeliverable ? $"{LeadTime} days" : null,
-                    Destination = IsDeliverable ? Destination.ToCommand() : null,
-                    Origin = Origin.ToCommand(),
+                    StartDate = (DateTime)StartDate!,
+                    EndDate = (DateTime)EndDate!,
+                    Origin = new LocationCommand
+                    {
+                        RegionId = SelectedOriginRegion!.Id,
+                        Town = OriginTown,
+                        Quarter = OriginQuarter,
+                        Street = OriginQuarter
+                    }
                 };
-                await Shell.Current.DisplayAlert("Position Summary",
-                    $"UserId: {userSession.UserId} \n\n Quantity: {command.Quantity} \n\n Unit Price: {command.UnitPrice} \n\n Duration: {command.EndDate - command.StartDate}",
-                    "OK");
-                return;
-            }
 
-            await Shell.Current.DisplayAlert("Error", "There was an error while placing your offer ...", "OK");
+                var message = $""""
+                               Commodity: {SelectedCommodity.Name}
+                               UnitPrice: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
+                               Total Quantity: {TotalQuantityDisplay}
+                               {TotalValueDisplay}
+                               Start date/time: {StartDate:g}
+                               End date/time: {EndDate:g}
+                               """";
+
+                // Call to API to create the place bid
+                var confirmBidPlacement = await Shell.Current.DisplayAlert("Confirm Bid Placement", message, "Post Bid", "Cancel");
+
+                if (!confirmBidPlacement) return;
+
+                var response = await _positionApi.CreateBidAsync(command);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<PositionResponseDto>();
+                    if (dto != null)
+                    {
+                        await Toast.Make("Bid placed successfully", ToastDuration.Long).Show();
+                        await Shell.Current.GoToAsync("Market");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error while placing your bid. {e.Message}.", "OK");
+            }
         }
+
+        private async Task CreateOfferAsync()
+        {
+            try
+            {
+                // Logic to create an offer
+                var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+
+                if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
+                else await _sessionService.TryRefreshTokenAsync();
+
+                var userSession = await _sessionService.GetCurrentSessionAsync();
+                var command = new CreatePositionCommand
+                {
+                    UserId = userSession!.UserId,
+                    CommodityId = SelectedCommodity!.Id,
+                    UnitPrice = (decimal)UnitPrice!,
+                    Quantity = (decimal)Quantity!,
+                    Grade = Grade,
+                    Description = Description,
+                    StartDate = (DateTime)StartDate!,
+                    EndDate = (DateTime)EndDate!,
+                    LeadTime = IsDeliverable ? LeadTime : null,
+                    DeliveryFee = IsDeliverable ? DeliveryFee : null,
+                    Origin = new LocationCommand
+                    {
+                        RegionId = SelectedOriginRegion!.Id,
+                        Town = OriginTown,
+                        Quarter = OriginQuarter,
+                        Street = OriginStreet
+                    },
+                    Destination = IsDeliverable ? new LocationCommand
+                    {
+                        RegionId = SelectedDestinationRegion!.Id,
+                        Town = DestinationTown,
+                        Quarter = DestinationQuarter,
+                        Street = DestinationStreet
+                    } : null,
+                };
+
+                var message = $""""
+                               Commodity: {SelectedCommodity.Name}
+                               UnitPrice: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
+                               Total Quantity: {TotalQuantityDisplay}
+                               {TotalValueDisplay}
+                               Start date/time: {StartDate:g}
+                               End date/time: {EndDate:g}
+                               """";
+
+                var deliveryDetails = $""""
+                                       Delivery Fee: {DeliveryFee} FCFA
+                                       Lead Time: {LeadTime} days
+                                       Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
+                                       Destination: {SelectedDestinationRegion!.NameInEnglish}, {DestinationTown}, {DestinationQuarter}
+                                       """";
+
+                if (IsDeliverable) message = message + "\n" + deliveryDetails;
+
+                // Call to API to create the place offer
+                var confirmOfferPlacement = await Shell.Current.DisplayAlert("Confirm Offer Placement", message, "Post Offer", "Cancel");
+
+                if (!confirmOfferPlacement) return;
+
+                var response = await _positionApi.CreateOfferAsync(command);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<PositionResponseDto>();
+                    if (dto != null)
+                    {
+                        await Toast.Make("Offer placed successfully", ToastDuration.Long).Show();
+                        await Shell.Current.GoToAsync("Market");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error while placing your offer. {e.Message}.", "OK");
+            }
+        }
+    }
+
+    public enum PositionStep
+    {
+        [Display(Name = "Step 1 of 3: Commodity Details")]
+        CommodityDetails,
+
+        [Display(Name = "Step 2 of 3: Pricing and Timing")]
+        PricingInformation,
+
+        [Display(Name = "Step 3 of 3: Logistics")]
+        LogisticsInformation
     }
 }

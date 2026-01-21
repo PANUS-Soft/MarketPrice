@@ -10,7 +10,7 @@ public partial class PlaceBid : ContentPage
         InitializeComponent();
     }
 
-    public PlaceBid(PositionViewModel viewModel)
+    public PlaceBid(PlacePositionViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
