@@ -67,5 +67,28 @@ namespace MarketPrice.Api.Controllers
             // Optional: add read service later
             return Ok(new { PositionId = id });
         }
+
+        // List of Positions for a given price.
+        [Authorize]
+        [HttpPost(ApiRoutes.POSITION_BYPRICE)]
+        public async Task<ActionResult<List<PositionListingResponseDto>>> GetPositionsForPrice(
+            [FromBody] PositionListingCommand command)
+        {
+            if (command == null)
+                return BadRequest("Request body is required.");
+
+            if (command.CommodityTypeId == Guid.Empty)
+                return BadRequest("CommodityTypeId is required.");
+
+            if (command.PositionTypeId <= 0)
+                return BadRequest("PositionTypeId is required and must be greater than zero.");
+
+            if (command.UnitPrice == null)
+                return BadRequest("UnitPrice is required.");
+
+            var results = await _positionService.GetPositionsForPriceAsync(command);
+
+            return Ok(results);
+        }
     }
 }

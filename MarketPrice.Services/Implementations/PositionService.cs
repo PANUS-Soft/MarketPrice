@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 using MarketPrice.Data.Models;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
-using MarketPrice.Domain;
+using Microsoft.EntityFrameworkCore;
+
 
 
 public class PositionService : IPositionService
@@ -22,6 +23,7 @@ public class PositionService : IPositionService
     private const int LOCATION_TYPE = 4000;
     private const int POSITION_STATUS = 5000;
     private const int POSITION_TYPE = 6000;
+    private const int OPEN_POSITION = 5001;
 
     public PositionService(MarketPriceDbContext context, ILookupProviderService lookups)
     {
@@ -39,7 +41,7 @@ public class PositionService : IPositionService
         // 1. Determine Status using Dynamic Lookups
         if (command.EndDate <= command.StartDate)
             throw new ArgumentException("EndDate must be after StartDate");
-        bool isOpen = DateTime.UtcNow >= command.StartDate && DateTime.UtcNow <= command.EndDate;
+        bool isOpen = DateTime.Now >= command.StartDate && DateTime.Now <= command.EndDate;
 
         if (command.UnitPrice <= 0)
             throw new ArgumentOutOfRangeException(nameof(command.UnitPrice));
@@ -68,7 +70,6 @@ public class PositionService : IPositionService
                 $"Position Type lookup failed for '{posTypeText}'", ex);
         }
 
-      
 
         // 3. Map to Position Entity
         var position = new Position
@@ -137,4 +138,24 @@ public class PositionService : IPositionService
             Street = cmd.Street
         };
     }
+
+    public async Task<List<PositionListingResponseDto>> GetPositionsForPriceAsync(PositionListingCommand command)
+    {
+        return await _context.Positions
+            .Where(p => p.Commodity.CommodityTypeId == command.CommodityTypeId
+                     && p.PositionTypeId == command.PositionTypeId
+                     && p.UnitPrice == command.UnitPrice
+                     && p.CurrentStatusId == OPEN_POSITION)
+            .Select(p => new PositionListingResponseDto
+            {
+                // We use the navigation property 'User' to get the name
+                UserName = $"{p.User.FirstName} {p.User.FamilyName}",
+                Quantity = p.Quantity,
+                // We use the navigation property 'Commodity' to get the specific name (e.g., Yellow Corn)
+                CommodityName = p.Commodity.CommodityName,
+                UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
+            })
+            .ToListAsync();
+    }
+
 }

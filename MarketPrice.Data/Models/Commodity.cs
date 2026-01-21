@@ -1,4 +1,7 @@
-﻿namespace MarketPrice.Data.Models
+﻿using Microsoft.Extensions.Primitives;
+using System.Net.NetworkInformation;
+
+namespace MarketPrice.Data.Models
 {
     public class Commodity
     {
@@ -9,6 +12,9 @@
         public int? ShelfLifeInDays { get; set; }
         public string? Notes { get; set; }
         public short? LotSize { get; set; }
+
+        //Unite of measure navigation property
+        public UnitOfMeasure? UnitOfMeasure { get; set; }
 
     }
 }

@@ -26,50 +26,46 @@ namespace MarketPrice.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            // # Position
-            modelBuilder.Entity<Position>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(p => p.UserId)
-                .IsRequired();
+            // # Position — use expression overloads so EF binds nav props to the intended FKs
+            modelBuilder.Entity<Position>(entity =>
+            {
+                entity.HasKey(p => p.PositionId);
 
-            modelBuilder.Entity<Position>()
-                .HasOne<LookupData>()
-                .WithMany()
-                .HasForeignKey(p => p.CurrentStatusId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+                entity.HasOne(p => p.User)            // ties to Position.User navigation
+                      .WithMany()                     // or .WithMany(u => u.Positions) if you add collection
+                      .HasForeignKey(p => p.UserId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Position>()
-                .HasOne<DeliveryDetail>()
-                .WithOne()
-                .HasForeignKey<DeliveryDetail>(dd => dd.PositionId)
-                .IsRequired();
+                entity.HasOne(p => p.CurrentStatus)   // ties to Position.CurrentStatus navigation
+                      .WithMany()
+                      .HasForeignKey(p => p.CurrentStatusId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Position>()
-                .HasOne<Commodity>()
-                .WithMany()
-                .HasForeignKey(p => p.CommodityId)
-                .IsRequired();
+                entity.HasOne(p => p.Commodity)      // ties to Position.Commodity navigation
+                      .WithMany()
+                      .HasForeignKey(p => p.CommodityId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Position>()
-                .HasOne<LookupData>()
-                .WithMany()
-                .HasForeignKey(p => p.PositionTypeId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+                entity.HasOne(p => p.PositionType)   // ties to Position.PositionType navigation
+                      .WithMany()
+                      .HasForeignKey(p => p.PositionTypeId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Position>()
-                .Property(p => p.Quantity)
-                .HasPrecision(18, 4); // Example for product quantity (4 decimal places)
+                // one-to-one: DeliveryDetail.Position navigation not present in domain model,
+                // so use WithOne() without lambda to avoid referencing a missing nav property.
+                entity.HasOne<DeliveryDetail>()
+                      .WithOne()
+                      .HasForeignKey<DeliveryDetail>(dd => dd.PositionId)
+                      .IsRequired();
 
-            modelBuilder.Entity<Position>()
-                .Property(p => p.UnitPrice)
-                .HasPrecision(18, 2); // Standard currency precision
-
-            modelBuilder.Entity<Position>()
-                .Property(p => p.PositionId)
-                .HasDefaultValueSql("NEWID()");
+                entity.Property(p => p.Quantity).HasPrecision(18, 4);
+                entity.Property(p => p.UnitPrice).HasPrecision(18, 2);
+                entity.Property(p => p.PositionId).HasDefaultValueSql("NEWID()");
+            });
 
 
             // # User
@@ -151,23 +147,24 @@ namespace MarketPrice.Data
                 .Property(v => v.VerificationId)
                 .HasDefaultValueSql("NEWID()");
 
-            // # Commodity
-            modelBuilder.Entity<Commodity>()
-                .HasOne<CommodityType>()
-                .WithMany()
-                .HasForeignKey(c => c.CommodityTypeId)
-                .IsRequired();
+            // # Commodity — use expression overloads so UnitOfMeasure nav binds to UnitOfMeasureId
+            modelBuilder.Entity<Commodity>(entity =>
+            {
+                entity.HasKey(c => c.CommodityId);
 
-            modelBuilder.Entity<Commodity>()
-                .HasOne<UnitOfMeasure>()
-                .WithMany()
-                .HasForeignKey(c => c.UnitOfMeasureId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired();
+                entity.HasOne<CommodityType>()
+                      .WithMany()
+                      .HasForeignKey(c => c.CommodityTypeId)
+                      .IsRequired();
 
-            modelBuilder.Entity<Commodity>()
-                .Property(c => c.CommodityId)
-                .HasDefaultValueSql("NEWID()");
+                entity.HasOne(c => c.UnitOfMeasure)
+                      .WithMany()
+                      .HasForeignKey(c => c.UnitOfMeasureId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(c => c.CommodityId).HasDefaultValueSql("NEWID()");
+            });
 
             // # CommodityType
             modelBuilder.Entity<CommodityType>()
@@ -245,13 +242,6 @@ namespace MarketPrice.Data
             modelBuilder.Entity<LookupDataType>()
                 .Property(lt => lt.LookupDataTypeId)
                 .ValueGeneratedNever();
-
-            //// # DeliveryDetail
-            //modelBuilder.Entity<DeliveryDetail>()
-            //    .HasMany<Location>()
-            //    .WithOne()
-            //    .HasForeignKey(dd => dd.LocationId)
-            //    .IsRequired();
 
             modelBuilder.Entity<DeliveryDetail>()
                 .Property(dd => dd.Fee)
