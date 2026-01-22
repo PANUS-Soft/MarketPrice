@@ -60,7 +60,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiImage Remove="Resources\Images\Screenshot 2026-01-22 153740.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="appsettings.json" />
+	  <None Remove="Resources\Images\Screenshot 2026-01-22 153740.png" />
 	</ItemGroup>
 
 	<ItemGroup>
