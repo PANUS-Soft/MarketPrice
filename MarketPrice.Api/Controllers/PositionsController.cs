@@ -13,22 +13,15 @@ namespace MarketPrice.Api.Controllers
 
     [ApiController]
     [Route("[controller]")]
-    public class PositionsController : ControllerBase
+    public class PositionsController(IPositionService positionService) : ControllerBase
     {
-        private readonly IPositionService _positionService;
-
-        public PositionsController(IPositionService positionService)
-        {
-            _positionService = positionService;
-        }
-
         // CREATE BID
         [Authorize]
         [HttpPost(ApiRoutes.BID_CREATE)]
         public async Task<ActionResult<PositionResponseDto>> CreateBid(
             [FromBody] PositionCommand command)
         {
-            var response = await _positionService.ProcessPositionAsync(
+            var response = await positionService.ProcessPositionAsync(
                 command,
                 isOffer: false
             );
@@ -46,7 +39,7 @@ namespace MarketPrice.Api.Controllers
         public async Task<ActionResult<PositionResponseDto>> CreateOffer(
             [FromBody] PositionCommand command)
         {
-            var response = await _positionService.ProcessPositionAsync(
+            var response = await positionService.ProcessPositionAsync(
                 command,
                 isOffer: true
             );

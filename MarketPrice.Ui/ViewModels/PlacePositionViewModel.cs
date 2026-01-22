@@ -195,13 +195,12 @@ namespace MarketPrice.Ui.ViewModels
         // Loading the reference data to be used during position placement
         public async Task LoadReferenceDataAsync()
         {
+            var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+
+            if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
+            else await _sessionService.TryRefreshTokenAsync();
             try
             {
-                var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
-
-                if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
-                else await _sessionService.TryRefreshTokenAsync();
-
                 // Logic to load reference data for CommodityTypes and Regions
                 var commodityTypesResponse = await _referenceDataApi.GetCommodityTypesAsync();
                 var regionsResponse = await _referenceDataApi.GetRegionsAsync();
@@ -231,13 +230,13 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task LoadCommoditiesByCommodityTypesAsync(Guid id)
         {
+            var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+
+            if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
+            else await _sessionService.TryRefreshTokenAsync();
+
             try
             {
-                var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
-
-                if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
-                else await _sessionService.TryRefreshTokenAsync();
-
                 // Logic to load reference data for Commodities based on the selected commodity type
                 var commoditiesResponse = await _referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(id);
                 if (commoditiesResponse.IsSuccessStatusCode)
@@ -562,7 +561,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
                 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new CreatePositionCommand
+                var command = new PositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -603,13 +602,16 @@ namespace MarketPrice.Ui.ViewModels
                     if (dto != null)
                     {
                         await Toast.Make("Bid placed successfully", ToastDuration.Long).Show();
-                        await Shell.Current.GoToAsync("Market");
+                        await Shell.Current.GoToAsync("//Market");
                     }
+                } else
+                {
+                    await Shell.Current.DisplayAlert("Bid Placement Failed", "There was an error while placing your bid. Please try later.", "OK");
                 }
             }
             catch (Exception e)
             {
-                await Shell.Current.DisplayAlert("Error", $"There was an error while placing your bid. {e.Message}.", "OK");
+                await Shell.Current.DisplayAlert("Error", e.Message, "OK");
             }
         }
 
@@ -624,7 +626,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new CreatePositionCommand
+                var command = new PositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -683,13 +685,16 @@ namespace MarketPrice.Ui.ViewModels
                     if (dto != null)
                     {
                         await Toast.Make("Offer placed successfully", ToastDuration.Long).Show();
-                        await Shell.Current.GoToAsync("Market");
+                        await Shell.Current.GoToAsync("//Market");
                     }
+                } else
+                {
+                    await Shell.Current.DisplayAlert("Offer Placement Failed", "There was an error while placing your offer. Please try later.", "OK");
                 }
             }
             catch (Exception e)
             {
-                await Shell.Current.DisplayAlert("Error", $"There was an error while placing your offer. {e.Message}.", "OK");
+                await Shell.Current.DisplayAlert("Error", $"There was an error while placing your offer. {e.Message}", "OK");
             }
         }
     }

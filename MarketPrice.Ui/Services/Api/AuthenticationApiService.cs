@@ -1,9 +1,7 @@
-﻿using System.Net.Http.Headers;
-using MarketPrice.Domain.Authentication.Commands;
+﻿using MarketPrice.Domain.Authentication.Commands;
 using System.Net.Http.Json;
 using MarketPrice.Domain;
 using MarketPrice.Ui.Common;
-using MarketPrice.Ui.Services.Session;
 using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.Services.Api
