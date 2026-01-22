@@ -4,6 +4,7 @@ using MarketPrice.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketPrice.Data.Migrations
 {
     [DbContext(typeof(MarketPriceDbContext))]
-    partial class MarketPriceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260120154207_UpDatedMarketPriceDbContext")]
+    partial class UpDatedMarketPriceDbContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +57,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UnitOfMeasureId");
 
-                    b.ToTable("Commodities", (string)null);
+                    b.ToTable("Commodities");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityType", b =>
@@ -85,7 +88,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("CommodityTypes", (string)null);
+                    b.ToTable("CommodityTypes");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
@@ -120,7 +123,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("PositionId")
                         .IsUnique();
 
-                    b.ToTable("DeliveryDetails", (string)null);
+                    b.ToTable("DeliveryDetails");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>
@@ -166,7 +169,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupData", b =>
@@ -193,7 +196,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("LookupDataTypeId");
 
-                    b.ToTable("LookupData", (string)null);
+                    b.ToTable("LookupData");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupDataType", b =>
@@ -207,7 +210,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("LookupDataTypeId");
 
-                    b.ToTable("LookupDataTypes", (string)null);
+                    b.ToTable("LookupDataTypes");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Position", b =>
@@ -265,7 +268,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Positions", (string)null);
+                    b.ToTable("Positions");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Rating", b =>
@@ -300,7 +303,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("RatedUserId", "RaterUserId")
                         .IsUnique();
 
-                    b.ToTable("Ratings", null, t =>
+                    b.ToTable("Ratings", t =>
                         {
                             t.HasCheckConstraint("CHK_Ratings_Score", "[Score] BETWEEN 1 AND 5");
                         });
@@ -331,7 +334,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("UnitOfMeasureId");
 
-                    b.ToTable("UnitOfMeasures", (string)null);
+                    b.ToTable("UnitOfMeasures");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.User", b =>
@@ -394,7 +397,7 @@ namespace MarketPrice.Data.Migrations
                         .IsUnique()
                         .HasFilter("[IdCardNumber] IS NOT NULL");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.UserSecurityDetail", b =>
@@ -421,7 +424,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserSecurityDetails", (string)null);
+                    b.ToTable("UserSecurityDetails");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Verification", b =>
@@ -457,7 +460,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("VerificationTypeId");
 
-                    b.ToTable("Verifications", (string)null);
+                    b.ToTable("Verifications");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>

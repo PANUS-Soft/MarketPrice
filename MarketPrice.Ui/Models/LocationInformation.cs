@@ -6,7 +6,7 @@ namespace MarketPrice.Ui.Models
     public class LocationInformation
     {
         [Required(ErrorMessage = "Region is required")]
-        public required RegionDto Region { get; set; }
+        public required RegionDto? Region { get; set; }
 
         [Required(ErrorMessage = "Street name is required")]
         public required string Street { get; set; }

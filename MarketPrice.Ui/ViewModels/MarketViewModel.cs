@@ -81,15 +81,21 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        public async Task NavigateToPlaceBid()
+        private async Task NavigateToPlaceBidAsync()
         {
-            await Shell.Current.GoToAsync("PlaceBid");
+            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
+            {
+                [NavigationKeys.PositionType] = PositionType.Bid
+            });
         }
 
         [RelayCommand]
-        public async Task NavigateToPlaceOffer()
+        private async Task NavigateToPlaceOfferAsync()
         {
-            await Shell.Current.GoToAsync("PlaceOffer");
+            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
+            {
+                [NavigationKeys.PositionType] = PositionType.Offer
+            });
         }
     }
 }
