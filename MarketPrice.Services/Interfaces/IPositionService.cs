@@ -13,5 +13,7 @@ namespace MarketPrice.Services.Interfaces
     public interface IPositionService
     {
         Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer);
+
+        Task<PositionListingPageResponseDto> GetPositionListingsAsync(PositionListingCommand command);
     }
 }

@@ -1,4 +1,5 @@
-﻿using MarketPrice.Domain.Position.Commands;
+﻿using System.Diagnostics;
+using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -8,9 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
 {
-    //[Route("[controller]")]
-    //[ApiController]
-
     [ApiController]
     [Route("[controller]")]
     public class PositionsController : ControllerBase
@@ -58,14 +56,27 @@ namespace MarketPrice.Api.Controllers
             );
         }
 
-        // -----------------------------
         // GET POSITION (testing)
-        // -----------------------------
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetPosition(Guid id)
         {
             // Optional: add read service later
             return Ok(new { PositionId = id });
+        }
+
+        // List of Positions for a specific commodity type, position type, and unit price
+        [Authorize]
+        [HttpPost(ApiRoutes.POSITION_BYPRICE)]
+        public async Task<ActionResult<PositionListingPageResponseDto>> GetPositionsForPrice(
+            [FromBody] PositionListingCommand command)
+        {
+            var results = await _positionService.GetPositionListingsAsync(command);
+            if (results.Success)
+            {
+                return Ok(results);
+            }
+
+            return BadRequest(results);
         }
     }
 }

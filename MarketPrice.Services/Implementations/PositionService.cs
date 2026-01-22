@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 using MarketPrice.Data.Models;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
-using MarketPrice.Domain;
+using Microsoft.EntityFrameworkCore;
+using MarketPrice.Domain.Authentication.DTOs;
+
 
 
 public class PositionService : IPositionService
@@ -22,6 +24,7 @@ public class PositionService : IPositionService
     private const int LOCATION_TYPE = 4000;
     private const int POSITION_STATUS = 5000;
     private const int POSITION_TYPE = 6000;
+    private const int OPEN_POSITION = 5001;
 
     public PositionService(MarketPriceDbContext context, ILookupProviderService lookups)
     {
@@ -39,7 +42,7 @@ public class PositionService : IPositionService
         // 1. Determine Status using Dynamic Lookups
         if (command.EndDate <= command.StartDate)
             throw new ArgumentException("EndDate must be after StartDate");
-        bool isOpen = DateTime.UtcNow >= command.StartDate && DateTime.UtcNow <= command.EndDate;
+        bool isOpen = DateTime.Now >= command.StartDate && DateTime.Now <= command.EndDate;
 
         if (command.UnitPrice <= 0)
             throw new ArgumentOutOfRangeException(nameof(command.UnitPrice));
@@ -68,7 +71,6 @@ public class PositionService : IPositionService
                 $"Position Type lookup failed for '{posTypeText}'", ex);
         }
 
-      
 
         // 3. Map to Position Entity
         var position = new Position
@@ -136,5 +138,80 @@ public class PositionService : IPositionService
             Quarter = cmd.Quarter,
             Street = cmd.Street
         };
+    }
+
+    public async Task<PositionListingPageResponseDto> GetPositionListingsAsync(
+    PositionListingCommand command)
+    {
+
+        try
+        {
+            if (command.UnitPrice <= 0)
+            {
+                return DtoManager.Failed<PositionListingPageResponseDto>(
+                    "Invalid Criteria", "Unit price must be greater than zero.");
+            }
+
+            var commodityType = await _context.CommodityTypes
+            .Include(ct => ct.Name)
+            .FirstOrDefaultAsync(ct => ct.CommodityTypeId == command.CommodityTypeId);
+
+            if (commodityType == null)
+            {
+                return DtoManager.Failed<PositionListingPageResponseDto>(
+                    "NotFound",
+                    $"Commodity Type with ID {command.CommodityTypeId} does not exist."
+                );
+            }
+
+            // 1. Get all commodities under the commodity type
+            var commodityNames = await _context.Commodities
+                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
+                .Select(c => c.CommodityName)
+                .ToListAsync();
+
+            // 2. Get position listings at the selected price
+            var listings = await _context.Positions
+                .Where(p =>
+                    p.Commodity.CommodityTypeId == command.CommodityTypeId &&
+                    p.PositionTypeId == command.PositionTypeId &&
+                    p.UnitPrice == command.UnitPrice &&
+                    p.CurrentStatusId == OPEN_POSITION)
+                .Select(p => new PositionListingResponseDto
+                {
+                    UserName = p.User.FirstName + " " + p.User.FamilyName,
+                    CommodityName = p.Commodity.CommodityName,
+                    Quantity = p.Quantity,
+                    UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
+                })
+                .ToListAsync();
+
+            // 3. Compose page response
+            var result = new PositionListingPageResponseDto
+            {
+                CommodityTypeName = await _context.CommodityTypes
+                    .Where(ct => ct.CommodityTypeId == command.CommodityTypeId)
+                    .Select(ct => ct.Name.LookupDataTextEnglish)
+                    .FirstAsync(),
+
+                PositionTypeName = await _context.LookupData
+                    .Where(ld => ld.LookupDataId == command.PositionTypeId)
+                    .Select(ld => ld.LookupDataTextEnglish)
+                    .FirstAsync(),
+
+                UnitPrice = command.UnitPrice,
+                CommodityNames = commodityNames,
+                Listings = listings,
+                Status = "Data Retrieved"
+            };
+            return DtoManager.Succeed(result);
+
+        }
+        catch (Exception ex) { 
+            return DtoManager.Failed<PositionListingPageResponseDto>(
+                "Error",
+                "An error occurred while retrieving position listings.",
+                ex.Message);
+        }
     }
 }

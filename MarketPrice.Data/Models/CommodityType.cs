@@ -8,5 +8,9 @@
         public required string Code { get; set; }
         public Guid DefaultUnitOfMeasureId { get; set; }
 
+        // Adding Commodity name navigation property
+
+        public LookupData? Name { get; set; }
+
     }
 }
