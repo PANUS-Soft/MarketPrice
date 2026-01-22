@@ -13,7 +13,7 @@ namespace MarketPrice.Data.Models
         public string? Notes { get; set; }
         public short? LotSize { get; set; }
 
-        //Unite of measure navigation property
+        //Units of measure navigation property
         public UnitOfMeasure? UnitOfMeasure { get; set; }
 
     }

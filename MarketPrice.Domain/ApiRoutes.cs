@@ -14,7 +14,7 @@ public static class ApiRoutes
     // Position Routes
     public const string BID_CREATE = "bid/create";
     public const string OFFER_CREATE = "offer/create";
-    public const string POSITION_BYPRICE = "by-price";
+    public const string POSITION_BYPRICE = "bestPrice";
 
 
     // Reference Data Routes
