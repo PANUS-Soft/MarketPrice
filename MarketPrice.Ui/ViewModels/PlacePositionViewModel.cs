@@ -35,10 +35,10 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private CommodityDto? selectedCommodity;
         [ObservableProperty] private RegionDto? selectedOriginRegion;
         [ObservableProperty] private RegionDto? selectedDestinationRegion;
+        [ObservableProperty] private string selectedGrade;
         [ObservableProperty] private decimal quantity;
         [ObservableProperty] private decimal unitPrice;
         [ObservableProperty] private bool isDeliverable;
-        [ObservableProperty] private string grade;
         [ObservableProperty] private string description;
         [ObservableProperty] private DateTime? startDate;
         [ObservableProperty] private DateTime? endDate;
@@ -63,12 +63,10 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string? originRegionError;
         [ObservableProperty] private string? originTownError;
         [ObservableProperty] private string? originQuarterError;
-        [ObservableProperty] private string? originStreetError;
         [ObservableProperty] private string? originDetailError;
         [ObservableProperty] private string? destinationRegionError;
         [ObservableProperty] private string? destinationTownError;
         [ObservableProperty] private string? destinationQuarterError;
-        [ObservableProperty] private string? destinationStreetError; 
         [ObservableProperty] private string? destinationDetailError;
         [ObservableProperty] private string? leadTimeError;
         [ObservableProperty] private string? deliveryFeeError;
@@ -81,7 +79,7 @@ namespace MarketPrice.Ui.ViewModels
         public string? TotalQuantityDisplay => $"{TotalQuantity} {UnitOfMeasure}";
         public string? ShelfLifeInDaysDisplay => SelectedCommodity == null ? "" : $"Shelf Life: {ShelfLifeInDays} days";
         public string? LotSizeDisplay => SelectedCommodity == null ? "" : $"Lot Size: {LotSize} {UnitOfMeasure}";
-        public string? TotalValueDisplay => SelectedCommodity == null || UnitPrice <= 0 ? "" : PositionType == PositionType.Bid ? $"Total Bid Value: {LotSize * UnitPrice} FCFA" : $"Total Offer Value: {LotSize * UnitPrice} FCFA";
+        public string? TotalValueDisplay => SelectedCommodity == null || UnitPrice <= 0 ? "" : PositionType == PositionType.Bid ? $"Total Bid Value: {UnitPrice * Quantity} FCFA" : $"Total Offer Value: {UnitPrice * Quantity} FCFA";
 
         // Properties handling UI visibility (state indicators)
         public bool IsCommodityDetailsStep => CurrentStep == PositionStep.CommodityDetails;
@@ -117,8 +115,6 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(IsDeliverable));
         }
 
-        
-
         partial void OnCurrentStepChanged(PositionStep value)
         {
             OnPropertyChanged(nameof(IsCommodityDetailsStep));
@@ -133,7 +129,6 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(IsCommodityTypeEditable));
         }
 
-
         [RelayCommand]
         private void Back()
         {
@@ -147,6 +142,12 @@ namespace MarketPrice.Ui.ViewModels
         private async Task BackToMarketAsync()
         {
             await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
+        private void SelectGrade(string grade)
+        {
+            SelectedGrade = grade;
         }
 
         [RelayCommand]
@@ -182,6 +183,7 @@ namespace MarketPrice.Ui.ViewModels
 
             MoveToNextStep();
         }
+
         private void MoveToNextStep()
         {
             if (CurrentStep == PositionStep.CommodityDetails)
@@ -190,10 +192,16 @@ namespace MarketPrice.Ui.ViewModels
                 CurrentStep = PositionStep.LogisticsInformation;
         }
 
+        // Loading the reference data to be used during position placement
         public async Task LoadReferenceDataAsync()
         {
             try
             {
+                var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+
+                if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
+                else await _sessionService.TryRefreshTokenAsync();
+
                 // Logic to load reference data for CommodityTypes and Regions
                 var commodityTypesResponse = await _referenceDataApi.GetCommodityTypesAsync();
                 var regionsResponse = await _referenceDataApi.GetRegionsAsync();
@@ -220,7 +228,64 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
+        [RelayCommand]
+        private async Task LoadCommoditiesByCommodityTypesAsync(Guid id)
+        {
+            try
+            {
+                var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+
+                if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
+                else await _sessionService.TryRefreshTokenAsync();
+
+                // Logic to load reference data for Commodities based on the selected commodity type
+                var commoditiesResponse = await _referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(id);
+                if (commoditiesResponse.IsSuccessStatusCode)
+                {
+                    Commodities.Clear();
+                    var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                    if (commodities != null)
+                        foreach (var c in commodities) Commodities.Add(c);
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error while loading commodities. {e.Message}.", "OK");
+            }
+        }
+
+
         // Methods notifying property changes
+        partial void OnSelectedCommodityTypeChanged(CommodityTypeDto? value)
+        {
+            if (value != null) CommodityTypeError = null;
+            SelectedCommodity = null;
+            Commodities.Clear();
+            if (value == null)
+                return;
+
+            LoadCommoditiesByCommodityTypesCommand.Execute(value.Id);
+
+            OnPropertyChanged(nameof(UnitOfMeasure));
+            OnPropertyChanged(nameof(IsCommodityEditable));
+        }
+
+        partial void OnSelectedCommodityChanged(CommodityDto? value)
+        {
+            if (value != null) CommodityError = null;
+
+            OnPropertyChanged(nameof(LotSize));
+            OnPropertyChanged(nameof(ShelfLifeInDays));
+            OnPropertyChanged(nameof(TotalQuantityDisplay));
+            OnPropertyChanged(nameof(LotSizeDisplay));
+            OnPropertyChanged(nameof(ShelfLifeInDaysDisplay));
+        }
+
+        partial void OnSelectedGradeChanged(string value)
+        {
+            if (!string.IsNullOrEmpty(value)) GradeError = null;
+        }
+
         partial void OnQuantityChanged(decimal value)
         {
             if (value > 0) QuantityError = null;
@@ -235,15 +300,23 @@ namespace MarketPrice.Ui.ViewModels
 
         partial void OnStartDateChanged(DateTime? value)
         {
+            if (value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
+
             if (value != null && value >= DateTime.Now) StartDateError = null;
             CombineDateError();
+            OnPropertyChanged(nameof(EndDateError));
             OnPropertyChanged(nameof(DateError));
         }
 
         partial void OnEndDateChanged(DateTime? value)
         {
+            if (value < StartDate) EndDateError = "- End date cannot be less than the start date.\n";
+
+            if (value == StartDate) EndDateError = "- End date cannot be equal to the start date.\n";
+
             if (value != null && value > StartDate) EndDateError = null;
             CombineDateError();
+            OnPropertyChanged(nameof(StartDateError));
             OnPropertyChanged(nameof(DateError));
         }
 
@@ -264,13 +337,6 @@ namespace MarketPrice.Ui.ViewModels
         partial void OnOriginQuarterChanged(string value)
         {
             if (!string.IsNullOrEmpty(value)) OriginQuarterError = null;
-            CombineOriginDetailError();
-            OnPropertyChanged(nameof(OriginDetailError));
-        }
-
-        partial void OnOriginStreetChanged(string value)
-        {
-            if (!string.IsNullOrEmpty(value)) OriginStreetError = null;
             CombineOriginDetailError();
             OnPropertyChanged(nameof(OriginDetailError));
         }
@@ -296,13 +362,6 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(DestinationDetailError));
         }
 
-        partial void OnDestinationStreetChanged(string value)
-        {
-            if (!string.IsNullOrEmpty(value)) DestinationStreetError = null;
-            CombineDestinationDetailError();
-            OnPropertyChanged(nameof(DestinationDetailError));
-        }
-
         partial void OnDeliveryFeeChanged(decimal value)
         {
             if (value > 0) DeliveryFeeError = null;
@@ -313,51 +372,7 @@ namespace MarketPrice.Ui.ViewModels
             if (!string.IsNullOrEmpty(value)) LeadTimeError = null;
         }
 
-        partial void OnSelectedCommodityTypeChanged(CommodityTypeDto? value)
-        {
-            if (value != null) CommodityTypeError = null;
-            SelectedCommodity = null;
-            Commodities.Clear();
-            if (value == null)
-                return;
-            
-            LoadCommoditiesByCommodityTypesCommand.Execute(value.Id);
-
-            OnPropertyChanged(nameof(UnitOfMeasure));
-            OnPropertyChanged(nameof(IsCommodityEditable));
-        }
-
-        partial void OnSelectedCommodityChanged(CommodityDto? value)
-        {
-            if (value != null) CommodityError = null;
-
-            OnPropertyChanged(nameof(LotSize));
-            OnPropertyChanged(nameof(ShelfLifeInDays));
-            OnPropertyChanged(nameof(TotalQuantityDisplay));
-            OnPropertyChanged(nameof(LotSizeDisplay));
-            OnPropertyChanged(nameof(ShelfLifeInDaysDisplay));
-        }
-
-        // Methods to load data from APIs
-        [RelayCommand]
-        private async Task LoadCommoditiesByCommodityTypesAsync(Guid id)
-        {
-            try
-            {
-                var commoditiesResponse = await _referenceDataApi.GetCommoditiesByCommodityTypeIdAsync(id);
-                if (commoditiesResponse.IsSuccessStatusCode)
-                {
-                    Commodities.Clear();
-                    var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
-                    if (commodities != null)
-                        foreach (var c in commodities) Commodities.Add(c);
-                }
-            }
-            catch (Exception e)
-            {
-                await Shell.Current.DisplayAlert("Error", $"There was an error while loading commodities. {e.Message}.", "OK");
-            }
-        }
+        // Helper methods for live data validation
 
         private void CombineDateError()
         {
@@ -366,12 +381,12 @@ namespace MarketPrice.Ui.ViewModels
 
         private void CombineOriginDetailError()
         {
-            OriginDetailError = OriginRegionError + OriginTownError + OriginQuarterError + OriginStreetError;
+            OriginDetailError = OriginRegionError + OriginTownError + OriginQuarterError;
         }
 
         private void CombineDestinationDetailError()
         {
-            DestinationDetailError = DestinationRegionError + DestinationTownError + DestinationQuarterError + DestinationStreetError;
+            DestinationDetailError = DestinationRegionError + DestinationTownError + DestinationQuarterError;
         }
 
         // Data Validation Methods
@@ -402,11 +417,11 @@ namespace MarketPrice.Ui.ViewModels
                 isValid = false;
             }
 
-            //if (string.IsNullOrEmpty(Grade))
-            //{
-            //    GradeError = "Please select a grade";
-            //    isValid = false;
-            //}
+            if (string.IsNullOrEmpty(SelectedGrade))
+            {
+                GradeError = "Please select a grade";
+                isValid = false;
+            }
 
             return isValid;
         }
@@ -443,6 +458,11 @@ namespace MarketPrice.Ui.ViewModels
                 isValid = false;
             }
 
+            if (StartDate != null && EndDate != null && EndDate == StartDate)
+            {
+                EndDateError = "- End date can not be equal to the start date.\n";
+            }
+
             if (EndDate != null && EndDate < StartDate)
             {
                 EndDateError = "- End Date must be after Start Date.\n";
@@ -461,7 +481,6 @@ namespace MarketPrice.Ui.ViewModels
             OriginRegionError = null;
             OriginTownError = null;
             OriginQuarterError = null;
-            OriginStreetError = null;
             OriginDetailError = null;
 
             if (SelectedOriginRegion == null)
@@ -485,19 +504,11 @@ namespace MarketPrice.Ui.ViewModels
                 isValid = false;
             }
 
-            if (string.IsNullOrEmpty(OriginStreet))
-            {
-                OriginStreetError = "- Street is required.\n";
-                OriginDetailError += OriginStreetError;
-                isValid = false;
-            }
-
             if (IsDeliverable)
             {
                 DestinationRegionError = null;
                 DestinationTownError = null;
                 DestinationQuarterError = null;
-                DestinationStreetError = null;
                 DestinationDetailError = null;
                 DeliveryFeeError = null;
                 LeadTimeError = null;
@@ -520,13 +531,6 @@ namespace MarketPrice.Ui.ViewModels
                 {
                     DestinationQuarterError = "- Destination quarter is required.\n";
                     DestinationDetailError += DestinationQuarterError;
-                    isValid = false;
-                }
-
-                if (string.IsNullOrEmpty(DestinationStreet))
-                {
-                    DestinationStreetError = "- Destination street is required.\n";
-                    DestinationDetailError += DestinationStreetError;
                     isValid = false;
                 }
                 
@@ -564,7 +568,7 @@ namespace MarketPrice.Ui.ViewModels
                     CommodityId = SelectedCommodity!.Id,
                     UnitPrice = (decimal)UnitPrice!,
                     Quantity = (decimal)Quantity!,
-                    Grade = Grade,
+                    Grade = SelectedGrade,
                     Description = Description,
                     StartDate = (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
@@ -579,8 +583,8 @@ namespace MarketPrice.Ui.ViewModels
 
                 var message = $""""
                                Commodity: {SelectedCommodity.Name}
-                               UnitPrice: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
                                Total Quantity: {TotalQuantityDisplay}
+                               Unit Price: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
                                {TotalValueDisplay}
                                Start date/time: {StartDate:g}
                                End date/time: {EndDate:g}
@@ -626,7 +630,7 @@ namespace MarketPrice.Ui.ViewModels
                     CommodityId = SelectedCommodity!.Id,
                     UnitPrice = (decimal)UnitPrice!,
                     Quantity = (decimal)Quantity!,
-                    Grade = Grade,
+                    Grade = SelectedGrade,
                     Description = Description,
                     StartDate = (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
@@ -650,8 +654,8 @@ namespace MarketPrice.Ui.ViewModels
 
                 var message = $""""
                                Commodity: {SelectedCommodity.Name}
-                               UnitPrice: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
                                Total Quantity: {TotalQuantityDisplay}
+                               Unit Price: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
                                {TotalValueDisplay}
                                Start date/time: {StartDate:g}
                                End date/time: {EndDate:g}

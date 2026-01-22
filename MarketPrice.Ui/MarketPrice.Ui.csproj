@@ -114,9 +114,6 @@
 	  <MauiXaml Update="Views\Onboarding.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\PlaceBid.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\PlacePosition.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

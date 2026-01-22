@@ -9,6 +9,20 @@
              BackgroundColor="#F2F4F7"
              Title="PlacePosition">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="GradeButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="FontFamily" Value="RobotoSerifBold"/>
+                <Setter Property="BorderColor" Value="#CCCCCC"/>
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid RowDefinitions="Auto, Auto, *, Auto">
 
         <Border Grid.Row="0" Background="White" Padding="15,10" StrokeThickness="0">
@@ -78,11 +92,53 @@
                             <Label Text="{Binding CommodityError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
                             <Label Text="Grade" FontSize="13" FontFamily="RobotoSerifRegular" TextColor="{StaticResource TextPrimary}"/>
                             <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" HeightRequest="40">
-                                <Button Grid.Column="0" Text="A" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
-                                <Button Grid.Column="1" Text="B" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
-                                <Button Grid.Column="2" Text="C" BackgroundColor="White" TextColor="Black" BorderWidth="1" BorderColor="#DEE2E6" CornerRadius="8"/>
+                                <Button Grid.Column="0" 
+                                        Text="A" 
+                                        Style="{StaticResource GradeButtonStyle}"
+                                        Command="{Binding SelectGradeCommand}"
+                                        CommandParameter="A">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button"
+                                                     Binding="{Binding SelectedGrade}"
+                                                     Value="A">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
+                                            <Setter Property="TextColor" Value="White"/>
+                                            <Setter Property="BorderWidth" Value="0"/>
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                                <Button Grid.Column="1" 
+                                        Text="B" 
+                                        Style="{StaticResource GradeButtonStyle}"
+                                        Command="{Binding SelectGradeCommand}"
+                                        CommandParameter="B">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button"
+                                                     Binding="{Binding SelectedGrade}"
+                                                     Value="B">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
+                                            <Setter Property="TextColor" Value="White"/>
+                                            <Setter Property="BorderWidth" Value="0"/>
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                                <Button Grid.Column="2" 
+                                        Text="C" 
+                                        Style="{StaticResource GradeButtonStyle}"
+                                        Command="{Binding SelectGradeCommand}"
+                                        CommandParameter="C">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button"
+                                                     Binding="{Binding SelectedGrade}"
+                                                     Value="C">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
+                                            <Setter Property="TextColor" Value="White"/>
+                                            <Setter Property="BorderWidth" Value="0"/>
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
                             </Grid>
-                            <Label Text="{Binding CommodityTypeError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
+                            <Label Text="{Binding GradeError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
                                 <dxe:TextEdit Grid.Column="0" LabelText="Quantity" TextFontFamily="RobotoSerifRegular" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding Quantity}" />
