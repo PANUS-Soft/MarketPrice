@@ -7,8 +7,7 @@ namespace MarketPrice.Ui
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute("PlaceBid", typeof(PlaceBid));
-            Routing.RegisterRoute("PlaceOffer", typeof(PlaceOffer));
+            Routing.RegisterRoute(nameof(PlacePosition), typeof(PlacePosition));
         }
     }
 }
