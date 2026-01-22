@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Views;
 using System.Collections.ObjectModel;
 
 namespace MarketPrice.Ui.ViewModels
