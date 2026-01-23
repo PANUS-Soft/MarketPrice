@@ -11,6 +11,7 @@ using MarketPrice.Data.Models;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using Microsoft.EntityFrameworkCore;
+using MarketPrice.Domain.Authentication.DTOs;
 
 
 
@@ -139,23 +140,78 @@ public class PositionService : IPositionService
         };
     }
 
-    public async Task<List<PositionListingResponseDto>> GetPositionsForPriceAsync(PositionListingCommand command)
+    public async Task<PositionListingPageResponseDto> GetPositionListingsAsync(
+    PositionListingCommand command)
     {
-        return await _context.Positions
-            .Where(p => p.Commodity.CommodityTypeId == command.CommodityTypeId
-                     && p.PositionTypeId == command.PositionTypeId
-                     && p.UnitPrice == command.UnitPrice
-                     && p.CurrentStatusId == OPEN_POSITION)
-            .Select(p => new PositionListingResponseDto
-            {
-                // We use the navigation property 'User' to get the name
-                UserName = $"{p.User.FirstName} {p.User.FamilyName}",
-                Quantity = p.Quantity,
-                // We use the navigation property 'Commodity' to get the specific name (e.g., Yellow Corn)
-                CommodityName = p.Commodity.CommodityName,
-                UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
-            })
-            .ToListAsync();
-    }
 
+        try
+        {
+            if (command.UnitPrice <= 0)
+            {
+                return DtoManager.Failed<PositionListingPageResponseDto>(
+                    "Invalid Criteria", "Unit price must be greater than zero.");
+            }
+
+            var commodityType = await _context.CommodityTypes
+            .Include(ct => ct.Name)
+            .FirstOrDefaultAsync(ct => ct.CommodityTypeId == command.CommodityTypeId);
+
+            if (commodityType == null)
+            {
+                return DtoManager.Failed<PositionListingPageResponseDto>(
+                    "NotFound",
+                    $"Commodity Type with ID {command.CommodityTypeId} does not exist."
+                );
+            }
+
+            // 1. Get all commodities under the commodity type
+            var commodityNames = await _context.Commodities
+                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
+                .Select(c => c.CommodityName)
+                .ToListAsync();
+
+            // 2. Get position listings at the selected price
+            var listings = await _context.Positions
+                .Where(p =>
+                    p.Commodity.CommodityTypeId == command.CommodityTypeId &&
+                    p.PositionTypeId == command.PositionTypeId &&
+                    p.UnitPrice == command.UnitPrice &&
+                    p.CurrentStatusId == OPEN_POSITION)
+                .Select(p => new PositionListingResponseDto
+                {
+                    UserName = p.User.FirstName + " " + p.User.FamilyName,
+                    CommodityName = p.Commodity.CommodityName,
+                    Quantity = p.Quantity,
+                    UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
+                })
+                .ToListAsync();
+
+            // 3. Compose page response
+            var result = new PositionListingPageResponseDto
+            {
+                CommodityTypeName = await _context.CommodityTypes
+                    .Where(ct => ct.CommodityTypeId == command.CommodityTypeId)
+                    .Select(ct => ct.Name.LookupDataTextEnglish)
+                    .FirstAsync(),
+
+                PositionTypeName = await _context.LookupData
+                    .Where(ld => ld.LookupDataId == command.PositionTypeId)
+                    .Select(ld => ld.LookupDataTextEnglish)
+                    .FirstAsync(),
+
+                UnitPrice = command.UnitPrice,
+                CommodityNames = commodityNames,
+                Listings = listings,
+                Status = "Data Retrieved"
+            };
+            return DtoManager.Succeed(result);
+
+        }
+        catch (Exception ex) { 
+            return DtoManager.Failed<PositionListingPageResponseDto>(
+                "Error",
+                "An error occurred while retrieving position listings.",
+                ex.Message);
+        }
+    }
 }

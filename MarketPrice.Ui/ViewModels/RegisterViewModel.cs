@@ -10,9 +10,6 @@ using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -114,14 +111,14 @@ namespace MarketPrice.Ui.ViewModels
         {
             try
             {
-                var accounTypeId = ContactInfo.AccountType == AccountType.Personal ? 1001 : 1002;
+                var accountTypeId = ContactInfo.AccountType == AccountType.Personal ? 1001 : 1002;
 
                 var registerRequest = new RegisterCommand
                 {
                     FirstName = PersonalInfo.FirstName,
                     FamilyName = PersonalInfo.FamilyName,
                     OtherNames = PersonalInfo.OtherName,
-                    AccountTypeId = accounTypeId,
+                    AccountTypeId = accountTypeId,
                     EmailAddress = ContactInfo.EmailAddress,
                     PhoneNumber = $"+237{ContactInfo.PhoneNumber}",
                     Password = SecurityDetail.Password

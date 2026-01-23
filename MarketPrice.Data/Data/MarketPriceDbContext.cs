@@ -181,7 +181,7 @@ namespace MarketPrice.Data
                 .IsRequired();
 
             modelBuilder.Entity<CommodityType>()
-                .HasOne<LookupData>()
+                .HasOne(ct => ct.Name) // ties the name navigation property
                 .WithMany()
                 .HasForeignKey(ct => ct.NameId)
                 .OnDelete(DeleteBehavior.NoAction)

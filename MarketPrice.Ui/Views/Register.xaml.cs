@@ -16,7 +16,6 @@ public partial class Register : ContentPage
 
         if (BindingContext is RegisterViewModel viewModel)
         {
-            //viewModel.ValidateCurrentStepRequested -= ValidateCurrentFormAsync; // Remove old one
             viewModel.ValidateCurrentStepRequested += ValidateCurrentFormAsync; // Add fresh one
         }
     }

@@ -1,4 +1,5 @@
-﻿using MarketPrice.Domain.Position.Commands;
+﻿using System.Diagnostics;
+using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -8,27 +9,17 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
 {
-    //[Route("[controller]")]
-    //[ApiController]
-
     [ApiController]
     [Route("[controller]")]
-    public class PositionsController : ControllerBase
+    public class PositionsController(IPositionService positionService) : ControllerBase
     {
-        private readonly IPositionService _positionService;
-
-        public PositionsController(IPositionService positionService)
-        {
-            _positionService = positionService;
-        }
-
         // CREATE BID
         //[Authorize]
         [HttpPost(ApiRoutes.BID_CREATE)]
         public async Task<ActionResult<PositionResponseDto>> CreateBid(
             [FromBody] PositionCommand command)
         {
-            var response = await _positionService.ProcessPositionAsync(
+            var response = await positionService.ProcessPositionAsync(
                 command,
                 isOffer: false
             );
@@ -46,7 +37,7 @@ namespace MarketPrice.Api.Controllers
         public async Task<ActionResult<PositionResponseDto>> CreateOffer(
             [FromBody] PositionCommand command)
         {
-            var response = await _positionService.ProcessPositionAsync(
+            var response = await positionService.ProcessPositionAsync(
                 command,
                 isOffer: true
             );
@@ -58,9 +49,7 @@ namespace MarketPrice.Api.Controllers
             );
         }
 
-        // -----------------------------
         // GET POSITION (testing)
-        // -----------------------------
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetPosition(Guid id)
         {
@@ -68,27 +57,19 @@ namespace MarketPrice.Api.Controllers
             return Ok(new { PositionId = id });
         }
 
-        // List of Positions for a given price.
-        //[Authorize]
+        // List of Positions for a specific commodity type, position type, and unit price
+        [Authorize]
         [HttpPost(ApiRoutes.POSITION_BYPRICE)]
-        public async Task<ActionResult<List<PositionListingResponseDto>>> GetPositionsForPrice(
+        public async Task<ActionResult<PositionListingPageResponseDto>> GetPositionsForPrice(
             [FromBody] PositionListingCommand command)
         {
-            if (command == null)
-                return BadRequest("Request body is required.");
+            var results = await positionService.GetPositionListingsAsync(command);
+            if (results.Success)
+            {
+                return Ok(results);
+            }
 
-            if (command.CommodityTypeId == Guid.Empty)
-                return BadRequest("CommodityTypeId is required.");
-
-            if (command.PositionTypeId <= 0)
-                return BadRequest("PositionTypeId is required and must be greater than zero.");
-
-            if (command.UnitPrice == null)
-                return BadRequest("UnitPrice is required.");
-
-            var results = await _positionService.GetPositionsForPriceAsync(command);
-
-            return Ok(results);
+            return BadRequest(results);
         }
     }
 }
