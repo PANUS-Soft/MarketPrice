@@ -48,13 +48,24 @@ namespace MarketPrice.Ui.ViewModels
         
         partial void OnSelectedCommodityTypeChanged(string value) => ApplyFilters();
 
-        partial void OnSearchTextChanged(string value) => ApplyFilters();
+        partial void OnSearchTextChanged(string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                var matchedCommodityType = CommodityTypes.FirstOrDefault(c => c.Equals(value.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                if (matchedCommodityType != null && SelectedCommodityType != matchedCommodityType)
+                    SelectedCommodityType = matchedCommodityType;
+            }
+
+            ApplyFilters();
+        }
 
         private void ApplyFilters()
         {
             var filtered = _allMarketItems.AsEnumerable();
 
-            // 1. Filter by Category Tab
+           
             if (!string.IsNullOrEmpty(SelectedCommodityType) && SelectedCommodityType != "ALL")
             {
                 filtered = filtered.Where(item =>
@@ -62,7 +73,7 @@ namespace MarketPrice.Ui.ViewModels
                     item.Code.ToUpper().Contains(SelectedCommodityType.ToUpper()));
             }
 
-            // 2. Further filter by Search Bar text
+            
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 filtered = filtered.Where(item =>
