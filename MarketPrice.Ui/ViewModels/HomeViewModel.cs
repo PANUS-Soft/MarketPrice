@@ -1,13 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Net.Http.Json;
 using MarketPrice.Domain.Home;
 using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class HomeViewModel(SessionService sessionService) : ObservableObject
+    public partial class HomeViewModel(SessionService sessionService, LoadHomeApiService loadHomeApi) : ObservableObject
     {
         public ObservableCollection<LoadHomeResponseDto> CommodityTypes { get; } = new();
 
@@ -20,6 +22,20 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
+                var homeDataResponse = await loadHomeApi.LoadHomeAsync();
+
+                if (homeDataResponse.IsSuccessStatusCode)
+                {
+                    CommodityTypes.Clear();
+                    var homeData = await homeDataResponse.Content.ReadFromJsonAsync<List<LoadHomeResponseDto>>();
+                    if (homeData != null)
+                    {
+                        foreach (var item in homeData)
+                        {
+                            CommodityTypes.Add(item);
+                        }
+                    }
+                }
 
             }
             catch (Exception e)
