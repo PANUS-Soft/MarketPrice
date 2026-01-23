@@ -63,7 +63,7 @@ namespace MarketPrice.Api.Controllers
         public async Task<ActionResult<PositionListingPageResponseDto>> GetPositionsForPrice(
             [FromBody] PositionListingCommand command)
         {
-            var results = await _positionService.GetPositionListingsAsync(command);
+            var results = await positionService.GetPositionListingsAsync(command);
             if (results.Success)
             {
                 return Ok(results);
