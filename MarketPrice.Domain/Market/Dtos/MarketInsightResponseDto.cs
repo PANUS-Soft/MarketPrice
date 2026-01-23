@@ -16,22 +16,10 @@ namespace MarketPrice.Domain.Market.Dtos
         public string ImageUrl { get; set; }
         public decimal BestBid { get; set; }
         public decimal BestOffer { get; set; }
-
-        public bool BidUp { get; set; }
-        public bool OfferDown { get; set; }
+        public bool IsBidUp { get; set; }
+        public bool IsOfferDown { get; set; }
 
     }
-    
-
-
-
-
-
-
-
-
-
-
 
 
 }

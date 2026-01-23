@@ -23,7 +23,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // CREATE BID
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.BID_CREATE)]
         public async Task<ActionResult<PositionResponseDto>> CreateBid(
             [FromBody] PositionCommand command)
@@ -41,7 +41,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // CREATE OFFER
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.OFFER_CREATE)]
         public async Task<ActionResult<PositionResponseDto>> CreateOffer(
             [FromBody] PositionCommand command)
@@ -69,7 +69,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // List of Positions for a given price.
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.POSITION_BYPRICE)]
         public async Task<ActionResult<List<PositionListingResponseDto>>> GetPositionsForPrice(
             [FromBody] PositionListingCommand command)

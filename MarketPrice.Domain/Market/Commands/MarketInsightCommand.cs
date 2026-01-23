@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Domain.Market.Commands
 {
-    public class MarketDepthCommand
+    public class MarketInsightCommand
     {
-        public Guid CommodityTypeId { get; set; }
+        public Guid CommodityTypeId { get; set; } = Guid.Empty;
     }
 }

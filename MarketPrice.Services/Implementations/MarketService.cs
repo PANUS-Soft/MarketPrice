@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MarketPrice.Data.Models;
 
 
 namespace MarketPrice.Services.Implementations
@@ -24,43 +25,74 @@ namespace MarketPrice.Services.Implementations
             _context = context;
         }
 
-        public async Task<MarketDepthResponseDto> GetMarketTrendAsync(MarketDepthCommand command)
+        public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync(MarketInsightCommand command)
         {
+            // Validate input
+            if (command == null) throw new ArgumentNullException(nameof(command));
 
-            // We join with Commodities to filter by the Type the user clicked (e.g., Corn)
-            var allPositions = await _context.Positions
-                .Where(p => p.Commodity.CommodityTypeId == command.CommodityTypeId
-                         && p.CurrentStatusId == StatusId) // 5001 = 'Open'
-                .ToListAsync();
+            
+            IQueryable<Commodity> commoditiesQuery = _context.Commodities.AsNoTracking();
+            if (command.CommodityTypeId != Guid.Empty)
+            {
+                commoditiesQuery = commoditiesQuery.Where(c => c.CommodityTypeId == command.CommodityTypeId);
+            }
 
-            var dto = new MarketDepthResponseDto();
+            //if (command.CommodityTypeId == Guid.Empty) return new List<MarketDepthResponseDto>();
 
-            // Process Bids (6001)
-            dto.Bids = allPositions
-                .Where(p => p.PositionTypeId == BidPosition)
-                .GroupBy(p => p.UnitPrice)
-                .Select(group => new MarketDepthPriceLevel
-                {
-                    Price = group.Key,
-                    //TotalQuantity = (double)group.Sum(p => p.Quantity)
-                    TotalQuantity = group.Sum(p => p.Quantity),
-                    CreatedAt = group.Max(p => p.Date).DateTime
-                })
-                .OrderByDescending(x => x.Price).ToList();
+            // Query all commodities for the requested commodity type
+            // and compute BestBid/BestOffer from positions (only open positions).
+            // This returns one DTO per commodity (e.g., "Fresh Corn", "Dry Corn"). 
+            
+            var query = from c in commoditiesQuery
+                        join p in _context.Positions
+                            .AsNoTracking()
+                            .Where(p => p.CurrentStatusId == StatusId)
+                            on c.CommodityId equals p.CommodityId into posGroup
+                        orderby c.CommodityName
+                        select new MarketInsightResponseDto
+                        {
+                            CommodityId = c.CommodityId,
+                            CommodityTypeId = c.CommodityTypeId,
+                            CommodityName = c.CommodityName,
+                            CommodityCode = c.CommodityType != null
+                                ? c.CommodityType.Code
+                                : string.Empty,
+                            ImageUrl = c.ImageUrl,
 
-            // Process Offers (6002)
-            dto.Offers = allPositions
-                .Where(p => p.PositionTypeId == AskPosition)
-                .GroupBy(p => p.UnitPrice)
-                .Select(group => new MarketDepthPriceLevel
-                {
-                    Price = group.Key,
-                    TotalQuantity = group.Sum(p => p.Quantity),
-                    CreatedAt = group.Max(p => p.Date).DateTime
-                })
-                .OrderBy(x => x.Price).ToList();
+                            BestBid = posGroup
+                                .Where(p => p.PositionTypeId == BidPosition)
+                                .Select(p => (decimal?)p.UnitPrice)
+                                .Max() ?? 0m,
 
-            return dto;
+                            BestOffer = posGroup
+                                .Where(p => p.PositionTypeId == AskPosition)
+                                .Select(p => (decimal?)p.UnitPrice)
+                                .Min() ?? 0m
+                        };
+
+            var data = await query.ToListAsync();
+
+            var result = data.Select(x => new MarketInsightResponseDto
+            {
+                CommodityId = x.CommodityId,
+                CommodityTypeId = x.CommodityTypeId,
+                CommodityName = x.CommodityName,
+                CommodityCode = x.CommodityCode,
+                ImageUrl = x.ImageUrl,
+
+                BestBid = x.BestBid,
+                BestOffer = x.BestOffer,
+
+                // TEMP logic (until snapshot/history exists)
+                IsBidUp = false,
+                IsOfferDown = false
+            }).ToList();
+
+            return result;
+
+
+            //return await query.ToListAsync();
+
         }
     }
 }
