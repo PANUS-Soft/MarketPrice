@@ -14,8 +14,7 @@ public static class ApiRoutes
     // Position Routes
     public const string BID_CREATE = "bid/create";
     public const string OFFER_CREATE = "offer/create";
-    public const string POSITION_BYPRICE = "bestPrice";
-
+    public const string POSITION_BY_PRICE = "bestPrice";
 
     // Reference Data Routes
     public const string REF_REGION = "regions";
@@ -25,6 +24,7 @@ public static class ApiRoutes
 
     // Market Data Routes
     public const string MARKET_INSIGHTS = "insights";
+    public const string MARKET_SUMMARY = "summary";
 }
 
 public static class ApiControllers
