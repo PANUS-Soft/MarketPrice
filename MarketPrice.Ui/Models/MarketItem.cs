@@ -11,8 +11,8 @@ namespace MarketPrice.Ui.Models
         public string? Name { get; set; }
         public string? Code { get; set; }
         public string? ImageSource { get; set; }
-        public double BestBid { get; set; }
-        public double BestOffer { get; set; }
+        public decimal BestBid { get; set; }
+        public decimal BestOffer { get; set; }
         public bool IsBidUp { get; set; }
         public bool IsOfferDown { get; set; }   
     }
