@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MarketPrice.Domain;
 using MarketPrice.Ui.Common;
 using Microsoft.Extensions.Options;
 
@@ -12,7 +13,9 @@ namespace MarketPrice.Ui.Services.Api
     {
         public async Task<HttpResponseMessage> LoadHomeAsync()
         {
-            var url =
+            var url = ApiControllers.Markets.AppendRoute(ApiRoutes.MARKET_SUMMARY);
+            var response = await GettingAsync(url);
+            return response;
         }
     }
 }

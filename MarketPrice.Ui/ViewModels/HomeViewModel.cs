@@ -3,13 +3,31 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using MarketPrice.Domain.Home;
 using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class HomeViewModel : ObservableObject
+    public partial class HomeViewModel(SessionService sessionService) : ObservableObject
     {
-
         public ObservableCollection<LoadHomeResponseDto> CommodityTypes { get; } = new();
+
+        public async Task LoadHomeDataAsync()
+        {
+            var isSessionValid = await sessionService.ValidateAndRefreshSessionAsync();
+
+            if (isSessionValid) await sessionService.GetCurrentSessionAsync();
+            else await sessionService.TryRefreshTokenAsync();
+
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error loading data. {e.Message}", "OK");
+            }
+
+        }
 
         //[ObservableProperty]
         //private ObservableCollection<CommodityDisplayItem> _commodities;
