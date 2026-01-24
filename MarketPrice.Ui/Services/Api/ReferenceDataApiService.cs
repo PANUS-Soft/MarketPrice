@@ -1,9 +1,4 @@
-﻿    using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketPrice.Domain;
+﻿using MarketPrice.Domain;
 using MarketPrice.Ui.Common;
 using Microsoft.Extensions.Options;
 
@@ -25,7 +20,7 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
-        public async Task<HttpResponseMessage> GetCommoditiesByIdAsync(Guid id)
+        public async Task<HttpResponseMessage> GetCommoditiesByCommodityTypeIdAsync(Guid id)
         {
             var url = ApiControllers.ReferenceData.AppendRoute(ApiRoutes.REF_COMMODITY + $"/{id}");
             var response = await GettingAsync(url);
