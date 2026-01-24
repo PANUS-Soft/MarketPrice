@@ -2,19 +2,22 @@
 using MarketPrice.Services.Interfaces;
 using MarketPrice.Domain.Home.Dtos;
 using MarketPrice.Domain;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
 {
     [ApiController]
-    [Route(ApiRoutes.HOME_DATA)]
+    [Route("[controller]")]
     public class HomeController(IHomeService homeService, ILogger<HomeController> logger) : ControllerBase
     {
         private readonly IHomeService _homeService = homeService;
-        private readonly ILogger<HomeController> _logger = logger; 
-          
+        private readonly ILogger<HomeController> _logger = logger;
+
         /// <summary>
         /// Loads home market data for all commodity types
         /// </summary>
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<LoadHomeResponseDto>>> LoadHome()
         {

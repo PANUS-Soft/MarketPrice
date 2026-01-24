@@ -53,7 +53,6 @@ namespace MarketPrice.Api.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetPosition(Guid id)
         {
-            // Optional: add read service later
             return Ok(new { PositionId = id });
         }
 
