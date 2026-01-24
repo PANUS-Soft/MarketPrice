@@ -4,5 +4,6 @@
     {
         public const string DatabaseConnectionString = "MarketPrice";
         public const string ApiBaseUrl = "MarketPriceApiBaseUrl";
+
     }
 }

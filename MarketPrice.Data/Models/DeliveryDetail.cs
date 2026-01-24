@@ -6,8 +6,8 @@
         public Guid PositionId { get; set; }
         public Guid LocationId { get; set; }
         public required bool IsDeliverable { get; set; }
-        public required string LeadTime { get; set; }
+        public string? LeadTime { get; set; }
         public decimal? Fee { get; set; }
-        public required decimal MaxDistance { get; set; }
+        public decimal? MaxDistance { get; set; }
     }
 }

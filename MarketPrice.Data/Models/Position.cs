@@ -16,12 +16,12 @@
         public DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
         public DateTimeOffset? DateUpdated { get; set; }
 
+        // Include navigation properties
+        public User? User { get; set; }
+        public Commodity? Commodity { get; set; }
+        public LookupData? PositionType { get; set; }
+        public LookupData? CurrentStatus { get; set; }
+
     }
-
-
-
-
-
-
 
 }

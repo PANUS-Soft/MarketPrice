@@ -59,17 +59,19 @@ namespace MarketPrice.Ui
                 builder.AddHttpMessageHandler<AuthHandler>();
             });
 
-            builder.Services.AddHttpClient<AuthenticationApiService>(); 
+            builder.Services.AddHttpClient<AuthenticationApiService>();
+            builder.Services.AddHttpClient<ReferenceDataApiService>();
+            builder.Services.AddHttpClient<PositionApiService>();
 
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<PlacePositionViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
             builder.Services.AddTransient<Login>();
-
-
+            builder.Services.AddTransient<PlacePosition>();
 
 #if DEBUG
             builder.Logging.AddDebug();

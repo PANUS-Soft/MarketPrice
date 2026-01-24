@@ -8,9 +8,6 @@ using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {

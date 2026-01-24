@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             x:Class="MarketPrice.Ui.Views.Market"
+             Title="Market">
+
+    <ContentPage.BindingContext>
+        <viewModels:MarketViewModel />
+    </ContentPage.BindingContext>
+    
+        <Grid RowDefinitions="Auto, *, Auto">
+            
+            <Border Grid.Row="0"
+                    Stroke="#E5E5E5"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="10">
+
+                <Border StrokeShape="RoundRectangle 25"
+                        Stroke="Gray"
+                        BackgroundColor="#F9F9F9">
+                    <SearchBar Placeholder="Search"/>
+                </Border>
+            </Border>
+
+            <ScrollView Grid.Row="1"
+                        BackgroundColor="{StaticResource Background}">
+                <VerticalStackLayout Padding="10">
+                    
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*, *"
+                  Padding="15"
+                  ColumnSpacing="10"
+                  BackgroundColor="White">
+                <Button Grid.Column="0"
+                        Text="Place a Bid"
+                        FontSize="15"
+                        FontFamily="RobotoSerifBold"
+                        BackgroundColor="{StaticResource PrimaryBase}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Command="{Binding NavigateToPlaceBidCommand}"/>
+                
+                <Button Grid.Column="1"
+                        Text="Place an Offer"
+                        FontSize="15"
+                        FontFamily="RobotoSerifBold"
+                        BackgroundColor="White"
+                        BorderColor="{StaticResource PrimaryBase}"
+                        BorderWidth="3"
+                        TextColor="{StaticResource PrimaryBase}"
+                        CornerRadius="10"
+                        Command="{Binding NavigateToPlaceOfferCommand}"/>
+            </Grid>
+        </Grid>
+</ContentPage>

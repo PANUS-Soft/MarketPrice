@@ -1,9 +1,7 @@
-﻿using System.Net.Http.Headers;
-using MarketPrice.Domain.Authentication.Commands;
+﻿using MarketPrice.Domain.Authentication.Commands;
 using System.Net.Http.Json;
 using MarketPrice.Domain;
 using MarketPrice.Ui.Common;
-using MarketPrice.Ui.Services.Session;
 using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.Services.Api
@@ -41,7 +39,7 @@ namespace MarketPrice.Ui.Services.Api
 
         public async Task<HttpResponseMessage> PingAsync()
         {
-            var url = ApiControllers.ApplicationUsers.AppendRoute("auth/ping");
+            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH_PING);
             var response = await GettingAsync(url);
             return response;
         }
