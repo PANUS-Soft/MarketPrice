@@ -18,7 +18,7 @@ namespace MarketPrice.Api.Controllers
         /// </summary>
 
         [Authorize]
-        [HttpGet]
+        [HttpGet(ApiRoutes.HOME_DATA)]
         public async Task<ActionResult<List<LoadHomeResponseDto>>> LoadHome()
         {
             try
