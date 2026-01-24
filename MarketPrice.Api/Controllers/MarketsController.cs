@@ -22,29 +22,20 @@ namespace MarketPrice.Api.Controllers
         private readonly IMarketService _marketService = marketService;
         private readonly ILogger _logger = logger; // will be use fro logging errors and filtering
 
-
-
         // GET MARKET INSIGHTS
         //[Authorize]
         [HttpGet(ApiRoutes.MARKET_INSIGHTS)]
-        [HttpGet(ApiRoutes.MARKET_INSIGHTS + "/{commodityTypeId:guid}")]
-        public async Task<ActionResult<List<MarketInsightResponseDto>>> GetByCommodityType(Guid? commodityTypeId)
+        [ProducesResponseType(typeof(List<MarketInsightResponseDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<MarketInsightResponseDto>>> GetByCommodityType()
         {
-           
-
             try
             {
-                var command = new MarketInsightCommand { CommodityTypeId = commodityTypeId ?? Guid.Empty };
-                var result = await _marketService.GetMarketTrendAsync(command);
-
-                if (result == null || result.Count == 0)
-                    return NotFound("No active market positions found for this commodity type.");
-
-                return Ok(result ?? new List<MarketInsightResponseDto>());
+                var result = await _marketService.GetMarketTrendAsync();
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching market depth for CommodityTypeId: {CommodityTypeId}", commodityTypeId);
+                _logger.LogError(ex, "Error fetching market insights for all Commodities");
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }

@@ -11,6 +11,6 @@ namespace MarketPrice.Services.Interfaces
 {
     public interface IMarketService
     {
-        Task<List<MarketInsightResponseDto>> GetMarketTrendAsync(MarketInsightCommand command);
+        Task<List<MarketInsightResponseDto>> GetMarketTrendAsync();
     }
 }

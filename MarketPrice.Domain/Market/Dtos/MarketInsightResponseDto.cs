@@ -13,7 +13,7 @@ namespace MarketPrice.Domain.Market.Dtos
         public Guid CommodityTypeId { get; set; }
         public string CommodityName { get; set; }
         public string CommodityCode { get; set; }
-        public string ImageUrl { get; set; }
+        public string CommodityImage { get; set; }
         public decimal BestBid { get; set; }
         public decimal BestOffer { get; set; }
         public bool IsBidUp { get; set; }

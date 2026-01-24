@@ -21,5 +21,6 @@ namespace MarketPrice.Data.Models
         //Units of measure navigation property
         public UnitOfMeasure? UnitOfMeasure { get; set; }
         public required CommodityImage CommodityImage { get; set; }
+        public CommodityType CommodityType { get; set; }
     }
 }

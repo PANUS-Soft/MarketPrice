@@ -25,74 +25,73 @@ namespace MarketPrice.Services.Implementations
             _context = context;
         }
 
-        public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync(MarketInsightCommand command)
-        {
-            // Validate input
-            if (command == null) throw new ArgumentNullException(nameof(command));
-
-            
+        public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync()
+        {        
             IQueryable<Commodity> commoditiesQuery = _context.Commodities.AsNoTracking();
-            if (command.CommodityTypeId != Guid.Empty)
-            {
-                commoditiesQuery = commoditiesQuery.Where(c => c.CommodityTypeId == command.CommodityTypeId);
-            }
 
-            //if (command.CommodityTypeId == Guid.Empty) return new List<MarketDepthResponseDto>();
+            var query =
+                from c in commoditiesQuery
+                join p in _context.Positions
+                    .AsNoTracking()
+                    .Where(p => p.CurrentStatusId == StatusId)
+                    on c.CommodityId equals p.CommodityId into posGroup
+                orderby c.CommodityName
+                select new
+                {
+                    c.CommodityId,
+                    c.CommodityTypeId,
+                    c.CommodityName,
+                    CommodityImage = c.CommodityImage != null
+                        ? c.CommodityImage.FileName
+                        : string.Empty,
 
-            // Query all commodities for the requested commodity type
-            // and compute BestBid/BestOffer from positions (only open positions).
-            // This returns one DTO per commodity (e.g., "Fresh Corn", "Dry Corn"). 
-            
-            var query = from c in commoditiesQuery
-                        join p in _context.Positions
-                            .AsNoTracking()
-                            .Where(p => p.CurrentStatusId == StatusId)
-                            on c.CommodityId equals p.CommodityId into posGroup
-                        orderby c.CommodityName
-                        select new MarketInsightResponseDto
-                        {
-                            CommodityId = c.CommodityId,
-                            CommodityTypeId = c.CommodityTypeId,
-                            CommodityName = c.CommodityName,
-                            CommodityCode = c.CommodityType != null
-                                ? c.CommodityType.Code
-                                : string.Empty,
-                            ImageUrl = c.ImageUrl,
+                    CommodityCode = c.CommodityType != null
+                        ? c.CommodityType.Code
+                        : string.Empty,
 
-                            BestBid = posGroup
-                                .Where(p => p.PositionTypeId == BidPosition)
-                                .Select(p => (decimal?)p.UnitPrice)
-                                .Max() ?? 0m,
+                    BestBid = posGroup
+                        .Where(p => p.PositionTypeId == BidPosition)
+                        .Select(p => (decimal?)p.UnitPrice)
+                        .Max() ?? 0m,
 
-                            BestOffer = posGroup
-                                .Where(p => p.PositionTypeId == AskPosition)
-                                .Select(p => (decimal?)p.UnitPrice)
-                                .Min() ?? 0m
-                        };
+                    BestOffer = posGroup
+                        .Where(p => p.PositionTypeId == AskPosition)
+                        .Select(p => (decimal?)p.UnitPrice)
+                        .Min() ?? 0m
+                };
 
             var data = await query.ToListAsync();
 
-            var result = data.Select(x => new MarketInsightResponseDto
+            var result = new List<MarketInsightResponseDto>();
+
+            foreach (var x in data)
             {
-                CommodityId = x.CommodityId,
-                CommodityTypeId = x.CommodityTypeId,
-                CommodityName = x.CommodityName,
-                CommodityCode = x.CommodityCode,
-                ImageUrl = x.ImageUrl,
+                // 🔹 TEMP previous values (replace with snapshot later)
+                decimal previousBestBid = await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).MaxAsync(c => c.LastBestBid);
+                decimal previousBestOffer = await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).MaxAsync(c => c.LastBestOffer);
 
-                BestBid = x.BestBid,
-                BestOffer = x.BestOffer,
+                bool isBidUp = x.BestBid > previousBestBid;
+                bool isOfferDown = x.BestOffer > previousBestOffer;
 
-                // TEMP logic (until snapshot/history exists)
-                IsBidUp = false,
-                IsOfferDown = false
-            }).ToList();
+                if(isBidUp) await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).ExecuteUpdateAsync(c => c.SetProperty(c => c.LastBestBid, c => x.BestBid));
+                if(!isOfferDown) await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).ExecuteUpdateAsync(c => c.SetProperty(c => c.LastBestOffer, c => x.BestOffer));
+
+                result.Add(new MarketInsightResponseDto
+                {
+                    CommodityId = x.CommodityId,
+                    CommodityTypeId = x.CommodityTypeId,
+                    CommodityName = x.CommodityName,
+                    CommodityCode = x.CommodityCode,
+                    CommodityImage = x.CommodityImage,
+                    BestBid = x.BestBid,
+                    BestOffer = x.BestOffer,
+                    IsBidUp = isBidUp,
+                    IsOfferDown = isOfferDown
+                });
+            }
 
             return result;
-
-
-            //return await query.ToListAsync();
-
         }
+
     }
 }
