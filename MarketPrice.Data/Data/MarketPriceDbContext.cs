@@ -17,7 +17,8 @@ namespace MarketPrice.Data
         public DbSet<Verification> Verifications { get; set; }
         public DbSet<CommodityType> CommodityTypes { get; set; }
         public DbSet<UserSecurityDetail> UserSecurityDetails { get; set; }
-
+        public DbSet<CommodityTypeImage> CommodityTypeImage { get; set; }
+        public DbSet<CommodityImage> CommodityImage { get; set; }
 
         public MarketPriceDbContext(DbContextOptions<MarketPriceDbContext> options)
             : base(options)
@@ -259,6 +260,8 @@ namespace MarketPrice.Data
             modelBuilder.Entity<UnitOfMeasure>()
                 .Property(u => u.UnitOfMeasureId)
                 .HasDefaultValueSql("NEWID()");
+
+            // # CommodityImage
         }
 
     }

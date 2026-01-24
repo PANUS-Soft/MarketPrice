@@ -7,7 +7,6 @@ namespace MarketPrice.Data.Models
     {
         public Guid CommodityId { get; set; }
         public Guid CommodityTypeId { get; set; }
-        public Guid CommodityImageId { get; set; }
         public Guid UnitOfMeasureId { get; set; }
         public required string CommodityName { get; set; }
         public int? ShelfLifeInDays { get; set; }
@@ -20,6 +19,6 @@ namespace MarketPrice.Data.Models
 
         //Units of measure navigation property
         public UnitOfMeasure? UnitOfMeasure { get; set; }
-        public required CommodityImage CommodityImage { get; set; }
+        
     }
 }
