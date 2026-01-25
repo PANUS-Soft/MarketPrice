@@ -25,6 +25,7 @@ namespace MarketPrice.Services.Implementations
                 from ct in _context.CommodityTypes
                 join c in _context.Commodities on ct.CommodityTypeId equals c.CommodityTypeId
                 join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
+
                 join cti in _context.CommodityTypeImage on ct.CommodityTypeId equals cti.CommodityTypeId into ctiGroup
                 from cti in ctiGroup.DefaultIfEmpty() 
 

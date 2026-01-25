@@ -23,7 +23,6 @@ public static class ApiRoutes
 
 
     // Market Data Routes
-    public const string MARKET_INSIGHTS = "insights";
 
     // Home Data Routes
     public const string HOME_DATA = "data";
@@ -34,7 +33,6 @@ public static class ApiControllers
     public const string ApplicationUsers = "ApplicationUsers";
     public const string Positions = "Positions";
     public const string ReferenceData = "ReferenceData";
-    public const string Markets = "Markets";
     public const string Home = "Home";
 }
 
