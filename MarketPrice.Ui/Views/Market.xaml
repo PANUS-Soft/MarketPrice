@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Converters="clr-namespace:MarketPrice.Ui.Converters"
              xmlns:dx="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
              xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Market"
              Title="Market">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <ContentPage.BindingContext>
         <viewModels:MarketViewModel />
@@ -58,10 +65,17 @@
         </Grid>
 
         <Grid Grid.Row="3" Padding="15,0">
-            <dxcv:DXCollectionView ItemsSource="{Binding MarketItems}" SelectionMode="None">
+            <dxcv:DXCollectionView ItemsSource="{Binding MarketItems}" SelectionMode="None" IsVisible="{Binding IsListEmpty, Converter={StaticResource InvertedBoolConverter}}">
                 <dxcv:DXCollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10">
+
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToCommodityInsightCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Grid.GestureRecognizers>
+                            
                             <Border Grid.Column="0" StrokeShape="Ellipse"
                                         HeightRequest="40"
                                         WidthRequest="40"
@@ -94,6 +108,12 @@
                     </DataTemplate>
                 </dxcv:DXCollectionView.ItemTemplate>
             </dxcv:DXCollectionView>
+
+            <VerticalStackLayout IsVisible="{Binding IsListEmpty}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                <Image Source="no_result_icon.png" HeightRequest="80" Opacity="0.5"/>
+                <Label Text="No commodities found" FontSize="16" FontFamily="RobotoSerifMedium" HorizontalOptions="Center"/>
+                <Label Text="Try adjusting your search or commodity type" FontSize="13" FontFamily="RobotoSerifRegular" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
         </Grid>
     </Grid>
 </ContentPage>

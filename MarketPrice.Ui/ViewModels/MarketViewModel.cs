@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Converters;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
@@ -20,6 +21,9 @@ namespace MarketPrice.Ui.ViewModels
 
         [ObservableProperty]
         string searchText = string.Empty;
+
+        [ObservableProperty]
+        bool isListEmpty;
 
         public MarketViewModel()
         {
@@ -91,6 +95,19 @@ namespace MarketPrice.Ui.ViewModels
             {
                 MarketItems.Add(item);
             }
+
+            IsListEmpty = MarketItems.Count == 0;
+        }
+
+        [RelayCommand]
+        private async Task NavigateToCommodityInsight(MarketItem selectedItem)
+        {
+            if (selectedItem == null) return;
+
+            await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
+            {
+                {"SelectedMarketItem", selectedItem }
+            });
         }
 
         [RelayCommand]
