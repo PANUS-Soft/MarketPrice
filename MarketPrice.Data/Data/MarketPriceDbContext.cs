@@ -17,7 +17,8 @@ namespace MarketPrice.Data
         public DbSet<Verification> Verifications { get; set; }
         public DbSet<CommodityType> CommodityTypes { get; set; }
         public DbSet<UserSecurityDetail> UserSecurityDetails { get; set; }
-
+        public DbSet<CommodityTypeImage> CommodityTypeImage { get; set; }
+        public DbSet<CommodityImage> CommodityImage { get; set; }
 
         public MarketPriceDbContext(DbContextOptions<MarketPriceDbContext> options)
             : base(options)
@@ -152,16 +153,19 @@ namespace MarketPrice.Data
             {
                 entity.HasKey(c => c.CommodityId);
 
-                entity.HasOne(c => c.CommodityType)
-                      .WithMany()
-                      .HasForeignKey(c => c.CommodityTypeId)
-                      .IsRequired();
 
-                entity.HasOne(c => c.CommodityImage)               // navigate from Commodity to LookupData
-                      .WithMany()
-                      .HasForeignKey(c => c.CommodityImageId)
-                      .IsRequired()
-                      .OnDelete(DeleteBehavior.Restrict);
+                //fix this place
+                //entity.HasOne(c => c.CommodityType)
+                //      .WithMany()
+                //      .HasForeignKey(c => c.CommodityTypeId)
+                //      .IsRequired();
+
+                //entity.HasOne(c => c.CommodityImage)               // navigate from Commodity to LookupData
+                //      .WithMany()
+                //      .HasForeignKey(c => c.CommodityImageId)
+                //      .IsRequired()
+                //      .OnDelete(DeleteBehavior.Restrict);
+                //till her
 
                 entity.HasOne(c => c.UnitOfMeasure)                    // navigate from Commodity to UnitOfMeasure
                       .WithMany()
@@ -265,6 +269,8 @@ namespace MarketPrice.Data
             modelBuilder.Entity<UnitOfMeasure>()
                 .Property(u => u.UnitOfMeasureId)
                 .HasDefaultValueSql("NEWID()");
+
+            // # CommodityImage
         }
 
     }

@@ -1,24 +1,17 @@
-﻿using MarketPrice.Domain.Market.Commands;
-using MarketPrice.Domain.Market.Dtos;
-using Microsoft.EntityFrameworkCore;
-using MarketPrice.Data;
+﻿using MarketPrice.Domain.Market.Dtos;
 using MarketPrice.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketPrice.Data.Models;
-
+using MarketPrice.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations
 {
     public class MarketService : IMarketService
     {
-        private readonly int StatusId = 5001;
-        private readonly int BidPosition = 6001;
-        private readonly int AskPosition = 6002;
         private readonly MarketPriceDbContext _context;
+
+        private const int StatusId = 5001;     // Open
+        private const int BidPosition = 6001;  // Bid
+        private const int AskPosition = 6002;  // Offer
 
         public MarketService(MarketPriceDbContext context)
         {
@@ -26,28 +19,24 @@ namespace MarketPrice.Services.Implementations
         }
 
         public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync()
-        {        
-            IQueryable<Commodity> commoditiesQuery = _context.Commodities.AsNoTracking();
+        {
+            // 1️⃣ Load current market state
+            var marketData = await (
+                from c in _context.Commodities
 
-            var query =
-                from c in commoditiesQuery
-                join p in _context.Positions
-                    .AsNoTracking()
-                    .Where(p => p.CurrentStatusId == StatusId)
+                    // Load only open positions, no tracking for performance
+                join p in _context.Positions.AsNoTracking()
+                        .Where(p => p.CurrentStatusId == StatusId)
                     on c.CommodityId equals p.CommodityId into posGroup
-                orderby c.CommodityName
+
+                // Join images correctly using CommodityId
+                join ci in _context.CommodityImage
+                    on c.CommodityId equals ci.CommodityId into ciGroup
+                from ci in ciGroup.DefaultIfEmpty()
+
                 select new
                 {
-                    c.CommodityId,
-                    c.CommodityTypeId,
-                    c.CommodityName,
-                    CommodityImage = c.CommodityImage != null
-                        ? c.CommodityImage.FileName
-                        : string.Empty,
-
-                    CommodityCode = c.CommodityType != null
-                        ? c.CommodityType.Code
-                        : string.Empty,
+                    Commodity = c,
 
                     BestBid = posGroup
                         .Where(p => p.PositionTypeId == BidPosition)
@@ -57,41 +46,53 @@ namespace MarketPrice.Services.Implementations
                     BestOffer = posGroup
                         .Where(p => p.PositionTypeId == AskPosition)
                         .Select(p => (decimal?)p.UnitPrice)
-                        .Min() ?? 0m
-                };
+                        .Min() ?? 0m,
 
-            var data = await query.ToListAsync();
+                    ImageFileName = ci != null ? ci.FileName : null,
+                    CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty
+                }
+            ).ToListAsync();
 
-            var result = new List<MarketInsightResponseDto>();
+            // 2️⃣ Apply market improvement logic
+            var response = new List<MarketInsightResponseDto>();
 
-            foreach (var x in data)
+            foreach (var x in marketData)
             {
-                // 🔹 TEMP previous values (replace with snapshot later)
-                decimal previousBestBid = await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).MaxAsync(c => c.LastBestBid);
-                decimal previousBestOffer = await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).MaxAsync(c => c.LastBestOffer);
+                var item = x.Commodity;
 
-                bool isBidUp = x.BestBid > previousBestBid;
-                bool isOfferDown = x.BestOffer > previousBestOffer;
+                bool isBidImproved = x.BestBid > 0 && x.BestBid > item.LastBestBid;
+                bool isOfferImproved = x.BestOffer > 0 && x.BestOffer < item.LastBestOffer;
 
-                if(isBidUp) await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).ExecuteUpdateAsync(c => c.SetProperty(c => c.LastBestBid, c => x.BestBid));
-                if(!isOfferDown) await _context.Commodities.Where(c => c.CommodityName == x.CommodityName).ExecuteUpdateAsync(c => c.SetProperty(c => c.LastBestOffer, c => x.BestOffer));
+                // 3️⃣ Persist latest market reference
+                if (isBidImproved)
+                    item.LastBestBid = x.BestBid;
 
-                result.Add(new MarketInsightResponseDto
+                if (isOfferImproved)
+                    item.LastBestOffer = x.BestOffer;
+
+                item.DateUpdated = DateTimeOffset.Now;
+
+                // 4️⃣ Build response DTO
+                response.Add(new MarketInsightResponseDto
                 {
-                    CommodityId = x.CommodityId,
-                    CommodityTypeId = x.CommodityTypeId,
-                    CommodityName = x.CommodityName,
-                    CommodityCode = x.CommodityCode,
-                    CommodityImage = x.CommodityImage,
+                    CommodityId = item.CommodityId,
+                    CommodityTypeId = item.CommodityTypeId,
+                    CommodityName = item.CommodityName,
+                    CommodityImageId = x.CommodityImageId,
+                    ImageUrl = $"Images/{item.CommodityId}/image",
+
                     BestBid = x.BestBid,
                     BestOffer = x.BestOffer,
-                    IsBidUp = isBidUp,
-                    IsOfferDown = isOfferDown
+
+                    IsBidImproved = isBidImproved,
+                    IsOfferImproved = isOfferImproved
                 });
             }
 
-            return result;
-        }
+            // 5️⃣ Single database write
+            await _context.SaveChangesAsync();
 
+            return response;
+        }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketPrice.Data.Migrations
 {
     [DbContext(typeof(MarketPriceDbContext))]
-    [Migration("20260123143709_SeedCommodityImage")]
-    partial class SeedCommodityImage
+    [Migration("20260126104539_ModifyMarketDBContext")]
+    partial class ModifyMarketDBContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,9 +32,6 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<Guid>("CommodityImageId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("CommodityName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -46,10 +43,12 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("LastBestBid")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<decimal>("LastBestOffer")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<short?>("LotSize")
                         .HasColumnType("smallint");
@@ -65,10 +64,6 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("CommodityId");
 
-                    b.HasIndex("CommodityImageId");
-
-                    b.HasIndex("CommodityTypeId");
-
                     b.HasIndex("UnitOfMeasureId");
 
                     b.ToTable("Commodities");
@@ -78,6 +73,9 @@ namespace MarketPrice.Data.Migrations
                 {
                     b.Property<Guid>("CommodityImageId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommodityId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ContentType")
@@ -93,6 +91,8 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("CommodityImageId");
+
+                    b.HasIndex("CommodityId");
 
                     b.ToTable("CommodityImage");
                 });
@@ -110,9 +110,6 @@ namespace MarketPrice.Data.Migrations
 
                     b.Property<int>("CommodityGroupId")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("CommodityTypeImageId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("DateUpdated")
                         .HasColumnType("datetimeoffset");
@@ -133,8 +130,6 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("CommodityGroupId");
 
-                    b.HasIndex("CommodityTypeImageId");
-
                     b.HasIndex("DefaultUnitOfMeasureId");
 
                     b.HasIndex("NameId");
@@ -146,6 +141,9 @@ namespace MarketPrice.Data.Migrations
                 {
                     b.Property<Guid>("CommodityTypeImageId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommodityTypeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ContentType")
@@ -161,6 +159,8 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("CommodityTypeImageId");
+
+                    b.HasIndex("CommodityTypeId");
 
                     b.ToTable("CommodityTypeImage");
                 });
@@ -539,27 +539,24 @@ namespace MarketPrice.Data.Migrations
 
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>
                 {
-                    b.HasOne("MarketPrice.Data.Models.CommodityImage", "CommodityImage")
-                        .WithMany()
-                        .HasForeignKey("CommodityImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MarketPrice.Data.Models.CommodityType", null)
-                        .WithMany()
-                        .HasForeignKey("CommodityTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MarketPrice.Data.Models.UnitOfMeasure", "UnitOfMeasure")
                         .WithMany()
                         .HasForeignKey("UnitOfMeasureId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("CommodityImage");
-
                     b.Navigation("UnitOfMeasure");
+                });
+
+            modelBuilder.Entity("MarketPrice.Data.Models.CommodityImage", b =>
+                {
+                    b.HasOne("MarketPrice.Data.Models.Commodity", "Commodity")
+                        .WithMany()
+                        .HasForeignKey("CommodityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Commodity");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityType", b =>
@@ -568,12 +565,6 @@ namespace MarketPrice.Data.Migrations
                         .WithMany()
                         .HasForeignKey("CommodityGroupId")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("MarketPrice.Data.Models.CommodityTypeImage", "CommodityTypeImage")
-                        .WithMany()
-                        .HasForeignKey("CommodityTypeImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MarketPrice.Data.Models.UnitOfMeasure", null)
@@ -588,9 +579,18 @@ namespace MarketPrice.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("CommodityTypeImage");
-
                     b.Navigation("Name");
+                });
+
+            modelBuilder.Entity("MarketPrice.Data.Models.CommodityTypeImage", b =>
+                {
+                    b.HasOne("MarketPrice.Data.Models.CommodityType", "CommodityType")
+                        .WithMany()
+                        .HasForeignKey("CommodityTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CommodityType");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>

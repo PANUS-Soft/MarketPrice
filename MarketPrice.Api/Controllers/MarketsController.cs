@@ -25,7 +25,7 @@ namespace MarketPrice.Api.Controllers
         // GET MARKET INSIGHTS
         //[Authorize]
         [HttpGet(ApiRoutes.MARKET_INSIGHTS)]
-        [ProducesResponseType(typeof(List<MarketInsightResponseDto>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(List<MarketInsightResponseDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<MarketInsightResponseDto>>> GetByCommodityType()
         {
             try

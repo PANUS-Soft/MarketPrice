@@ -53,13 +53,12 @@ namespace MarketPrice.Api.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetPosition(Guid id)
         {
-            // Optional: add read service later
             return Ok(new { PositionId = id });
         }
 
         // List of Positions for a specific commodity type, position type, and unit price
         [Authorize]
-        [HttpPost(ApiRoutes.POSITION_BYPRICE)]
+        [HttpPost(ApiRoutes.POSITION_BY_PRICE)]
         public async Task<ActionResult<PositionListingPageResponseDto>> GetPositionsForPrice(
             [FromBody] PositionListingCommand command)
         {
