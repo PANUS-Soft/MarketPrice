@@ -24,7 +24,7 @@ namespace MarketPrice.Services.Implementations
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(10), // Short-lived
+                Expires = DateTime.UtcNow.AddMinutes(10), // Short-lived
                 SigningCredentials = credentials,
                 Issuer = config["Authentication:Issuer"],
                 Audience = config["Authentication:Audience"]

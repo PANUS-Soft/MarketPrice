@@ -36,6 +36,17 @@ namespace MarketPrice.Data.Migrations
                     b.Property<Guid>("CommodityTypeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset>("DateUpdated")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal>("LastBestBid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("LastBestOffer")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<short?>("LotSize")
                         .HasColumnType("smallint");
 
@@ -54,7 +65,35 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UnitOfMeasureId");
 
-                    b.ToTable("Commodities", (string)null);
+                    b.ToTable("Commodities");
+                });
+
+            modelBuilder.Entity("MarketPrice.Data.Models.CommodityImage", b =>
+                {
+                    b.Property<Guid>("CommodityImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommodityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("CommodityImageId");
+
+                    b.HasIndex("CommodityId");
+
+                    b.ToTable("CommodityImage");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityType", b =>
@@ -71,8 +110,19 @@ namespace MarketPrice.Data.Migrations
                     b.Property<int>("CommodityGroupId")
                         .HasColumnType("int");
 
+                    b.Property<DateTimeOffset>("DateUpdated")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<Guid>("DefaultUnitOfMeasureId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("LastBestBid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("LastBestOffer")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("NameId")
                         .HasColumnType("int");
@@ -85,7 +135,35 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("CommodityTypes", (string)null);
+                    b.ToTable("CommodityTypes");
+                });
+
+            modelBuilder.Entity("MarketPrice.Data.Models.CommodityTypeImage", b =>
+                {
+                    b.Property<Guid>("CommodityTypeImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CommodityTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ImageData")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("CommodityTypeImageId");
+
+                    b.HasIndex("CommodityTypeId");
+
+                    b.ToTable("CommodityTypeImage");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
@@ -120,7 +198,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("PositionId")
                         .IsUnique();
 
-                    b.ToTable("DeliveryDetails", (string)null);
+                    b.ToTable("DeliveryDetails");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>
@@ -166,7 +244,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupData", b =>
@@ -193,7 +271,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("LookupDataTypeId");
 
-                    b.ToTable("LookupData", (string)null);
+                    b.ToTable("LookupData");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupDataType", b =>
@@ -207,7 +285,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("LookupDataTypeId");
 
-                    b.ToTable("LookupDataTypes", (string)null);
+                    b.ToTable("LookupDataTypes");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Position", b =>
@@ -265,7 +343,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Positions", (string)null);
+                    b.ToTable("Positions");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Rating", b =>
@@ -300,7 +378,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("RatedUserId", "RaterUserId")
                         .IsUnique();
 
-                    b.ToTable("Ratings", null, t =>
+                    b.ToTable("Ratings", t =>
                         {
                             t.HasCheckConstraint("CHK_Ratings_Score", "[Score] BETWEEN 1 AND 5");
                         });
@@ -331,7 +409,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("UnitOfMeasureId");
 
-                    b.ToTable("UnitOfMeasures", (string)null);
+                    b.ToTable("UnitOfMeasures");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.User", b =>
@@ -394,7 +472,7 @@ namespace MarketPrice.Data.Migrations
                         .IsUnique()
                         .HasFilter("[IdCardNumber] IS NOT NULL");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.UserSecurityDetail", b =>
@@ -421,7 +499,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserSecurityDetails", (string)null);
+                    b.ToTable("UserSecurityDetails");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Verification", b =>
@@ -457,7 +535,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("VerificationTypeId");
 
-                    b.ToTable("Verifications", (string)null);
+                    b.ToTable("Verifications");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>
@@ -477,6 +555,17 @@ namespace MarketPrice.Data.Migrations
                     b.Navigation("UnitOfMeasure");
                 });
 
+            modelBuilder.Entity("MarketPrice.Data.Models.CommodityImage", b =>
+                {
+                    b.HasOne("MarketPrice.Data.Models.Commodity", "Commodity")
+                        .WithMany()
+                        .HasForeignKey("CommodityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Commodity");
+                });
+
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityType", b =>
                 {
                     b.HasOne("MarketPrice.Data.Models.LookupData", null)
@@ -491,11 +580,24 @@ namespace MarketPrice.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MarketPrice.Data.Models.LookupData", null)
+                    b.HasOne("MarketPrice.Data.Models.LookupData", "Name")
                         .WithMany()
                         .HasForeignKey("NameId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Name");
+                });
+
+            modelBuilder.Entity("MarketPrice.Data.Models.CommodityTypeImage", b =>
+                {
+                    b.HasOne("MarketPrice.Data.Models.CommodityType", "CommodityType")
+                        .WithMany()
+                        .HasForeignKey("CommodityTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CommodityType");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
