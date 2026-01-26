@@ -109,7 +109,7 @@ namespace MarketPrice.Ui.Services.Session
             if (session == null)
                 return false;
 
-            if (session.ExpireAt > DateTime.Now)
+            if (session.ExpireAt > DateTime.UtcNow)
             {
                 return await StartSessionAsync(session);
             }

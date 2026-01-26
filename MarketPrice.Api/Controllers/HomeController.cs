@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
-using MarketPrice.Domain.Home.Dtos;
+using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Domain;
 
 namespace MarketPrice.Api.Controllers
 {
+    [Route("[controller]")]
     [ApiController]
-    [Route(ApiRoutes.HOME_DATA)]
     public class HomeController(IHomeService homeService, ILogger<HomeController> logger) : ControllerBase
     {
         private readonly IHomeService _homeService = homeService;
@@ -15,23 +15,25 @@ namespace MarketPrice.Api.Controllers
         /// <summary>
         /// Loads home market data for all commodity types
         /// </summary>
-        [HttpGet]
+        [HttpGet(ApiRoutes.HOME_DATA)]
         public async Task<ActionResult<List<LoadHomeResponseDto>>> LoadHome()
         {
             try
             {
                 var data = await _homeService.LoadHomeAsync();
 
-                if (data == null || data.Count == 0)
+                if (data.Count == 0)
                 {
-                    _logger.LogWarning("LoadHomeAsync returned no data.");
+                    //_logger.LogWarning("LoadHomeAsync returned no data.");
+                    _logger.LogInformation("LoadHomeAsync returned no data.");
                     return Ok(new List<LoadHomeResponseDto>());
                 }
                 return Ok(data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while loading home market data.");
+                _logger.LogInformation(ex, $"An error occurred while loading home market data. {ex.Message}");
+                //_logger.LogError(ex, $"An error occurred while loading home market data. {ex.Message}");
 
                 return StatusCode(500, new
                 {

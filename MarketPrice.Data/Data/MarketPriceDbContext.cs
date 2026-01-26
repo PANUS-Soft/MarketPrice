@@ -167,6 +167,14 @@ namespace MarketPrice.Data
                 entity.Property(c => c.CommodityId).HasDefaultValueSql("NEWID()");
             });
 
+            modelBuilder.Entity<Commodity>()
+                .Property(c => c.LastBestBid)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Commodity>()
+                .Property(c => c.LastBestOffer)
+                .HasPrecision(18, 2);
+
             // # CommodityType
             modelBuilder.Entity<CommodityType>()
                 .HasOne<LookupData>()
@@ -188,6 +196,14 @@ namespace MarketPrice.Data
                 .HasForeignKey(ct => ct.DefaultUnitOfMeasureId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            modelBuilder.Entity<CommodityType>()
+                .Property(ct => ct.LastBestBid)
+                .HasPrecision(18, 2);
+            
+            modelBuilder.Entity<CommodityType>()
+                .Property(ct => ct.LastBestOffer)
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<CommodityType>()
                 .Property(ct => ct.CommodityTypeId)

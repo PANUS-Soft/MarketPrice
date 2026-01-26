@@ -7,11 +7,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
-using MarketPrice.Domain.Reference;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
+using MarketPrice.Domain.Reference.DTOs;
 
 namespace MarketPrice.Ui.ViewModels
 {

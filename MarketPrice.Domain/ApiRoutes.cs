@@ -10,7 +10,6 @@ public static class ApiRoutes
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
 
-
     // Position Routes
     public const string BID_CREATE = "bid/create";
     public const string OFFER_CREATE = "offer/create";
@@ -21,12 +20,14 @@ public static class ApiRoutes
     public const string REF_COMMODITY = "commodities";
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
-
     // Market Data Routes
     public const string MARKET_INSIGHTS = "insights";
 
     // Home Data Routes
     public const string HOME_DATA = "data";
+
+    // Images Data Routes
+    public const string LOAD_IMAGE = "{Id}/image";
 }
 
 public static class ApiControllers
@@ -36,6 +37,7 @@ public static class ApiControllers
     public const string ReferenceData = "ReferenceData";
     public const string Markets = "Markets";
     public const string Home = "Home";
+    public const string Images = "Images";
 }
 
 public static class StringExtensions

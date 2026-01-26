@@ -23,10 +23,15 @@ namespace MarketPrice.Api.Controllers
         [HttpPost(ApiRoutes.AUTH_REGISTER)]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
+            _logger.LogInformation("Registration attempt from a user");
             var result = await registerService.RegisterAsync(registerCommand);
 
             if (result.Success)
+            {
+                _logger.LogInformation("User registered successfully with the following information ...");
+                _logger.LogInformation($"Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
                 return Ok(result);
+            }
             else
                 return Conflict(result.Status);
         }
@@ -55,7 +60,9 @@ namespace MarketPrice.Api.Controllers
         [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
         public async Task<ActionResult<AuthenticationResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
         {
+            _logger.LogInformation($"Refresh token attempt with the following details ... Refresh token: {refreshTokenCommand.RefreshToken}, UserId: {refreshTokenCommand.UserId}");
             var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
+            _logger.LogInformation($"Success ... New Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
             return Ok(result);
         }
 

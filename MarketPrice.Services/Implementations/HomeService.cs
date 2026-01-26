@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketPrice.Data;
-using MarketPrice.Domain.Home.Dtos;
+using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +18,7 @@ namespace MarketPrice.Services.Implementations
             // Constants
             const int BID_POSITION = 6001;   // Buy
             const int OFFER_POSITION = 6002; // Sell
-            const int OPEN_STATUS = 5001;    // Open
+            //const int OPEN_STATUS = 5001;    // Open
 
             // 1. Load base commodity-type data with a JOIN to get the Image ID
             var commodityTypes = await (
@@ -55,21 +55,23 @@ namespace MarketPrice.Services.Implementations
                     .Where(p =>
                         p.Commodity.CommodityTypeId == item.CommodityTypeId &&
                         p.PositionTypeId == BID_POSITION &&
-                        p.CurrentStatusId == OPEN_STATUS)
+                        p.StartDate <= DateTime.UtcNow &&
+                        p.ExpiryDate > DateTime.UtcNow)
                     .MaxAsync(p => (decimal?)p.UnitPrice);
 
                 var currentBestOffer = await _context.Positions
                     .Where(p =>
                         p.Commodity.CommodityTypeId == item.CommodityTypeId &&
                         p.PositionTypeId == OFFER_POSITION &&
-                        p.CurrentStatusId == OPEN_STATUS)
+                        p.StartDate <= DateTime.UtcNow &&
+                        p.ExpiryDate > DateTime.UtcNow)
                     .MinAsync(p => (decimal?)p.UnitPrice);
 
                 currentBestBid ??= 0;
                 currentBestOffer ??= 0;
 
                 // 3. Determine trend
-                bool isBidImproved = currentBestBid > item.LastBestBid;
+                bool isBidImproved = currentBestBid > item.LastBestBid || currentBestBid == item.LastBestBid;
                 bool isOfferImproved = item.LastBestOffer == 0 || (currentBestOffer > 0 && currentBestOffer < item.LastBestOffer);
 
                 var entity = await _context.CommodityTypes
@@ -88,7 +90,7 @@ namespace MarketPrice.Services.Implementations
                     CommodityTypeId = item.CommodityTypeId,
                     CommodityTypeName = item.CommodityTypeName,
                     CommodityTypeImageId = item.CommodityTypeImageId,
-                    ImageUrl = $"/api/commodity-types/{item.CommodityTypeId}/image",
+                    ImageUrl = $"Images/{item.CommodityTypeId}/image",
                     LotSize = item.LotSize ?? 0,
                     UnitOfMeasure = item.UnitOfMeasure,
                     BestBidPrice = (decimal)currentBestBid,
