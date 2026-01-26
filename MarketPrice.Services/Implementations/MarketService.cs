@@ -1,66 +1,98 @@
-﻿using MarketPrice.Domain.Market.Commands;
-using MarketPrice.Domain.Market.Dtos;
-using Microsoft.EntityFrameworkCore;
-using MarketPrice.Data;
+﻿using MarketPrice.Domain.Market.Dtos;
 using MarketPrice.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using MarketPrice.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations
 {
     public class MarketService : IMarketService
     {
-        private readonly int StatusId = 5001;
-        private readonly int BidPosition = 6001;
-        private readonly int AskPosition = 6002;
         private readonly MarketPriceDbContext _context;
+
+        private const int StatusId = 5001;     // Open
+        private const int BidPosition = 6001;  // Bid
+        private const int AskPosition = 6002;  // Offer
 
         public MarketService(MarketPriceDbContext context)
         {
             _context = context;
         }
 
-        public async Task<MarketDepthResponseDto> GetMarketTrendAsync(MarketDepthCommand command)
+        public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync()
         {
+            // 1️⃣ Load current market state
+            var marketData = await (
+                from c in _context.Commodities
 
-            // We join with Commodities to filter by the Type the user clicked (e.g., Corn)
-            var allPositions = await _context.Positions
-                .Where(p => p.Commodity.CommodityTypeId == command.CommodityTypeId
-                         && p.CurrentStatusId == StatusId) // 5001 = 'Open'
-                .ToListAsync();
+                    // Load only open positions, no tracking for performance
+                join p in _context.Positions.AsNoTracking()
+                        .Where(p => p.CurrentStatusId == StatusId)
+                    on c.CommodityId equals p.CommodityId into posGroup
 
-            var dto = new MarketDepthResponseDto();
+                // Join images correctly using CommodityId
+                join ci in _context.CommodityImage
+                    on c.CommodityId equals ci.CommodityId into ciGroup
+                from ci in ciGroup.DefaultIfEmpty()
 
-            // Process Bids (6001)
-            dto.Bids = allPositions
-                .Where(p => p.PositionTypeId == BidPosition)
-                .GroupBy(p => p.UnitPrice)
-                .Select(group => new MarketDepthPriceLevel
+                select new
                 {
-                    Price = group.Key,
-                    //TotalQuantity = (double)group.Sum(p => p.Quantity)
-                    TotalQuantity = group.Sum(p => p.Quantity),
-                    CreatedAt = group.Max(p => p.Date).DateTime
-                })
-                .OrderByDescending(x => x.Price).ToList();
+                    Commodity = c,
 
-            // Process Offers (6002)
-            dto.Offers = allPositions
-                .Where(p => p.PositionTypeId == AskPosition)
-                .GroupBy(p => p.UnitPrice)
-                .Select(group => new MarketDepthPriceLevel
+                    BestBid = posGroup
+                        .Where(p => p.PositionTypeId == BidPosition)
+                        .Select(p => (decimal?)p.UnitPrice)
+                        .Max() ?? 0m,
+
+                    BestOffer = posGroup
+                        .Where(p => p.PositionTypeId == AskPosition)
+                        .Select(p => (decimal?)p.UnitPrice)
+                        .Min() ?? 0m,
+
+                    ImageFileName = ci != null ? ci.FileName : null,
+                    CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty
+                }
+            ).ToListAsync();
+
+            // 2️⃣ Apply market improvement logic
+            var response = new List<MarketInsightResponseDto>();
+
+            foreach (var x in marketData)
+            {
+                var item = x.Commodity;
+
+                bool isBidImproved = x.BestBid > 0 && x.BestBid > item.LastBestBid;
+                bool isOfferImproved = x.BestOffer > 0 && x.BestOffer < item.LastBestOffer;
+
+                // 3️⃣ Persist latest market reference
+                if (isBidImproved)
+                    item.LastBestBid = x.BestBid;
+
+                if (isOfferImproved)
+                    item.LastBestOffer = x.BestOffer;
+
+                item.DateUpdated = DateTimeOffset.Now;
+
+                // 4️⃣ Build response DTO
+                response.Add(new MarketInsightResponseDto
                 {
-                    Price = group.Key,
-                    TotalQuantity = group.Sum(p => p.Quantity),
-                    CreatedAt = group.Max(p => p.Date).DateTime
-                })
-                .OrderBy(x => x.Price).ToList();
+                    CommodityId = item.CommodityId,
+                    CommodityTypeId = item.CommodityTypeId,
+                    CommodityName = item.CommodityName,
+                    CommodityImageId = x.CommodityImageId,
+                    ImageUrl = $"Images/{item.CommodityId}/image",
 
-            return dto;
+                    BestBid = x.BestBid,
+                    BestOffer = x.BestOffer,
+
+                    IsBidImproved = isBidImproved,
+                    IsOfferImproved = isOfferImproved
+                });
+            }
+
+            // 5️⃣ Single database write
+            await _context.SaveChangesAsync();
+
+            return response;
         }
     }
 }

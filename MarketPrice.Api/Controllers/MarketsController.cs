@@ -1,4 +1,5 @@
-﻿using MarketPrice.Domain;
+﻿using MarketPrice.Data.Models;
+using MarketPrice.Domain;
 using MarketPrice.Domain.Market.Commands;
 using MarketPrice.Domain.Market.Dtos;
 using MarketPrice.Services.Implementations;
@@ -10,6 +11,8 @@ using System;
 
 namespace MarketPrice.Api.Controllers
 {
+
+    //controller to handle market insights requests
     [Route("[controller]")]
     [ApiController]
     public class MarketsController(
@@ -17,31 +20,25 @@ namespace MarketPrice.Api.Controllers
         ILogger<MarketsController> logger) : ControllerBase
     {
         private readonly IMarketService _marketService = marketService;
-        private readonly ILogger _logger = logger;
+        private readonly ILogger _logger = logger; // will be use fro logging errors and filtering
 
-        /// <summary>
-        /// Retrieves market depth (bids and offers) for a given commodity type.
-        /// POST /Markets/depth
-        /// Body: MarketDepthCommand { CommodityTypeId: Guid }
-        /// </summary>
-
-        [Authorize]
-        [HttpPost(ApiRoutes.MARKET_INSIGHTS)]
-        public async Task<ActionResult<MarketDepthResponseDto>> GetInsight([FromBody] MarketDepthCommand command)
+        // GET MARKET INSIGHTS
+        //[Authorize]
+        [HttpGet(ApiRoutes.MARKET_INSIGHTS)]
+        //[ProducesResponseType(typeof(List<MarketInsightResponseDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<MarketInsightResponseDto>>> GetByCommodityType()
         {
-            if (command == null || command.CommodityTypeId == Guid.Empty)
-                return BadRequest("CommodityTypeId is required.");
-
             try
             {
-                var result = await _marketService.GetMarketTrendAsync(command);
+                var result = await _marketService.GetMarketTrendAsync();
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while fetching market depth for CommodityTypeId: {CommodityTypeId}", command?.CommodityTypeId);
+                _logger.LogError(ex, "Error fetching market insights for all Commodities");
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }
+
     }
 }
