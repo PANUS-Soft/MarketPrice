@@ -91,7 +91,7 @@ namespace MarketPrice.Services.Implementations
                     CommodityTypeId = item.CommodityTypeId,
                     CommodityTypeName = item.CommodityTypeName,
                     CommodityTypeImageId = item.CommodityTypeImageId,
-                    ImageUrl = $"Images/{item.CommodityTypeId}/image",
+                    ImageUrl = $"CommodityTypeImages/{item.CommodityTypeId}/image",
                     LotSize = item.LotSize ?? 0,
                     UnitOfMeasure = item.UnitOfMeasure,
                     BestBidPrice = (decimal)currentBestBid,

@@ -24,7 +24,7 @@ public partial class Home : ContentPage
         try
         {
             bool isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
-            if (isSessionValid) await _sessionService.TryRefreshTokenAsync();
+            if (!isSessionValid) await _sessionService.TryRefreshTokenAsync();
 
             await _authenticationApiService.PingAsync();
 

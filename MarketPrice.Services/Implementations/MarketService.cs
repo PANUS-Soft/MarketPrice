@@ -1,6 +1,7 @@
-﻿using MarketPrice.Domain.Market.Dtos;
-using MarketPrice.Services.Interfaces;
+﻿using MarketPrice.Services.Interfaces;
 using MarketPrice.Data;
+using MarketPrice.Data.Models;
+using MarketPrice.Domain.Market.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations
@@ -18,25 +19,27 @@ namespace MarketPrice.Services.Implementations
             _context = context;
         }
 
-        public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync()
+        public async Task<List<MarketResponseDto>> GetMarketTrendAsync()
         {
             // 1️⃣ Load current market state
             var marketData = await (
                 from c in _context.Commodities
-
-                    // Load only open positions, no tracking for performance
+                // Load only open positions, no tracking for performance
                 join p in _context.Positions.AsNoTracking()
                         .Where(p => p.CurrentStatusId == StatusId)
                     on c.CommodityId equals p.CommodityId into posGroup
-
                 // Join images correctly using CommodityId
                 join ci in _context.CommodityImage
                     on c.CommodityId equals ci.CommodityId into ciGroup
                 from ci in ciGroup.DefaultIfEmpty()
 
+                join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
+
                 select new
                 {
                     Commodity = c,
+
+                    UnitOfMeasure = uom,
 
                     BestBid = posGroup
                         .Where(p => p.PositionTypeId == BidPosition)
@@ -54,7 +57,7 @@ namespace MarketPrice.Services.Implementations
             ).ToListAsync();
 
             // 2️⃣ Apply market improvement logic
-            var response = new List<MarketInsightResponseDto>();
+            var response = new List<MarketResponseDto>();
 
             foreach (var x in marketData)
             {
@@ -73,13 +76,15 @@ namespace MarketPrice.Services.Implementations
                 item.DateUpdated = DateTimeOffset.Now;
 
                 // 4️⃣ Build response DTO
-                response.Add(new MarketInsightResponseDto
+                response.Add(new MarketResponseDto
                 {
                     CommodityId = item.CommodityId,
                     CommodityTypeId = item.CommodityTypeId,
                     CommodityName = item.CommodityName,
                     CommodityImageId = x.CommodityImageId,
-                    ImageUrl = $"Images/{item.CommodityId}/image",
+                    LotSize = item.LotSize,
+                    UnitOfMeasure = x.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+                    ImageUrl = $"CommodityImages/{item.CommodityId}/image",
 
                     BestBid = x.BestBid,
                     BestOffer = x.BestOffer,

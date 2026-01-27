@@ -22,10 +22,10 @@ public static class ApiRoutes
 
 
     // Market Data Routes       
-    public const string MARKET_INSIGHTS = "insights";
+    public const string LOAD_MARKET_DATA = "data";
 
     // Home Data Routes
-    public const string HOME_DATA = "data";
+    public const string LOAD_HOME_DATA = "data";
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
@@ -38,7 +38,8 @@ public static class ApiControllers
     public const string ReferenceData = "ReferenceData";
     public const string Markets = "Markets";
     public const string Home = "Home";
-    public const string Images = "Images";
+    public const string CommodityTypeImages = "CommodityTypeImages";
+    public const string CommodityImages = "CommodityImages";
 }
 
 public static class StringExtensions

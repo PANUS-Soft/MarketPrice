@@ -13,9 +13,7 @@ namespace MarketPrice.Data.Models
         public required byte[] ImageData { get; set; }
         public required string ContentType { get; set; }
         public required string FileName { get; set; }
-        // Navigation property to Commodity table
-        public required Commodity Commodity { get; set; }
-
+        
         // Navigation property to Commodity table
         public required Commodity Commodity { get; set; }
 
