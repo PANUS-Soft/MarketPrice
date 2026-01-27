@@ -153,12 +153,21 @@ namespace MarketPrice.Data
             {
                 entity.HasKey(c => c.CommodityId);
 
-                entity.HasOne<CommodityType>()
-                      .WithMany()
-                      .HasForeignKey(c => c.CommodityTypeId)
-                      .IsRequired();
 
-                entity.HasOne(c => c.UnitOfMeasure)
+                //fix this place
+                //entity.HasOne(c => c.CommodityType)
+                //      .WithMany()
+                //      .HasForeignKey(c => c.CommodityTypeId)
+                //      .IsRequired();
+
+                //entity.HasOne(c => c.CommodityImage)               // navigate from Commodity to LookupData
+                //      .WithMany()
+                //      .HasForeignKey(c => c.CommodityImageId)
+                //      .IsRequired()
+                //      .OnDelete(DeleteBehavior.Restrict);
+                //till her
+
+                entity.HasOne(c => c.UnitOfMeasure)                    // navigate from Commodity to UnitOfMeasure
                       .WithMany()
                       .HasForeignKey(c => c.UnitOfMeasureId)
                       .IsRequired()

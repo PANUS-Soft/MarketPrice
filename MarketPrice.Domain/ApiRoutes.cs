@@ -1,4 +1,4 @@
-﻿namespace MarketPrice.Domain;
+namespace MarketPrice.Domain;
 
 public static class ApiRoutes
 {
@@ -20,7 +20,8 @@ public static class ApiRoutes
     public const string REF_COMMODITY = "commodities";
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
-    // Market Data Routes
+
+    // Market Data Routes       
     public const string MARKET_INSIGHTS = "insights";
 
     // Home Data Routes

@@ -1,4 +1,4 @@
-﻿using MarketPrice.Domain.Home.DTOs;
+using MarketPrice.Domain.Home.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

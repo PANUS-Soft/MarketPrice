@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +18,8 @@ namespace MarketPrice.Services.Implementations
             // Constants
             const int BID_POSITION = 6001;   // Buy
             const int OFFER_POSITION = 6002; // Sell
-            //const int OPEN_STATUS = 5001;    // Open
+            const int OPEN_STATUS = 5001;    // Open
+
 
             // 1. Load base commodity-type data with a JOIN to get the Image ID
             var commodityTypes = await (

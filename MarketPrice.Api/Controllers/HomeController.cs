@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
 using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Domain;
@@ -22,10 +22,9 @@ namespace MarketPrice.Api.Controllers
             {
                 var data = await _homeService.LoadHomeAsync();
 
-                if (data.Count == 0)
+                if (data == null || data.Count == 0)
                 {
-                    //_logger.LogWarning("LoadHomeAsync returned no data.");
-                    _logger.LogInformation("LoadHomeAsync returned no data.");
+                    _logger.LogWarning("LoadHomeAsync returned no data.");
                     return Ok(new List<LoadHomeResponseDto>());
                 }
                 return Ok(data);

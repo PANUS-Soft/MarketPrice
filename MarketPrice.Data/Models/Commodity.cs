@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using System.Net.NetworkInformation;
 
 namespace MarketPrice.Data.Models
@@ -12,7 +13,9 @@ namespace MarketPrice.Data.Models
         public int? ShelfLifeInDays { get; set; }
         public string? Notes { get; set; }
         public short? LotSize { get; set; }
-        public decimal LastBestBid {  get; set; }
+        [Precision(18, 4)]
+        public decimal LastBestBid { get; set; }
+        [Precision(18, 4)]
         public decimal LastBestOffer { get; set; }
         public DateTimeOffset DateUpdated { get; set; }
 
