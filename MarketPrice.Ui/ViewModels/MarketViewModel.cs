@@ -168,22 +168,6 @@ namespace MarketPrice.Ui.ViewModels
             SelectedCommodityTypeName = string.Empty;
         }
 
-        [RelayCommand]
-        private async Task NavigateToPlaceBidAsync()
-        {
-            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
-            {
-                [NavigationKeys.PositionType] = PositionType.Bid
-            });
-        }
-
-        [RelayCommand]
-        private async Task NavigateToPlaceOfferAsync()
-        {
-            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
-            {
-                [NavigationKeys.PositionType] = PositionType.Offer
-            });
-        }
+       
     }
 }
