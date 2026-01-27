@@ -13,8 +13,8 @@
         <Grid RowDefinitions="Auto, *, Auto" RowSpacing="0" Padding="0">
 
 
-            <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto, Auto" Padding="15,10,15,10" BackgroundColor="white" VerticalOptions="Start">
-                <ImageButton Grid.Column="0" Source="back.png" HeightRequest="18" WidthRequest="18" VerticalOptions="Center" Command="{Binding BackCommand}" BackgroundColor="Transparent"/>
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto, Auto" Padding="15,10,15,10" BackgroundColor="white" VerticalOptions="Start" ColumnSpacing="10">
+                <ImageButton Grid.Column="0" Source="back.png" MaximumHeightRequest="22" MaximumWidthRequest="22" VerticalOptions="Center" Command="{Binding BackCommand}" BackgroundColor="Transparent"/>
 
                 <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
                     <Label Text="{Binding SelectedMarketItem.Name}" FontSize="18" FontFamily="RobotoSerifMedium"/>
@@ -23,8 +23,8 @@
 
            
 
-            <ImageButton Grid.Column="3" Source="favourite_icon.png" HeightRequest="24" WidthRequest="24" BackgroundColor="Transparent" HorizontalOptions="Center"/>
-                <ImageButton Grid.Column="4" Source="bell_icon.png" HeightRequest="24" WidthRequest="24" BackgroundColor="Transparent" HorizontalOptions="End"/>
+            <ImageButton Grid.Column="3" Source="favourite_icon.png" MaximumHeightRequest="22" MaximumWidthRequest="22" BackgroundColor="Transparent" HorizontalOptions="Center"/>
+                <ImageButton Grid.Column="4" Source="bell_icon.png" MaximumHeightRequest="22" MaximumWidthRequest="22" BackgroundColor="Transparent" HorizontalOptions="End"/>
             </Grid>
 
         <ScrollView Grid.Row="1">
