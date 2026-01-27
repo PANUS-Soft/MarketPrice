@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
 using MarketPrice.Domain.Home.Dtos;
 using MarketPrice.Domain;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
 {
+    
     [ApiController]
     [Route("[controller]")]
     public class HomeController(IHomeService homeService, ILogger<HomeController> logger) : ControllerBase
@@ -34,7 +35,8 @@ namespace MarketPrice.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while loading home market data.");
+                _logger.LogInformation(ex, $"An error occurred while loading home market data. {ex.Message}");
+                //_logger.LogError(ex, $"An error occurred while loading home market data. {ex.Message}");
 
                 return StatusCode(500, new
                 {
