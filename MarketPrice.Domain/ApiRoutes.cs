@@ -39,6 +39,7 @@ public static class ApiControllers
     public const string Home = "Home";
     public const string CommodityTypeImages = "CommodityTypeImages";
     public const string CommodityImages = "CommodityImages";
+    public const string Markets = "Markets";    
 }
 
 public static class StringExtensions
