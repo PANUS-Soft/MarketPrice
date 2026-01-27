@@ -1,5 +1,6 @@
 ﻿using MarketPrice.Services.Interfaces;
 using MarketPrice.Data;
+using MarketPrice.Data.Models;
 using MarketPrice.Domain.Market.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,20 +24,22 @@ namespace MarketPrice.Services.Implementations
             // 1️⃣ Load current market state
             var marketData = await (
                 from c in _context.Commodities
-
-                    // Load only open positions, no tracking for performance
+                // Load only open positions, no tracking for performance
                 join p in _context.Positions.AsNoTracking()
                         .Where(p => p.CurrentStatusId == StatusId)
                     on c.CommodityId equals p.CommodityId into posGroup
-
                 // Join images correctly using CommodityId
                 join ci in _context.CommodityImage
                     on c.CommodityId equals ci.CommodityId into ciGroup
                 from ci in ciGroup.DefaultIfEmpty()
 
+                join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
+
                 select new
                 {
                     Commodity = c,
+
+                    UnitOfMeasure = uom,
 
                     BestBid = posGroup
                         .Where(p => p.PositionTypeId == BidPosition)
@@ -80,7 +83,7 @@ namespace MarketPrice.Services.Implementations
                     CommodityName = item.CommodityName,
                     CommodityImageId = x.CommodityImageId,
                     LotSize = item.LotSize,
-                    UnitOfMeasure = item.UnitOfMeasure?.UnitOfMeasureCodeEnglish,
+                    UnitOfMeasure = x.UnitOfMeasure.UnitOfMeasureCodeEnglish,
                     ImageUrl = $"CommodityImages/{item.CommodityId}/image",
 
                     BestBid = x.BestBid,
