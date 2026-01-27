@@ -54,11 +54,12 @@
                 <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource PriceBoxBorder}" VerticalOptions="End"/>
             </Grid>
 
-            <Grid Grid.Row="2" ColumnDefinitions="2*, 1.5*, 1*" Padding="15,10" ColumnSpacing="10">
+            <Grid Grid.Row="2" ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="15,10" ColumnSpacing="10">
 
-                <Label Grid.Column="0" Text="Name" FontFamily="RobotoSerifRegular" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center"/>
-                <Label Grid.Column="1" Text="BEST BID" FontFamily="RobotoSerifRegular" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center"/>
-                <Label Grid.Column="2" Text="BEST OFFER" FontFamily="RobotoSerifRegular" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center"/>
+                <BoxView Grid.Column="0" WidthRequest="40" BackgroundColor="White"/>
+                <Label Grid.Column="1" Text="Commodities" FontFamily="RobotoSerifBold" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Start"/>
+                <Label Grid.Column="2" Text="BEST BID &#10; (FCFA)" FontFamily="RobotoSerifBold" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                <Label Grid.Column="3" Text="BEST OFFER  (FCFA)" FontFamily="RobotoSerifBold" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
             </Grid>
 
             <Grid Grid.Row="3" Padding="15,0">
@@ -93,21 +94,12 @@
                                     <Label Text="{Binding LotSizeDisplay}" TextColor="Gray" FontSize="12"/>
                                 </VerticalStackLayout>
 
-                                <Border Grid.Column="2" Stroke="White" StrokeThickness="1" StrokeShape="RoundRectangle 5" Padding="5,2" VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="5" HorizontalOptions="Center">
-                                        <Label Text="{Binding BestBid, StringFormat='FCFA {0}'}" FontSize="11" VerticalOptions="Center"/>
-                                        <Image Source="top_arrow.png" HeightRequest="10" IsVisible="{Binding IsBidUp}" VerticalOptions="Center"/>
-                                        <Image Source="down_arrow.png" HeightRequest="10" IsVisible="{Binding IsBidDown}" VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-                                </Border>
+                                <Button Grid.Column="2" Text="{Binding BestBid}" FontSize="12" FontFamily="RobotoSerifRegular" IsVisible="{Binding IsBidUp}" BackgroundColor="#369F79"/>
+                                <Button Grid.Column="2" Text="{Binding BestBid}" FontSize="12" FontFamily="RobotoSerifRegular" IsVisible="{Binding IsBidDown}" BackgroundColor="#E84235"/>
 
-                                <Border Grid.Column="3" Stroke="White" StrokeThickness="1" StrokeShape="RoundRectangle 5" Padding="5,2" VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="5" HorizontalOptions="Center">
-                                        <Label Text="{Binding BestOffer, StringFormat='FCFA {0}'}" FontSize="11" VerticalOptions="Center"/>
-                                        <Image Source="top_arrow.png" HeightRequest="10" IsVisible="{Binding IsOfferUp}" VerticalOptions="Center"/>
-                                        <Image Source="down_arrow.png" HeightRequest="10" IsVisible="{Binding IsOfferDown}" VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-                                </Border>
+                                <Button Grid.Column="3" Text="{Binding BestOffer}" FontSize="12" FontFamily="RobotoSerifRegular" IsVisible="{Binding IsOfferUp}" BackgroundColor="#369F79"/>
+                                <Button Grid.Column="3" Text="{Binding BestOffer}" FontSize="12" FontFamily="RobotoSerifRegular" IsVisible="{Binding IsOfferDown}" BackgroundColor="#E84235"/>
+
                             </Grid>
                         </DataTemplate>
                     </dxcv:DXCollectionView.ItemTemplate>
