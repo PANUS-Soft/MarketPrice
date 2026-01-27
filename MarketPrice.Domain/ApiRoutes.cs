@@ -1,4 +1,4 @@
-﻿namespace MarketPrice.Domain;
+namespace MarketPrice.Domain;
 
 public static class ApiRoutes
 {
@@ -9,7 +9,6 @@ public static class ApiRoutes
     public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
-
 
     // Position Routes
     public const string BID_CREATE = "bid/create";
@@ -22,13 +21,14 @@ public static class ApiRoutes
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
 
-    // Market Data Routes
+    // Market Data Routes       
+    public const string LOAD_MARKET_DATA = "data";
 
     // Home Data Routes
-    public const string HOME_DATA = "data";
+    public const string LOAD_HOME_DATA = "data";
 
-    // Commoduity Type Images Route
-    public const string IMAGE_DATA = "{commodityTypeId}/image";
+    // Images Data Routes
+    public const string LOAD_IMAGE = "{Id}/image";
 }
 
 public static class ApiControllers
@@ -38,6 +38,7 @@ public static class ApiControllers
     public const string ReferenceData = "ReferenceData";
     public const string Home = "Home";
     public const string CommodityTypeImages = "CommodityTypeImages";
+    public const string CommodityImages = "CommodityImages";
 }
 
 public static class StringExtensions

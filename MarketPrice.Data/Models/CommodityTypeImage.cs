@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,7 @@ namespace MarketPrice.Data.Models
         public required string ContentType { get; set; }
         public required string FileName { get; set; }
 
+        // The commodity table navigate to commodityType Imange!
         public required CommodityType CommodityType { get; set; }
     }
 }

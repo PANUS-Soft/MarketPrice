@@ -19,7 +19,10 @@
     <Color x:Key="TextPrimary">#333333</Color>
     <Color x:Key="TextSecondary">#808080</Color>
     <Color x:Key="Separator">#CCCCCC</Color>
-
+    
+    <Color x:Key="LightGrayText">#A0A0A0</Color>
+    <Color x:Key="PriceBoxBorder">#E0E0E0</Color>
+   
 
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>

@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
-using MarketPrice.Domain.Home.Dtos;
+using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Domain;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
 {
-    
-    [ApiController]
     [Route("[controller]")]
+    [ApiController]
     public class HomeController(IHomeService homeService, ILogger<HomeController> logger) : ControllerBase
     {
         private readonly IHomeService _homeService = homeService;

@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Domain.Home.Dtos
+namespace MarketPrice.Domain.Home.DTOs
 {
     public  class LoadHomeResponseDto
     {
         public Guid CommodityTypeId { get; set; }
-        public string ?CommodityTypeName { get; set; }
         public Guid CommodityTypeImageId { get; set; }
+        public string? CommodityTypeName { get; set; }
         public string? ImageUrl { get; set; } 
         public decimal LotSize { get; set; }
         public string? UnitOfMeasure { get; set; }

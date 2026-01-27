@@ -13,7 +13,7 @@ namespace MarketPrice.Ui.Services.Api
     {
         public async Task<HttpResponseMessage> LoadHomeAsync()
         {
-            var url = ApiControllers.Home.AppendRoute(ApiRoutes.HOME_DATA);
+            var url = ApiControllers.Home.AppendRoute(ApiRoutes.LOAD_HOME_DATA);
             var response = await GettingAsync(url);
             return response;
         }

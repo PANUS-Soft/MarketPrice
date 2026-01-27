@@ -15,12 +15,9 @@ namespace MarketPrice.Services.Implementations
 {
     public class RefreshTokenService(MarketPriceDbContext context, ITokenService tokenService) : IRefreshTokenService
     {
-        private readonly MarketPriceDbContext _context = context;
-        private readonly ITokenService _tokenService = tokenService;
-
         public async Task<AuthenticationResponseDto> RefreshTokenAsync(RefreshTokenCommand command)
         {
-            var securityDetail = await _context.UserSecurityDetails.FirstOrDefaultAsync(x => x.RefreshToken == command.RefreshToken);
+            var securityDetail = await context.UserSecurityDetails.FirstOrDefaultAsync(x => x.RefreshToken == command.RefreshToken);
             if (securityDetail == null)
                 return DtoManager.Failed<AuthenticationResponseDto>("Invalid refresh token");
 
@@ -30,24 +27,25 @@ namespace MarketPrice.Services.Implementations
             if (securityDetail.RefreshTokenExpiryTime < DateTime.Now)
                 return DtoManager.Failed<AuthenticationResponseDto>("Refresh token expired");
 
-            var user = _context.Users.FirstOrDefault(u => u.UserId == command.UserId);
+            var user = context.Users.FirstOrDefault(u => u.UserId == command.UserId);
 
             if (user == null)
                 return DtoManager.Failed<AuthenticationResponseDto>("User not found");
 
-            var newAccessToken = _tokenService.CreateAccessToken(user);
-            var newRefreshToken = _tokenService.CreateRefreshToken(user);
+            var newAccessToken = tokenService.CreateAccessToken(user);
+            var newRefreshToken = tokenService.CreateRefreshToken(user);
 
             securityDetail.RefreshToken = newRefreshToken;
-            securityDetail.LastActivityDate = DateTime.Now;
+            securityDetail.LastActivityDate = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             var dto = new AuthenticationResponseDto()
             {
+                UserId = user.UserId,
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken,
-                ExpiryDate = DateTime.Now.AddMinutes(10)
+                ExpiryDate = DateTime.UtcNow.AddMinutes(10)
             };
             return DtoManager.Succeed(dto);
         }
