@@ -1,23 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
-using MarketPrice.Domain.Home.Dtos;
+using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Domain;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
 {
-    [ApiController]
     [Route("[controller]")]
+    [ApiController]
     public class HomeController(IHomeService homeService, ILogger<HomeController> logger) : ControllerBase
     {
         private readonly IHomeService _homeService = homeService;
-        private readonly ILogger<HomeController> _logger = logger;
-
+        private readonly ILogger<HomeController> _logger = logger; 
+          
         /// <summary>
         /// Loads home market data for all commodity types
         /// </summary>
-
-        [Authorize]
         [HttpGet(ApiRoutes.HOME_DATA)]
         public async Task<ActionResult<List<LoadHomeResponseDto>>> LoadHome()
         {
@@ -34,7 +31,8 @@ namespace MarketPrice.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while loading home market data.");
+                _logger.LogInformation(ex, $"An error occurred while loading home market data. {ex.Message}");
+                //_logger.LogError(ex, $"An error occurred while loading home market data. {ex.Message}");
 
                 return StatusCode(500, new
                 {

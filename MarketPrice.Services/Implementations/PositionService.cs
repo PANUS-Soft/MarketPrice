@@ -42,7 +42,7 @@ public class PositionService : IPositionService
         // 1. Determine Status using Dynamic Lookups
         if (command.EndDate <= command.StartDate)
             throw new ArgumentException("EndDate must be after StartDate");
-        bool isOpen = DateTime.Now >= command.StartDate && DateTime.Now <= command.EndDate;
+        bool isOpen = DateTime.UtcNow >= command.StartDate && DateTime.UtcNow <= command.EndDate;
 
         if (command.UnitPrice <= 0)
             throw new ArgumentOutOfRangeException(nameof(command.UnitPrice));
@@ -86,7 +86,7 @@ public class PositionService : IPositionService
             Description = command.Description,
             StartDate = command.StartDate,
             ExpiryDate = command.EndDate,
-            Date = DateTime.Now
+            Date = DateTime.UtcNow
         };
 
         _context.Positions.Add(position);

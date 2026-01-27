@@ -17,5 +17,12 @@ namespace MarketPrice.Ui.Services.Api
             var response = await GettingAsync(url);
             return response;
         }
+
+        //public async Task<ImageSource> LoadImageAsync(Guid id)
+        //{
+        //    var url = ApiControllers.Images.AppendRoute(ApiRoutes.COMMODITY_TYPE_IMAGE);
+        //    var stream = await httpClient.GetStreamAsync(imageUrl);
+        //    return ImageSource.FromStream(() => stream);
+        //}
     }
 }

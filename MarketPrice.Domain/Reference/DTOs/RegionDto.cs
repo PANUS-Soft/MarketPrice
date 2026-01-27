@@ -1,4 +1,4 @@
-﻿namespace MarketPrice.Domain.Reference
+﻿namespace MarketPrice.Domain.Reference.DTOs
 {
     public class RegionDto
     {

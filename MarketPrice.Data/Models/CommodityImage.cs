@@ -16,5 +16,8 @@ namespace MarketPrice.Data.Models
         // Navigation property to Commodity table
         public required Commodity Commodity { get; set; }
 
+        // Navigation property to Commodity table
+        public required Commodity Commodity { get; set; }
+
     }
 }

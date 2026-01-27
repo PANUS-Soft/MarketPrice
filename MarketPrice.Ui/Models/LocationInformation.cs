@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using MarketPrice.Domain.Reference;
+using MarketPrice.Domain.Reference.DTOs;
 
 namespace MarketPrice.Ui.Models
 {

@@ -44,8 +44,8 @@ namespace MarketPrice.Services.Implementations
             // 4. APPLY "REMEMBER ME" LOGIC
             // If RememberMe is true, token lasts 6 months. Otherwise, 7 days.
             DateTime refreshTokenExpiry = command.RememberMe
-                ? DateTime.Now.AddMonths(6)
-                : DateTime.Now.AddDays(7);
+                ? DateTime.UtcNow.AddMonths(6)
+                : DateTime.UtcNow.AddDays(7);
 
 
             var security = await _context.UserSecurityDetails.FirstOrDefaultAsync(s => s.UserId == user.UserId);
@@ -58,7 +58,7 @@ namespace MarketPrice.Services.Implementations
                     UserId = user.UserId,
                     RefreshToken = refreshToken,
                     RefreshTokenExpiryTime = refreshTokenExpiry,
-                    LastActivityDate = DateTime.Now
+                    LastActivityDate = DateTime.UtcNow
                 };
                 _context.UserSecurityDetails.Add(security);
             }
@@ -67,7 +67,7 @@ namespace MarketPrice.Services.Implementations
                 // Update existing record (IsUnique constraint ensures only one exists)
                 security.RefreshToken = refreshToken;
                 security.RefreshTokenExpiryTime = refreshTokenExpiry;
-                security.LastActivityDate = DateTime.Now;
+                security.LastActivityDate = DateTime.UtcNow;
             }
             await _context.SaveChangesAsync();
 
@@ -81,7 +81,7 @@ namespace MarketPrice.Services.Implementations
                 PhoneNumber = user.PhoneNumber,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                ExpiryDate = DateTime.Now.AddMinutes(10), // Access token expiry
+                ExpiryDate = DateTime.UtcNow.AddMinutes(10), // Access token expiry
                 Success = true,
                 Status = "User logged in successfully"
             };

@@ -53,7 +53,7 @@ namespace MarketPrice.Services.Implementations
                 PasswordHash = hashedPassword,
                 AccountTypeId = command.AccountTypeId,
                 IsPremiumUser = false,
-                DateRecorded = DateTimeOffset.Now,
+                DateRecorded = DateTimeOffset.UtcNow,
                 PasswordSalt = passwordSalt,
                 IdCardNumber = null,
                 Note = null,
@@ -65,21 +65,21 @@ namespace MarketPrice.Services.Implementations
 
             var accessToken = _tokenService.CreateAccessToken(user);
             var refreshToken = _tokenService.CreateRefreshToken(user);
-            DateTime refreshTokenExpiry = DateTime.Now.AddMonths(1);
+            DateTime refreshTokenExpiry = DateTime.UtcNow.AddMonths(1);
 
             var security = new UserSecurityDetail()
             {
                 UserId = user.UserId,
                 RefreshToken = refreshToken,
                 RefreshTokenExpiryTime = refreshTokenExpiry,
-                LastActivityDate = DateTime.Now
+                LastActivityDate = DateTime.UtcNow
             };
 
             // Save security details to the database
             context.UserSecurityDetails.Add(security);
             await context.SaveChangesAsync();
 
-            var expiryDate = DateTime.Now.AddMinutes(10); 
+            var expiryDate = DateTime.UtcNow.AddMinutes(10); 
 
             // Return Success response
             var responseDto = new RegisterResponseDto
