@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Home"
-             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Background}">
     <Grid>
@@ -183,18 +182,8 @@
                                            FontFamily="RobotoSerifRegular"
                                            VerticalOptions="End"/>
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="1" 
-                                       Text="▲" 
-                                       FontSize="12" 
-                                       TextColor="#27AE60" 
-                                       VerticalOptions="Center"
-                                       IsVisible="{Binding IsBidTrendUp}"/>
-                                    <Label Grid.Column="1" 
-                                       Text="▼" 
-                                       FontSize="12" 
-                                       TextColor="#EB5757" 
-                                       VerticalOptions="Center"
-                                       IsVisible="{Binding IsBidTrendDown}"/>
+                                    <Image Grid.Column="1" Source="top_arrow.png" HeightRequest="10" IsVisible="{Binding IsBidTrendUp}" VerticalOptions="Center"/>
+                                    <Image Grid.Column="1" Source="down_arrow.png" HeightRequest="10" IsVisible="{Binding IsBidTrendDown}" VerticalOptions="Center"/>
                                 </Grid>
                             </Border>
 
@@ -225,18 +214,8 @@
                                            FontFamily="RobotoSerifRegular"
                                            VerticalOptions="End"/>
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="1" 
-                                       Text="▲" 
-                                       FontSize="12" 
-                                       TextColor="#27AE60" 
-                                       VerticalOptions="Center"
-                                       IsVisible="{Binding IsOfferTrendUp}"/>
-                                    <Label Grid.Column="1" 
-                                       Text="▼" 
-                                       FontSize="12" 
-                                       TextColor="#EB5757" 
-                                       VerticalOptions="Center"
-                                       IsVisible="{Binding IsOfferTrendDown}"/>
+                                    <Image Grid.Column="1" Source="top_arrow.png" HeightRequest="10" IsVisible="{Binding IsOfferTrendUp}" VerticalOptions="Center"/>
+                                    <Image Grid.Column="1" Source="down_arrow.png" HeightRequest="10" IsVisible="{Binding IsOfferTrendDown}" VerticalOptions="Center"/>
                                 </Grid>
                             </Border>
 

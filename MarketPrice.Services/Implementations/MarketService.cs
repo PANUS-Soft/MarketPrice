@@ -1,6 +1,6 @@
-﻿using MarketPrice.Domain.Market.Dtos;
-using MarketPrice.Services.Interfaces;
+﻿using MarketPrice.Services.Interfaces;
 using MarketPrice.Data;
+using MarketPrice.Domain.Market.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations
@@ -18,7 +18,7 @@ namespace MarketPrice.Services.Implementations
             _context = context;
         }
 
-        public async Task<List<MarketInsightResponseDto>> GetMarketTrendAsync()
+        public async Task<List<MarketResponseDto>> GetMarketTrendAsync()
         {
             // 1️⃣ Load current market state
             var marketData = await (
@@ -54,7 +54,7 @@ namespace MarketPrice.Services.Implementations
             ).ToListAsync();
 
             // 2️⃣ Apply market improvement logic
-            var response = new List<MarketInsightResponseDto>();
+            var response = new List<MarketResponseDto>();
 
             foreach (var x in marketData)
             {
@@ -73,13 +73,15 @@ namespace MarketPrice.Services.Implementations
                 item.DateUpdated = DateTimeOffset.Now;
 
                 // 4️⃣ Build response DTO
-                response.Add(new MarketInsightResponseDto
+                response.Add(new MarketResponseDto
                 {
                     CommodityId = item.CommodityId,
                     CommodityTypeId = item.CommodityTypeId,
                     CommodityName = item.CommodityName,
                     CommodityImageId = x.CommodityImageId,
-                    ImageUrl = $"Images/{item.CommodityId}/image",
+                    LotSize = item.LotSize,
+                    UnitOfMeasure = item.UnitOfMeasure?.UnitOfMeasureCodeEnglish,
+                    ImageUrl = $"CommodityImages/{item.CommodityId}/image",
 
                     BestBid = x.BestBid,
                     BestOffer = x.BestOffer,

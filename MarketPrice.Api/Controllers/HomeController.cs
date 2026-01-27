@@ -15,7 +15,7 @@ namespace MarketPrice.Api.Controllers
         /// <summary>
         /// Loads home market data for all commodity types
         /// </summary>
-        [HttpGet(ApiRoutes.HOME_DATA)]
+        [HttpGet(ApiRoutes.LOAD_HOME_DATA)]
         public async Task<ActionResult<List<LoadHomeResponseDto>>> LoadHome()
         {
             try
