@@ -24,6 +24,7 @@ builder.Services.AddSingleton<ILookupProviderService, LookupProviderService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
+builder.Services.AddScoped<ICommodityTypeImageService, CommodityTypeImageService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
