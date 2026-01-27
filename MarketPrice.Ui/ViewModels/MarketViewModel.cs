@@ -80,6 +80,7 @@ namespace MarketPrice.Ui.ViewModels
             CommodityTypesList.Add("ALL");
 
             foreach (var type in commodityTypes) CommodityTypesList.Add(type.Name!.ToUpper());
+            SelectedCommodityType = "ALL";
         }
 
         public async Task LoadMarketInsightAsync()
