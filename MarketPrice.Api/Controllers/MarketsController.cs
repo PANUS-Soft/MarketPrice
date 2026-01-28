@@ -1,6 +1,7 @@
 ﻿using MarketPrice.Domain;
 using MarketPrice.Domain.Market.DTOs;
 using MarketPrice.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketPrice.Api.Controllers
@@ -17,7 +18,6 @@ namespace MarketPrice.Api.Controllers
         // GET MARKET INSIGHTS
         //[Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
-        //[ProducesResponseType(typeof(List<MarketInsightResponseDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {
             try

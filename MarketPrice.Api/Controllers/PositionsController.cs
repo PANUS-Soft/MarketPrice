@@ -57,7 +57,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // List of Positions for a specific commodity type, position type, and unit price
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.POSITION_BY_PRICE)]
         public async Task<ActionResult<PositionListingPageResponseDto>> GetPositionsForPrice(
             [FromBody] PositionListingCommand command)

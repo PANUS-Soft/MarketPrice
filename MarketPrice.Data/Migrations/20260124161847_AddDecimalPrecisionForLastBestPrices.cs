@@ -67,11 +67,11 @@ namespace MarketPrice.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "CommodityImage");
+            //migrationBuilder.DropTable(
+            //    name: "CommodityImage");
 
-            migrationBuilder.DropTable(
-                name: "CommodityTypeImage");
+            //migrationBuilder.DropTable(
+            //    name: "CommodityTypeImage");
         }
     }
 }

@@ -11,33 +11,33 @@ namespace MarketPrice.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Commodities_CommodityTypes_CommodityTypeId",
-                table: "Commodities");
+            //migrationBuilder.DropForeignKey(
+            //    name: "FK_Commodities_CommodityTypes_CommodityTypeId",
+            //    table: "Commodities");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Commodities_CommodityTypeId",
-                table: "Commodities");
+            //migrationBuilder.DropIndex(
+            //    name: "IX_Commodities_CommodityTypeId",
+            //    table: "Commodities");
 
-            migrationBuilder.AlterColumn<decimal>(
-                name: "LastBestOffer",
-                table: "Commodities",
-                type: "decimal(18,4)",
-                precision: 18,
-                scale: 4,
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
+            //migrationBuilder.AlterColumn<decimal>(
+            //    name: "LastBestOffer",
+            //    table: "Commodities",
+            //    type: "decimal(18,4)",
+            //    precision: 18,
+            //    scale: 4,
+            //    nullable: false,
+            //    oldClrType: typeof(decimal),
+            //    oldType: "decimal(18,2)");
 
-            migrationBuilder.AlterColumn<decimal>(
-                name: "LastBestBid",
-                table: "Commodities",
-                type: "decimal(18,4)",
-                precision: 18,
-                scale: 4,
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
+            //migrationBuilder.AlterColumn<decimal>(
+            //    name: "LastBestBid",
+            //    table: "Commodities",
+            //    type: "decimal(18,4)",
+            //    precision: 18,
+            //    scale: 4,
+            //    nullable: false,
+            //    oldClrType: typeof(decimal),
+            //    oldType: "decimal(18,2)");
 
             //migrationBuilder.CreateTable(
             //    name: "CommodityImage",
@@ -101,38 +101,38 @@ namespace MarketPrice.Data.Migrations
             //migrationBuilder.DropTable(
             //    name: "CommodityTypeImage");
 
-            migrationBuilder.AlterColumn<decimal>(
-                name: "LastBestOffer",
-                table: "Commodities",
-                type: "decimal(18,2)",
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,4)",
-                oldPrecision: 18,
-                oldScale: 4);
+            //migrationBuilder.AlterColumn<decimal>(
+            //    name: "LastBestOffer",
+            //    table: "Commodities",
+            //    type: "decimal(18,2)",
+            //    nullable: false,
+            //    oldClrType: typeof(decimal),
+            //    oldType: "decimal(18,4)",
+            //    oldPrecision: 18,
+            //    oldScale: 4);
 
-            migrationBuilder.AlterColumn<decimal>(
-                name: "LastBestBid",
-                table: "Commodities",
-                type: "decimal(18,2)",
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,4)",
-                oldPrecision: 18,
-                oldScale: 4);
+            //migrationBuilder.AlterColumn<decimal>(
+            //    name: "LastBestBid",
+            //    table: "Commodities",
+            //    type: "decimal(18,2)",
+            //    nullable: false,
+            //    oldClrType: typeof(decimal),
+            //    oldType: "decimal(18,4)",
+            //    oldPrecision: 18,
+            //    oldScale: 4);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Commodities_CommodityTypeId",
-                table: "Commodities",
-                column: "CommodityTypeId");
+            //migrationBuilder.CreateIndex(
+            //    name: "IX_Commodities_CommodityTypeId",
+            //    table: "Commodities",
+            //    column: "CommodityTypeId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Commodities_CommodityTypes_CommodityTypeId",
-                table: "Commodities",
-                column: "CommodityTypeId",
-                principalTable: "CommodityTypes",
-                principalColumn: "CommodityTypeId",
-                onDelete: ReferentialAction.Cascade);
+            //migrationBuilder.AddForeignKey(
+            //    name: "FK_Commodities_CommodityTypes_CommodityTypeId",
+            //    table: "Commodities",
+            //    column: "CommodityTypeId",
+            //    principalTable: "CommodityTypes",
+            //    principalColumn: "CommodityTypeId",
+            //    onDelete: ReferentialAction.Cascade);
         }
     }
 }

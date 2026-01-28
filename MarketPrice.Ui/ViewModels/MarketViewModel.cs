@@ -6,6 +6,7 @@ using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Views;
 using MarketPrice.Domain.Market.DTOs;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Net.Http.Json;
 using MarketPrice.Domain.Reference;
 using MarketPrice.Domain.Reference.DTOs;
@@ -80,6 +81,7 @@ namespace MarketPrice.Ui.ViewModels
             CommodityTypesList.Add("ALL");
 
             foreach (var type in commodityTypes) CommodityTypesList.Add(type.Name!.ToUpper());
+            SelectedCommodityType = "ALL";
         }
 
         public async Task LoadMarketInsightAsync()
@@ -100,11 +102,11 @@ namespace MarketPrice.Ui.ViewModels
                 {
                     Name = insight.CommodityName!,
                     ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")) ?? "smile.png",
-                    BestBid = insight.BestBid,
+                    BestBid = insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
                     LotSize = insight.LotSize,
                     UnitOfMeasure = insight.UnitOfMeasure,
                     LotSizeDisplay = $"{insight.LotSize} {insight.UnitOfMeasure}",
-                    BestOffer = insight.BestOffer,
+                    BestOffer = insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
                     IsBidUp = insight.IsBidImproved,
                     IsBidDown = !insight.IsBidImproved,
                     IsOfferUp = insight.IsOfferImproved,
@@ -168,22 +170,6 @@ namespace MarketPrice.Ui.ViewModels
             SelectedCommodityTypeName = string.Empty;
         }
 
-        [RelayCommand]
-        private async Task NavigateToPlaceBidAsync()
-        {
-            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
-            {
-                [NavigationKeys.PositionType] = PositionType.Bid
-            });
-        }
-
-        [RelayCommand]
-        private async Task NavigateToPlaceOfferAsync()
-        {
-            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
-            {
-                [NavigationKeys.PositionType] = PositionType.Offer
-            });
-        }
+       
     }
 }

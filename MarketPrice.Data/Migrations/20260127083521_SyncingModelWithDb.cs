@@ -15,13 +15,13 @@ namespace MarketPrice.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddForeignKey(
-                name: "FK_Commodities_CommodityTypes_CommodityTypeId",
-                table: "Commodities",
-                column: "CommodityTypeId",
-                principalTable: "CommodityTypes",
-                principalColumn: "CommodityTypeId",
-                onDelete: ReferentialAction.Cascade);
+            //migrationBuilder.AddForeignKey(
+            //    name: "FK_Commodities_CommodityTypes_CommodityTypeId",
+            //    table: "Commodities",
+            //    column: "CommodityTypeId",
+            //    principalTable: "CommodityTypes",
+            //    principalColumn: "CommodityTypeId",
+            //    onDelete: ReferentialAction.Cascade);
         }
     }
 }
