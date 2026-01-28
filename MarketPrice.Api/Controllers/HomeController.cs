@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
-using MarketPrice.Domain.Home.DTOs;
+using MarketPrice.Domain.Home.Dtos;
 using MarketPrice.Domain;
 
 namespace MarketPrice.Api.Controllers
