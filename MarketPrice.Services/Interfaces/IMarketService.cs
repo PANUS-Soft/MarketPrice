@@ -1,16 +1,10 @@
-﻿using MarketPrice.Domain.Market.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketPrice.Domain.Market.Commands;
+﻿using MarketPrice.Domain.Market.DTOs;
 
 
 namespace MarketPrice.Services.Interfaces
 {
     public interface IMarketService
     {
-        Task<MarketDepthResponseDto> GetMarketTrendAsync(MarketDepthCommand command);
+        Task<List<MarketResponseDto>> GetMarketTrendAsync();
     }
 }

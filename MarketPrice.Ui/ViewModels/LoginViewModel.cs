@@ -39,7 +39,7 @@ namespace MarketPrice.Ui.ViewModels
             {
                 var command = new LoginCommand
                 {
-                    LoginDate = DateTime.Now,
+                    LoginDate = DateTime.UtcNow,
                     EmailAddress = LoginInfo.EmailAddress,
                     Password = LoginInfo.Password,
                     RememberMe = LoginInfo.RememberMe

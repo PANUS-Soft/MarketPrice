@@ -23,6 +23,8 @@ builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddSingleton<ILookupProviderService, LookupProviderService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
+builder.Services.AddScoped<IHomeService, HomeService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LinqToDB.Async;
+﻿using LinqToDB.Async;
 using MarketPrice.Data;
-using MarketPrice.Domain.Reference;
+using MarketPrice.Domain.Reference.DTOs;
 using MarketPrice.Services.Interfaces;
 
 namespace MarketPrice.Services.Implementations

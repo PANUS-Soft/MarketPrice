@@ -1,5 +1,5 @@
 ﻿using MarketPrice.Domain;
-using MarketPrice.Domain.Reference;
+using MarketPrice.Domain.Reference.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
