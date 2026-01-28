@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http.Json;
-using MarketPrice.Domain.Home.DTOs;
+using MarketPrice.Domain.Home.Dtos;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;

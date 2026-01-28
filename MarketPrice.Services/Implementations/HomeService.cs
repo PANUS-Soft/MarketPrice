@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketPrice.Data;
-using MarketPrice.Domain.Home.DTOs;
+using MarketPrice.Domain.Home.Dtos;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
