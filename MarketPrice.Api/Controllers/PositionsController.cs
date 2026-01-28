@@ -14,7 +14,7 @@ namespace MarketPrice.Api.Controllers
     public class PositionsController(IPositionService positionService) : ControllerBase
     {
         // CREATE BID
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.BID_CREATE)]
         public async Task<ActionResult<PositionResponseDto>> CreateBid(
             [FromBody] PositionCommand command)
@@ -32,7 +32,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // CREATE OFFER
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.OFFER_CREATE)]
         public async Task<ActionResult<PositionResponseDto>> CreateOffer(
             [FromBody] PositionCommand command)
@@ -57,7 +57,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // List of Positions for a specific commodity type, position type, and unit price
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.POSITION_BY_PRICE)]
         public async Task<ActionResult<PositionListingPageResponseDto>> GetPositionsForPrice(
             [FromBody] PositionListingCommand command)

@@ -36,10 +36,10 @@ public static class ApiControllers
     public const string ApplicationUsers = "ApplicationUsers";
     public const string Positions = "Positions";
     public const string ReferenceData = "ReferenceData";
-    public const string Markets = "Markets";
     public const string Home = "Home";
     public const string CommodityTypeImages = "CommodityTypeImages";
     public const string CommodityImages = "CommodityImages";
+    public const string Markets = "Markets";    
 }
 
 public static class StringExtensions

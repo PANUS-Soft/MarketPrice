@@ -17,6 +17,8 @@ namespace MarketPrice.Data.Models
         public decimal LastBestBid { get; set; }
         [Precision(18, 4)]
         public decimal LastBestOffer { get; set; }
+        public required bool IsBidImproved { get; set; }
+        public required bool IsOfferImproved { get; set; }
         public DateTimeOffset DateUpdated { get; set; }
 
 
