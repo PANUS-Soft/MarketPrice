@@ -16,7 +16,7 @@ namespace MarketPrice.Api.Controllers
     {
        
         // GET MARKET INSIGHTS
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {

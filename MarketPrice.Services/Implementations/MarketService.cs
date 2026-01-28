@@ -26,7 +26,7 @@ namespace MarketPrice.Services.Implementations
                 from c in _context.Commodities
                 // Load only open positions, no tracking for performance
                 join p in _context.Positions.AsNoTracking()
-                        .Where(p => p.CurrentStatusId == StatusId)
+                        .Where(p => p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow)
                     on c.CommodityId equals p.CommodityId into posGroup
                 // Join images correctly using CommodityId
                 join ci in _context.CommodityImage
