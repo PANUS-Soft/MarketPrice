@@ -39,6 +39,12 @@ namespace MarketPrice.Data.Migrations
                     b.Property<DateTimeOffset>("DateUpdated")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<bool>("IsBidImproved")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOfferImproved")
+                        .HasColumnType("bit");
+
                     b.Property<decimal>("LastBestBid")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -113,6 +119,12 @@ namespace MarketPrice.Data.Migrations
 
                     b.Property<Guid>("DefaultUnitOfMeasureId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsBidImproved")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOfferImproved")
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("LastBestBid")
                         .HasPrecision(18, 2)

@@ -21,14 +21,12 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<List<MarketResponseDto>> GetMarketTrendAsync()
         {
-            // 1️⃣ Load current market state
+            // 1️ Load current market state
             var marketData = await (
                 from c in _context.Commodities
-                // Load only open positions, no tracking for performance
                 join p in _context.Positions.AsNoTracking()
-                        .Where(p => p.CurrentStatusId == StatusId)
+                        .Where(p => p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow)
                     on c.CommodityId equals p.CommodityId into posGroup
-                // Join images correctly using CommodityId
                 join ci in _context.CommodityImage
                     on c.CommodityId equals ci.CommodityId into ciGroup
                 from ci in ciGroup.DefaultIfEmpty()
@@ -56,26 +54,47 @@ namespace MarketPrice.Services.Implementations
                 }
             ).ToListAsync();
 
-            // 2️⃣ Apply market improvement logic
+            // 2️ Apply market improvement logic
             var response = new List<MarketResponseDto>();
 
             foreach (var x in marketData)
             {
                 var item = x.Commodity;
 
-                bool isBidImproved = x.BestBid > 0 && x.BestBid > item.LastBestBid;
-                bool isOfferImproved = x.BestOffer > 0 && x.BestOffer < item.LastBestOffer;
-
-                // 3️⃣ Persist latest market reference
-                if (isBidImproved)
+                // Handle Bid Logic (higher price is better)
+                if (x.BestBid > item.LastBestBid && x.BestBid > 0)
+                {
+                    item.IsBidImproved = true;
                     item.LastBestBid = x.BestBid;
+                }
+                else if(x.BestBid < item.LastBestBid && x.BestBid > 0) { 
+                    item.IsBidImproved = false; 
+                    item.LastBestBid = x.BestBid;
+                }
 
-                if (isOfferImproved)
+                // Handle Offer Logic (lower price is better)
+                if (x.BestOffer < item.LastBestOffer && x.BestOffer > 0)
+                {
+                    item.IsOfferImproved = true;
                     item.LastBestOffer = x.BestOffer;
+                }
+                else if (item.LastBestOffer == 0 && x.BestOffer > 0)
+                {
+                    item.IsOfferImproved = true;
+                    item.LastBestOffer = x.BestOffer;
+                }
+                else if (x.BestOffer > item.LastBestOffer && x.BestOffer > 0)
+                {
+                    item.IsOfferImproved = false;
+                    item.LastBestOffer = x.BestOffer;
+                }
 
                 item.DateUpdated = DateTimeOffset.Now;
 
-                // 4️⃣ Build response DTO
+                // In case GroupBy broke tracking, this ensures the update is sent.
+                _context.Entry(item).State = EntityState.Modified;
+
+                // 3 Build response DTO
                 response.Add(new MarketResponseDto
                 {
                     CommodityId = item.CommodityId,
@@ -89,12 +108,12 @@ namespace MarketPrice.Services.Implementations
                     BestBid = x.BestBid,
                     BestOffer = x.BestOffer,
 
-                    IsBidImproved = isBidImproved,
-                    IsOfferImproved = isOfferImproved
+                    IsBidImproved = item.IsBidImproved,
+                    IsOfferImproved = item.IsOfferImproved
                 });
             }
 
-            // 5️⃣ Single database write
+            // 4 Single database write
             await _context.SaveChangesAsync();
 
             return response;

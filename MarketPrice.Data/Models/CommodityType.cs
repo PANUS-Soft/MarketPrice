@@ -10,6 +10,8 @@
         public decimal LastBestBid {  get; set; }
         public decimal LastBestOffer { get; set; }
         public DateTimeOffset DateUpdated { get; set; }
+        public required bool IsBidImproved { get; set; }
+        public required bool IsOfferImproved { get; set; }
 
         // Adding Commodity name navigation property
 

@@ -143,7 +143,6 @@ public class PositionService : IPositionService
     public async Task<PositionListingPageResponseDto> GetPositionListingsAsync(
     PositionListingCommand command)
     {
-
         try
         {
             if (command.UnitPrice <= 0)
@@ -152,31 +151,48 @@ public class PositionService : IPositionService
                     "Invalid Criteria", "Unit price must be greater than zero.");
             }
 
-            var commodityType = await _context.CommodityTypes
-            .Include(ct => ct.Name)
-            .FirstOrDefaultAsync(ct => ct.CommodityTypeId == command.CommodityTypeId);
+            // 1. Fetch the Category (CommodityType) and ALL commodities under it
+            // This ensures that when you switch types, you get the list of filterable items
+            var categoryInfo = await _context.CommodityTypes
+                .Where(ct => ct.CommodityTypeId == command.CommodityTypeId)
+                .Select(ct => new {
+                    TypeName = ct.Name.LookupDataTextEnglish,
+                    // Get list of all commodity names for your dropdown/filter UI
+                    AllCommodities = _context.Commodities
+                        .Where(c => c.CommodityTypeId == ct.CommodityTypeId)
+                        .Select(c => c.CommodityName)
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
 
-            if (commodityType == null)
+            if (categoryInfo == null)
             {
-                return DtoManager.Failed<PositionListingPageResponseDto>(
-                    "NotFound",
-                    $"Commodity Type with ID {command.CommodityTypeId} does not exist."
-                );
+                return DtoManager.Failed<PositionListingPageResponseDto>("NotFound", "Category not found.");
             }
 
-            // 1. Get all commodities under the commodity type
-            var commodityNames = await _context.Commodities
-                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
-                .Select(c => c.CommodityName)
-                .ToListAsync();
+            var positionTypeName = await _context.LookupData
+            .Where(ld => ld.LookupDataId == command.PositionTypeId)
+            .Select(ld => ld.LookupDataTextEnglish)
+            .FirstOrDefaultAsync() ?? "Unknown";
 
-            // 2. Get position listings at the selected price
-            var listings = await _context.Positions
-                .Where(p =>
-                    p.Commodity.CommodityTypeId == command.CommodityTypeId &&
-                    p.PositionTypeId == command.PositionTypeId &&
-                    p.UnitPrice == command.UnitPrice &&
-                    p.CurrentStatusId == OPEN_POSITION)
+            // 2. Build the query for Listings
+            var listingsQuery = _context.Positions.AsQueryable();
+
+            // Always filter by the Type, Price, and TypeId
+            listingsQuery = listingsQuery.Where(p =>
+                p.Commodity.CommodityTypeId == command.CommodityTypeId &&
+                p.PositionTypeId == command.PositionTypeId &&
+                p.UnitPrice == command.UnitPrice &&
+                p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow);
+
+            // OPTIONAL FILTER: If a specific CommodityId is passed, filter further.
+            // If it is null/empty, it includes EVERYTHING under the CommodityType.
+            if (command.CommodityId != null && command.CommodityId != Guid.Empty)
+            {
+                listingsQuery = listingsQuery.Where(p => p.CommodityId == command.CommodityId);
+            }
+
+            var listings = await listingsQuery
                 .Select(p => new PositionListingResponseDto
                 {
                     UserName = p.User.FirstName + " " + p.User.FamilyName,
@@ -186,32 +202,20 @@ public class PositionService : IPositionService
                 })
                 .ToListAsync();
 
-            // 3. Compose page response
-            var result = new PositionListingPageResponseDto
+            // 3. Compose Response
+            return DtoManager.Succeed(new PositionListingPageResponseDto
             {
-                CommodityTypeName = await _context.CommodityTypes
-                    .Where(ct => ct.CommodityTypeId == command.CommodityTypeId)
-                    .Select(ct => ct.Name.LookupDataTextEnglish)
-                    .FirstAsync(),
-
-                PositionTypeName = await _context.LookupData
-                    .Where(ld => ld.LookupDataId == command.PositionTypeId)
-                    .Select(ld => ld.LookupDataTextEnglish)
-                    .FirstAsync(),
-
+                CommodityTypeName = categoryInfo.TypeName,
+                PositionTypeName = positionTypeName,
+                CommodityNames = categoryInfo.AllCommodities, // All items for the filter UI
+                Listings = listings, // Filtered result set
                 UnitPrice = command.UnitPrice,
-                CommodityNames = commodityNames,
-                Listings = listings,
                 Status = "Data Retrieved"
-            };
-            return DtoManager.Succeed(result);
-
+            });
         }
-        catch (Exception ex) { 
-            return DtoManager.Failed<PositionListingPageResponseDto>(
-                "Error",
-                "An error occurred while retrieving position listings.",
-                ex.Message);
+        catch (Exception ex)
+        {
+            return DtoManager.Failed<PositionListingPageResponseDto>("Error", "Retrieval failed.", ex.Message);
         }
     }
 }
