@@ -96,26 +96,27 @@ public class PositionService : IPositionService
         var originLocation = MapToLocationEntity(command.Origin, command.UserId, originLookupId);
         _context.Locations.Add(originLocation);
 
-        // 5. Create DeliveryDetail (Linked to Origin LocationId)
+        // 5. Handle Destination
+        int destinationLookupId = _lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
+        var destinationLocation = isOffer && command.Destination != null
+            ? MapToLocationEntity(command.Destination, command.UserId, destinationLookupId)
+            : null;
+        if (destinationLocation != null) _context.Locations.Add(destinationLocation);
+
+        // 6. Create DeliveryDetail (Linking Origin & Destination LocationId)
         var delivery = new DeliveryDetail
         {
             DeliveryDetailId = Guid.NewGuid(),
             PositionId = position.PositionId,
-            LocationId = originLocation.LocationId,
-            IsDeliverable = isOffer,
-            LeadTime = isOffer ? (string?)command.LeadTime : null,
-            Fee = isOffer ? (int?)command.DeliveryFee : 0,
-            MaxDistance = isOffer ? 100 : 0
+            OriginLocationId = originLocation.LocationId,
+            DestinationLocationId = destinationLocation?.LocationId,
+            IsDeliverable = command.CanDeliver,
+            LeadTimeInDays = isOffer ? (string?)command.LeadTime : null,
+            Fee = isOffer ? (int?)command.DeliveryFee : null,
+            MaxDistance = null
         };
         _context.DeliveryDetails.Add(delivery);
 
-        // 6. Handle Destination
-        if (isOffer && command.Destination != null)
-        {
-            int destLookupId = _lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
-            var destination = MapToLocationEntity(command.Destination, command.UserId, destLookupId);
-            _context.Locations.Add(destination);
-        }
 
         await _context.SaveChangesAsync();
         return new PositionResponseDto
