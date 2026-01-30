@@ -9,6 +9,8 @@ namespace MarketPrice.Ui
             InitializeComponent();
             Routing.RegisterRoute(nameof(MarketInsight), typeof(MarketInsight));
             Routing.RegisterRoute(nameof(PlacePosition), typeof(PlacePosition));
+            Routing.RegisterRoute(nameof(PositionListing), typeof(PositionListing));
+            Routing.RegisterRoute(nameof(PositionDetail), typeof(PositionDetail));
         }
     }
 }

@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MarketPrice.Data;
+using MarketPrice.Domain;
 using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -90,7 +87,7 @@ namespace MarketPrice.Services.Implementations
                     CommodityTypeId = item.CommodityTypeId,
                     CommodityTypeName = x.TypeName,
                     CommodityTypeImageId = x.ImageId,
-                    ImageUrl = $"CommodityTypeImages/{item.CommodityTypeId}/image",
+                    ImageUrl = $"{ApiControllers.CommodityTypeImages}/{item.CommodityTypeId}/image",
                     LotSize = x.LotSize ?? 0,
                     UnitOfMeasure = x.UomCode,
                     BestBidPrice = x.CurrentBid,
