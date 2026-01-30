@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Domain.Position.DTOs
+﻿namespace MarketPrice.Domain.Position.DTOs
 {
-    public class PositionDetailResponseDTO
+    public class PositionDetailResponseDto
     {
         // Seller
         public Guid UserId { get; set; }

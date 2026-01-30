@@ -15,5 +15,8 @@ namespace MarketPrice.Services.Interfaces
         Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer);
 
         Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command);
+        
+        Task<PositionDetailResponseDto> GetPositionDetailAsync(PositionDetailCommand command);
+
     }
 }

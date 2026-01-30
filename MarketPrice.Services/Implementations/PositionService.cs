@@ -1,36 +1,22 @@
 ﻿using MarketPrice.Data;
-using MarketPrice.Services.Interfaces;
-using MarketPrice.Domain.Position;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using MarketPrice.Data.Models;
+using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
+using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using MarketPrice.Domain.Authentication.DTOs;
 
+namespace MarketPrice.Services.Implementations;
 
-
-public class PositionService : IPositionService
+public class PositionService(MarketPriceDbContext context, ILookupProviderService lookups) : IPositionService
 {
-    private readonly MarketPriceDbContext _context;
-    private readonly ILookupProviderService _lookups;
+    private readonly MarketPriceDbContext _context = context;
 
     // Define the Type IDs as per your LookupDataTypes table
     private const int LOCATION_TYPE = 4000;
     private const int POSITION_STATUS = 5000;
     private const int POSITION_TYPE = 6000;
     private const int OPEN_POSITION = 5001;
-
-    public PositionService(MarketPriceDbContext context, ILookupProviderService lookups)
-    {
-        _context = context;
-        _lookups = lookups;
-    }
 
     public async Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer)
     {
@@ -53,7 +39,7 @@ public class PositionService : IPositionService
         string statusText = isOpen ? "Open" : "Close";
         int statusId;
         try {
-           statusId = _lookups.GetLookupId(statusText, POSITION_STATUS);
+            statusId = lookups.GetLookupId(statusText, POSITION_STATUS);
         } catch (Exception ex){
             throw new InvalidOperationException(
                 $"Position status lookup failed for '{statusText}'", ex);
@@ -64,7 +50,7 @@ public class PositionService : IPositionService
         int posTypeId;
         try
         {
-            posTypeId = _lookups.GetLookupId(posTypeText, POSITION_TYPE);
+            posTypeId = lookups.GetLookupId(posTypeText, POSITION_TYPE);
         }catch(Exception ex)
         {
             throw new InvalidOperationException(
@@ -92,7 +78,7 @@ public class PositionService : IPositionService
         _context.Positions.Add(position);
 
         // 4. Create Origin Location
-        int originLookupId = _lookups.GetLookupId("MainAddress", LOCATION_TYPE);
+        int originLookupId = lookups.GetLookupId("MainAddress", LOCATION_TYPE);
         var originLocation = MapToLocationEntity(command.Origin, command.UserId, originLookupId);
         _context.Locations.Add(originLocation);
 
@@ -112,7 +98,7 @@ public class PositionService : IPositionService
         // 6. Handle Destination
         if (isOffer && command.Destination != null)
         {
-            int destLookupId = _lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
+            int destLookupId = lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
             var destination = MapToLocationEntity(command.Destination, command.UserId, destLookupId);
             _context.Locations.Add(destination);
         }
@@ -140,8 +126,7 @@ public class PositionService : IPositionService
         };
     }
 
-    public async Task<PositionListingResponseDto> GetPositionListingsAsync(
-    PositionListingCommand command)
+    public async Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command)
     {
         try
         {
@@ -171,9 +156,9 @@ public class PositionService : IPositionService
             }
 
             var positionTypeName = await _context.LookupData
-            .Where(ld => ld.LookupDataId == command.PositionTypeId)
-            .Select(ld => ld.LookupDataTextEnglish)
-            .FirstOrDefaultAsync() ?? "Unknown";
+                .Where(ld => ld.LookupDataId == command.PositionTypeId)
+                .Select(ld => ld.LookupDataTextEnglish)
+                .FirstOrDefaultAsync() ?? "Unknown";
 
             // 2. Build the query for Listings
             var listingsQuery = _context.Positions.AsQueryable();
@@ -229,4 +214,85 @@ public class PositionService : IPositionService
             return DtoManager.Failed<PositionListingResponseDto>("Error", "Retrieval failed.", ex.Message);
         }
     }
+
+    public async Task<PositionDetailResponseDto> GetPositionDetailAsync(PositionDetailCommand command)
+    {
+        // Load position with the navigations that actually exist (User, Commodity)
+        var position = await _context.Positions
+            .AsNoTracking()
+            .Include(p => p.User)
+            .Include(p => p.Commodity)
+            .FirstOrDefaultAsync(p => p.PositionId == command.PositionId);
+
+        if (position == null)
+            throw new KeyNotFoundException("Position not found");
+
+        // account type lookup
+        var accountType = await _context.LookupData
+            .Where(ld => ld.LookupDataId == position.User.AccountTypeId)
+            .Select(ld => ld.LookupDataValue)
+            .FirstOrDefaultAsync() ?? string.Empty;
+
+        // grade is stored on the position table (assumes Position has GradeId)
+        var grade = position.Grade ?? string.Empty;
+
+        // user location (town)
+        var userLocation = await _context.Locations
+            .Where(l => l.UserId == position.UserId)
+            .Select(l => new { l.Town })
+            .FirstOrDefaultAsync();
+
+        // delivery details are stored in a separate table - load by PositionId
+        var delivery = await _context.DeliveryDetails
+            .AsNoTracking()
+            .FirstOrDefaultAsync(dd => dd.PositionId == position.PositionId);
+
+        // destination location (if DeliveryDetail.LocationId points to Locations)
+        var destinationLocation = delivery != null
+            ? await _context.Locations.AsNoTracking().FirstOrDefaultAsync(l => l.LocationId == delivery.LocationId)
+            : null;
+
+        // commodity type is stored separately; Commodity has CommodityTypeId
+        var commodityType = position.Commodity != null
+            ? await _context.CommodityTypes.AsNoTracking()
+                .FirstOrDefaultAsync(ct => ct.CommodityTypeId == position.Commodity.CommodityTypeId)
+            : null;
+
+        // Map defensively
+        return new PositionDetailResponseDto
+        {
+            // Seller
+            UserId = position.UserId,
+            UserName = position.User == null
+                ? string.Empty
+                : $"{(position.User.FirstName ?? string.Empty).ToUpper()} {(position.User.FamilyName ?? string.Empty).ToUpper()}".Trim(),
+            AccountType = accountType,
+
+            // Individual
+            Location = userLocation?.Town ?? string.Empty,
+
+            // Commodity
+            CommodityName = position.Commodity?.CommodityName ?? string.Empty,
+            // Code is on CommodityType in your model; fall back to empty if not available
+            CommodityCode = commodityType?.Code ?? string.Empty,
+            Grade = grade,
+
+            // Position
+            Quantity = position.Quantity,
+            UnitPrice = position.UnitPrice,
+            LotSize = position.Commodity?.LotSize ?? 0,
+            ShelfLife = position.Commodity?.ShelfLifeInDays?.ToString() ?? string.Empty,
+
+            // Delivery
+            Origin = userLocation?.Town ?? string.Empty,
+            Destination = destinationLocation?.Town ?? string.Empty,
+            LeadTimeDays = int.TryParse(delivery?.LeadTime, out var days) ? days : 0,
+            DeliveryFee = delivery?.Fee ?? 0m,
+            DeliveryAvailable = delivery?.IsDeliverable ?? false,
+
+            // Contact
+            PhoneNumber = position.User?.PhoneNumber ?? string.Empty
+        };
+    }
+
 }
