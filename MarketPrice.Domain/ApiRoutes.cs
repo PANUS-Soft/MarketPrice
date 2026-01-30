@@ -22,6 +22,7 @@ public static class ApiRoutes
 
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "data";
+    public const string GET_MARKET_INSIGHT = "insight/{commodityId}";
 
     // Home Data Routes
     public const string LOAD_HOME_DATA = "data";
