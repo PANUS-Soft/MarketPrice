@@ -28,6 +28,9 @@ public static class ApiRoutes
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
+
+    //Position Datail 
+    public const string Cart_Position = "position";
 }
 
 public static class ApiControllers

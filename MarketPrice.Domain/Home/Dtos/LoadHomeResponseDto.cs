@@ -1,4 +1,4 @@
-namespace MarketPrice.Domain.Home.DTOs
+namespace MarketPrice.Domain.Home.Dtos
 {
     public  class LoadHomeResponseDto
     {
