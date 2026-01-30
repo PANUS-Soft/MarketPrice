@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class PositionApiService (HttpClient httpClient, IOptions<ApiSettings> apiSettingsOptions) : BaseApiService (httpClient, apiSettingsOptions)
+    public class PositionApiService (HttpClient httpClient, IOptions<ApiSettings> apiSettingOptions) : BaseApiService (httpClient, apiSettingOptions)
     {
         public async Task<HttpResponseMessage> CreateBidAsync(PositionCommand createPositionCommand)
         {
@@ -20,5 +20,13 @@ namespace MarketPrice.Ui.Services.Api
             var response = await PostAsync(url, createPositionCommand);
             return response;
         }
+
+        public async Task<HttpResponseMessage> GetPositionListingAsync(PositionListingCommand positionListingCommand)
+        {
+            var url = ApiControllers.Positions.AppendRoute(ApiRoutes.POSITION_BY_PRICE);
+            var response = await PostAsync(url, positionListingCommand);
+            return response;
+        }
+
     }
 }

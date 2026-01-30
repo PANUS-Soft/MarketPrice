@@ -20,7 +20,6 @@ public static class ApiRoutes
     public const string REF_COMMODITY = "commodities";
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
-
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "data";
 
