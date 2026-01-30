@@ -215,14 +215,14 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         }
     }
 
-    public async Task<PositionDetailResponseDto> GetPositionDetailAsync(PositionDetailCommand command)
+    public async Task<PositionDetailResponseDto> GetPositionDetailAsync(Guid id)
     {
         // Load position with the navigations that actually exist (User, Commodity)
         var position = await _context.Positions
             .AsNoTracking()
             .Include(p => p.User)
             .Include(p => p.Commodity)
-            .FirstOrDefaultAsync(p => p.PositionId == command.PositionId);
+            .FirstOrDefaultAsync(p => p.PositionId == id);
 
         if (position == null)
             throw new KeyNotFoundException("Position not found");

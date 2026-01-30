@@ -56,10 +56,10 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Position Detail
-        [HttpPost(ApiRoutes.GET_POSITION_DETAIL)]
-        public async Task<IActionResult> GetPositionDetail([FromBody] PositionDetailCommand command)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPositionDetail(Guid id)
         {
-            var result = await positionService.GetPositionDetailAsync(command);
+            var result = await positionService.GetPositionDetailAsync(id);
             return Ok(result);
         }
     }
