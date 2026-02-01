@@ -636,6 +636,7 @@ namespace MarketPrice.Ui.ViewModels
                     Description = Description,
                     StartDate = (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
+                    CanDeliver = IsDeliverable,
                     LeadTime = IsDeliverable ? LeadTime : null,
                     DeliveryFee = IsDeliverable ? DeliveryFee : null,
                     Origin = new LocationCommand

@@ -5,7 +5,7 @@
         // User Information
         public Guid UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
-        public string AccountType { get; set; } = string.Empty; // Individual
+        public string AccountType { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
 
         // Commodity
@@ -25,7 +25,7 @@
         // Logistics
         public LocationResponse Origin { get; set; } = new();
         public LocationResponse Destination { get; set; } = new();
-        public int LeadTimeDays { get; set; }
+        public int LeadTimeInDays { get; set; }
         public decimal DeliveryFee { get; set; }
     }
 

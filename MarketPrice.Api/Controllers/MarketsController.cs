@@ -14,23 +14,32 @@ namespace MarketPrice.Api.Controllers
         IMarketService marketService,
         ILogger<MarketsController> logger) : ControllerBase
     {
+        private readonly IMarketService _service = marketService;
+        private readonly ILogger<MarketsController> _logger = logger;
        
-        // GET MARKET INSIGHTS
+        // Load Market Data
         //[Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {
             try
             {
-                var result = await marketService.GetMarketTrendAsync();
+                var result = await _service.GetMarketTrendAsync();
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error fetching market insights for all Commodities");
+                _logger.LogError(ex, "Error fetching market insights for all Commodities");
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }
 
+        // Get Market Insight
+        //[Authorize]
+        [HttpGet(ApiRoutes.GET_MARKET_INSIGHT)]
+        public async Task<ActionResult<MarketInsightResponseDto>> GetMarketDetails(Guid commodityId)
+        {
+            return Ok(await _service.GetMarketInsightAsync(commodityId));
+        }
     }
 }

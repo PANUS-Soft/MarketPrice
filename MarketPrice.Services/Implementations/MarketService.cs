@@ -68,8 +68,9 @@ namespace MarketPrice.Services.Implementations
                     item.IsBidImproved = true;
                     item.LastBestBid = x.BestBid;
                 }
-                else if(x.BestBid < item.LastBestBid && x.BestBid > 0) { 
-                    item.IsBidImproved = false; 
+                else if (x.BestBid < item.LastBestBid && x.BestBid > 0)
+                {
+                    item.IsBidImproved = false;
                     item.LastBestBid = x.BestBid;
                 }
 
@@ -118,6 +119,85 @@ namespace MarketPrice.Services.Implementations
             await _context.SaveChangesAsync();
 
             return response;
+        }
+
+        // Logic for Market Insight
+        public async Task<MarketInsightResponseDto> GetMarketInsightAsync(Guid commodityId)
+        {
+            const int BUY = 6001;
+            const int SELL = 6002;
+
+            var commodity = await _context.Commodities.FindAsync(commodityId);
+            if (commodity == null) return null;
+
+            var now = DateTime.UtcNow;
+            var since24h = now.AddHours(-24);
+
+            // 1. ACTIVE QUERIES (For Market Depth and Best Prices)
+            var activeBidsQuery = _context.Positions.Where(p =>
+                p.CommodityId == commodityId &&
+                p.PositionTypeId == BUY &&
+                p.StartDate <= now && p.ExpiryDate > now);
+
+            var activeOffersQuery = _context.Positions.Where(p =>
+                p.CommodityId == commodityId &&
+                p.PositionTypeId == SELL &&
+                p.StartDate <= now && p.ExpiryDate > now);
+
+            // 2. 24h HISTORICAL QUERIES (For Max/Min stats)
+            // This looks at all positions placed in the last 24 hours, regardless of expiry.
+            var bids24hQuery = _context.Positions.Where(p =>
+                p.CommodityId == commodityId &&
+                p.PositionTypeId == BUY &&
+                p.Date >= since24h);
+
+            var offers24hQuery = _context.Positions.Where(p =>
+                p.CommodityId == commodityId &&
+                p.PositionTypeId == SELL &&
+                p.Date >= since24h);
+
+            // 3. Market Depth from ACTIVE positions
+            var bidsDepth = await activeBidsQuery
+                .GroupBy(p => p.UnitPrice)
+                .Select(g => new MarketDepthItemDto
+                {
+                    Price = g.Key,
+                    Quantity = g.Sum(x => x.Quantity)
+                })
+                .OrderByDescending(x => x.Price)
+                .Take(10)
+                .ToListAsync();
+
+            var offersDepth = await activeOffersQuery
+                .GroupBy(p => p.UnitPrice)
+                .Select(g => new MarketDepthItemDto
+                {
+                    Price = g.Key,
+                    Quantity = g.Sum(x => x.Quantity)
+                })
+                .OrderBy(x => x.Price)
+                .Take(10)
+                .ToListAsync();
+
+            // 4. Compose Response
+            return new MarketInsightResponseDto
+            {
+                CommodityId = commodityId,
+                CommodityName = commodity.CommodityName,
+
+                // Best prices come from ACTIVE market depth
+                BestBid = bidsDepth.FirstOrDefault()?.Price ?? 0,
+                BestOffer = offersDepth.FirstOrDefault()?.Price ?? 0,
+
+                // Max/Min stats come from 24H HISTORICAL query
+                MaxBid24h = await bids24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MinBid24h = await bids24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MaxOffer24h = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MinOffer24h = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+
+                Bids = bidsDepth,
+                Offers = offersDepth
+            };
         }
     }
 }
