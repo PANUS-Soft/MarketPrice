@@ -8,25 +8,25 @@
         public string AccountType { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
 
-        // Commodity
+        // Commodity Information
         public string CommodityName { get; set; } = string.Empty;
         public string CommodityTypeName { get; set; } = string.Empty;
         public string CommodityCode { get; set; } = string.Empty;
         public string Grade { get; set; } = string.Empty;
+        public string UnitOfMeasure { get; set; } = string.Empty;
 
-        // Position
+        // Position Information
         public decimal Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal LotSize { get; set; }
-        public string ShelfLifeInDays { get; set; } = string.Empty;
-
+        public short? LotSize { get; set; }
+        public int? ShelfLifeInDays { get; set; }
         public bool DeliveryAvailable { get; set; }
 
-        // Logistics
+        // Logistics Information
         public LocationResponse Origin { get; set; } = new();
-        public LocationResponse Destination { get; set; } = new();
-        public int LeadTimeInDays { get; set; }
-        public decimal DeliveryFee { get; set; }
+        public LocationResponse? Destination { get; set; } = new();
+        public string? LeadTimeInDays { get; set; }
+        public decimal? DeliveryFee { get; set; }
     }
 
     public class LocationResponse
