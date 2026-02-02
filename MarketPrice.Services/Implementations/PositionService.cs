@@ -38,9 +38,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
         string statusText = isOpen ? "Open" : "Close";
         int statusId;
-        try {
+        try
+        {
             statusId = lookups.GetLookupId(statusText, POSITION_STATUS);
-        } catch (Exception ex){
+        }
+        catch (Exception ex)
+        {
             throw new InvalidOperationException(
                 $"Position status lookup failed for '{statusText}'", ex);
         }
@@ -51,7 +54,8 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         try
         {
             posTypeId = lookups.GetLookupId(posTypeText, POSITION_TYPE);
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             throw new InvalidOperationException(
                 $"Position Type lookup failed for '{posTypeText}'", ex);
@@ -65,7 +69,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             UserId = command.UserId,
             CommodityId = command.CommodityId,
             PositionTypeId = posTypeId,
-            CurrentStatusId = statusId, 
+            CurrentStatusId = statusId,
             UnitPrice = command.UnitPrice,
             Quantity = command.Quantity,
             Grade = command.Grade,
@@ -83,7 +87,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         _context.Locations.Add(originLocation);
 
         // 5. Handle Destination
-        int destinationLookupId = _lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
+        int destinationLookupId = lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
         var destinationLocation = isOffer && command.Destination != null
             ? MapToLocationEntity(command.Destination, command.UserId, destinationLookupId)
             : null;
@@ -148,7 +152,8 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             // This ensures that when you switch types, you get the list of filterable items
             var categoryInfo = await _context.CommodityTypes
                 .Where(ct => ct.CommodityTypeId == command.CommodityTypeId)
-                .Select(ct => new {
+                .Select(ct => new
+                {
                     TypeName = ct.Name.LookupDataTextEnglish,
                     // Get list of all commodity names for your dropdown/filter UI
                     AllCommodities = _context.Commodities
@@ -229,77 +234,110 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         var position = await _context.Positions
             .AsNoTracking()
             .Include(p => p.User)
-            .Include(p => p.Commodity)
+            .Include(p => p.Commodity).ThenInclude(commodity => commodity.UnitOfMeasure)
             .FirstOrDefaultAsync(p => p.PositionId == id);
 
         if (position == null)
             throw new KeyNotFoundException("Position not found");
 
-        // account type lookup
-        var accountType = await _context.LookupData
+        // Account type lookup
+        var accountType = position.User != null ? await _context.LookupData
             .Where(ld => ld.LookupDataId == position.User.AccountTypeId)
             .Select(ld => ld.LookupDataValue)
-            .FirstOrDefaultAsync() ?? string.Empty;
+            .FirstOrDefaultAsync() ?? string.Empty : string.Empty;
 
-        // grade is stored on the position table (assumes Position has GradeId)
+        // Grade is stored on the position table (assumes Position has GradeId)
         var grade = position.Grade ?? string.Empty;
 
-        // user location (town)
-        var userLocation = await _context.Locations
-            .Where(l => l.UserId == position.UserId)
-            .Select(l => new { l.Town })
+        // Checking deliverable details
+        var deliverable = await _context.DeliveryDetails
+            .Where(dd => dd.PositionId == position.PositionId)
+            .Select(dd => dd.IsDeliverable)
             .FirstOrDefaultAsync();
 
-        // delivery details are stored in a separate table - load by PositionId
-        var delivery = await _context.DeliveryDetails
+        // Delivery details are stored in a separate table - load by PositionId
+        var deliveryDetail = await _context.DeliveryDetails
             .AsNoTracking()
             .FirstOrDefaultAsync(dd => dd.PositionId == position.PositionId);
 
-        // destination location (if DeliveryDetail.LocationId points to Locations)
-        var destinationLocation = delivery != null
-            ? await _context.Locations.AsNoTracking().FirstOrDefaultAsync(l => l.LocationId == delivery.LocationId)
+        var originLocation = deliveryDetail != null
+            ? await _context.Locations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.OriginLocationId)
             : null;
 
-        // commodity type is stored separately; Commodity has CommodityTypeId
+        var destinationLocation = (deliverable && deliveryDetail != null)
+            ? await _context.Locations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.DestinationLocationId)
+            : null;
+
+        // Commodity type is stored separately; Commodity has CommodityTypeId
         var commodityType = position.Commodity != null
-            ? await _context.CommodityTypes.AsNoTracking()
+            ? await _context.CommodityTypes
+                .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.CommodityTypeId == position.Commodity.CommodityTypeId)
             : null;
+
+        var commodityTypeName = position.Commodity != null
+            ? await _context.LookupData
+                .Where(ld => ld.LookupDataId == commodityType.NameId)
+                .Select(ld => ld.LookupDataTextEnglish)
+                .FirstOrDefaultAsync() : string.Empty;
+
+        var uom = position.Commodity != null
+            ? await _context.UnitOfMeasures
+                .Where(uom => uom.UnitOfMeasureId == position.Commodity.UnitOfMeasureId)
+                .Select(uom => uom.UnitOfMeasureCodeEnglish)
+                .FirstOrDefaultAsync() : string.Empty;
 
         // Map defensively
         return new PositionDetailResponseDto
         {
-            // Seller
+            // User information
             UserId = position.UserId,
-            UserName = position.User == null
-                ? string.Empty
-                : $"{(position.User.FirstName ?? string.Empty).ToUpper()} {(position.User.FamilyName ?? string.Empty).ToUpper()}".Trim(),
+            UserName = position.User != null ? $"{position.User.FirstName} {position.User.FamilyName}".Trim() : string.Empty,
             AccountType = accountType,
+            PhoneNumber = position.User != null ? position.User.PhoneNumber : string.Empty,
 
-            // Individual
-            Location = userLocation?.Town ?? string.Empty,
-
-            // Commodity
-            CommodityName = position.Commodity?.CommodityName ?? string.Empty,
-            // Code is on CommodityType in your model; fall back to empty if not available
-            CommodityCode = commodityType?.Code ?? string.Empty,
+            // Commodity information
+            CommodityName = position.Commodity != null ? position.Commodity.CommodityName : string.Empty,
+            CommodityTypeName = commodityTypeName ?? string.Empty,
+            CommodityCode = commodityType != null ? commodityType.Code : string.Empty,
             Grade = grade,
+            UnitOfMeasure = uom ?? string.Empty,
 
-            // Position
+            // Position information
             Quantity = position.Quantity,
             UnitPrice = position.UnitPrice,
-            LotSize = position.Commodity?.LotSize ?? 0,
-            ShelfLife = position.Commodity?.ShelfLifeInDays?.ToString() ?? string.Empty,
+            LotSize = position.Commodity != null ? position.Commodity.LotSize : 0,
+            ShelfLifeInDays = position.Commodity != null ? position.Commodity.ShelfLifeInDays : 0,
+            DeliveryAvailable = deliverable,
 
-            // Delivery
-            Origin = userLocation?.Town ?? string.Empty,
-            Destination = destinationLocation?.Town ?? string.Empty,
-            LeadTimeDays = int.TryParse(delivery?.LeadTime, out var days) ? days : 0,
-            DeliveryFee = delivery?.Fee ?? 0m,
-            DeliveryAvailable = delivery?.IsDeliverable ?? false,
-
-            // Contact
-            PhoneNumber = position.User?.PhoneNumber ?? string.Empty
+            // Logistics information
+            Origin = originLocation != null
+                ? new LocationResponse
+                {
+                    Region = originLocation.RegionId != null ? await _context.LookupData
+                        .Where(ld => ld.LookupDataId == originLocation.RegionId)
+                        .Select(ld => ld.LookupDataTextEnglish)
+                        .FirstOrDefaultAsync() : null,
+                    Town = originLocation.Town,
+                    Quarter = originLocation.Quarter,
+                    Street = originLocation.Street
+                } : null,
+            Destination = destinationLocation != null ? new LocationResponse
+            {
+                Region = destinationLocation.RegionId != null ? await _context.LookupData
+                    .Where(ld => ld.LookupDataId == destinationLocation.RegionId)
+                    .Select(ld => ld.LookupDataTextEnglish)
+                    .FirstOrDefaultAsync() : null,
+                Town = destinationLocation.Town,
+                Quarter = destinationLocation.Quarter,
+                Street = destinationLocation.Street
+            } : null,
+            LeadTimeInDays = deliverable ? deliveryDetail?.LeadTimeInDays : null,
+            DeliveryFee = deliverable ? deliveryDetail?.Fee : null
         };
     }
 

@@ -56,11 +56,17 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Position Detail
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetPositionDetail(Guid id)
+        [HttpGet(ApiRoutes.GET_POSITION_DETAIL + "/{id}")]
+        public async Task<ActionResult<PositionDetailResponseDto>> GetPositionDetail(Guid id)
         {
             var result = await positionService.GetPositionDetailAsync(id);
-            return Ok(result);
+
+            if (result == null)
+                return NotFound("The position with the given Id doesn't exists ...");
+            else if (result != null)
+                return Ok(result);
+
+            return BadRequest();
         }
     }
 }
