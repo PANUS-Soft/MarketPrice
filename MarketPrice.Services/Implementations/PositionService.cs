@@ -60,7 +60,7 @@ public class PositionService : IPositionService
         }
 
         // 2. Fetch Position Type ID dynamically
-        string posTypeText = isOffer ? "Ask" : "Bid";
+        string posTypeText = isOffer ? "Offer" : "Bid";
         int posTypeId;
         try
         {
