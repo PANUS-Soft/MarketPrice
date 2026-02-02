@@ -2,6 +2,7 @@
 
 public class HomeDisplayInformation
 {
+    public Guid CommodityTypeId { get; set; }
     public string Name { get; set; }
     public ImageSource ImageSource { get; set; }
     public Color BackgroundColor { get; set; }

@@ -141,14 +141,14 @@ public class PositionService : IPositionService
         };
     }
 
-    public async Task<PositionListingPageResponseDto> GetPositionListingsAsync(
+    public async Task<PositionListingResponseDto> GetPositionListingsAsync(
     PositionListingCommand command)
     {
         try
         {
             if (command.UnitPrice <= 0)
             {
-                return DtoManager.Failed<PositionListingPageResponseDto>(
+                return DtoManager.Failed<PositionListingResponseDto>(
                     "Invalid Criteria", "Unit price must be greater than zero.");
             }
 
@@ -168,7 +168,7 @@ public class PositionService : IPositionService
 
             if (categoryInfo == null)
             {
-                return DtoManager.Failed<PositionListingPageResponseDto>("NotFound", "Category not found.");
+                return DtoManager.Failed<PositionListingResponseDto>("NotFound", "Category not found.");
             }
 
             var positionTypeName = await _context.LookupData
@@ -194,29 +194,40 @@ public class PositionService : IPositionService
             }
 
             var listings = await listingsQuery
-                .Select(p => new PositionListingResponseDto
+                .Select(p => new PositionListing
                 {
                     UserName = p.User.FirstName + " " + p.User.FamilyName,
                     CommodityName = p.Commodity.CommodityName,
-                    Quantity = p.Quantity,
+                    Quantity = p.Quantity * (decimal)p.Commodity.LotSize!,
                     UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
                 })
                 .ToListAsync();
 
+            var ls = _context.Commodities
+                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
+                .Select(c => c.LotSize)
+                .FirstOrDefault();
+
+            var uom = _context.Commodities
+                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
+                .Select(c => c.UnitOfMeasure.UnitOfMeasureCodeEnglish)
+                .FirstOrDefault();
+
             // 3. Compose Response
-            return DtoManager.Succeed(new PositionListingPageResponseDto
+            return DtoManager.Succeed(new PositionListingResponseDto
             {
                 CommodityTypeName = categoryInfo.TypeName,
                 PositionTypeName = positionTypeName,
                 CommodityNames = categoryInfo.AllCommodities, // All items for the filter UI
                 Listings = listings, // Filtered result set
                 UnitPrice = command.UnitPrice,
+                LotSize = $"{ls} {uom}",
                 Status = "Data Retrieved"
             });
         }
         catch (Exception ex)
         {
-            return DtoManager.Failed<PositionListingPageResponseDto>("Error", "Retrieval failed.", ex.Message);
+            return DtoManager.Failed<PositionListingResponseDto>("Error", "Retrieval failed.", ex.Message);
         }
     }
 }

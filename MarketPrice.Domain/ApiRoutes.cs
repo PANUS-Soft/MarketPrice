@@ -20,7 +20,6 @@ public static class ApiRoutes
     public const string REF_COMMODITY = "commodities";
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
-
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "data";
     public const string GET_MARKET_INSIGHT = "insight/{commodityId}";
@@ -30,6 +29,9 @@ public static class ApiRoutes
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
+
+    //Position Datail 
+    public const string Cart_Position = "position";
 }
 
 public static class ApiControllers
