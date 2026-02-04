@@ -71,7 +71,7 @@ namespace MarketPrice.Services.Implementations
 
                 ct.LastBestBid = currentBestBid;
                 ct.LastBestOffer = currentBestOffer;
-                ct.DateUpdated = DateTimeOffset.UtcNow;
+                ct.DateUpdated = DateTime.UtcNow;
 
                 _context.Entry(ct).State = EntityState.Modified;
 
