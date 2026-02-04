@@ -4,6 +4,7 @@ using MarketPrice.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketPrice.Data.Migrations
 {
     [DbContext(typeof(MarketPriceDbContext))]
-    partial class MarketPriceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260129123559_AddAggregatedPricesTable")]
+    partial class AddAggregatedPricesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,9 +240,6 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<Guid?>("DestinationLocationId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal?>("Fee")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -247,24 +247,20 @@ namespace MarketPrice.Data.Migrations
                     b.Property<bool>("IsDeliverable")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LeadTimeInDays")
+                    b.Property<string>("LeadTime")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("MaxDistance")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<Guid>("OriginLocationId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("DeliveryDetailId");
-
-                    b.HasIndex("DestinationLocationId");
-
-                    b.HasIndex("OriginLocationId");
 
                     b.HasIndex("PositionId")
                         .IsUnique();
@@ -667,25 +663,11 @@ namespace MarketPrice.Data.Migrations
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
                 {
-                    b.HasOne("MarketPrice.Data.Models.Location", "DestinationLocation")
-                        .WithMany()
-                        .HasForeignKey("DestinationLocationId");
-
-                    b.HasOne("MarketPrice.Data.Models.Location", "OriginLocation")
-                        .WithMany()
-                        .HasForeignKey("OriginLocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MarketPrice.Data.Models.Position", null)
                         .WithOne()
                         .HasForeignKey("MarketPrice.Data.Models.DeliveryDetail", "PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("DestinationLocation");
-
-                    b.Navigation("OriginLocation");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>

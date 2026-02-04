@@ -199,5 +199,62 @@ namespace MarketPrice.Services.Implementations
                 Offers = offersDepth
             };
         }
+
+        public async Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range)
+        {
+            // 1. Map the ranges to their respective intervals and lookback windows
+            (string interval, DateTime startDate, int minPoints) = range.ToLower() switch
+            {
+                "1d" => ("2H", DateTime.UtcNow.AddDays(-1), 12),  
+                "1w" => ("2H", DateTime.UtcNow.AddDays(-7), 42),  
+                "1m" => ("1D", DateTime.UtcNow.AddMonths(-1), 15), 
+                "1y" => ("1W", DateTime.UtcNow.AddYears(-1), 12),  
+                _ => ("1D", DateTime.UtcNow.AddMonths(-1), 15)
+            };
+
+            // 2. Base Query
+            var query = _context.AggregatedPrices
+                .AsNoTracking()
+                .Where(ap => ap.CommodityId == commodityId && ap.Interval == interval);
+
+            // 3. Try to get data for the full time range
+            var results = await query
+                .Where(ap => ap.Timestamp >= startDate)
+                .OrderBy(ap => ap.Timestamp)
+                .Select(ap => new MarketInsightChartResponseDto
+                {
+                    Timestamp = ap.Timestamp,
+                    AvgBid = ap.AvgBid,
+                    HighBid = ap.HighBid,
+                    LowBid = ap.LowBid,
+                    AvgOffer = ap.AvgOffer,
+                    HighOffer = ap.HighOffer,
+                    LowOffer = ap.LowOffer
+                })
+                .ToListAsync();
+
+            // 4. Fallback: If the range is too empty (e.g., during a backfill), 
+            // grab the most recent 'minPoints' regardless of the startDate.
+            if (results.Count < 2)
+            {
+                results = await query
+                    .OrderByDescending(ap => ap.Timestamp)
+                    .Take(minPoints)
+                    .Select(ap => new MarketInsightChartResponseDto
+                    {
+                        Timestamp = ap.Timestamp,
+                        AvgBid = ap.AvgBid,
+                        HighBid = ap.HighBid,
+                        LowBid = ap.LowBid,
+                        AvgOffer = ap.AvgOffer,
+                        HighOffer = ap.HighOffer,
+                        LowOffer = ap.LowOffer
+                    })
+                    .OrderBy(dto => dto.Timestamp) // Important: Re-sort for the chart UI
+                    .ToListAsync();
+            }
+
+            return results;
+        }
     }
 }
