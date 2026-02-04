@@ -12,5 +12,6 @@ namespace MarketPrice.Domain.Position.Commands
         public Guid? CommodityId { get; set; }
         public int PositionTypeId { get; set; }
         public decimal UnitPrice { get; set; }
+        public string? CommodityName { get; set; }
     }
 }

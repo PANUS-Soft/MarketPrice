@@ -93,14 +93,14 @@
                             <Label Text="Grade" FontSize="13" FontFamily="RobotoSerifRegular" TextColor="{StaticResource TextPrimary}"/>
                             <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" HeightRequest="40">
                                 <Button Grid.Column="0" 
-                                        Text="A" 
+                                        Text="High" 
                                         Style="{StaticResource GradeButtonStyle}"
                                         Command="{Binding SelectGradeCommand}"
-                                        CommandParameter="A">
+                                        CommandParameter="High">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
                                                      Binding="{Binding SelectedGrade}"
-                                                     Value="A">
+                                                     Value="High">
                                             <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
                                             <Setter Property="TextColor" Value="White"/>
                                             <Setter Property="BorderWidth" Value="0"/>
@@ -108,14 +108,14 @@
                                     </Button.Triggers>
                                 </Button>
                                 <Button Grid.Column="1" 
-                                        Text="B" 
+                                        Text="Medium" 
                                         Style="{StaticResource GradeButtonStyle}"
                                         Command="{Binding SelectGradeCommand}"
-                                        CommandParameter="B">
+                                        CommandParameter="Medium">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
                                                      Binding="{Binding SelectedGrade}"
-                                                     Value="B">
+                                                     Value="Medium">
                                             <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
                                             <Setter Property="TextColor" Value="White"/>
                                             <Setter Property="BorderWidth" Value="0"/>
@@ -123,14 +123,14 @@
                                     </Button.Triggers>
                                 </Button>
                                 <Button Grid.Column="2" 
-                                        Text="C" 
+                                        Text="Low" 
                                         Style="{StaticResource GradeButtonStyle}"
                                         Command="{Binding SelectGradeCommand}"
-                                        CommandParameter="C">
+                                        CommandParameter="Low">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
                                                      Binding="{Binding SelectedGrade}"
-                                                     Value="C">
+                                                     Value="Low">
                                             <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
                                             <Setter Property="TextColor" Value="White"/>
                                             <Setter Property="BorderWidth" Value="0"/>

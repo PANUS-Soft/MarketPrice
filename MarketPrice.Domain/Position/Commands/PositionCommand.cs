@@ -16,13 +16,19 @@ namespace MarketPrice.Domain.Position.Commands
         public string? Description { get; set; }
         public required DateTime StartDate { get; set; }
         public required DateTime EndDate { get; set; }
+        public bool CanDeliver { get; set; }
         public string? LeadTime { get; set; }
         public decimal? DeliveryFee { get; set; }
         public decimal? MaxDistance { get; set; }
         public required LocationCommand Origin { get; set; }
-        public LocationCommand? Destination
-        {
-            get; set;
-        }
+        public LocationCommand? Destination { get; set; }
+    }
+
+    public class LocationCommand
+    {
+        public int RegionId { get; set; }
+        public required string Town { get; set; }
+        public required string Quarter { get; set; }
+        public string? Street { get; set; }
     }
 }

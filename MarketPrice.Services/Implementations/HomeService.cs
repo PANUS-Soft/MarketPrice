@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MarketPrice.Data;
+using MarketPrice.Domain;
 using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;

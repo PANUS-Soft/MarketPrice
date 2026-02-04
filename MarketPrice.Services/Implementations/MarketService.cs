@@ -1,6 +1,7 @@
 ﻿using MarketPrice.Services.Interfaces;
 using MarketPrice.Data;
 using MarketPrice.Data.Models;
+using MarketPrice.Domain;
 using MarketPrice.Domain.Market.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -104,7 +105,7 @@ namespace MarketPrice.Services.Implementations
                     CommodityImageId = x.CommodityImageId,
                     LotSize = item.LotSize,
                     UnitOfMeasure = x.UnitOfMeasure.UnitOfMeasureCodeEnglish,
-                    ImageUrl = $"CommodityImages/{item.CommodityId}/image",
+                    ImageUrl = $"{ApiControllers.CommodityImages}/{item.CommodityId}/image",
 
                     BestBid = x.BestBid,
                     BestOffer = x.BestOffer,

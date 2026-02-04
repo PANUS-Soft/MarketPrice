@@ -60,12 +60,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiImage Remove="Resources\Images\Screenshot 2026-01-22 153740.png" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Remove="appsettings.json" />
-	  <None Remove="Resources\Images\Screenshot 2026-01-22 153740.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -120,6 +115,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\PlacePosition.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\PositionDetail.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\PositionListing.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Profile.xaml">

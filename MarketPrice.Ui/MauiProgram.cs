@@ -72,6 +72,8 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<MarketViewModel>();
             builder.Services.AddTransient<MarketInsightViewModel>();
             builder.Services.AddTransient<PlacePositionViewModel>();
+            builder.Services.AddTransient<PositionListingViewModel>();
+            builder.Services.AddTransient<PositionDetailViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -80,6 +82,8 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<Market>();
             builder.Services.AddTransient<MarketInsight>();
             builder.Services.AddTransient<PlacePosition>();
+            builder.Services.AddTransient<PositionListing>();
+            builder.Services.AddTransient<PositionDetail>();
 
 #if DEBUG
             builder.Logging.AddDebug();
