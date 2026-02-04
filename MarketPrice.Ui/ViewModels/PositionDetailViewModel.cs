@@ -1,80 +1,124 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.ApplicationModel; // For Launcher
-using Microsoft.Maui.ApplicationModel.Communication; // For PhoneDialer
+using DevExpress.Maui.Core;
+using MarketPrice.Domain.Position.DTOs;
+using MarketPrice.Ui.Services.Api;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.ApplicationModel.Communication;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class PositionDetailViewModel : ObservableObject
+    [QueryProperty(nameof(PositionId), "positionId")]
+    public partial class PositionDetailViewModel(PositionApiService positionApi) : ObservableObject
     {
-        // 1. Seller Info
-        public string SellerName { get; set; } = "BEH CHU NELSON";
-        public string SellerType { get; set; } = "Individual";
-        public string SellerLocation { get; set; } = "Buea";
-        public string PhoneNumber { get; set; } = "+237 670000000";
+        private readonly PositionApiService _positionApi = positionApi;
 
-        // 2. The Initials Logic
-        public string Initials
+        [ObservableProperty] private PositionListing position;
+
+        [ObservableProperty] private Guid positionId;
+
+        partial void OnPositionIdChanged(Guid value)
         {
-            get
+            if (value != Guid.Empty) _ = LoadPositionDetailAsync(value);
+        }
+
+
+        [ObservableProperty] private PositionDetailResponseDto? dto;
+
+        public Guid UserId => Dto?.UserId ?? Guid.Empty;
+        public string UserName => Dto?.UserName ?? "---";
+        public string AccountType => Dto?.AccountType ?? "---";
+        public string PhoneNumber => Dto?.PhoneNumber ?? "---";
+        public string CommodityTypeName => Dto?.CommodityTypeName.ToUpper() ?? "---";
+        public string CommodityName => Dto?.CommodityName.ToUpper() ?? "---";
+        public string CommodityCode => Dto?.CommodityCode ?? "---";
+        public string Grade => Dto?.Grade ?? "---";
+        public string UnitOfMeasure => Dto?.UnitOfMeasure ?? "---";
+        public decimal Quantity => Dto?.Quantity ?? 0;
+        public string UnitPrice => Dto?.UnitPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
+        public string LotSize => $"{Dto?.LotSize} {UnitOfMeasure}" ?? "---";
+        public string ShelfLifeInDays => $"{Dto?.ShelfLifeInDays} days" ?? "---";
+        public bool DeliveryAvailable => Dto?.DeliveryAvailable ?? false;
+        public string OriginRegion => Dto?.Origin.Region ?? "---";
+        public string OriginTown => Dto?.Origin.Town ?? "---";
+        public string OriginQuarter => Dto?.Origin.Quarter ?? "---";
+        public string OriginStreet => Dto?.Origin.Street ?? "---";
+        public string DestinationRegion => Dto?.Destination?.Region ?? "---";
+        public string DestinationTown => Dto?.Destination?.Town ?? "---";
+        public string DestinationQuarter => Dto?.Destination?.Quarter ?? "---";
+        public string DestinationStreet => Dto?.Destination?.Street ?? "---";
+        public string LeadTimeInDays => $"{Dto?.LeadTimeInDays} days" ?? "---";
+        public string DeliveryFee => Dto?.DeliveryFee?.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
+
+        private async Task LoadPositionDetailAsync(Guid id)
+        {
+            try
             {
-                if (string.IsNullOrWhiteSpace(SellerName)) return "?";
-                var parts = SellerName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var positionDetailResponse = await _positionApi.GetPositionDetailAsync(id);
 
-                // If 2 names, take first letter of each. If 1 name, take just 1 letter.
-                if (parts.Length >= 2)
-                    return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+                if (!positionDetailResponse.IsSuccessStatusCode) return;
 
-                return $"{parts[0][0]}".ToUpper();
+                Dto = await positionDetailResponse.Content.ReadFromJsonAsync<PositionDetailResponseDto>();
+
+                OnPropertyChanged(string.Empty);
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error loading position. {e.Message} Please try again later.", "OK");
             }
         }
 
-        // 3. Commodity Info
-        public string CommodityName { get; set; } = "Dry Corn";
-        public string Grade { get; set; } = "A";
-        public string Quantity { get; set; } = "500";
-        public string Price { get; set; } = "1,000";
-
-        // 4. Details
-        public string Type { get; set; } = "Dry";
-        public string LotSize { get; set; } = "25kg";
-        public string Code { get; set; } = "CRN";
-        public string ShelfLife { get; set; } = "90days";
-
-        // 5. Logistics
-        public string Origin { get; set; } = "Buea";
-        public string Destination { get; set; } = "Buea, Limbe, Douala, Yaounde";
-        public string LeadTime { get; set; } = "2days";
-        public string Fees { get; set; } = "2000 FCFA";
-        public string PossibleDelivery { get; set; } = "Yes";
-
-        public PositionDetailViewModel()
-        {
-            // In the real app, this data will come from the database
-        }
-
-        // --- COMMANDS FOR TESTING ---
-
         [RelayCommand]
-        private void CallSeller()
+        private async Task CallUserAsync()
         {
             if (PhoneDialer.Default.IsSupported)
             {
-                // Opens the native phone dialer with the number pre-filled
-                PhoneDialer.Default.Open(PhoneNumber);
+                try
+                {
+                    PhoneDialer.Default.Open(PhoneNumber);
+                }
+                catch (ArgumentException)
+                {
+                    await Shell.Current.DisplayAlert("Invalid Number", "The phone number is not valid.", "OK");
+                }
+                catch (Exception)
+                {
+                    await Shell.Current.DisplayAlert("Error", "Something went wrong while opening the dialer.", "OK");
+                }
+            }
+
+
+            try
+            {
+                await Launcher.Default.OpenAsync($"tel:{PhoneNumber}");
+            }
+            catch(Exception)
+            {
+                await Shell.Current.DisplayAlert("Not Supported", "Unable to open the dialer on this device.", "OK");
             }
         }
 
         [RelayCommand]
-        private async Task ChatWhatsApp()
+        private async Task ChatOnWhatsAppAsync()
         {
             if (string.IsNullOrWhiteSpace(PhoneNumber)) return;
 
-            // WA.ME format requires the number clean (no +, no spaces)
-            string cleanNumber = PhoneNumber.Replace("+", "").Replace(" ", "").Replace("-", "");
+            string cleanedNumber = PhoneNumber.Replace("+", "").Replace(" ", "").Replace("-","");
 
-            // Opens WhatsApp directly
-            await Launcher.Default.OpenAsync($"https://wa.me/{cleanNumber}");
+            await Launcher.Default.OpenAsync($"https://wa.me/{cleanedNumber}");
         }
+
+        [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
     }
 }

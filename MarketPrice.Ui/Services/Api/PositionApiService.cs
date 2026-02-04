@@ -28,5 +28,12 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
+        public async Task<HttpResponseMessage> GetPositionDetailAsync(Guid positionId)
+        {
+            var url = ApiControllers.Positions.AppendRoute(ApiRoutes.POSITION_DETAIL, positionId.ToString());
+            var response = await GettingAsync(url);
+            return response;
+        }
+
     }
 }

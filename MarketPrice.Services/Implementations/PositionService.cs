@@ -193,6 +193,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             var listings = await listingsQuery
                 .Select(p => new PositionListing
                 {
+                    PositionId = p.PositionId,
                     UserName = p.User.FirstName + " " + p.User.FamilyName,
                     CommodityName = p.Commodity.CommodityName,
                     Quantity = p.Quantity * (decimal)p.Commodity.LotSize!,
