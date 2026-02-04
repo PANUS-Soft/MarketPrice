@@ -15,6 +15,7 @@ namespace MarketPrice.Domain.Position.DTOs
 
     public class PositionListing
     {
+        public Guid PositionId { get; set; }
         public string? UserName { get; set; }
         public string? CommodityName { get; set; }
         public decimal Quantity { get; set; }

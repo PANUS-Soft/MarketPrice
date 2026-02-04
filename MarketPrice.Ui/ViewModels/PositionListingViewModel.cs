@@ -8,7 +8,9 @@ using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.Views;
 using Microsoft.Extensions.Options;
+using PositionListing = MarketPrice.Domain.Position.DTOs.PositionListing;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -28,7 +30,7 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private bool isListEmpty;
         [ObservableProperty] private string commodityTypeName;
         [ObservableProperty] private string positionTypeName;
-        [ObservableProperty] private decimal unitPrice;
+        [ObservableProperty] private string unitPrice;
         [ObservableProperty] private string lotSize;
         [ObservableProperty] private string priceDisplay;
         [ObservableProperty] private string selectedCommodity;
@@ -92,7 +94,7 @@ namespace MarketPrice.Ui.ViewModels
 
             CommodityTypeName = dto.CommodityTypeName?.ToUpper() ?? string.Empty;
             LotSize = dto.LotSize;
-            UnitPrice = dto.UnitPrice;
+            UnitPrice = dto.UnitPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM"));
             PositionTypeName = $"Position Listings - {dto.PositionTypeName?.ToUpper()}" ?? string.Empty;
 
             CommodityFilters.Clear();
@@ -162,9 +164,14 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task GoToPositionDetailsAsync(PositionListing item)
+        private async Task GoToPositionDetailAsync(PositionListing item)
         {
-            await Shell.Current.GoToAsync("PositionDetail");
+            var parameters = new Dictionary<string, object>
+            {
+                {"positionId", item.PositionId}
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionDetail), parameters);
         }
     }
 }

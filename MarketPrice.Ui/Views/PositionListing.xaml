@@ -108,7 +108,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="20,0,20,15">
-                            <Border Stroke="{StaticResource PrimaryAccent}" 
+                            <Border Stroke="{StaticResource PrimaryBase}" 
                                     StrokeThickness="3" 
                                     StrokeShape="RoundRectangle 15" 
                                     Padding="15"
@@ -116,7 +116,7 @@
 
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer 
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=GoToPositionDetailsCommand}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=GoToPositionDetailCommand}"
                                         CommandParameter="{Binding .}"/>
                                 </Border.GestureRecognizers>
 
@@ -124,7 +124,7 @@
                                     <Border Grid.Column="0"
                                             HeightRequest="60"
                                             WidthRequest="60"
-                                            Stroke="{StaticResource PrimaryAccent}"
+                                            Stroke="{StaticResource PrimaryBase}"
                                             StrokeThickness="3"
                                             StrokeShape="RoundRectangle 30"
                                             BackgroundColor="White"
