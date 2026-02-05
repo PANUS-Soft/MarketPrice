@@ -20,7 +20,7 @@ namespace MarketPrice.Ui.ViewModels
     {
         private readonly SessionService _sessionService;
         private readonly ReferenceDataApiService _referenceDataApi;
-        private readonly LoadMarketApiService _loadMarketInsightApi;
+        private readonly MarketApiService _marketApi;
         private readonly ApiSettings _apiSettingOptions;
 
         public readonly List<MarketItem> _allMarketItems = new();
@@ -35,11 +35,11 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string searchText = string.Empty;
         [ObservableProperty] private bool isListEmpty;
 
-        public MarketViewModel(SessionService sessionService, ReferenceDataApiService referenceDataApi, LoadMarketApiService loadMarketApi, IOptions<ApiSettings> apiSettingOptions)
+        public MarketViewModel(SessionService sessionService, ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
         {
             _sessionService = sessionService;
             _referenceDataApi = referenceDataApi;
-            _loadMarketInsightApi = loadMarketApi;
+            _marketApi = marketApi;
             _apiSettingOptions = apiSettingOptions.Value;
 
             _ = InitializeAsync();
@@ -53,7 +53,7 @@ namespace MarketPrice.Ui.ViewModels
         {
             await EnsureSessionActiveAsync();
             await LoadCommodityTypesAsync();
-            await LoadMarketInsightAsync();
+            await LoadMarketAsync();
         }
 
         private async Task EnsureSessionActiveAsync()
@@ -84,9 +84,9 @@ namespace MarketPrice.Ui.ViewModels
             SelectedCommodityType = "ALL";
         }
 
-        public async Task LoadMarketInsightAsync()
+        public async Task LoadMarketAsync()
         {
-            var marketInsightResponse = await _loadMarketInsightApi.LoadMarketAsync();
+            var marketInsightResponse = await _marketApi.LoadMarketAsync();
 
             if (!marketInsightResponse.IsSuccessStatusCode) return;
             

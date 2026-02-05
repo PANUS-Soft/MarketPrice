@@ -190,10 +190,10 @@ namespace MarketPrice.Services.Implementations
                 BestOffer = offersDepth.FirstOrDefault()?.Price ?? 0,
 
                 // Max/Min stats come from 24H HISTORICAL query
-                MaxBid24h = await bids24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
-                MinBid24h = await bids24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
-                MaxOffer24h = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
-                MinOffer24h = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MaxBid24H = await bids24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MinBid24H = await bids24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MaxOffer24H = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MinOffer24H = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
 
                 Bids = bidsDepth,
                 Offers = offersDepth
@@ -202,7 +202,7 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range)
         {
-            // 1. Map the ranges to their respective intervals and lookback windows
+            // 1. Map the ranges to their respective intervals and look back windows
             (string interval, DateTime startDate, int minPoints) = range.ToLower() switch
             {
                 "1d" => ("2H", DateTime.UtcNow.AddDays(-1), 12),  
