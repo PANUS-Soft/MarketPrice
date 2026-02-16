@@ -13,8 +13,8 @@ public static class ApiRoutes
     // Position Routes
     public const string BID_CREATE = "bid/create";
     public const string OFFER_CREATE = "offer/create";
-    public const string POSITION_BY_PRICE = "bestPrice";
-    public const string GET_POSITION_DETAIL = "detail";
+    public const string POSITION_BY_PRICE = "price";
+    public const string POSITION_DETAIL = "detail";
 
     // Reference Data Routes
     public const string REF_REGION = "regions";
@@ -24,6 +24,8 @@ public static class ApiRoutes
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "data";
     public const string GET_MARKET_INSIGHT = "insight/{commodityId}";
+    public const string GET_CHART_DATA = "insight/{commodityId}/chart";
+
 
     // Home Data Routes
     public const string LOAD_HOME_DATA = "data";

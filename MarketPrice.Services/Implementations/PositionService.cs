@@ -49,7 +49,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         }
 
         // 2. Fetch Position Type ID dynamically
-        string posTypeText = isOffer ? "Ask" : "Bid";
+        string posTypeText = isOffer ? "Offer" : "Bid";
         int posTypeId;
         try
         {
@@ -193,6 +193,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             var listings = await listingsQuery
                 .Select(p => new PositionListing
                 {
+                    PositionId = p.PositionId,
                     UserName = p.User.FirstName + " " + p.User.FamilyName,
                     CommodityName = p.Commodity.CommodityName,
                     Quantity = p.Quantity * (decimal)p.Commodity.LotSize!,

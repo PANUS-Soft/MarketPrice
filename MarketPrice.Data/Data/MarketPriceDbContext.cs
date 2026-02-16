@@ -19,6 +19,7 @@ namespace MarketPrice.Data
         public DbSet<UserSecurityDetail> UserSecurityDetails { get; set; }
         public DbSet<CommodityTypeImage> CommodityTypeImage { get; set; }
         public DbSet<CommodityImage> CommodityImage { get; set; }
+        public DbSet<AggregatedPrice> AggregatedPrices { get; set; }
 
         public MarketPriceDbContext(DbContextOptions<MarketPriceDbContext> options)
             : base(options)
@@ -286,7 +287,23 @@ namespace MarketPrice.Data
                 .Property(u => u.UnitOfMeasureId)
                 .HasDefaultValueSql("NEWID()");
 
-            // # CommodityImage
+            // # AggregatedPrice
+            modelBuilder.Entity<AggregatedPrice>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                var decimalProperties = new[] { "AvgBid", "HighBid", "LowBid", "AvgOffer", "HighOffer", "LowOffer" };
+                foreach (var prop in decimalProperties)
+                {
+                    entity.Property(prop).HasPrecision(18, 2);
+                }
+
+                // 3. Performance Index: Speed up graph queries
+                entity.HasIndex(e => new { e.CommodityId, e.Interval, e.Timestamp })
+                      .HasDatabaseName("IX_AggregatedPrices_Lookup");
+                // 4. Unique Constraint: Data Integrity (Idempotency)
+                entity.HasIndex(e => new { e.CommodityId, e.Interval, e.Timestamp })
+                      .IsUnique();
+            });
         }
 
     }
