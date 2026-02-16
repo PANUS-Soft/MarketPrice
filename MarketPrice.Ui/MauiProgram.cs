@@ -1,4 +1,5 @@
 ﻿using DevExpress.Maui;
+using Syncfusion.Maui.Toolkit.Hosting;
 using CommunityToolkit.Maui;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
@@ -28,6 +29,7 @@ namespace MarketPrice.Ui
                 .UseDevExpressDataGrid()
                 .UseDevExpressEditors()
                 .UseDevExpressTreeView()
+                .ConfigureSyncfusionToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

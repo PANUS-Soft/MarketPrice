@@ -6,7 +6,7 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Background}">
 
-    <Grid RowDefinitions="Auto, *">
+    <Grid RowDefinitions=" Auto, *">
 
         <VerticalStackLayout Grid.Row="0"
                              BackgroundColor="White">
