@@ -37,10 +37,12 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private RegionDto? selectedDestinationRegion;
         [ObservableProperty] private string selectedGrade;
         [ObservableProperty] private decimal quantity;
+        [ObservableProperty] private string description;
         [ObservableProperty] private decimal unitPrice;
         [ObservableProperty] private bool isDeliverable;
-        [ObservableProperty] private string description;
+        [ObservableProperty] private bool startPositionImmediately;
         [ObservableProperty] private DateTime? startDate;
+        [ObservableProperty] private DateTime? effectiveStartDate;
         [ObservableProperty] private DateTime? endDate;
         [ObservableProperty] private string originTown;
         [ObservableProperty] private string destinationTown;
@@ -90,6 +92,7 @@ namespace MarketPrice.Ui.ViewModels
         public bool IsOffer => PositionType == PositionType.Offer;
         public bool IsCommodityTypeEditable => IsCommodityDetailsStep;
         public bool IsCommodityEditable => SelectedCommodityType != null;
+        public bool IsStartDateTimeEnabled => !StartPositionImmediately;
         public string PageTitle => PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer";
         public string ContinueButtonText => CurrentStep == PositionStep.LogisticsInformation ? (PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer") : "Continue";
         
@@ -297,11 +300,22 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(TotalValueDisplay));
         }
 
+        partial void OnStartPositionImmediatelyChanged(bool value)
+        {
+            if (value)
+            {
+                StartDate = DateTime.Now;
+                StartDateError = null;
+            }
+            CombineDateError();
+            OnPropertyChanged(nameof(IsStartDateTimeEnabled));
+        }
+
         partial void OnStartDateChanged(DateTime? value)
         {
-            if (value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
+            if (StartPositionImmediately == false && value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
 
-            if (value != null && value >= DateTime.Now) StartDateError = null;
+            if (StartPositionImmediately == false && value != null && value >= DateTime.Now) StartDateError = null;
             CombineDateError();
             OnPropertyChanged(nameof(EndDateError));
             OnPropertyChanged(nameof(DateError));
@@ -310,6 +324,8 @@ namespace MarketPrice.Ui.ViewModels
         partial void OnEndDateChanged(DateTime? value)
         {
             if (value < StartDate) EndDateError = "- End date cannot be less than the start date.\n";
+
+            else if (value <= DateTime.Now) EndDateError = "- End date must be in the future.\n";
 
             if (value == StartDate) EndDateError = "- End date cannot be equal to the start date.\n";
 
@@ -439,9 +455,17 @@ namespace MarketPrice.Ui.ViewModels
                 isValid = false;
             }
 
-            if (StartDate == null)
+            DateTime? effectiveStart = StartPositionImmediately ? DateTime.Now : StartDate ?? null;
+
+            if (!StartPositionImmediately && StartDate == null)
             {
                 StartDateError = "- Start Date is required.\n";
+                isValid = false;
+            }
+            
+            if (!StartPositionImmediately && StartDate < DateTime.Now)
+            {
+                StartDateError = "- Start of the position cannot be in the past.\n";
                 isValid = false;
             }
 
@@ -450,22 +474,20 @@ namespace MarketPrice.Ui.ViewModels
                 EndDateError = "- End Date is required.\n";
                 isValid = false;
             }
-
-            if (StartDate < DateTime.Now)
+            else if (EndDate <= DateTime.Now)
             {
-                StartDateError = "- Start of the position cannot be in the past.\n";
+                EndDateError = "- End date must be in the future.\n";
+                isValid = false;
+            }
+            else if (EndDate <= effectiveStart)
+            {
+                EndDateError = "- End date must be after start date.\n";
                 isValid = false;
             }
 
-            if (StartDate != null && EndDate != null && EndDate == StartDate)
+            if (StartDate != null && EndDate != null && EndDate == effectiveStart)
             {
                 EndDateError = "- End date can not be equal to the start date.\n";
-            }
-
-            if (EndDate != null && EndDate < StartDate)
-            {
-                EndDateError = "- End Date must be after Start Date.\n";
-                isValid = false;
             }
 
             CombineDateError();
@@ -569,7 +591,7 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = (decimal)Quantity!,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = (DateTime)StartDate!,
+                    StartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
                     Origin = new LocationCommand
                     {
@@ -580,13 +602,18 @@ namespace MarketPrice.Ui.ViewModels
                     }
                 };
 
+                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!;
+
+                string formattedStartDate = StartPositionImmediately ? "Now" : effectiveStartDate.ToString("g");
+
                 var message = $""""
                                Commodity: {SelectedCommodity.Name}
                                Total Quantity: {TotalQuantityDisplay}
                                Unit Price: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
                                {TotalValueDisplay}
-                               Start date/time: {StartDate:g}
+                               Start date/time: {formattedStartDate}
                                End date/time: {EndDate:g}
+                               Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
                                """";
 
                 // Call to API to create the place bid
@@ -634,7 +661,7 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = (decimal)Quantity!,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = (DateTime)StartDate!,
+                    StartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
                     CanDeliver = IsDeliverable,
                     LeadTime = IsDeliverable ? LeadTime : null,
@@ -655,21 +682,26 @@ namespace MarketPrice.Ui.ViewModels
                     } : null,
                 };
 
+                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!;
+
+                string formattedStartDate = StartPositionImmediately ? "Now" : effectiveStartDate.ToString("g");
+
+
                 var message = $""""
                                Commodity: {SelectedCommodity.Name}
                                Total Quantity: {TotalQuantityDisplay}
                                Unit Price: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
                                {TotalValueDisplay}
-                               Start date/time: {StartDate:g}
+                               Start date/time: {formattedStartDate}
                                End date/time: {EndDate:g}
                                """";
 
-                var deliveryDetails = $""""
+                var deliveryDetails = IsDeliverable ? $""""
                                        Delivery Fee: {DeliveryFee} FCFA
                                        Lead Time: {LeadTime} days
                                        Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
                                        Destination: {SelectedDestinationRegion!.NameInEnglish}, {DestinationTown}, {DestinationQuarter}
-                                       """";
+                                       """" : null;
 
                 if (IsDeliverable) message = message + "\n" + deliveryDetails;
 
