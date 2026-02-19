@@ -32,7 +32,7 @@
     <TabBar>
         <Tab Title="Home" Icon="home.png" Route="EditProfile">
             <ShellContent
-                ContentTemplate="{DataTemplate views:EditProfile}" />
+                ContentTemplate="{DataTemplate views:Home}" />
         </Tab>
 
         <Tab Title="Market" Icon="market.png" Route="Market">
