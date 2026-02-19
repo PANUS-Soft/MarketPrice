@@ -33,7 +33,7 @@ namespace MarketPrice.Ui
 
         private async Task HandleStartupNavigationAsync()
         {
-            await Shell.Current.GoToAsync("//Profile");
+            await Shell.Current.GoToAsync("//EditProfile");
             return;
             //var hasOnboarded = Preferences.Get("HasCompletedOnboarding", false);
             //if (!hasOnboarded)
