@@ -598,7 +598,7 @@ namespace MarketPrice.Ui.ViewModels
                         RegionId = SelectedOriginRegion!.Id,
                         Town = OriginTown,
                         Quarter = OriginQuarter,
-                        Street = OriginQuarter
+                        Street = OriginStreet
                     }
                 };
 

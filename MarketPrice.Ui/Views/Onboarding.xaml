@@ -25,7 +25,7 @@
                    HorizontalTextAlignment="Center"/>
 
             <Image Grid.Row="1"
-                   Source="onboarding.png"
+                   Source="onboarding.svg"
                    HorizontalOptions="Fill"
                    VerticalOptions="Fill"
                    Aspect="AspectFit"/>

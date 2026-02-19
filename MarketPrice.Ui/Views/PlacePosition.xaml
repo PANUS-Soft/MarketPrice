@@ -155,7 +155,7 @@
 
                     <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
                         <VerticalStackLayout Spacing="20">
-                            <dxe:TextEdit LabelText="Unit Price" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding UnitPrice}"/>
+                            <dxe:TextEdit LabelText="Unit Price / Lot Size" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding UnitPrice}"/>
                             <Label Text="{Binding UnitPriceError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
                             <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifRegular" TextColor="{StaticResource TextPrimary}"/>

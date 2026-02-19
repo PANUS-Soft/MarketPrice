@@ -1,7 +1,7 @@
 using MarketPrice.Data;
 using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
-using MarketPrice.Services.Workers;
+//using MarketPrice.Services.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,7 +27,7 @@ builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
-builder.Services.AddHostedService<MarketAggregationWorker>();
+//builder.Services.AddHostedService<MarketAggregationWorker>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
