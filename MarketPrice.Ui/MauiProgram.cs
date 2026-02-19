@@ -74,6 +74,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<PlacePositionViewModel>();
             builder.Services.AddTransient<PositionListingViewModel>();
             builder.Services.AddTransient<PositionDetailViewModel>();
+            builder.Services.AddTransient<EditProfileViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();

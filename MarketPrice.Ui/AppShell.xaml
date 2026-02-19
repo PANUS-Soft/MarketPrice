@@ -30,9 +30,9 @@
         Route="Login"/>
 
     <TabBar>
-        <Tab Title="Home" Icon="home.png" Route="Home">
+        <Tab Title="Home" Icon="home.png" Route="EditProfile">
             <ShellContent
-                ContentTemplate="{DataTemplate views:Home}" />
+                ContentTemplate="{DataTemplate views:EditProfile}" />
         </Tab>
 
         <Tab Title="Market" Icon="market.png" Route="Market">
