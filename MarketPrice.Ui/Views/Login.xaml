@@ -9,13 +9,18 @@
              BackgroundColor="{StaticResource Background}"
              Title="Login">
 
-    <Grid>
-        <BoxView VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
-        <VerticalStackLayout Spacing="0" VerticalOptions="Center" Margin="0,0,0,40">
-            <Image Source="Smile.png"
-                   HeightRequest="140" 
-                   Margin="0, 40, 0, 20"/>
-            
+    <Grid RowDefinitions="Auto, *">
+        <BoxView Grid.RowSpan ="2" VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
+        <VerticalStackLayout Grid.Row="0" >
+            <Image Source="marketprice_logo.png"
+                   HeightRequest="400" 
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   Margin="0, -100, 0, 0"/>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="1" Spacing="0" VerticalOptions="Center" Margin="0,-120,0,0">
+
             <Label Text="Login"
                    FontSize="38"
                    FontFamily="RobotoSerifBold" 

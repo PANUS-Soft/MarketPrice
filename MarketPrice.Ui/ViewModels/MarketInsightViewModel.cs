@@ -3,31 +3,63 @@ using CommunityToolkit.Mvvm.Input;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Views;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Domain.Market.DTOs;
 using System.Collections.ObjectModel;
+using System.Net.Http.Json;
 
 namespace MarketPrice.Ui.ViewModels
 {
     [QueryProperty(nameof(SelectedMarketItem), "SelectedMarketItem")]
     public partial class MarketInsightViewModel : ObservableObject
     {
+        private readonly LoadMarketApiService _marketApiService;
+
         [ObservableProperty]
         MarketItem? selectedMarketItem;
 
-        public ObservableCollection<PricePoint>? PriceHistory { get; set; }
+        public ObservableCollection<MarketInsightChartResponseDto>? PriceHistory { get; } = new();
 
         public ObservableCollection<DepthItem>? MarketDepthBids { get; set; }
         public ObservableCollection<DepthItem>? MarketDepthOffers { get; set; }
 
-        public MarketInsightViewModel()
+        public MarketInsightViewModel(LoadMarketApiService marketApiService)
         {
-            PriceHistory = new ObservableCollection<PricePoint>()
-           {
-               new(DateTime.Now.AddDays(-6), 3800), new(DateTime.Now.AddDays(-5), 1200), new(DateTime.Now.AddDays(-4), 1500),
-                new(DateTime.Now.AddDays(-3), 800),  new(DateTime.Now.AddDays(-2), 2000),  new(DateTime.Now.AddDays(-1), 3500),
-                 new(DateTime.Now, 2500)
-           };
+            _marketApiService = marketApiService;
+
             MarketDepthBids = new ObservableCollection<DepthItem>(Enumerable.Repeat(new DepthItem { Value = 200 }, 10));
             MarketDepthOffers = new ObservableCollection<DepthItem>(Enumerable.Repeat(new DepthItem { Value = 300 }, 10));
+        }
+
+        partial void OnSelectedMarketItemChanged(MarketItem? value)
+        {
+            if (value != null)
+                _ = LoadApiDataAsync(value.CommodityId);
+        }
+
+        private async Task LoadApiDataAsync(Guid commodityId)
+        {
+            try
+            {
+                var response = await _marketApiService.GetChartDataAsync(commodityId);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<MarketChartDataWrapper>();
+
+                    if (result?.Data != null)
+                    {
+                        PriceHistory?.Clear();
+                        foreach (var point in result.Data)
+                        {
+                            PriceHistory?.Add(point);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+            }
         }
 
         [RelayCommand]

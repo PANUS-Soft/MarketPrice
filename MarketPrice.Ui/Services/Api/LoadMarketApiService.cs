@@ -12,5 +12,22 @@ namespace MarketPrice.Ui.Services.Api
             var response = await GettingAsync(url);
             return response;
         }
+
+        public async Task<HttpResponseMessage> GetMarketInsightAsync(Guid commodityId)
+        {
+            var route = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_MARKET_INSIGHT);
+            var url = route.Replace("{commodityId}", commodityId.ToString());
+
+            return await GettingAsync(url);
+        }
+
+        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range = "1m")
+        {
+            var route = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_CHART_DATA);
+            var url = route.Replace("{commodityId}", commodityId.ToString());
+            var finalUrl = $"{url}?range={range}";
+
+            return await GettingAsync(finalUrl);
+        }
     }
 }
