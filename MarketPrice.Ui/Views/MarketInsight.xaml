@@ -38,9 +38,9 @@
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
                                 <Label Text="Max(24h)" FontSize="11" FontFamily="RobotoSerifRegular"/>
-                                <Label Text="CFA 700" FontSize="11" FontFamily="RobotoSerifMedium"/>
+                                <Label Text="{Binding SelectedMarketItem.HighBid}" FontSize="11" FontFamily="RobotoSerifMedium"/>
                                 <Label Text="Min(24h)" FontSize="11" FontFamily="RobotoSerifRegular" Margin="0,5,0,0"/>
-                                <Label Text="CFA 500" FontSize="11" FontFamily="RobotoSerifMedium"/>
+                                <Label Text="{Binding SelectedMarketItem.LowBid}" FontSize="11" FontFamily="RobotoSerifMedium"/>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>
@@ -53,9 +53,9 @@
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
                                 <Label Text="Max(24h)" FontSize="11" FontFamily="RobotoSerifRegular"/>
-                                <Label Text="CFA 650" FontSize="11" FontFamily="RobotoSerifMedium"/>
+                                <Label Text="{Binding SelectedMarketItem.HighOffer}" FontSize="11" FontFamily="RobotoSerifMedium"/>
                                 <Label Text="Min(24h)" FontSize="11" FontFamily="RobotoSerifRegular" Margin="0,5,0,0"/>
-                                <Label Text="CFA 475" FontSize="11" FontFamily="RobotoSerifMedium"/>
+                                <Label Text="{Binding SelectedMarketItem.LowOffer}" FontSize="11" FontFamily="RobotoSerifMedium"/>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>
@@ -69,8 +69,9 @@
                     <dxc:ChartView.Series>
                         <dxc:LineSeries MarkersVisible="True" DisplayName="Price Trend">
                             <dxc:LineSeries.Data>
-                                <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Date">
-                                    <dxc:ValueDataMember Type="Value" Member="Price"/>
+                                <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
+                                    <dxc:ValueDataMember Type="Value" Member="AvgBid"/>
+                                    <dxc:ValueDataMember Type="Value" Member="AvgOffer"/>
                                 </dxc:SeriesDataAdapter>
                             </dxc:LineSeries.Data>
                             <dxc:LineSeries.Style>

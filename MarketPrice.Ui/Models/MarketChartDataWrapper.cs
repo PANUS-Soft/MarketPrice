@@ -9,7 +9,7 @@ namespace MarketPrice.Ui.Models
 {
     public class MarketChartDataWrapper
     {
-        public List<MarketInsightChartResponseDto> Data { get; set; }
+        public List<MarketInsightChartResponseDto>? Data { get; set; }
 
         public bool IsRunning { get; set; }
         public DateTime LastRun { get; set; }

@@ -37,7 +37,7 @@ namespace MarketPrice.Ui.ViewModels
                 _ = LoadApiDataAsync(value.CommodityId);
         }
 
-        private async Task LoadApiDataAsync(Guid commodityId)
+        private async Task LoadApiChartDataAsync(Guid commodityId)
         {
             try
             {
@@ -56,6 +56,30 @@ namespace MarketPrice.Ui.ViewModels
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+            }
+        }
+
+        private async Task LoadApiDataAsync(Guid commodityId)
+        {
+            try
+            {
+                var response = await _marketApiService.GetMarketInsightAsync(commodityId);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
+                    if (result != null)
+                    {
+                        selectedMarketItem.HighBid = result.MaxBid24h;
+                        selectedMarketItem.HighOffer = result.MaxOffer24h;
+                        selectedMarketItem.LowBid = result.MinBid24h;
+                        selectedMarketItem.LowOffer = result.MinOffer24h;
+                    }
+                }
+            }
+
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
