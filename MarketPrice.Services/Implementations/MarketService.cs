@@ -149,12 +149,12 @@ namespace MarketPrice.Services.Implementations
             var bids24hQuery = _context.Positions.Where(p =>
                 p.CommodityId == commodityId &&
                 p.PositionTypeId == BUY &&
-                p.Date >= since24h);
+                p.StartDate < now && p.ExpiryDate > since24h);
 
             var offers24hQuery = _context.Positions.Where(p =>
                 p.CommodityId == commodityId &&
                 p.PositionTypeId == SELL &&
-                p.Date >= since24h);
+                p.StartDate < now && p.ExpiryDate > since24h);
 
             // 3. Market Depth from ACTIVE positions
             var bidsDepth = await activeBidsQuery
@@ -165,7 +165,7 @@ namespace MarketPrice.Services.Implementations
                     Quantity = g.Sum(x => x.Quantity)
                 })
                 .OrderByDescending(x => x.Price)
-                .Take(10)
+                .Take(15)
                 .ToListAsync();
 
             var offersDepth = await activeOffersQuery
@@ -176,7 +176,7 @@ namespace MarketPrice.Services.Implementations
                     Quantity = g.Sum(x => x.Quantity)
                 })
                 .OrderBy(x => x.Price)
-                .Take(10)
+                .Take(15)
                 .ToListAsync();
 
             // 4. Compose Response
@@ -195,6 +195,7 @@ namespace MarketPrice.Services.Implementations
                 MaxOffer24h = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
                 MinOffer24h = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
 
+                // market  depth
                 Bids = bidsDepth,
                 Offers = offersDepth
             };
@@ -206,9 +207,9 @@ namespace MarketPrice.Services.Implementations
             (string interval, DateTime startDate, int minPoints) = range.ToLower() switch
             {
                 "1d" => ("2H", DateTime.UtcNow.AddDays(-1), 12),  
-                "1w" => ("2H", DateTime.UtcNow.AddDays(-7), 42),  
-                "1m" => ("1D", DateTime.UtcNow.AddMonths(-1), 15), 
-                "1y" => ("1W", DateTime.UtcNow.AddYears(-1), 12),  
+                "1w" => ("2H", DateTime.UtcNow.AddDays(-7), 84),  
+                "1m" => ("1D", DateTime.UtcNow.AddMonths(-1), 30), 
+                "1y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),  
                 _ => ("1D", DateTime.UtcNow.AddMonths(-1), 15)
             };
 

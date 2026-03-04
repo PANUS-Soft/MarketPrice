@@ -154,11 +154,13 @@
                 <VerticalStackLayout Spacing="15" IsVisible="{Binding IsPricingAndTimingStep}">
 
                     <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="20">
+                        <VerticalStackLayout Spacing="5">
                             <dxe:TextEdit LabelText="Unit Price / Lot Size" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding UnitPrice}"/>
                             <Label Text="{Binding UnitPriceError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
-                            <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifRegular" TextColor="{StaticResource TextPrimary}"/>
+                            <Label Text="{Binding TotalValueDisplay}" FontFamily="RobotoSerifSemibold" HorizontalOptions="End" FontSize="16" TextColor="{StaticResource TextPrimary}" Margin="0"/>
+
+                            <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifRegular" TextColor="{StaticResource TextPrimary}" Margin="0, 15"/>
                             
                             <dxe:FormSwitchItem Text="Start position immediately ?"
                                                 TextFontFamily="RobotoSerifRegular"
@@ -181,12 +183,11 @@
                             <dxe:FormSwitchItem Text="Is Deliverable ?" 
                                                 TextFontFamily="RobotoSerifRegular" 
                                                 TextFontSize="13"
-                                                Margin="0,10,0,0"
+                                                Margin="0,0,0,0"
                                                 IsVisible="{Binding IsOffer}"
                                                 IsToggled="{Binding IsDeliverable}"
                                                 OnColor="{StaticResource PrimaryBase}"/>
 
-                            <Label Text="{Binding TotalValueDisplay}" FontFamily="RobotoSerifBold" HorizontalOptions="End" FontSize="16" TextColor="{StaticResource TextPrimary}" Margin="0,10,0,0"/>
                         </VerticalStackLayout>
                     </Border>
 

@@ -74,6 +74,10 @@ namespace MarketPrice.Services.Implementations
                     {
                         ct.IsBidImproved = false; // Downward trend
                     }
+                    else
+                    {
+                        ct.IsBidImproved = ct.IsBidImproved;
+                    }
                 }
 
                 // 3. STICKY OFFER TREND LOGIC
@@ -86,6 +90,10 @@ namespace MarketPrice.Services.Implementations
                     else if (currentBestOffer > ct.LastBestOffer)
                     {
                         ct.IsOfferImproved = false; // Price declined (rose)
+                    }
+                    else
+                    {
+                        ct.IsOfferImproved = ct.IsOfferImproved;
                     }
                 }
 
