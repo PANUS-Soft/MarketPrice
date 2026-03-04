@@ -6,7 +6,7 @@
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.EditProfile"
              x:DataType="viewModels:EditProfileViewModel"
-             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
              Title="Edit Profile">
 
     <Grid RowDefinitions="Auto, *, Auto" Padding="20" BackgroundColor="White">

@@ -1,11 +1,32 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Domain.Authentication.DTOs;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
 using System.Collections.ObjectModel;
+using System.Net.Http.Json;
+using CommunityToolkit.Maui.Alerts;
 
 namespace MarketPrice.Ui.ViewModels
 {
     public partial class ProfileViewModel : ObservableObject
     {
+        public readonly AuthenticationApiService _authenticationApi;
+        public readonly SessionService _sessionService;
+
+        public ProfileViewModel(AuthenticationApiService authenticationApiService, SessionService sessionService)
+        {
+            _authenticationApi = authenticationApiService;
+            _sessionService = sessionService;
+        }
+
+        public async Task InitializeAsync()
+        {
+            LoadMockData();
+        }
+
         // User Details
         [ObservableProperty] private string initials;
         [ObservableProperty] private string fullName;
@@ -15,11 +36,6 @@ namespace MarketPrice.Ui.ViewModels
 
         // Menu Collection
         public ObservableCollection<ProfileMenuItem> MenuItems { get; } = new();
-
-        public ProfileViewModel()
-        {
-            LoadMockData();
-        }
 
         private void LoadMockData()
         {
@@ -39,9 +55,9 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task EditProfile()
+        private async Task NavigateToEditProfileAsync()
         {
-            await Shell.Current.DisplayAlert("Edit", "Navigate to Edit Profile", "OK");
+            await Shell.Current.GoToAsync("EditProfile");
         }
 
         [RelayCommand]
@@ -52,12 +68,46 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task Logout()
+        private async Task LogoutAsync()
         {
-            bool confirm = await Shell.Current.DisplayAlert("Logout", "Are you sure you want to log out?", "Yes", "No");
-            if (confirm)
+            bool confirmLogout = await Shell.Current.DisplayAlert("Logout", "Are you sure you want to log out?", "Yes", "No");
+
+            if (!confirmLogout) return;
+
+            try
             {
-                await Shell.Current.GoToAsync("//Welcome");
+                var userSession = await _sessionService.GetCurrentSessionAsync();
+
+                var command = new LogoutCommand { EmailAddress = userSession!.EmailAddress };
+
+                var response = await _authenticationApi.LogoutUserAsync(command);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<LogoutResponseDto>();
+
+                    if (dto is { LogoutStatus: true })
+                    {
+                        var isSessionEnded = await _sessionService.EndSessionAsync();
+                        if (isSessionEnded)
+                        {
+                            await Toast.Make("You have been logged out successfully.", ToastDuration.Long).Show();
+                            await Shell.Current.GoToAsync("//Welcome");
+                        }
+                    }
+                    else
+                    {
+                        await Shell.Current.DisplayAlert("Error", "Failed to log out. Please try again.", "OK");
+                    }
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", "Failed to log out. Please try again.", "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", $"There was an error when trying to log you out ... {e.Message}", "OK");
             }
         }
     }
