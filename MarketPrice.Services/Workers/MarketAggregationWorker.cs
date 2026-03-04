@@ -73,11 +73,9 @@ namespace MarketPrice.Services.Workers
             // 1. Define the "Ceiling":
             var now = DateTime.UtcNow;
             var currentWindowEnd = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc);
-
-            // Round down to the nearest even hour
             if (currentWindowEnd.Hour % 2 != 0) currentWindowEnd = currentWindowEnd.AddHours(-1);
 
-            // 2. Find the "Floor": The last 2H bucket we actually have in the DB
+            // 2. Find the "Floor": The last 2H record.
             var lastEntry = await context.AggregatedPrices
                 .AsNoTracking()
                 .Where(ap => ap.Interval == "2H")
@@ -102,8 +100,24 @@ namespace MarketPrice.Services.Workers
             {
                 var nextBucketEnd = nextBucketStart.AddHours(2);
 
-                logger.LogInformation("Processing 2H bucket: {Start} to {End}", nextBucketStart, nextBucketEnd);
+                // --- SELF-HEALING START ---
+                // Check if position data exists for this bucket before attempting aggregation
+                bool dataExists = await context.Positions
+                    .AsNoTracking()
+                    .AnyAsync(p => p.StartDate == nextBucketStart, ct);
 
+                if (!dataExists)
+                {
+                    logger.LogWarning("Missing raw data for {Start}. Triggering Repair...", nextBucketStart);
+
+                    // Call the Stored Procedure manually for this specific time
+                    await context.Database.ExecuteSqlInterpolatedAsync(
+                        $"EXEC [dbo].[PopulatePositionsTable] @ManualStartDate = {nextBucketStart}", ct);
+
+                    logger.LogInformation("Repair complete for {Start}.", nextBucketStart);
+                }
+
+                // --- SELF-HEALING END ----
                 try
                 {
                     await Perform2HAggregation(context, nextBucketStart, nextBucketEnd, ct);
@@ -132,7 +146,7 @@ namespace MarketPrice.Services.Workers
             // Use .AsNoTracking() for speed and to keep memory low
             var aggregates = await context.Positions
                 .AsNoTracking()
-                .Where(p => p.Date >= start && p.Date < end)
+                .Where(p => p.StartDate <= start && p.ExpiryDate >= end)
                 .GroupBy(p => p.CommodityId)
                 .Select(g => new AggregatedPrice
                 {
