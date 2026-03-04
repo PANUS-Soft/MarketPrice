@@ -9,6 +9,8 @@ public static class ApiRoutes
     public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
+    public const string GET_USER_PROFILE = "profile/get";
+    public const string UPDATE_USER_PROFILE = "profile/update";
 
     // Position Routes
     public const string BID_CREATE = "bid/create";
