@@ -13,7 +13,7 @@
         <BoxView Grid.RowSpan ="2" VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
         <VerticalStackLayout Grid.Row="0" >
             <Image Source="marketprice_logo.png"
-                   HeightRequest="400" 
+                   HeightRequest="200" 
                    Aspect="AspectFit"
                    HorizontalOptions="Center"
                    Margin="0, -100, 0, 0"/>
