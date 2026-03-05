@@ -1,4 +1,4 @@
-using MarketPrice.Data;
+﻿using MarketPrice.Data;
 using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,11 +26,19 @@ builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
+//builder.Services.AddScoped<IPositionDetailService, PositionDetailService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
+
+//Create the authentication bottun for the authorization profile editing process
+
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
 var publicKeyBase64 = builder.Configuration["Authentication:PUBLIC_KEY"];
 var privateKeyBase64 = builder.Configuration["PRIVATE_KEY"];
+
+
 
 try
 {
@@ -100,6 +108,35 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter 'Bearer {token}'"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
 
 var app = builder.Build();
 

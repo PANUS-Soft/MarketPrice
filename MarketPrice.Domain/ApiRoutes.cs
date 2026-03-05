@@ -31,6 +31,12 @@ public static class ApiRoutes
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
 
+    //Update User Profile 
+    public const string Get_UserProfile = "MyProfile";
+    public const string Edit_UserProfile = "EditeProfile";
+
+
+
 }
 
 public static class ApiControllers
