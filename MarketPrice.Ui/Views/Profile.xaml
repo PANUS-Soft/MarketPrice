@@ -6,11 +6,15 @@
     xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
     xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
     xmlns:dx="http://schemas.devexpress.com/maui"
+    xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
     x:Class="MarketPrice.Ui.Views.Profile"
     Shell.NavBarIsVisible="False"
     BackgroundColor="{StaticResource Background}"
     Title="Profile">
 
+    <ContentPage.Resources>
+        <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
+    </ContentPage.Resources>
     <Grid Padding="20" RowDefinitions="Auto, *">
 
         <Grid
@@ -51,12 +55,13 @@
                         HorizontalOptions="Center">
 
                         <Label 
-                            Text="{Binding Initials}" 
+                            Text="{Binding FullName, Converter={StaticResource NameToInitialsConverter}}" 
                             FontSize="30" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="Black"
                             HorizontalOptions="Center" 
                             VerticalOptions="Center"/>
+
                     </Border>
 
                     <Label 
@@ -98,7 +103,7 @@
                             FontSize="15"/>
                         <Label 
                             Grid.Column="1" 
-                            Text="{Binding Email}" 
+                            Text="{Binding EmailAddress}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="Black" 
                             FontSize="15"/>

@@ -8,51 +8,91 @@ using MarketPrice.Ui.Services.Session;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
 using CommunityToolkit.Maui.Alerts;
+using MarketPrice.Domain.Profile.DTOs;
 
 namespace MarketPrice.Ui.ViewModels
 {
     public partial class ProfileViewModel : ObservableObject
     {
         public readonly AuthenticationApiService _authenticationApi;
+        public readonly ProfileApiService _profileService;
         public readonly SessionService _sessionService;
 
-        public ProfileViewModel(AuthenticationApiService authenticationApiService, SessionService sessionService)
+        [ObservableProperty] private string firstName;
+        [ObservableProperty] private string familyName;
+        [ObservableProperty] private string otherName;
+        [ObservableProperty] private string fullName;
+        [ObservableProperty] private string emailAddress;
+        [ObservableProperty] private string phoneNumber;
+        [ObservableProperty] private string accountType;
+
+        public ProfileViewModel(AuthenticationApiService authenticationApiService, ProfileApiService profileApiService, SessionService sessionService)
         {
             _authenticationApi = authenticationApiService;
+            _profileService = profileApiService;
             _sessionService = sessionService;
+        }
+
+        public async Task LoadUserProfileAsync()
+        {
+            var session = await _sessionService.GetCurrentSessionAsync();
+
+            if (session == null) return;
+
+            var userId = session.UserId;
+
+            var userProfileResponse = await _profileService.GetUserProfileAsync(userId);
+            if (!userProfileResponse.IsSuccessStatusCode) return;
+            var userProfile = await userProfileResponse.Content.ReadFromJsonAsync<UserProfileResponseDto>();
+            if (userProfile == null) return;
+
+            long number = long.Parse(userProfile.PhoneNumber);
+
+            FirstName = userProfile.FirstName.ToUpper();
+            FamilyName = userProfile.FamilyName.ToUpper();
+            OtherName = userProfile.OtherName.ToUpper();
+            FullName = userProfile.OtherName == "" ? $"{FirstName} {FamilyName}" : $"{FirstName} {FamilyName} {OtherName}";
+            EmailAddress = userProfile.EmailAddress;
+            PhoneNumber = $"{number:+### ### ## ## ##}";
+            AccountType = userProfile.AccountType;
+
+
         }
 
         public async Task InitializeAsync()
         {
-            LoadMockData();
+            await LoadUserProfileAsync();
+            LoadProfileComponentAsync();
         }
 
-        // User Details
-        [ObservableProperty] private string initials;
-        [ObservableProperty] private string fullName;
-        [ObservableProperty] private string email;
-        [ObservableProperty] private string phoneNumber;
-        [ObservableProperty] private string accountType;
-
-        // Menu Collection
-        public ObservableCollection<ProfileMenuItem> MenuItems { get; } = new();
-
-        private void LoadMockData()
+        private void LoadProfileComponentAsync()
         {
-            // 1. Setup User Data (Matches your screenshot)
-            Initials = "BN";
-            FullName = "BEH NELSON";
-            Email = "chubeh@gmail.com";
-            PhoneNumber = "237 671000000";
-            AccountType = "Personal";
-
-            // 2. Setup Menu Items
             MenuItems.Clear();
             MenuItems.Add(new ProfileMenuItem("Settings", "settings_icon.png"));
             MenuItems.Add(new ProfileMenuItem("My Position", "position_icon.png"));
             MenuItems.Add(new ProfileMenuItem("Change Password", "lock_icon.png"));
             MenuItems.Add(new ProfileMenuItem("Verification", "verification_icon.png"));
         }
+
+        // Menu Collection
+        public ObservableCollection<ProfileMenuItem> MenuItems { get; } = new();
+
+        //private void LoadMockData()
+        //{
+        //    // 1. Setup User Data (Matches your screenshot)
+        //    Initials = "BN";
+        //    FullName = "BEH NELSON";
+        //    Email = "chubeh@gmail.com";
+        //    PhoneNumber = "237 671000000";
+        //    AccountType = "Personal";
+
+        //    // 2. Setup Menu Items
+            //MenuItems.Clear();
+            //MenuItems.Add(new ProfileMenuItem("Settings", "settings_icon.png"));
+            //MenuItems.Add(new ProfileMenuItem("My Position", "position_icon.png"));
+            //MenuItems.Add(new ProfileMenuItem("Change Password", "lock_icon.png"));
+            //MenuItems.Add(new ProfileMenuItem("Verification", "verification_icon.png"));
+        //}
 
         [RelayCommand]
         private async Task NavigateToEditProfileAsync()

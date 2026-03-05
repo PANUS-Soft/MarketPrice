@@ -1,12 +1,12 @@
 using MarketPrice.Ui.ViewModels;
 
-namespace MarketPrice.Ui;
+namespace MarketPrice.Ui.Views;
 
 public partial class MarketInsight : ContentPage
 {
-	public MarketInsight(MarketInsightViewModel viewModel)
+	public MarketInsight(MarketInsightViewModel marketInsightViewModel)
 	{
 		InitializeComponent();
-		BindingContext = viewModel;
+		BindingContext = marketInsightViewModel;
 	}
 }

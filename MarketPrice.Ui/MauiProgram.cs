@@ -1,4 +1,5 @@
 ﻿using DevExpress.Maui;
+using Syncfusion.Maui.Toolkit.Hosting;
 using CommunityToolkit.Maui;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
@@ -28,6 +29,7 @@ namespace MarketPrice.Ui
                 .UseDevExpressDataGrid()
                 .UseDevExpressEditors()
                 .UseDevExpressTreeView()
+                .ConfigureSyncfusionToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -62,8 +64,9 @@ namespace MarketPrice.Ui
             builder.Services.AddHttpClient<AuthenticationApiService>();
             builder.Services.AddHttpClient<ReferenceDataApiService>();
             builder.Services.AddHttpClient<PositionApiService>();
-            builder.Services.AddHttpClient<LoadHomeApiService>();
-            builder.Services.AddHttpClient<LoadMarketApiService>();
+            builder.Services.AddHttpClient<HomeApiService>();
+            builder.Services.AddHttpClient<MarketApiService>();
+            builder.Services.AddHttpClient<ProfileApiService>();
 
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
