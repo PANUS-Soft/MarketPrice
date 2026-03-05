@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class HomeViewModel(SessionService sessionService, LoadHomeApiService loadHomeApi, IOptions<ApiSettings> apiSettingOptions) : ObservableObject
+    public partial class HomeViewModel(SessionService sessionService, HomeApiService homeApi, IOptions<ApiSettings> apiSettingOptions) : ObservableObject
     {
         public ObservableCollection<LoadHomeResponseDto> CommodityTypes { get; } = new();
         public ObservableCollection<HomeDisplayInformation> HomeDisplayInfo { get; } = new();
@@ -37,7 +37,7 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
-                var homeDataResponse = await loadHomeApi.LoadHomeAsync();
+                var homeDataResponse = await homeApi.LoadHomeAsync();
 
                 if (homeDataResponse.IsSuccessStatusCode)
                 {

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class LoadHomeApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingsOptions) : BaseApiService (httpClient, apiSettingsOptions)
+    public class HomeApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingsOptions) : BaseApiService (httpClient, apiSettingsOptions)
     {
         public async Task<HttpResponseMessage> LoadHomeAsync()
         {

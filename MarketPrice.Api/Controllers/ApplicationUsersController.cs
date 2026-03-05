@@ -3,6 +3,7 @@ using MarketPrice.Domain;
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
+using MarketPrice.Domain.Profile.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace MarketPrice.Api.Controllers
         ILoginService loginService,
         ILogoutService logoutService,
         IRefreshTokenService refreshTokenService,
+        IProfileService profileService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
@@ -23,13 +25,13 @@ namespace MarketPrice.Api.Controllers
         [HttpPost(ApiRoutes.AUTH_REGISTER)]
         public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
         {
-            _logger.LogInformation("Registration attempt from a user");
+            //_logger.LogInformation("Registration attempt from a user");
             var result = await registerService.RegisterAsync(registerCommand);
 
             if (result.Success)
             {
-                _logger.LogInformation("User registered successfully with the following information ...");
-                _logger.LogInformation($"Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
+                //_logger.LogInformation("User registered successfully with the following information ...");
+                //_logger.LogInformation($"Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
                 return Ok(result);
             }
             else
@@ -60,9 +62,9 @@ namespace MarketPrice.Api.Controllers
         [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
         public async Task<ActionResult<AuthenticationResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
         {
-            _logger.LogInformation($"Refresh token attempt with the following details ... Refresh token: {refreshTokenCommand.RefreshToken}, UserId: {refreshTokenCommand.UserId}");
+            //_logger.LogInformation($"Refresh token attempt with the following details ... Refresh token: {refreshTokenCommand.RefreshToken}, UserId: {refreshTokenCommand.UserId}");
             var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
-            _logger.LogInformation($"Success ... New Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
+            //_logger.LogInformation($"Success ... New Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
             return Ok(result);
         }
 
@@ -71,6 +73,15 @@ namespace MarketPrice.Api.Controllers
         public IActionResult Ping()
         {
             return Ok("Alive 😁😁😁");
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.GET_USER_PROFILE + "/{id}")]
+        public async Task<ActionResult<UserProfileResponseDto>> GetUserProfile(Guid id)
+        {
+            var result = await profileService.GetUserProfileAsync(id);
+
+            return Ok(result);
         }
     }
 }

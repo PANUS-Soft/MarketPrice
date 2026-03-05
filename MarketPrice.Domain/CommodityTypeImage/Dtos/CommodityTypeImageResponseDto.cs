@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPrice.Domain.CommodityTypeImage.Dtos
+namespace MarketPrice.Domain.CommodityTypeImage.DTOs
 {
     public class CommodityTypeImageResponseDto
     {

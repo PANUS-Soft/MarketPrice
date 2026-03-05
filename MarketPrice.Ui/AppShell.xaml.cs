@@ -12,6 +12,7 @@ namespace MarketPrice.Ui
             Routing.RegisterRoute(nameof(PositionListing), typeof(PositionListing));
             Routing.RegisterRoute(nameof(PositionDetail), typeof(PositionDetail));
             Routing.RegisterRoute(nameof(EditPosition), typeof(EditPosition));
+            Routing.RegisterRoute(nameof(EditProfile), typeof(EditProfile));
         }
     }
 }

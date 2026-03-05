@@ -114,6 +114,9 @@
 	  <MauiXaml Update="Views\EditPosition.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\EditProfile.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Home.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
