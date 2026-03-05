@@ -3,10 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Views;
-using System.Collections.ObjectModel;
-using System.Net.Http.Json;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Domain.Market.DTOs;
+using System.Collections.ObjectModel;
+using System.Net.Http.Json;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -15,15 +15,22 @@ namespace MarketPrice.Ui.ViewModels
     {
         private readonly ReferenceDataApiService _referenceDataApi = referenceDataApi;
         private readonly MarketApiService _marketApi = marketApi;
+        //private readonly LoadMarketApiService _marketApiService;
 
-        [ObservableProperty] MarketItem selectedMarketItem;
+        [ObservableProperty]
+        MarketItem? selectedMarketItem;
+
+        //[ObservableProperty] MarketItem selectedMarketItem;
         [ObservableProperty] private MarketInsightResponseDto? dto;
         //[ObservableProperty] private List<MarketDepthItem> bidMarketDepth;
         //[ObservableProperty] private List<MarketDepthItem> offerMarketDepth;
+        public ObservableCollection<MarketInsightChartResponseDto>? PriceHistory { get; } = new();
 
         partial void OnSelectedMarketItemChanged(MarketItem? value)
         {
             if (value != null) _ = GetCommodityMarketInsightAsync(value.CommodityId);
+            if (value != null) _ = LoadApiDataAsync(value.CommodityId);
+            if (value != null) _ = LoadApiChartDataAsync(value.CommodityId);
         }
 
         public string CommodityName => Dto?.CommodityName.ToUpper() ?? "---";
@@ -54,6 +61,62 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
+        //partial void OnSelectedMarketItemChanged(MarketItem? value)
+        //{
+        //    if (value != null)
+        //        _ = LoadApiDataAsync(value.CommodityId);
+        //}
+
+        private async Task LoadApiChartDataAsync(Guid commodityId)
+        {
+            try
+            {
+                var response = await _marketApi.GetChartDataAsync(commodityId);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<MarketChartDataWrapper>();
+
+                    if (result?.Data != null)
+                    {
+                        PriceHistory?.Clear();
+                        foreach (var point in result.Data)
+                        {
+                            PriceHistory?.Add(point);
+                        }
+                        OnPropertyChanged(nameof(PriceHistory));
+                        System.Diagnostics.Debug.WriteLine($"Points: {result?.Data.Count}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+            }
+        }
+
+        private async Task LoadApiDataAsync(Guid commodityId)
+        {
+            try
+            {
+                var response = await _marketApi.GetMarketInsightAsync(commodityId);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
+                    if (result != null)
+                    {
+                        selectedMarketItem.HighBid = result.MaxBid24H;
+                        selectedMarketItem.HighOffer = result.MaxOffer24H;
+                        selectedMarketItem.LowBid = result.MinBid24H;
+                        selectedMarketItem.LowOffer = result.MinOffer24H;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+            }
+        }
 
         [RelayCommand]
         private async Task BackAsync()
