@@ -64,6 +64,7 @@ namespace MarketPrice.Ui
             builder.Services.AddHttpClient<PositionApiService>();
             builder.Services.AddHttpClient<HomeApiService>();
             builder.Services.AddHttpClient<MarketApiService>();
+            builder.Services.AddHttpClient<ProfileApiService>();
 
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
