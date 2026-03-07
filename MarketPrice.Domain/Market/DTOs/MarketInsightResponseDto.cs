@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarketPrice.Domain.Market.DTOs
+﻿namespace MarketPrice.Domain.Market.DTOs
 {
     public class MarketInsightResponseDto
     {
@@ -12,10 +6,10 @@ namespace MarketPrice.Domain.Market.DTOs
         public string CommodityName { get; set; }
         public decimal BestBid { get; set; }
         public decimal BestOffer { get; set; }
-        public decimal MaxBid24h { get; set; }
-        public decimal MaxOffer24h { get; set; }
-        public decimal MinBid24h { get; set; }
-        public decimal MinOffer24h { get; set; }
+        public decimal MaxBid24H { get; set; }
+        public decimal MaxOffer24H { get; set; }
+        public decimal MinBid24H { get; set; }
+        public decimal MinOffer24H { get; set; }
         public List<MarketDepthItemDto> Bids {get; set;}
         public List<MarketDepthItemDto> Offers { get; set;}
     }

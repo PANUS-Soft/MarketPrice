@@ -9,6 +9,8 @@ public static class ApiRoutes
     public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
+    public const string GET_USER_PROFILE = "profile/get";
+    public const string UPDATE_USER_PROFILE = "profile/update";
 
     // Position Routes
     public const string BID_CREATE = "bid/create";
@@ -23,7 +25,9 @@ public static class ApiRoutes
 
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "data";
-    public const string GET_MARKET_INSIGHT = "insight/{commodityId}";
+    public const string GET_MARKET_INSIGHT = "insight";
+    public const string GET_CHART_DATA = "insight/{commodityId}/chart";
+
 
     // Home Data Routes
     public const string LOAD_HOME_DATA = "data";

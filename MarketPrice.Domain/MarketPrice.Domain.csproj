@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Home\Commands\" />
+    <Folder Include="Profile\Commands\" />
   </ItemGroup>
 
 </Project>

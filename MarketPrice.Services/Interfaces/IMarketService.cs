@@ -7,5 +7,6 @@ namespace MarketPrice.Services.Interfaces
     {
         Task<List<MarketResponseDto>> GetMarketTrendAsync();
         Task<MarketInsightResponseDto> GetMarketInsightAsync(Guid commodityId);
+        Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range);
     }
 }

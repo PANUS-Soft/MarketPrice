@@ -149,12 +149,12 @@ namespace MarketPrice.Services.Implementations
             var bids24hQuery = _context.Positions.Where(p =>
                 p.CommodityId == commodityId &&
                 p.PositionTypeId == BUY &&
-                p.Date >= since24h);
+                p.StartDate < now && p.ExpiryDate > since24h);
 
             var offers24hQuery = _context.Positions.Where(p =>
                 p.CommodityId == commodityId &&
                 p.PositionTypeId == SELL &&
-                p.Date >= since24h);
+                p.StartDate < now && p.ExpiryDate > since24h);
 
             // 3. Market Depth from ACTIVE positions
             var bidsDepth = await activeBidsQuery
@@ -165,7 +165,7 @@ namespace MarketPrice.Services.Implementations
                     Quantity = g.Sum(x => x.Quantity)
                 })
                 .OrderByDescending(x => x.Price)
-                .Take(10)
+                .Take(15)
                 .ToListAsync();
 
             var offersDepth = await activeOffersQuery
@@ -176,7 +176,7 @@ namespace MarketPrice.Services.Implementations
                     Quantity = g.Sum(x => x.Quantity)
                 })
                 .OrderBy(x => x.Price)
-                .Take(10)
+                .Take(15)
                 .ToListAsync();
 
             // 4. Compose Response
@@ -190,14 +190,72 @@ namespace MarketPrice.Services.Implementations
                 BestOffer = offersDepth.FirstOrDefault()?.Price ?? 0,
 
                 // Max/Min stats come from 24H HISTORICAL query
-                MaxBid24h = await bids24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
-                MinBid24h = await bids24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
-                MaxOffer24h = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
-                MinOffer24h = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MaxBid24H = await bids24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MinBid24H = await bids24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MaxOffer24H = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
+                MinOffer24H = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
 
+                // market  depth
                 Bids = bidsDepth,
                 Offers = offersDepth
             };
+        }
+
+        public async Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range)
+        {
+            // 1. Map the ranges to their respective intervals and look back windows
+            (string interval, DateTime startDate, int minPoints) = range.ToLower() switch
+            {
+                "1d" => ("2H", DateTime.UtcNow.AddDays(-1), 12),  
+                "1w" => ("2H", DateTime.UtcNow.AddDays(-7), 84),  
+                "1m" => ("1D", DateTime.UtcNow.AddMonths(-1), 30), 
+                "1y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),  
+                _ => ("1D", DateTime.UtcNow.AddMonths(-1), 15)
+            };
+
+            // 2. Base Query
+            var query = _context.AggregatedPrices
+                .AsNoTracking()
+                .Where(ap => ap.CommodityId == commodityId && ap.Interval == interval);
+
+            // 3. Try to get data for the full time range
+            var results = await query
+                .Where(ap => ap.Timestamp >= startDate)
+                .OrderBy(ap => ap.Timestamp)
+                .Select(ap => new MarketInsightChartResponseDto
+                {
+                    Timestamp = ap.Timestamp,
+                    AvgBid = ap.AvgBid,
+                    HighBid = ap.HighBid,
+                    LowBid = ap.LowBid,
+                    AvgOffer = ap.AvgOffer,
+                    HighOffer = ap.HighOffer,
+                    LowOffer = ap.LowOffer
+                })
+                .ToListAsync();
+
+            // 4. Fallback: If the range is too empty (e.g., during a backfill), 
+            // grab the most recent 'minPoints' regardless of the startDate.
+            if (results.Count < 2)
+            {
+                results = await query
+                    .OrderByDescending(ap => ap.Timestamp)
+                    .Take(minPoints)
+                    .Select(ap => new MarketInsightChartResponseDto
+                    {
+                        Timestamp = ap.Timestamp,
+                        AvgBid = ap.AvgBid,
+                        HighBid = ap.HighBid,
+                        LowBid = ap.LowBid,
+                        AvgOffer = ap.AvgOffer,
+                        HighOffer = ap.HighOffer,
+                        LowOffer = ap.LowOffer
+                    })
+                    .OrderBy(dto => dto.Timestamp) // Important: Re-sort for the chart UI
+                    .ToListAsync();
+            }
+
+            return results;
         }
     }
 }
