@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
-using MarketPrice.Services.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,13 +26,9 @@ builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
-//builder.Services.AddScoped<IPositionDetailService, PositionDetailService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddHostedService<MarketAggregationWorker>();
 
 
-//Create the authentication bottun for the authorization profile editing process
 
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---

@@ -1,12 +1,16 @@
-﻿using System.Diagnostics;
+﻿using MarketPrice.Data.Models;
 using MarketPrice.Domain;
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Domain.Profile.DTOs;
+using MarketPrice.Domain.UserProfile.Command;
+using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace MarketPrice.Api.Controllers
 {
@@ -17,7 +21,9 @@ namespace MarketPrice.Api.Controllers
         ILoginService loginService,
         ILogoutService logoutService,
         IRefreshTokenService refreshTokenService,
-        IProfileService profileService,
+         IUserProfileService _userProfileService,
+       IUserProfileService userProfileService,
+
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
@@ -76,12 +82,28 @@ namespace MarketPrice.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet(ApiRoutes.GET_USER_PROFILE + "/{id}")]
-        public async Task<ActionResult<UserProfileResponseDto>> GetUserProfile(Guid id)
+        private Guid GetUserId()
         {
-            var result = await profileService.GetUserProfileAsync(id);
 
-            return Ok(result);
+            return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
+
+        [HttpGet(ApiRoutes.Get_UserProfile)]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            var userId = GetUserId();
+            var profile = await _userProfileService.GetUserProfile(userId);
+            return Ok(profile);
+        }
+
+        [HttpPut(ApiRoutes.Edit_UserProfile)]
+
+        public async Task<IActionResult> EditProfile([FromBody] EditUserProfileCommand command)
+        {
+            var userId = GetUserId();
+            await _userProfileService.UpdateUserProfile(userId, command);
+            return NoContent();
+        }
+        
     }
 }
