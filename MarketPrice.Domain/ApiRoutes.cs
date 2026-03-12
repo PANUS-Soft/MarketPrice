@@ -29,7 +29,10 @@ public static class ApiRoutes
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
-}
+
+    //change password 
+    public const string changePwd = "ChangePassword";
+ }
 
 public static class ApiControllers
 {

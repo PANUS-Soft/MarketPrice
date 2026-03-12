@@ -26,6 +26,7 @@ builder.Services.AddScoped<IReferenceDataService, ReferenceDataService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
+builder.Services.AddScoped<IUserSecurityService, ChangePasswordService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
