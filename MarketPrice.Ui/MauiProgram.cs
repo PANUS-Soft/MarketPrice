@@ -1,4 +1,5 @@
 ﻿using DevExpress.Maui;
+using Syncfusion.Maui.Toolkit.Hosting;
 using CommunityToolkit.Maui;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
@@ -28,6 +29,7 @@ namespace MarketPrice.Ui
                 .UseDevExpressDataGrid()
                 .UseDevExpressEditors()
                 .UseDevExpressTreeView()
+                .ConfigureSyncfusionToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -62,8 +64,9 @@ namespace MarketPrice.Ui
             builder.Services.AddHttpClient<AuthenticationApiService>();
             builder.Services.AddHttpClient<ReferenceDataApiService>();
             builder.Services.AddHttpClient<PositionApiService>();
-            builder.Services.AddHttpClient<LoadHomeApiService>();
-            builder.Services.AddHttpClient<LoadMarketApiService>();
+            builder.Services.AddHttpClient<HomeApiService>();
+            builder.Services.AddHttpClient<MarketApiService>();
+            builder.Services.AddHttpClient<ProfileApiService>();
 
             // Register view models
             builder.Services.AddTransient<RegisterViewModel>();
@@ -72,6 +75,10 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<MarketViewModel>();
             builder.Services.AddTransient<MarketInsightViewModel>();
             builder.Services.AddTransient<PlacePositionViewModel>();
+            builder.Services.AddTransient<PositionListingViewModel>();
+            builder.Services.AddTransient<PositionDetailViewModel>();
+            builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddTransient<EditProfileViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -80,6 +87,10 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<Market>();
             builder.Services.AddTransient<MarketInsight>();
             builder.Services.AddTransient<PlacePosition>();
+            builder.Services.AddTransient<PositionListing>();
+            builder.Services.AddTransient<PositionDetail>();
+            builder.Services.AddTransient<Profile>();
+            builder.Services.AddTransient<EditProfile>();
 
 #if DEBUG
             builder.Logging.AddDebug();

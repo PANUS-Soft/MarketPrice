@@ -41,7 +41,7 @@ namespace MarketPrice.Migrations
 
             // --- Type 6000: Position Types ---
             migrationBuilder.Sql("INSERT INTO [LookupData] (LookupDataId, LookupDataTypeId, LookupDataValue, LookupDataTextEnglish, LookupDataTextFrench) VALUES (6001, 6000, 'Bid', 'Bid', N'Offre')");
-            migrationBuilder.Sql("INSERT INTO [LookupData] (LookupDataId, LookupDataTypeId, LookupDataValue, LookupDataTextEnglish, LookupDataTextFrench) VALUES (6002, 6000, 'Ask', 'Ask', N'Demande')");
+            migrationBuilder.Sql("INSERT INTO [LookupData] (LookupDataId, LookupDataTypeId, LookupDataValue, LookupDataTextEnglish, LookupDataTextFrench) VALUES (6002, 6000, 'Offer', 'Offer', N'Demande')");
 
             // --- Type 7000: Regions/Locations ---
             migrationBuilder.Sql("INSERT INTO [LookupData] (LookupDataId, LookupDataTypeId, LookupDataValue, LookupDataTextEnglish, LookupDataTextFrench) VALUES (7001, 7000, 'Adamawa', 'Adamawa', N'Adamawa')");

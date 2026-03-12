@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxc="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+             xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
+             x:Class="MarketPrice.Ui.Views.PositionDetail"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <ContentPage.Resources>
+        <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
+        <Style x:Key="SeparatorStyle" TargetType="BoxView">
+            <Setter Property="HeightRequest" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryBase}" />
+            <Setter Property="HorizontalOptions" Value="Fill" />
+            <Setter Property="Margin" Value="0,10" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,15,0,0">
+            <HorizontalStackLayout>
+                <ImageButton Source="back.png" 
+                             HeightRequest="20"
+                             WidthRequest="20"
+                             Margin="10,5,0,5"
+                             Padding="5"
+                             Command="{Binding GoBackCommand}"
+                             VerticalOptions="Start"
+                             HorizontalOptions="Start"
+                             BackgroundColor="Transparent"/>
+                
+                <HorizontalStackLayout Spacing="5">
+                    <Border HeightRequest="60"
+                            WidthRequest="60"
+                            StrokeShape="RoundRectangle 30"
+                            Stroke="Transparent"
+                            BackgroundColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                        <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}"
+                                       TextColor="White"
+                                       FontSize="24"
+                                       FontFamily="RobotoSerifBold"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                    </Border>
+                    
+                    <VerticalStackLayout Grid.Column="1" 
+                                         VerticalOptions="Center" 
+                                         Spacing="2">
+
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="{Binding UserName}" 
+                                   FontSize="16" 
+                                   FontFamily="RobotoSerifBold" 
+                                   TextColor="Black"/>
+
+                            <Image Source="verified_badge.png" 
+                                   HeightRequest="16" 
+                                   WidthRequest="16" 
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="{Binding AccountType}" 
+                                   FontSize="13" 
+                                   TextColor="Gray"
+                                   FontFamily="RobotoSerifRegular"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+
+            <BoxView HeightRequest="1" 
+                     Color="{StaticResource PrimaryBase}" 
+                     Opacity="0.5"/>
+        </VerticalStackLayout>
+
+
+        <ScrollView Grid.Row="2" 
+                    Padding="20">
+
+            <VerticalStackLayout Spacing="20">
+
+                <Border Stroke="{StaticResource PrimaryBase}" 
+                        StrokeThickness="3" 
+                        StrokeShape="RoundRectangle 5" 
+                        Padding="15" 
+                        BackgroundColor="White">
+
+                    <VerticalStackLayout Spacing="15">
+
+                        <Label Text="Positon Information" 
+                               FontSize="17" 
+                               FontFamily="RobotoSerifBold" 
+                               TextColor="Black"/>
+
+                        <!--<Label HorizontalOptions="Start"
+                               TextColor="Black">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Commodity: "
+                                          FontSize="13"
+                                          FontFamily="RobotoSerifSemibold"/>
+                                    <Span Text="{Binding CommodityName}"
+                                          FontSize="13"
+                                          FontFamily="RobotoSerifRegular"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>-->
+
+                        <Grid ColumnDefinitions="*, *, *" 
+                              ColumnSpacing="10">
+
+                            <Border Grid.Column="0"
+                                    Stroke="{StaticResource PrimaryBase}"
+                                    StrokeThickness="3"
+                                    HeightRequest="90"
+                                    WidthRequest="90"
+                                    StrokeShape="RoundRectangle 45"
+                                    HorizontalOptions="Center">
+
+                                <VerticalStackLayout VerticalOptions="Center" 
+                                                     HorizontalOptions="Center"
+                                                     Spacing="0">
+                                    <Label Text="{Binding Grade}" 
+                                           FontSize="15" 
+                                           FontFamily="RobotoSerifBold"
+                                           TextColor="Black" 
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="Grade" 
+                                           FontSize="11" 
+                                           FontFamily="RobotoSerifLight"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Border Grid.Column="1"
+                                    Stroke="{StaticResource PrimaryBase}"
+                                    StrokeThickness="3"
+                                    HeightRequest="90"
+                                    WidthRequest="90"
+                                    StrokeShape="RoundRectangle 45"
+                                    HorizontalOptions="Center">
+
+                                <VerticalStackLayout VerticalOptions="Center" 
+                                                     HorizontalOptions="Center"
+                                                     Spacing="0">
+                                    <Label Text="{Binding Quantity, StringFormat='{0:0.##}'}" 
+                                           FontSize="20" 
+                                           FontFamily="RobotoSerifBold"
+                                           TextColor="Black" 
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="Quantity" 
+                                           FontSize="11"
+                                           FontFamily="RobotoSerifLight"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <Border Grid.Column="2"
+                                    Stroke="{StaticResource PrimaryBase}"
+                                    StrokeThickness="3"
+                                    HeightRequest="90"
+                                    WidthRequest="90"
+                                    StrokeShape="RoundRectangle 45"
+                                    HorizontalOptions="Center">
+
+                                <VerticalStackLayout VerticalOptions="Center" 
+                                                     HorizontalOptions="Center"
+                                                     Spacing="0">
+                                    <Label Text="{Binding Price}" 
+                                           FontSize="15" 
+                                           FontFamily="RobotoSerifBold"
+                                           TextColor="Black" 
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="FCFA/Lot" 
+                                           FontSize="11"
+                                           FontFamily="RobotoSerifLight"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 Color="{StaticResource PrimaryBase}" 
+                                 Opacity="0.3"/>
+
+                        <Grid RowDefinitions="Auto, Auto" 
+                              ColumnDefinitions="*, *" 
+                              RowSpacing="8">
+
+                            <!--<Label Grid.Row="0" Grid.Column="0"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Commodity: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding CommodityName}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>-->
+
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Type: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding CommodityName}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Lot size: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding LotSize}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Code: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding CommodityCode}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Shelf life: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding ShelfLifeInDays}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Stroke="{StaticResource PrimaryBase}" 
+                        StrokeThickness="3" 
+                        StrokeShape="RoundRectangle 5" 
+                        Padding="15" 
+                        BackgroundColor="White">
+
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Logistics Information" 
+                               FontSize="17" 
+                               FontFamily="RobotoSerifBold" 
+                               TextColor="Black"/>
+
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="🏠" 
+                                   FontSize="16" 
+                                   VerticalOptions="Center"/>
+
+                            <Label Text="Origin"
+                                   FontSize="15"
+                                   FontFamily="RobotoSerifBold"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <VerticalStackLayout>
+                            <Label HorizontalOptions="Start"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Region: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding OriginRegion}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label HorizontalOptions="Start"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Town: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding OriginTown}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label HorizontalOptions="Start"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Quarter: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding OriginQuarter}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label HorizontalOptions="Start"
+                                   TextColor="Black">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Street: "
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifSemibold"/>
+                                        <Span Text="{Binding OriginStreet}"
+                                              FontSize="13"
+                                              FontFamily="RobotoSerifRegular"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="10" IsVisible="{Binding DeliveryAvailable}">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="🚛" 
+                                       FontSize="16" 
+                                       VerticalOptions="Center"/>
+
+                                <Label Text="Destination"
+                                       FontSize="15"
+                                       FontFamily="RobotoSerifBold"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <VerticalStackLayout>
+                                <Label HorizontalOptions="Start"
+                                       TextColor="Black">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Region: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding DestinationRegion}"
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <Label HorizontalOptions="Start"
+                                       TextColor="Black">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Town: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding DestinationTown}"
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <Label HorizontalOptions="Start"
+                                       TextColor="Black">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Quarter: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding DestinationQuarter}"
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <Label HorizontalOptions="Start"
+                                       TextColor="Black">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Street: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding DestinationStreet}"
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                            </VerticalStackLayout>
+
+                            <Grid RowDefinitions="Auto, Auto, Auto" 
+                                  RowSpacing="0" 
+                                  Margin="0,10,0,0">
+
+                                <Label Grid.Row="0">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="LeadTime: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding LeadTimeInDays}"
+                                                  FontSize="15"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                
+                                <Label Grid.Row="1">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Delivery fee: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding DeliveryFee, StringFormat='{0} FCFA'}"
+                                                  FontSize="15"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                
+                                <Label Grid.Row="2">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Delivery possible: "
+                                                  FontSize="13"
+                                                  FontFamily="RobotoSerifSemibold"/>
+                                            <Span Text="{Binding DeliveryAvailable}"
+                                                  FontSize="15"
+                                                  FontFamily="RobotoSerifRegular"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                            </Grid>
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Stroke="{StaticResource PrimaryBase}" 
+                        StrokeThickness="3" 
+                        StrokeShape="RoundRectangle 5" 
+                        Padding="15" 
+                        BackgroundColor="White">
+
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Contact Information" 
+                               FontSize="16" 
+                               FontFamily="RobotoSerifBold" 
+                               TextColor="Black"/>
+
+                        <Grid ColumnDefinitions="*, *" 
+                              ColumnSpacing="10">
+
+                            <dxc:SimpleButton Grid.Column="0"
+                                              Command="{Binding CallUserCommand}"
+                                              BackgroundColor="{StaticResource PrimaryBase}"
+                                              CornerRadius="20"
+                                              HeightRequest="45"
+                                              Padding="15,0">
+                                <HorizontalStackLayout Spacing="10"
+                                                       VerticalOptions="Center"
+                                                       HorizontalOptions="Center">
+                                    <Image Source="call_icon.png"
+                                           HeightRequest="25"
+                                           WidthRequest="25"/>
+
+                                    <Label Text="Call"
+                                           TextColor="White"
+                                           FontSize="15"
+                                           FontFamily="RobotoSerifBold"/>
+                                </HorizontalStackLayout>
+                            </dxc:SimpleButton>
+
+                            <dxc:SimpleButton Grid.Column="1"
+                                              Command="{Binding ChatOnWhatsAppCommand}"
+                                              BackgroundColor="#25D366"
+                                              CornerRadius="20"
+                                              HeightRequest="45"
+                                              Padding="15,0">
+                                <HorizontalStackLayout Spacing="10"
+                                                       VerticalOptions="Center"
+                                                       HorizontalOptions="Center">
+                                    <Image Source="whatsapp_icon.png"
+                                           HeightRequest="25"
+                                           WidthRequest="25"/>
+
+                                    <Label Text="WhatsApp"
+                                           TextColor="White"
+                                           FontSize="15"
+                                           FontFamily="RobotoSerifBold"/>
+                                </HorizontalStackLayout>
+                            </dxc:SimpleButton>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

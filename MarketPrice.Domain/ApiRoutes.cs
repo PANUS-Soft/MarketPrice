@@ -9,26 +9,32 @@ public static class ApiRoutes
     public const string AUTH_REGISTER = "auth/register";
     public const string AUTH_REFRESH_TOKEN = "auth/refreshToken";
     public const string AUTH_PING = "auth/ping";
+    public const string GET_USER_PROFILE = "profile/get";
+    public const string UPDATE_USER_PROFILE = "profile/update";
 
     // Position Routes
     public const string BID_CREATE = "bid/create";
     public const string OFFER_CREATE = "offer/create";
-    public const string POSITION_BY_PRICE = "bestPrice";
+    public const string POSITION_BY_PRICE = "price";
+    public const string POSITION_DETAIL = "detail";
 
     // Reference Data Routes
     public const string REF_REGION = "regions";
     public const string REF_COMMODITY = "commodities";
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
-
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "data";
+    public const string GET_MARKET_INSIGHT = "insight";
+    public const string GET_CHART_DATA = "insight/{commodityId}/chart";
+
 
     // Home Data Routes
     public const string LOAD_HOME_DATA = "data";
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
+
 }
 
 public static class ApiControllers
