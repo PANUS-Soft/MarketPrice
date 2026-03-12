@@ -1,12 +1,5 @@
-﻿using MarketPrice.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MarketPrice.Domain.Position.Commands;
+﻿using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
-
 
 namespace MarketPrice.Services.Interfaces
 {
@@ -14,6 +7,9 @@ namespace MarketPrice.Services.Interfaces
     {
         Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer);
 
-        Task<PositionListingPageResponseDto> GetPositionListingsAsync(PositionListingCommand command);
+        Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command);
+        
+        Task<PositionDetailResponseDto> GetPositionDetailAsync(Guid id);
+
     }
 }

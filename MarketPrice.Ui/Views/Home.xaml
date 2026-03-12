@@ -88,7 +88,7 @@
                           ColumnSpacing="5">
 
                             <Label Grid.Column="0" 
-                               Text="Commodities"
+                               Text="Commodity Types"
                                FontFamily="RobotoSerifSemibold"
                                Grid.ColumnSpan="2"
                                FontSize="15" 
@@ -164,7 +164,7 @@
                                 Padding="10,0">
 
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToPlaceBidCommand}"
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToBidPositionListingCommand}"
                                                       CommandParameter="{Binding .}"/>
                                 </Border.GestureRecognizers>
 
@@ -195,7 +195,7 @@
                                 Padding="10,0">
 
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToPlaceOfferCommand}"
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToOfferPositionListingCommand}"
                                                       CommandParameter="{Binding }"/>
                                 </Border.GestureRecognizers>
 

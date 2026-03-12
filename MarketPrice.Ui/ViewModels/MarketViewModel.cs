@@ -8,7 +8,7 @@ using MarketPrice.Domain.Market.DTOs;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Net.Http.Json;
-using MarketPrice.Domain.Reference;
+using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Reference.DTOs;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
@@ -20,7 +20,7 @@ namespace MarketPrice.Ui.ViewModels
     {
         private readonly SessionService _sessionService;
         private readonly ReferenceDataApiService _referenceDataApi;
-        private readonly LoadMarketApiService _loadMarketInsightApi;
+        private readonly MarketApiService _marketApi;
         private readonly ApiSettings _apiSettingOptions;
 
         public readonly List<MarketItem> _allMarketItems = new();
@@ -35,11 +35,11 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string searchText = string.Empty;
         [ObservableProperty] private bool isListEmpty;
 
-        public MarketViewModel(SessionService sessionService, ReferenceDataApiService referenceDataApi, LoadMarketApiService loadMarketApi, IOptions<ApiSettings> apiSettingOptions)
+        public MarketViewModel(SessionService sessionService, ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
         {
             _sessionService = sessionService;
             _referenceDataApi = referenceDataApi;
-            _loadMarketInsightApi = loadMarketApi;
+            _marketApi = marketApi;
             _apiSettingOptions = apiSettingOptions.Value;
 
             _ = InitializeAsync();
@@ -49,11 +49,11 @@ namespace MarketPrice.Ui.ViewModels
         {
         }
 
-        private async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             await EnsureSessionActiveAsync();
             await LoadCommodityTypesAsync();
-            await LoadMarketInsightAsync();
+            await LoadMarketAsync();
         }
 
         private async Task EnsureSessionActiveAsync()
@@ -84,9 +84,9 @@ namespace MarketPrice.Ui.ViewModels
             SelectedCommodityType = "ALL";
         }
 
-        public async Task LoadMarketInsightAsync()
+        public async Task LoadMarketAsync()
         {
-            var marketInsightResponse = await _loadMarketInsightApi.LoadMarketAsync();
+            var marketInsightResponse = await _marketApi.LoadMarketAsync();
 
             if (!marketInsightResponse.IsSuccessStatusCode) return;
             
@@ -100,6 +100,8 @@ namespace MarketPrice.Ui.ViewModels
             {
                 _allMarketItems.Add(new MarketItem
                 {
+                    CommodityTypeId = insight.CommodityTypeId,
+                    CommodityId = insight.CommodityId,
                     Name = insight.CommodityName!,
                     ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")) ?? "smile.png",
                     BestBid = insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
@@ -109,8 +111,10 @@ namespace MarketPrice.Ui.ViewModels
                     BestOffer = insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
                     IsBidUp = insight.IsBidImproved,
                     IsBidDown = !insight.IsBidImproved,
+                    IsBidNull = insight.BestBid == 0,
                     IsOfferUp = insight.IsOfferImproved,
-                    IsOfferDown = !insight.IsOfferImproved
+                    IsOfferDown = !insight.IsOfferImproved,
+                    IsOfferNull = insight.BestOffer == 0
                 });
             }
 
@@ -142,13 +146,53 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task NavigateToCommodityInsight(MarketItem? selectedItem)
+        private async Task NavigateToCommodityInsightAsync(MarketItem? selectedItem)
         {
             if (selectedItem == null) return;
 
             await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
             {
                 {"SelectedMarketItem", selectedItem }
+            });
+        }
+
+        [RelayCommand]
+        private async Task NavigateToBidPositionListing(MarketItem item)
+        {
+            if (item == null) return;
+
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = item.CommodityTypeId,
+                CommodityId = item.CommodityId,
+                PositionTypeId = 6001,
+                UnitPrice = decimal.Parse(item.BestBid),
+                CommodityName = item.Name
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
+            });
+        }
+        
+        [RelayCommand]
+        private async Task NavigateToOfferPositionListing(MarketItem item)
+        {
+            if (item == null) return;
+
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = item.CommodityTypeId,
+                CommodityId = item.CommodityId,
+                PositionTypeId = 6002,
+                UnitPrice = decimal.Parse(item.BestOffer),
+                CommodityName = item.Name
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
             });
         }
 
