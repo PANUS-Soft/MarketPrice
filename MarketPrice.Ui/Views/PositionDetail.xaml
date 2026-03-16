@@ -171,7 +171,7 @@
                                 <VerticalStackLayout VerticalOptions="Center" 
                                                      HorizontalOptions="Center"
                                                      Spacing="0">
-                                    <Label Text="{Binding Price}" 
+                                    <Label Text="{Binding UnitPrice}" 
                                            FontSize="15" 
                                            FontFamily="RobotoSerifBold"
                                            TextColor="Black" 

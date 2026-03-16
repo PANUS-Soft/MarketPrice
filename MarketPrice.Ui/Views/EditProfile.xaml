@@ -22,7 +22,7 @@
             <ImageButton Source="back.png" 
                          HeightRequest="24" 
                          WidthRequest="24"
-                         Command="{Binding DiscardCommand}"
+                         Command="{Binding BackCommand}"
                          HorizontalOptions="Start"
                          VerticalOptions="Center"/>
         </Grid>
@@ -77,7 +77,7 @@
 
                 <Grid>
                     <dxe:TextEdit LabelText="Email"
-                                  Text="{Binding Email}"
+                                  Text="{Binding EmailAddress}"
                                   BoxMode="Outlined"
                                   CornerRadius="5"
                                   FocusedBorderColor="{StaticResource PrimaryBase}"
@@ -97,6 +97,7 @@
                                   CornerRadius="5"
                                   FocusedBorderColor="{StaticResource PrimaryBase}"
                                   TextFontFamily="RobotoSerifRegular"
+                                  Prefix="+237"
                                   Keyboard="Telephone"
                                   ClearIconVisibility="Never"/>
 
@@ -105,7 +106,7 @@
                            HorizontalOptions="End" VerticalOptions="Center" Margin="0,0,12,0" InputTransparent="True"/>
                 </Grid>
 
-                <Grid>
+                <!--<Grid>
                     <dxe:ComboBoxEdit LabelText="Account Type"
                                       SelectedItem="{Binding AccountType}"
                                       ItemsSource="{Binding AccountTypes}"
@@ -118,7 +119,7 @@
                     <Image Source="pencil.png" 
                            HeightRequest="18" WidthRequest="18" 
                            HorizontalOptions="End" VerticalOptions="Center" Margin="0,0,35,0" InputTransparent="True"/>
-                </Grid>
+                </Grid>-->
 
             </VerticalStackLayout>
         </ScrollView>
@@ -130,17 +131,19 @@
                           BackgroundColor="White"
                           BorderColor="{StaticResource PrimaryBase}"
                           BorderThickness="1"
-                          TextColor="Black"
-                          CornerRadius="5"
+                          TextColor="{StaticResource PrimaryBase}"
+                          CornerRadius="10"
+                          FontSize="15"
                           HeightRequest="45"
-                          FontFamily="RobotoSerifMedium"/>
+                          FontFamily="RobotoSerifBold"/>
 
             <dxc:DXButton Grid.Column="1"
-                          Content="SAVE"
+                          Content="Save"
                           Command="{Binding SaveCommand}"
                           BackgroundColor="{StaticResource PrimaryBase}"
                           TextColor="White"
-                          CornerRadius="5"
+                          CornerRadius="10"
+                          FontSize="15"
                           HeightRequest="45"
                           FontFamily="RobotoSerifBold"/>
         </Grid>
