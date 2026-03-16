@@ -15,8 +15,10 @@ namespace MarketPrice.Ui.ViewModels
     public partial class ProfileViewModel : ObservableObject
     {
         public readonly AuthenticationApiService _authenticationApi;
-        public readonly ProfileApiService _profileService;
-        public readonly SessionService _sessionService;
+        public readonly ProfileApiService _profileApi;
+        public readonly SessionService _sessionApi;
+
+        private UserProfileResponseDto userProfile;
 
         [ObservableProperty] private string firstName;
         [ObservableProperty] private string familyName;
@@ -29,34 +31,34 @@ namespace MarketPrice.Ui.ViewModels
         public ProfileViewModel(AuthenticationApiService authenticationApiService, ProfileApiService profileApiService, SessionService sessionService)
         {
             _authenticationApi = authenticationApiService;
-            _profileService = profileApiService;
-            _sessionService = sessionService;
+            _profileApi = profileApiService;
+            _sessionApi = sessionService;
         }
 
         public async Task LoadUserProfileAsync()
         {
-            var session = await _sessionService.GetCurrentSessionAsync();
+            var session = await _sessionApi.GetCurrentSessionAsync();
 
             if (session == null) return;
 
             var userId = session.UserId;
 
-            var userProfileResponse = await _profileService.GetUserProfileAsync(userId);
+            var userProfileResponse = await _profileApi.GetUserProfileAsync(userId);
             if (!userProfileResponse.IsSuccessStatusCode) return;
-            var userProfile = await userProfileResponse.Content.ReadFromJsonAsync<UserProfileResponseDto>();
-            if (userProfile == null) return;
+            var userProfileDto = await userProfileResponse.Content.ReadFromJsonAsync<UserProfileResponseDto>();
+            if (userProfileDto == null) return;
 
-            long number = long.Parse(userProfile.PhoneNumber);
+            long number = long.Parse(userProfileDto.PhoneNumber);
 
-            FirstName = userProfile.FirstName.ToUpper();
-            FamilyName = userProfile.FamilyName.ToUpper();
-            OtherName = userProfile.OtherName.ToUpper();
-            FullName = userProfile.OtherName == "" ? $"{FirstName} {FamilyName}" : $"{FirstName} {FamilyName} {OtherName}";
-            EmailAddress = userProfile.EmailAddress;
+            FirstName = userProfileDto.FirstName.ToUpper();
+            FamilyName = userProfileDto.FamilyName.ToUpper();
+            OtherName = userProfileDto.OtherName.ToUpper() ?? "";
+            FullName = userProfileDto.OtherName == "" ? $"{FirstName} {FamilyName}" : $"{FirstName} {FamilyName} {OtherName}";
+            EmailAddress = userProfileDto.EmailAddress;
             PhoneNumber = $"{number:+### ### ## ## ##}";
-            AccountType = userProfile.AccountType;
+            AccountType = userProfileDto.AccountType;
 
-
+            userProfile = userProfileDto;
         }
 
         public async Task InitializeAsync()
@@ -77,27 +79,13 @@ namespace MarketPrice.Ui.ViewModels
         // Menu Collection
         public ObservableCollection<ProfileMenuItem> MenuItems { get; } = new();
 
-        //private void LoadMockData()
-        //{
-        //    // 1. Setup User Data (Matches your screenshot)
-        //    Initials = "BN";
-        //    FullName = "BEH NELSON";
-        //    Email = "chubeh@gmail.com";
-        //    PhoneNumber = "237 671000000";
-        //    AccountType = "Personal";
-
-        //    // 2. Setup Menu Items
-            //MenuItems.Clear();
-            //MenuItems.Add(new ProfileMenuItem("Settings", "settings_icon.png"));
-            //MenuItems.Add(new ProfileMenuItem("My Position", "position_icon.png"));
-            //MenuItems.Add(new ProfileMenuItem("Change Password", "lock_icon.png"));
-            //MenuItems.Add(new ProfileMenuItem("Verification", "verification_icon.png"));
-        //}
-
         [RelayCommand]
         private async Task NavigateToEditProfileAsync()
         {
-            await Shell.Current.GoToAsync("EditProfile");
+            await Shell.Current.GoToAsync("EditProfile", new Dictionary<string, object>
+            {
+                {"UserProfile", userProfile}
+            });
         }
 
         [RelayCommand]
@@ -116,7 +104,7 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
-                var userSession = await _sessionService.GetCurrentSessionAsync();
+                var userSession = await _sessionApi.GetCurrentSessionAsync();
 
                 var command = new LogoutCommand { EmailAddress = userSession!.EmailAddress };
 
@@ -128,7 +116,7 @@ namespace MarketPrice.Ui.ViewModels
 
                     if (dto is { LogoutStatus: true })
                     {
-                        var isSessionEnded = await _sessionService.EndSessionAsync();
+                        var isSessionEnded = await _sessionApi.EndSessionAsync();
                         if (isSessionEnded)
                         {
                             await Toast.Make("You have been logged out successfully.", ToastDuration.Long).Show();

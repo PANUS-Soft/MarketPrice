@@ -47,7 +47,7 @@
 
                     <Border 
                         Stroke="{StaticResource PrimaryBase}"
-                        StrokeThickness="1"
+                        StrokeThickness="3"
                         StrokeShape="RoundRectangle 50"
                         HeightRequest="100"
                         WidthRequest="100"
@@ -69,6 +69,7 @@
                         FontSize="22" 
                         FontFamily="RobotoSerifBold" 
                         TextColor="Black"
+                        HorizontalTextAlignment="Center"
                         HorizontalOptions="Center"/>
 
                     <dxc:DXButton 

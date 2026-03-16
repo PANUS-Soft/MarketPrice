@@ -106,16 +106,16 @@ namespace MarketPrice.Services.Workers
                     .AsNoTracking()
                     .AnyAsync(p => p.StartDate == nextBucketStart, ct);
 
-                if (!dataExists)
-                {
-                    logger.LogWarning("Missing raw data for {Start}. Triggering Repair...", nextBucketStart);
+                //if (!dataExists)
+                //{
+                //    logger.LogWarning("Missing raw data for {Start}. Triggering Repair...", nextBucketStart);
 
-                    // Call the Stored Procedure manually for this specific time
-                    await context.Database.ExecuteSqlInterpolatedAsync(
-                        $"EXEC [dbo].[PopulatePositionsTable] @ManualStartDate = {nextBucketStart}", ct);
+                //    // Call the Stored Procedure manually for this specific time
+                //    await context.Database.ExecuteSqlInterpolatedAsync(
+                //        $"EXEC [dbo].[PopulatePositionsTable] @ManualStartDate = {nextBucketStart}", ct);
 
-                    logger.LogInformation("Repair complete for {Start}.", nextBucketStart);
-                }
+                //    logger.LogInformation("Repair complete for {Start}.", nextBucketStart);
+                //}
 
                 // --- SELF-HEALING END ----
                 try

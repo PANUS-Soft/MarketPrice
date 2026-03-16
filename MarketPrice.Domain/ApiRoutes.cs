@@ -3,7 +3,7 @@ namespace MarketPrice.Domain;
 public static class ApiRoutes
 {
     // Authentication Routes
-    public const string AUTH="auth";
+    public const string AUTH = "auth";
     public const string AUTH_LOGIN = "auth/login";
     public const string AUTH_LOGOUT = "auth/logout";
     public const string AUTH_REGISTER = "auth/register";
@@ -27,7 +27,6 @@ public static class ApiRoutes
     public const string LOAD_MARKET_DATA = "data";
     public const string GET_MARKET_INSIGHT = "insight";
     public const string GET_CHART_DATA = "insight/{commodityId}/chart";
-
 
     // Home Data Routes
     public const string LOAD_HOME_DATA = "data";

@@ -12,11 +12,11 @@
     <Grid RowDefinitions="Auto, *">
         <BoxView Grid.RowSpan ="2" VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
         <VerticalStackLayout Grid.Row="0" >
-            <Image Source="marketprice_logo.png"
-                   HeightRequest="200" 
+            <Image Source="marketprice_logo.svg"
+                   HeightRequest="100" 
                    Aspect="AspectFit"
                    HorizontalOptions="Center"
-                   Margin="0, -100, 0, 0"/>
+                   Margin="0, 30, 0, 0"/>
         </VerticalStackLayout>
 
         <VerticalStackLayout Grid.Row="1" Spacing="0" VerticalOptions="Center" Margin="0,-120,0,0">
@@ -26,7 +26,7 @@
                    FontFamily="RobotoSerifBold" 
                    TextColor="{StaticResource PrimaryBase}"
                    HorizontalOptions="Center" 
-                   Margin="0, 0, 0,30"/>
+                   Margin="0, 70, 0,30"/>
 
             <dxc:DXBorder BackgroundColor="{StaticResource Background}"
                           CornerRadius="40" 
