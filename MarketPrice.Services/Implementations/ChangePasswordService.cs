@@ -9,13 +9,13 @@ using MarketPrice.Domain.Profile.DTOs;
 namespace MarketPrice.Services.Implementations
 {
     public class ChangePasswordService(
-        MarketPriceDbContext marketPriceDbContext,
+        MarketPriceDbContext context,
         IPasswordHashService passwordHashService)
         : IChangePasswordService
     {
         public async Task<ChangePasswordResponseDto> ChangePasswordAsync(ChangePasswordCommand command)
         {
-            var user = await marketPriceDbContext.Users
+            var user = await context.Users
                 .FirstOrDefaultAsync(x => x.UserId == command.UserId);
 
             if (user == null)
@@ -24,6 +24,15 @@ namespace MarketPrice.Services.Implementations
                 {
                     Success = false,
                     Message = "User was not found"
+                };
+            }
+
+            if (command.CurrentPassword == command.NewPassword)
+            {
+                return new ChangePasswordResponseDto
+                {
+                    Success = false,
+                    Message = "New password cannot be the same as the current password"
                 };
             }
 
@@ -56,7 +65,7 @@ namespace MarketPrice.Services.Implementations
             user.PasswordSalt = newSalt;
             user.PasswordHash = newHash;
 
-            await marketPriceDbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new ChangePasswordResponseDto
             {
