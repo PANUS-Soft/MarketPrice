@@ -2,7 +2,6 @@
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
-using MarketPrice.Domain.Profile.Command;
 using MarketPrice.Domain.Profile.Commands;
 using MarketPrice.Domain.Profile.DTOs;
 using MarketPrice.Services.Interfaces;
@@ -20,7 +19,7 @@ namespace MarketPrice.Api.Controllers
         ILogoutService logoutService,
         IRefreshTokenService refreshTokenService,
         IProfileService profileService,
-        IUserSecurityService userSecurityService,
+        IChangePasswordService changePasswordService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
@@ -96,13 +95,11 @@ namespace MarketPrice.Api.Controllers
             return Conflict(result);
         }
 
-
-        [HttpPost(ApiRoutes.changePwd)]
-        public async Task<IActionResult> ChangePassword(
-          Guid userId,
-          ChangePasswordCommand command)
+        [Authorize]
+        [HttpPost(ApiRoutes.CHANGE_PASSWORD)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
-            var result = await userSecurityService.ChangePasswordAsync(userId, command);
+            var result = await changePasswordService.ChangePasswordAsync(command);
 
             if (!result.Success)
                 return BadRequest(result);

@@ -2,7 +2,7 @@ namespace MarketPrice.Domain;
 
 public static class ApiRoutes
 {
-    // Authentication Routes
+    // Application Users Routes
     public const string AUTH = "auth";
     public const string AUTH_LOGIN = "auth/login";
     public const string AUTH_LOGOUT = "auth/logout";
@@ -11,6 +11,7 @@ public static class ApiRoutes
     public const string AUTH_PING = "auth/ping";
     public const string GET_USER_PROFILE = "profile/get";
     public const string UPDATE_USER_PROFILE = "profile/update";
+    public const string CHANGE_PASSWORD = "changePassword";
 
     // Position Routes
     public const string BID_CREATE = "bid/create";
@@ -24,26 +25,15 @@ public static class ApiRoutes
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
     // Market Data Routes       
-    public const string LOAD_MARKET_DATA = "Market-data";
+    public const string LOAD_MARKET_DATA = "market-data";
     public const string GET_MARKET_INSIGHT = "insight";
     public const string GET_CHART_DATA = "insight/{commodityId}/chart";
 
-
     // Home Data Routes
-    public const string LOAD_HOME_DATA = "Home-data";
+    public const string LOAD_HOME_DATA = "home-data";
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
-
-    //change password 
-    public const string changePwd = "ChangePassword";
-
-    // user profile
-
-    public const string Get_UserProfile = "GetProfile";
-    public const string Edit_UserProfile = "EditProfile";
-
-
 }
 
 public static class ApiControllers

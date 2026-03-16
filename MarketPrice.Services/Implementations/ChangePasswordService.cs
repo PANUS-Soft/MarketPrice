@@ -3,42 +3,34 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MarketPrice.Services.Interfaces;
 using MarketPrice.Data;
-using MarketPrice.Domain.Profile.Dto;
-using MarketPrice.Domain.Profile.Command;
+using MarketPrice.Domain.Profile.Commands;
+using MarketPrice.Domain.Profile.DTOs;
 
 namespace MarketPrice.Services.Implementations
 {
-    public class ChangePasswordService : IUserSecurityService
+    public class ChangePasswordService(
+        MarketPriceDbContext marketPriceDbContext,
+        IPasswordHashService passwordHashService)
+        : IChangePasswordService
     {
-        private readonly MarketPriceDbContext _context;
-        private readonly IPasswordHashService _passwordHashService;
-
-        public ChangePasswordService(
-            MarketPriceDbContext marketPriceDbContext,
-            IPasswordHashService passwordHashService)
+        public async Task<ChangePasswordResponseDto> ChangePasswordAsync(ChangePasswordCommand command)
         {
-            _context = marketPriceDbContext;
-            _passwordHashService = passwordHashService;
-        }
+            var user = await marketPriceDbContext.Users
+                .FirstOrDefaultAsync(x => x.UserId == command.UserId);
 
-        public async Task<ChangePasswordResponseDto> ChangePasswordAsync(Guid userId, ChangePasswordCommand command)
-        {
-            var security = await _context.Users
-                .FirstOrDefaultAsync(x => x.UserId == userId);
-
-            if (security == null)
+            if (user == null)
             {
                 return new ChangePasswordResponseDto
                 {
                     Success = false,
-                    Message = "User security record not found"
+                    Message = "User was not found"
                 };
             }
 
-            bool validPassword = _passwordHashService.VerifyPassword(
+            bool validPassword = passwordHashService.VerifyPassword(
                 command.CurrentPassword,
-                security.PasswordHash,
-                security.PasswordSalt);
+                user.PasswordHash,
+                user.PasswordSalt);
 
             if (!validPassword)
             {
@@ -58,13 +50,13 @@ namespace MarketPrice.Services.Implementations
                 };
             }
 
-            string newSalt = _passwordHashService.GenerateSalt();
-            string newHash = _passwordHashService.HashPassword(command.NewPassword, newSalt);
+            string newSalt = passwordHashService.GenerateSalt();
+            string newHash = passwordHashService.HashPassword(command.NewPassword, newSalt);
 
-            security.PasswordSalt = newSalt;
-            security.PasswordHash = newHash;
+            user.PasswordSalt = newSalt;
+            user.PasswordHash = newHash;
 
-            await _context.SaveChangesAsync();
+            await marketPriceDbContext.SaveChangesAsync();
 
             return new ChangePasswordResponseDto
             {

@@ -28,7 +28,7 @@ builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IUserSecurityService,ChangePasswordService>();
+builder.Services.AddScoped<IChangePasswordService,ChangePasswordService>();
 builder.Services.AddHostedService<MarketAggregationWorker>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---

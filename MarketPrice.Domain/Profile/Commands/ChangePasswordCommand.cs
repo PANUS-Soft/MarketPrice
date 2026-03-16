@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPrice.Domain.Profile.Command
+namespace MarketPrice.Domain.Profile.Commands
 {
     public class ChangePasswordCommand
     {
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
-        public string ConfirmPassword { get; set; }
+        public required Guid UserId { get; set; }
+        public required string CurrentPassword { get; set; }
+        public required string NewPassword { get; set; }
+        public required string ConfirmPassword { get; set; }
     }
 }
