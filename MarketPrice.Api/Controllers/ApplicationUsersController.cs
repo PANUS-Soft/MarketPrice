@@ -3,6 +3,8 @@ using MarketPrice.Domain;
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
+using MarketPrice.Domain.Profile.Commands;
+using MarketPrice.Domain.Profile.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,30 +18,28 @@ namespace MarketPrice.Api.Controllers
         ILoginService loginService,
         ILogoutService logoutService,
         IRefreshTokenService refreshTokenService,
+        IProfileService profileService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
 
         [HttpPost(ApiRoutes.AUTH_REGISTER)]
-        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand registerCommand)
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterCommand command)
         {
-            _logger.LogInformation("Registration attempt from a user");
-            var result = await registerService.RegisterAsync(registerCommand);
+            var result = await registerService.RegisterAsync(command);
 
             if (result.Success)
             {
-                _logger.LogInformation("User registered successfully with the following information ...");
-                _logger.LogInformation($"Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
                 return Ok(result);
             }
-            else
-                return Conflict(result.Status);
+
+            return Conflict(result.Status);
         }
 
         [HttpPost(ApiRoutes.AUTH_LOGIN)]
-        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand loginCommand)
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginCommand command)
         {
-            var result = await loginService.LoginAsync(loginCommand);
+            var result = await loginService.LoginAsync(command);
 
             if (result.Success)
             {
@@ -50,19 +50,17 @@ namespace MarketPrice.Api.Controllers
         }
 
         [HttpPost(ApiRoutes.AUTH_LOGOUT)]
-        public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand logoutCommand)
+        public async Task<ActionResult<LogoutResponseDto>> Logout([FromBody] LogoutCommand command)
         {
-            var result = await logoutService.LogoutAsync(logoutCommand);
+            var result = await logoutService.LogoutAsync(command);
 
             return Ok(result);
         }
 
         [HttpPost(ApiRoutes.AUTH_REFRESH_TOKEN)]
-        public async Task<ActionResult<AuthenticationResponseDto>> RefreshToken([FromBody] RefreshTokenCommand refreshTokenCommand)
+        public async Task<ActionResult<AuthenticationResponseDto>> RefreshToken([FromBody] RefreshTokenCommand command)
         {
-            _logger.LogInformation($"Refresh token attempt with the following details ... Refresh token: {refreshTokenCommand.RefreshToken}, UserId: {refreshTokenCommand.UserId}");
-            var result = await refreshTokenService.RefreshTokenAsync(refreshTokenCommand);
-            _logger.LogInformation($"Success ... New Access token: {result.AccessToken}, Expiry date: {result.ExpiryDate}");
+            var result = await refreshTokenService.RefreshTokenAsync(command);
             return Ok(result);
         }
 
@@ -71,6 +69,29 @@ namespace MarketPrice.Api.Controllers
         public IActionResult Ping()
         {
             return Ok("Alive 😁😁😁");
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.GET_USER_PROFILE + "/{id}")]
+        public async Task<ActionResult<UserProfileResponseDto>> GetUserProfile(Guid id)
+        {
+            var result = await profileService.GetUserProfileAsync(id);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPatch(ApiRoutes.UPDATE_USER_PROFILE)]
+        public async Task<ActionResult<UpdateUserProfileResponseDto>> UpdateUserProfile([FromBody] UpdateUserProfileCommand command)
+        {
+            var result = await profileService.UpdateUserProfileAsync(command);
+
+            if (result.Status)
+            {
+                return Ok(result);
+            }
+
+            return Conflict(result);
         }
     }
 }

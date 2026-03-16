@@ -9,4 +9,11 @@ public partial class Market : ContentPage
 		InitializeComponent();
         BindingContext = marketViewModel;
     }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is MarketViewModel marketViewModel) await marketViewModel.InitializeAsync();
+    }
 }

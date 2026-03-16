@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MarketPrice.Data;
+using MarketPrice.Domain;
 using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -13,96 +10,118 @@ namespace MarketPrice.Services.Implementations
     {
         private readonly MarketPriceDbContext _context = context;
 
+        private const int BidPosition = 6001;  // Bid
+        private const int AskPosition = 6002;  // Offer
+
         public async Task<List<LoadHomeResponseDto>> LoadHomeAsync()
         {
-            const int BID_POSITION = 6001;
-            const int OFFER_POSITION = 6002;
+            var now = DateTime.UtcNow;
 
-            // 1. Single Query: Join tables explicitly and calculate prices in the database
-            var marketData = await (
-                from ct in _context.CommodityTypes
-                join c in _context.Commodities on ct.CommodityTypeId equals c.CommodityTypeId
-                join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
-                join cti in _context.CommodityTypeImage on ct.CommodityTypeId equals cti.CommodityTypeId into ctiGroup
-                from cti in ctiGroup.DefaultIfEmpty()
-                select new
+            // 1. Get CommodityTypes and their child Commodities + Active Positions in one query
+            var data = await _context.CommodityTypes
+                .AsNoTracking()
+                .Select(ct => new
                 {
-                    Entity = ct,
+                    TypeEntity = ct,
                     TypeName = ct.Name.LookupDataTextEnglish,
-                    LotSize = c.LotSize,
-                    UomCode = uom.UnitOfMeasureCodeEnglish,
-                    ImageId = cti != null ? cti.CommodityTypeImageId : Guid.Empty,
+                    ImageId = _context.CommodityTypeImage
+                        .Where(cti => cti.CommodityTypeId == ct.CommodityTypeId)
+                        .Select(cti => (Guid?)cti.CommodityTypeImageId)
+                        .FirstOrDefault() ?? Guid.Empty,
 
-                    CurrentBid = _context.Positions
-                        .Where(p => p.Commodity.CommodityTypeId == ct.CommodityTypeId &&
-                                    p.PositionTypeId == BID_POSITION &&
-                                    p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow)
-                        .Max(p => (decimal?)p.UnitPrice) ?? 0m,
-
-                    CurrentOffer = _context.Positions
-                        .Where(p => p.Commodity.CommodityTypeId == ct.CommodityTypeId &&
-                                    p.PositionTypeId == OFFER_POSITION &&
-                                    p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow)
-                        .Min(p => (decimal?)p.UnitPrice) ?? 0m
-                }
-            )
-            .GroupBy(x => x.Entity.CommodityTypeId)
-            .Select(g => g.First())
-            .ToListAsync();
+                    ActivePrices = _context.Commodities
+                        .Where(c => c.CommodityTypeId == ct.CommodityTypeId)
+                        .Select(c => new
+                        {
+                            c.LotSize,
+                            UomCode = c.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+                            BestBid = _context.Positions
+                                .Where(p => p.CommodityId == c.CommodityId &&
+                                            p.PositionTypeId == BidPosition &&
+                                            p.StartDate <= now && p.ExpiryDate > now)
+                                .Max(p => (decimal?)p.UnitPrice) ?? 0,
+                            BestOffer = _context.Positions
+                                .Where(p => p.CommodityId == c.CommodityId &&
+                                            p.PositionTypeId == AskPosition &&
+                                            p.StartDate <= now && p.ExpiryDate > now)
+                                .Min(p => (decimal?)p.UnitPrice) ?? 0
+                        }).ToList()
+                }).ToListAsync();
 
             var result = new List<LoadHomeResponseDto>();
 
-            foreach (var x in marketData)
+            foreach (var x in data)
             {
-                var item = x.Entity;
+                var ct = x.TypeEntity;
 
-                // --- 2. STICKY TREND LOGIC ---
-                // Only update the boolean if the price has actually moved.
+                // Determine the Live Best Bid/Offer across all commodities of this type
+                var currentBestBid = x.ActivePrices.Any() ? x.ActivePrices.Max(p => p.BestBid) : 0;
+                var currentBestOffer = x.ActivePrices.Any(p => p.BestOffer > 0)
+                    ? x.ActivePrices.Where(p => p.BestOffer > 0).Min(p => p.BestOffer)
+                    : 0;
 
-                // BID LOGIC: Higher is better
-                if (x.CurrentBid > 0)
+                _context.Attach(ct);
+
+                // 2. STICKY BID TREND LOGIC
+                // Only update the flag if the price has actually moved.
+                if (currentBestBid > 0 && ct.LastBestBid > 0)
                 {
-                    if (x.CurrentBid > item.LastBestBid)
-                        item.IsBidImproved = true;
-                    else if (x.CurrentBid < item.LastBestBid)
-                        item.IsBidImproved = false;
-
-                    item.LastBestBid = x.CurrentBid;
+                    if (currentBestBid > ct.LastBestBid)
+                    {
+                        ct.IsBidImproved = true; // Upward trend
+                    }
+                    else if (currentBestBid < ct.LastBestBid)
+                    {
+                        ct.IsBidImproved = false; // Downward trend
+                    }
+                    else
+                    {
+                        ct.IsBidImproved = ct.IsBidImproved;
+                    }
                 }
 
-                // OFFER LOGIC: Lower is better
-                if (x.CurrentOffer > 0)
+                // 3. STICKY OFFER TREND LOGIC
+                if (currentBestOffer > 0 && ct.LastBestOffer > 0)
                 {
-                    if (item.LastBestOffer == 0 || x.CurrentOffer < item.LastBestOffer)
-                        item.IsOfferImproved = true;
-                    else if (x.CurrentOffer > item.LastBestOffer)
-                        item.IsOfferImproved = false;
-
-                        item.LastBestOffer = x.CurrentOffer;
+                    if (currentBestOffer < ct.LastBestOffer)
+                    {
+                        ct.IsOfferImproved = true; // Price improved (dropped)
+                    }
+                    else if (currentBestOffer > ct.LastBestOffer)
+                    {
+                        ct.IsOfferImproved = false; // Price declined (rose)
+                    }
+                    else
+                    {
+                        ct.IsOfferImproved = ct.IsOfferImproved;
+                    }
                 }
 
-                item.DateUpdated = DateTimeOffset.UtcNow;
-                // In case GroupBy broke tracking, this ensures the update is sent.
-                _context.Entry(item).State = EntityState.Modified;
+                // 4. Update Reference Prices
+                // Note: If market is 0, we update LastBest to 0 to stop "stale" prices from showing,
+                // but the trend flags above were skipped, so they stay in their last state.
+                ct.LastBestBid = currentBestBid;
+                ct.LastBestOffer = currentBestOffer;
+                ct.DateUpdated = DateTime.UtcNow;
+
+                var firstItem = x.ActivePrices.FirstOrDefault();
 
                 result.Add(new LoadHomeResponseDto
                 {
-                    CommodityTypeId = item.CommodityTypeId,
+                    CommodityTypeId = ct.CommodityTypeId,
                     CommodityTypeName = x.TypeName,
                     CommodityTypeImageId = x.ImageId,
-                    ImageUrl = $"CommodityTypeImages/{item.CommodityTypeId}/image",
-                    LotSize = x.LotSize ?? 0,
-                    UnitOfMeasure = x.UomCode,
-                    BestBidPrice = x.CurrentBid,
-                    BestOfferPrice = x.CurrentOffer,
-                    IsBidImproved = item.IsBidImproved,
-                    IsOfferImproved = item.IsOfferImproved
+                    ImageUrl = $"CommodityTypeImages/{ct.CommodityTypeId}/image",
+                    LotSize = firstItem?.LotSize ?? 0,
+                    UnitOfMeasure = firstItem?.UomCode ?? "N/A",
+                    BestBidPrice = currentBestBid,
+                    BestOfferPrice = currentBestOffer,
+                    IsBidImproved = ct.IsBidImproved,
+                    IsOfferImproved = ct.IsOfferImproved
                 });
             }
 
-            // 3. Save all state changes in one transaction
             await _context.SaveChangesAsync();
-
             return result;
         }
     }

@@ -22,6 +22,60 @@ namespace MarketPrice.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MarketPrice.Data.Models.AggregatedPrice", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("AvgBid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("AvgOffer")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CommodityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("HighBid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("HighOffer")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Interval")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("LowBid")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("LowOffer")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PositionCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommodityId", "Interval", "Timestamp")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AggregatedPrices_Lookup");
+
+                    b.ToTable("AggregatedPrices");
+                });
+
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>
                 {
                     b.Property<Guid>("CommodityId")
@@ -183,6 +237,9 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
+                    b.Property<Guid?>("DestinationLocationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal?>("Fee")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -190,20 +247,24 @@ namespace MarketPrice.Data.Migrations
                     b.Property<bool>("IsDeliverable")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LeadTime")
+                    b.Property<string>("LeadTimeInDays")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("MaxDistance")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<Guid>("OriginLocationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("DeliveryDetailId");
+
+                    b.HasIndex("DestinationLocationId");
+
+                    b.HasIndex("OriginLocationId");
 
                     b.HasIndex("PositionId")
                         .IsUnique();
@@ -606,11 +667,25 @@ namespace MarketPrice.Data.Migrations
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
                 {
+                    b.HasOne("MarketPrice.Data.Models.Location", "DestinationLocation")
+                        .WithMany()
+                        .HasForeignKey("DestinationLocationId");
+
+                    b.HasOne("MarketPrice.Data.Models.Location", "OriginLocation")
+                        .WithMany()
+                        .HasForeignKey("OriginLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MarketPrice.Data.Models.Position", null)
                         .WithOne()
                         .HasForeignKey("MarketPrice.Data.Models.DeliveryDetail", "PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DestinationLocation");
+
+                    b.Navigation("OriginLocation");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>

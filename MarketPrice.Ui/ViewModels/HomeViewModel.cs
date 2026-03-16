@@ -4,15 +4,17 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http.Json;
 using MarketPrice.Domain.Home.DTOs;
+using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.Views;
 using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class HomeViewModel(SessionService sessionService, LoadHomeApiService loadHomeApi, IOptions<ApiSettings> apiSettingOptions) : ObservableObject
+    public partial class HomeViewModel(SessionService sessionService, HomeApiService homeApi, IOptions<ApiSettings> apiSettingOptions) : ObservableObject
     {
         public ObservableCollection<LoadHomeResponseDto> CommodityTypes { get; } = new();
         public ObservableCollection<HomeDisplayInformation> HomeDisplayInfo { get; } = new();
@@ -35,7 +37,7 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
-                var homeDataResponse = await loadHomeApi.LoadHomeAsync();
+                var homeDataResponse = await homeApi.LoadHomeAsync();
 
                 if (homeDataResponse.IsSuccessStatusCode)
                 {
@@ -50,16 +52,17 @@ namespace MarketPrice.Ui.ViewModels
                             CommodityTypes.Add(item);
                             var data = new HomeDisplayInformation
                             {
+                                CommodityTypeId = item.CommodityTypeId,
                                 Name = item.CommodityTypeName! ?? "Unknown",
                                 ImageSource = item.ImageUrl! ?? "smile.png",
                                 BackgroundColor = Color.FromArgb("#795548"),
                                 LotSize = $"{item.LotSize} {item.UnitOfMeasure}" ?? "---",
-                                BestBidPrice = $"{item.BestBidPrice}" ?? "---",
-                                IsBidTrendUp = item.IsBidImproved,
-                                IsBidTrendDown = !item.IsBidImproved,
-                                BestOfferPrice = $"{item.BestOfferPrice}" ?? "---",
-                                IsOfferTrendUp = item.IsOfferImproved,
-                                IsOfferTrendDown = !item.IsOfferImproved
+                                BestBidPrice = item.BestBidPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                                IsBidTrendUp = item.IsBidImproved && item.BestBidPrice != 0,
+                                IsBidTrendDown = !item.IsBidImproved && item.BestBidPrice != 0,
+                                BestOfferPrice = item.BestOfferPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                                IsOfferTrendUp = item.IsOfferImproved && item.BestOfferPrice != 0,
+                                IsOfferTrendDown = !item.IsOfferImproved && item.BestOfferPrice != 0,
                             };
 
                             data.ImageSource = ImageSource.FromUri(new Uri($"{apiSettingOptions.Value.BaseUrl}{item.ImageUrl}"));
@@ -96,18 +99,40 @@ namespace MarketPrice.Ui.ViewModels
             SelectedCommodityTypeName = string.Empty;
         }
 
-        //    [RelayCommand]
-        //    private async Task NavigateToPlaceBid(HomeDisplayInformation item)
-        //    {
-        //        await Shell.Current.DisplayAlert("Bid Clicked", $"You selected {item.Name}", "OK");
-        //        // await Shell.Current.GoToAsync("PlaceBid");
-        //    }
+        [RelayCommand]
+        private async Task NavigateToBidPositionListing(HomeDisplayInformation item)
+        {
+            if (item == null) return;
 
-        //    [RelayCommand]
-        //    private async Task NavigateToPlaceOffer(HomeDisplayInformation item)
-        //    {
-        //        await Shell.Current.DisplayAlert("Offer Clicked", $"You selected {item.Name}", "OK");
-        //        // await Shell.Current.GoToAsync("PlaceOffer");
-        //    }
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = item.CommodityTypeId,
+                UnitPrice = decimal.Parse(item.BestBidPrice),
+                PositionTypeId = 6001
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
+            });
+        }
+
+        [RelayCommand]
+        private async Task NavigateToOfferPositionListing(HomeDisplayInformation item)
+        {
+            if (item == null) return;
+
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = item.CommodityTypeId,
+                UnitPrice = decimal.Parse(item.BestOfferPrice),
+                PositionTypeId = 6002
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                {"Args", args}
+            });
+        }
     }
 }
