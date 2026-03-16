@@ -24,15 +24,25 @@ public static class ApiRoutes
     public const string REF_COMMODITY_TYPE = "commodityTypes";
 
     // Market Data Routes       
-    public const string LOAD_MARKET_DATA = "data";
+    public const string LOAD_MARKET_DATA = "Market-data";
     public const string GET_MARKET_INSIGHT = "insight";
     public const string GET_CHART_DATA = "insight/{commodityId}/chart";
 
+
     // Home Data Routes
-    public const string LOAD_HOME_DATA = "data";
+    public const string LOAD_HOME_DATA = "Home-data";
 
     // Images Data Routes
     public const string LOAD_IMAGE = "{Id}/image";
+
+    //change password 
+    public const string changePwd = "ChangePassword";
+
+    // user profile
+
+    public const string Get_UserProfile = "GetProfile";
+    public const string Edit_UserProfile = "EditProfile";
+
 
 }
 
@@ -44,7 +54,7 @@ public static class ApiControllers
     public const string Home = "Home";
     public const string CommodityTypeImages = "CommodityTypeImages";
     public const string CommodityImages = "CommodityImages";
-    public const string Markets = "Markets";    
+    public const string Markets = "Markets";
 }
 
 public static class StringExtensions
@@ -60,3 +70,5 @@ public static class StringExtensions
 
     }
 }
+
+
