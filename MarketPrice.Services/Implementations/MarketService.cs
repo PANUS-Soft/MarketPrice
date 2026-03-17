@@ -144,6 +144,23 @@ namespace MarketPrice.Services.Implementations
                 p.PositionTypeId == SELL &&
                 p.StartDate <= now && p.ExpiryDate > now);
 
+            // Slider Functionality 
+            var totalBidValue = await activeBidsQuery.SumAsync(p => (decimal?)p.UnitPrice * p.Quantity) ?? 0;
+            var totalOfferValue = await activeOffersQuery.SumAsync(p => (decimal?)p.UnitPrice * p.Quantity) ?? 0;
+
+            // Total Market Value (tmv)
+            var tmv = totalBidValue + totalOfferValue;
+
+            decimal bidPercent = 0;
+            decimal offerPercent = 0;
+
+            if (tmv > 0)
+            {
+                bidPercent = (totalBidValue / tmv) * 100;
+                offerPercent = (totalOfferValue / tmv) * 100;
+
+            }
+
             // 2. 24h HISTORICAL QUERIES (For Max/Min stats)
             // This looks at all positions placed in the last 24 hours, regardless of expiry.
             var bids24hQuery = _context.Positions.Where(p =>
@@ -179,6 +196,7 @@ namespace MarketPrice.Services.Implementations
                 .Take(15)
                 .ToListAsync();
 
+
             // 4. Compose Response
             return new MarketInsightResponseDto
             {
@@ -194,6 +212,11 @@ namespace MarketPrice.Services.Implementations
                 MinBid24H = await bids24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
                 MaxOffer24H = await offers24hQuery.MaxAsync(p => (decimal?)p.UnitPrice) ?? 0,
                 MinOffer24H = await offers24hQuery.MinAsync(p => (decimal?)p.UnitPrice) ?? 0,
+
+                // Slider Values
+                TotalMarketValue = tmv,
+                BidPercentage = Math.Round(bidPercent, 2),
+                OfferPercentage = Math.Round(offerPercent, 2),
 
                 // market  depth
                 Bids = bidsDepth,

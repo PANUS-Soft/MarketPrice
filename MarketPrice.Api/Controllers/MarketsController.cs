@@ -36,7 +36,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Market Insight
-        [Authorize]
+        // [Authorize]
         [HttpGet(ApiRoutes.GET_MARKET_INSIGHT + "/{commodityId}")]
         public async Task<ActionResult<MarketInsightResponseDto>> GetMarketDetails(Guid commodityId)
         {
