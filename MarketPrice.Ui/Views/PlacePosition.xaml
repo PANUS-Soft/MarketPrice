@@ -54,10 +54,11 @@
                         PlaceholderText="Select commodity type"/>
                     <Label Text="{Binding CommodityTypeError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
-                    <HorizontalStackLayout Spacing="10">
+                    <VerticalStackLayout>
                         <Label Text="{Binding ShelfLifeInDaysDisplay}" FontSize="11" FontFamily="RobotoSerifBold" TextColor="#6C757D"/>
                         <Label Text="{Binding LotSizeDisplay}" FontSize="11" FontFamily="RobotoSerifBold" TextColor="#6C757D"/>
-                    </HorizontalStackLayout>
+                        <Label Text="{Binding SelectedCommodity.Name, StringFormat='Selected Commodity: {0}'}" IsVisible="{Binding IsBackTextVisible}" FontSize="11" FontFamily="RobotoSerifBold" TextColor="#6C757D"/>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Grid>
         </Border>
