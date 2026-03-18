@@ -694,13 +694,13 @@ namespace MarketPrice.Ui.ViewModels
                                {TotalValueDisplay}
                                Start date/time: {formattedStartDate}
                                End date/time: {EndDate:g}
+                               Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
                                """";
 
                 var deliveryDetails = IsDeliverable ? $""""
+                                       Destination: {SelectedDestinationRegion!.NameInEnglish}, {DestinationTown}, {DestinationQuarter}
                                        Delivery Fee: {DeliveryFee} FCFA
                                        Lead Time: {LeadTime} days
-                                       Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
-                                       Destination: {SelectedDestinationRegion!.NameInEnglish}, {DestinationTown}, {DestinationQuarter}
                                        """" : null;
 
                 if (IsDeliverable) message = message + "\n" + deliveryDetails;
