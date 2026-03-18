@@ -1,15 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.ViewModels
 {
+    // 'partial' is required for the CommunityToolkit to do its magic behind the scenes
     public partial class ChangePasswordViewModel : ObservableObject
     {
+        // ==========================================
+        // 1. PROPERTIES (The Data)
+        // ==========================================
+
         [ObservableProperty]
         private string currentPassword;
 
@@ -19,44 +20,51 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty]
         private string repeatPassword;
 
+        // ==========================================
+        // 2. COMMANDS (The Actions)
+        // ==========================================
 
-        //Handles the back arrow
+        // This handles the back arrow at the top left
         [RelayCommand]
         private async Task GoBackAsync()
         {
-            await Shell.Current.GoToAsync("..");
+            await Shell.Current.GoToAsync(".."); // ".." tells MAUI to go back to the previous page
         }
 
-        //Handles the forget password
+        // This handles the "Forgot Password" text click
         [RelayCommand]
         private async Task ForgotPasswordAsync()
         {
+            // Since we are mocking, we just show an alert for now
             await Shell.Current.DisplayAlert("Forgot Password", "This would navigate to the Forgot Password flow.", "OK");
         }
 
+        // This handles the main "Change Password" blue button
         [RelayCommand]
         private async Task ChangePasswordAsync()
         {
-            if (string.IsNullOrWhiteSpace(currentPassword) ||
-                string.IsNullOrWhiteSpace(newPassword) ||
-                string.IsNullOrWhiteSpace(repeatPassword))
+            // Simple mock logic to prove the frontend works
+            if (string.IsNullOrWhiteSpace(CurrentPassword) ||
+                string.IsNullOrWhiteSpace(NewPassword) ||
+                string.IsNullOrWhiteSpace(RepeatPassword))
             {
-                await Shell.Current.DisplayAlert("Error", "Please fill in alll the password fields.", "OK");
+                await Shell.Current.DisplayAlert("Error", "Please fill in all password fields.", "OK");
                 return;
             }
 
-            if (newPassword != repeatPassword)
+            if (NewPassword != RepeatPassword)
             {
                 await Shell.Current.DisplayAlert("Error", "Your new passwords do not match.", "OK");
                 return;
             }
 
-            await Shell.Current.DisplayAlert("Success", "Your password has been successfully!",  "OK");
+            // If we get here, it means the validation passed!
+            await Shell.Current.DisplayAlert("Success", "Your password has been changed successfully! (Mock)", "OK");
 
-            //Clear the fields after success
-            currentPassword = string.Empty;
-            newPassword = string.Empty;
-            repeatPassword  = string.Empty;
+            // Clear the fields after success
+            CurrentPassword = string.Empty;
+            NewPassword = string.Empty;
+            RepeatPassword = string.Empty;
         }
     }
 }
