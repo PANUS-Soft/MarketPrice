@@ -8,7 +8,7 @@ using MarketPrice.Domain.Profile.DTOs;
 
 namespace MarketPrice.Services.Implementations
 {
-    public class ChangePasswordService(MarketPriceDbContext context, PasswordHashService passwordHashService) : IChangePasswordService
+    public class ChangePasswordService(MarketPriceDbContext context, IPasswordHashService passwordHashService) : IChangePasswordService
     {
 
         public async Task<ChangePasswordResponseDto> ChangePasswordAsync(ChangePasswordCommand command)
