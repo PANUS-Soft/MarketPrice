@@ -10,8 +10,8 @@
     Title="MarketPrice.Ui">
 
     <ShellContent
-        Title="Change Password"
-        ContentTemplate="{DataTemplate views:ChangePassword}"
+        Title="Onboarding"
+        ContentTemplate="{DataTemplate views:Onboarding}"
         Route="Onboarding" />
 
     <ShellContent
