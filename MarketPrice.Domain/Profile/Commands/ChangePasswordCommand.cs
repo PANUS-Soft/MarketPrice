@@ -12,6 +12,5 @@ namespace MarketPrice.Domain.Profile.Commands
         public required Guid UserId { get; set; }
         public required string CurrentPassword { get; set; }
         public required string NewPassword { get; set; }
-        public required string ConfirmPassword { get; set; }
     }
 }

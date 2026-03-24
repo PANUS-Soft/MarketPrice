@@ -48,15 +48,6 @@ namespace MarketPrice.Services.Implementations
                 };
             }
 
-            if (command.NewPassword != command.ConfirmPassword)
-            {
-                return new ChangePasswordResponseDto
-                {
-                    Success = false,
-                    Message = "Passwords do not match"
-                };
-            }
-
             string newSalt = passwordHashService.GenerateSalt();
             string newHash = passwordHashService.HashPassword(command.NewPassword, newSalt);
 
