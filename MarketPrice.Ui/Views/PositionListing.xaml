@@ -21,7 +21,7 @@
         <Grid Grid.Row="0" RowDefinitions="*, *" Padding="15,10" ColumnSpacing="10" BackgroundColor="White">
             <Grid Grid.Row="0"
                   Padding="5,5"
-                  ColumnSpacing="15"
+                  ColumnSpacing="-35"
                   ColumnDefinitions="0.1*, *">
                 <ImageButton Grid.Column="0" 
                              Source="back.png" 
@@ -30,18 +30,21 @@
                              Command="{Binding GoBackCommand}"
                              VerticalOptions="Center"/>
 
-                <Border Grid.Column="1" StrokeShape="RoundRectangle 15" Stroke="{StaticResource PrimaryBase}" StrokeThickness="3" BackgroundColor="White">
+                <Label Text="{Binding CommodityTypeName}"
+                       Grid.Column="1"
+                       FontSize="35"
+                       HorizontalTextAlignment="Center"
+                       HorizontalOptions="Center"
+                       FontFamily="RobotoSerifSemibold"
+                       TextColor="Black"/>
+                <!--<Border Grid.Column="1" StrokeShape="RoundRectangle 15" Stroke="{StaticResource PrimaryBase}" StrokeThickness="3" BackgroundColor="White">
                     <SearchBar Placeholder="Search" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" BackgroundColor="Transparent" CancelButtonColor="{StaticResource PrimaryBase}" VerticalOptions="Center"/>
-                </Border>
+                </Border>-->
             </Grid>
             <Grid Grid.Row="1">
                 <VerticalStackLayout Spacing="15">
 
-                    <Label Text="{Binding CommodityTypeName}"
-                           FontSize="35"
-                           HorizontalTextAlignment="Center"
-                           FontFamily="RobotoSerifSemibold"
-                           TextColor="Black"/>
+
 
                     <CollectionView ItemsSource="{Binding CommodityFilters}" 
                                 HeightRequest="60"
@@ -102,7 +105,6 @@
         </Grid>
 
         <Grid Grid.Row="1" Padding="0,10,0,20" BackgroundColor="White">
-
             <CollectionView ItemsSource="{Binding Positions}" 
                             SelectionMode="None">
                 <CollectionView.ItemTemplate>
@@ -113,6 +115,10 @@
                                     StrokeShape="RoundRectangle 15" 
                                     Padding="15"
                                     BackgroundColor="White">
+
+                                <Border.Shadow>
+                                    <Shadow Brush="{StaticResource PrimaryBase}" Opacity="0.3" Radius="25" />
+                                </Border.Shadow>
 
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer 
@@ -171,16 +177,21 @@
                                            Text="›" 
                                            FontSize="45" 
                                            TextColor="Black" 
-                                           VerticalOptions="Center"/>
+                                           VerticalOptions="Center">
+                                        <Label.Shadow>
+                                            <Shadow Brush="Black" Opacity="0.3" Radius="5" />
+                                        </Label.Shadow>
+                                    </Label>
                                 </Grid>
                             </Border>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <VerticalStackLayout IsVisible="{Binding IsListEmpty}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
-                <Image Source="no_result_icon.png" HeightRequest="80" Opacity="0.7"/>
-                <Label Text="Ooops" FontSize="13" FontFamily="RobotoSerifRegular" VerticalOptions="Center" HorizontalTextAlignment="Center" HorizontalOptions="Center" TextColor="#555"/>
+
+            <VerticalStackLayout IsVisible="{Binding IsListEmpty}" Margin="0,0,0,100" VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                <Image Source="no_result_icon.png" HeightRequest="150" Opacity="0.7"/>
+                <Label Text="Ooops" FontSize="15" FontFamily="RobotoSerifRegular" VerticalOptions="Center" HorizontalTextAlignment="Center" HorizontalOptions="Center" TextColor="#555"/>
                 <Label Text="No position(s) found at this price for this commodity" FontSize="13" FontFamily="RobotoSerifRegular" VerticalOptions="Center" HorizontalTextAlignment="Center" HorizontalOptions="Center" TextColor="#555"/>
             </VerticalStackLayout>
         </Grid>
