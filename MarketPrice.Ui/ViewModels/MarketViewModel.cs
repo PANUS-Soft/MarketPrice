@@ -34,6 +34,7 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string selectedCommodityType = "ALL";
         [ObservableProperty] private string searchText = string.Empty;
         [ObservableProperty] private bool isListEmpty;
+        [ObservableProperty] private bool isLoading;
 
         public MarketViewModel(SessionService sessionService, ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
         {
@@ -51,9 +52,17 @@ namespace MarketPrice.Ui.ViewModels
 
         public async Task InitializeAsync()
         {
-            await EnsureSessionActiveAsync();
-            await LoadCommodityTypesAsync();
-            await LoadMarketAsync();
+            IsLoading = true;
+            try
+            {
+                await EnsureSessionActiveAsync();
+                await LoadCommodityTypesAsync();
+                await LoadMarketAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task EnsureSessionActiveAsync()
@@ -142,7 +151,7 @@ namespace MarketPrice.Ui.ViewModels
 
             foreach (var item in filtered) MarketItems.Add(item);
 
-            IsListEmpty = MarketItems.Count == 0;
+            IsListEmpty = !IsLoading && MarketItems.Count == 0;
         }
 
         [RelayCommand]
