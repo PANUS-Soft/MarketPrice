@@ -89,7 +89,8 @@ namespace MarketPrice.Ui.ViewModels
             CommodityTypesList.Clear();
             CommodityTypesList.Add("ALL");
 
-            foreach (var type in commodityTypes) CommodityTypesList.Add(type.Name!.ToUpper());
+            foreach (var type in commodityTypes.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase)) CommodityTypesList.Add(type.Name!.ToUpper());
+
             SelectedCommodityType = "ALL";
         }
 
@@ -146,6 +147,8 @@ namespace MarketPrice.Ui.ViewModels
             {
                 filtered = filtered.Where(item => item.Name != null && item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
             }
+
+            filtered = filtered.OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase);
 
             MarketItems.Clear();
 

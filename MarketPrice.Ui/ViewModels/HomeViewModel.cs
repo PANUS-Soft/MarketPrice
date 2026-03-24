@@ -47,7 +47,10 @@ namespace MarketPrice.Ui.ViewModels
                     var homeData = await homeDataResponse.Content.ReadFromJsonAsync<List<LoadHomeResponseDto>>();
                     if (homeData != null)
                     {
-                        foreach (var item in homeData)
+                        var sortedHomeData = homeData
+                            .OrderBy(x => x.CommodityTypeName, StringComparer.OrdinalIgnoreCase).ToList();
+
+                        foreach (var item in sortedHomeData)
                         {
                             CommodityTypes.Add(item);
                             var data = new HomeDisplayInformation
