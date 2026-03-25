@@ -2,7 +2,7 @@ namespace MarketPrice.Domain;
 
 public static class ApiRoutes
 {
-    // Authentication Routes
+    // Application Users Routes
     public const string AUTH = "auth";
     public const string AUTH_LOGIN = "auth/login";
     public const string AUTH_LOGOUT = "auth/logout";

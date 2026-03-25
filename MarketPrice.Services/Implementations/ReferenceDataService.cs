@@ -39,5 +39,15 @@ namespace MarketPrice.Services.Implementations
                 Name = c.CommodityName
             }).ToListAsync();
         }
+
+        public async Task<List<CommodityDto>> GetAllCommoditiesAsync()
+        {
+            return await context.Commodities.Select(c => new CommodityDto
+            {
+                Id = c.CommodityId,
+                CommodityTypeId = c.CommodityTypeId,
+                Name = c.CommodityName
+            }).ToListAsync();
+        }
     }
 }
