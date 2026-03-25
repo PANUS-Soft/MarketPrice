@@ -14,8 +14,8 @@ namespace MarketPrice.Ui.ViewModels
     [QueryProperty(nameof(UserProfile), "UserProfile")]
     public partial class EditProfileViewModel : ObservableObject
     {
-        public readonly ProfileApiService _profileApi;
-        public readonly SessionService _sessionApi;
+        private readonly ProfileApiService _profileApi;
+        private readonly SessionService _sessionApi;
 
         [ObservableProperty] private string firstName;
         [ObservableProperty] private string familyName;

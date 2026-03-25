@@ -14,9 +14,9 @@ namespace MarketPrice.Ui.ViewModels
 {
     public partial class ProfileViewModel : ObservableObject
     {
-        public readonly AuthenticationApiService _authenticationApi;
-        public readonly ProfileApiService _profileApi;
-        public readonly SessionService _sessionApi;
+        private readonly AuthenticationApiService _authenticationApi;
+        private readonly ProfileApiService _profileApi;
+        private readonly SessionService _sessionApi;
 
         private UserProfileResponseDto userProfile;
 

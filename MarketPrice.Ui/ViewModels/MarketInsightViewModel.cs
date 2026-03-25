@@ -11,20 +11,23 @@ using System.Net.Http.Json;
 namespace MarketPrice.Ui.ViewModels
 {
     [QueryProperty(nameof(SelectedMarketItem), "SelectedMarketItem")]
-    public partial class MarketInsightViewModel (ReferenceDataApiService referenceDataApi, MarketApiService marketApi) : ObservableObject
+    public partial class MarketInsightViewModel : ObservableObject
     {
-        private readonly ReferenceDataApiService _referenceDataApi = referenceDataApi;
-        private readonly MarketApiService _marketApi = marketApi;
-        //private readonly LoadMarketApiService _marketApiService;
+        private readonly ReferenceDataApiService _referenceDataApi;
+        private readonly MarketApiService _marketApi;
 
-        [ObservableProperty]
-        MarketItem? selectedMarketItem;
+        [ObservableProperty] MarketItem? selectedMarketItem;
 
-        //[ObservableProperty] MarketItem selectedMarketItem;
+        public ObservableCollection<MarketItem> Commodities { get; } = new();
+
         [ObservableProperty] private MarketInsightResponseDto? dto;
-        //[ObservableProperty] private List<MarketDepthItem> bidMarketDepth;
-        //[ObservableProperty] private List<MarketDepthItem> offerMarketDepth;
         public ObservableCollection<MarketInsightChartResponseDto>? PriceHistory { get; } = new();
+
+        public MarketInsightViewModel(ReferenceDataApiService referenceDataApiService, MarketApiService marketApiService)
+        {
+            _referenceDataApi = referenceDataApiService;
+            _marketApi = marketApiService;
+        }
 
         partial void OnSelectedMarketItemChanged(MarketItem? value)
         {
@@ -84,7 +87,6 @@ namespace MarketPrice.Ui.ViewModels
                             PriceHistory?.Add(point);
                         }
                         OnPropertyChanged(nameof(PriceHistory));
-                        System.Diagnostics.Debug.WriteLine($"Points: {result?.Data.Count}");
                     }
                 }
             }
@@ -141,36 +143,7 @@ namespace MarketPrice.Ui.ViewModels
                 [NavigationKeys.PositionType] = PositionType.Offer
             });
         }
-
-        //public ObservableCollection<PricePoint>? PriceHistory { get; set; }
-
-        //public ObservableCollection<DepthItem>? MarketDepthBids { get; set; }
-        //public ObservableCollection<DepthItem>? MarketDepthOffers { get; set; }
-        //public MarketInsightViewModel()
-        //{
-        //    PriceHistory = new ObservableCollection<PricePoint>()
-        //    {
-        //        new(DateTime.Now.AddDays(-6), 3800), new(DateTime.Now.AddDays(-5), 1200), new(DateTime.Now.AddDays(-4), 1500),
-        //        new(DateTime.Now.AddDays(-3), 800),  new(DateTime.Now.AddDays(-2), 2000),  new(DateTime.Now.AddDays(-1), 3500),
-        //        new(DateTime.Now, 2500)
-        //    };
-        //    MarketDepthBids = new ObservableCollection<DepthItem>(Enumerable.Repeat(new DepthItem { Value = 200 }, 10));
-        //    MarketDepthOffers = new ObservableCollection<DepthItem>(Enumerable.Repeat(new DepthItem { Value = 300 }, 10));
-        //}
     }
-
-    //public class PricePoint
-    //{
-    //    public DateTime Date { get; set; }
-    //    public double Price { get; set; }
-
-    //    public PricePoint(DateTime date, double price)
-    //    {
-    //        Date = date;
-    //        Price = price;
-    //    }
-    //}
-
 
     public partial class MarketDepthItem
     {
