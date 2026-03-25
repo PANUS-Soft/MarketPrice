@@ -17,12 +17,19 @@
             <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto, Auto" Padding="15,10,15,10" BackgroundColor="white" VerticalOptions="Start" ColumnSpacing="10">
                 <ImageButton Grid.Column="0" Source="back.png" MaximumHeightRequest="22" MaximumWidthRequest="22" VerticalOptions="Center" Command="{Binding BackCommand}" BackgroundColor="Transparent"/>
 
-                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
-                    <Label Text="{Binding CommodityName}" FontSize="18" FontFamily="RobotoSerifMedium"/>
-                    <Image Source="dropdown_icon.png" HeightRequest="10" VerticalOptions="Center" Margin="0,2,0,0"/>
+                <HorizontalStackLayout Grid.Column="1">
+                    <Picker
+                        x:Name="CommodityPicker"
+                        ItemsSource="{Binding Commodities}"
+                        SelectedItem="{Binding SelectedMarketItemFilter}"
+                        ItemDisplayBinding="{Binding Name}"
+                        FontSize="20"
+                        Title="Select commodity"
+                        TitleColor="{StaticResource PrimaryBase}"
+                        HorizontalTextAlignment="Center"
+                        FontFamily="RobotoSerifMedium"/>
+                    <Image Source="dropdown_icon.png" HeightRequest="30" VerticalOptions="Center" Margin="0,5,0,0"/>
                 </HorizontalStackLayout>
-
-           
 
             <ImageButton Grid.Column="3" Source="favourite_icon.png" MaximumHeightRequest="22" MaximumWidthRequest="22" BackgroundColor="Transparent" HorizontalOptions="Center"/>
                 <ImageButton Grid.Column="4" Source="bell_icon.png" MaximumHeightRequest="22" MaximumWidthRequest="22" BackgroundColor="Transparent" HorizontalOptions="End"/>

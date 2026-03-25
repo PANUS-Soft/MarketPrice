@@ -89,8 +89,8 @@
 
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToCommodityInsightCommand}"
-                                    CommandParameter="{Binding .}"/>
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToMarketInsightCommand}"
+                                    CommandParameter="{Binding Filter}"/>
                                 </Grid.GestureRecognizers>
 
                                 <Border Grid.Column="0" StrokeShape="Ellipse"
@@ -109,7 +109,7 @@
                                 </Border>
 
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                    <Label Text="{Binding Name}" FontFamily="RobotoSerifMedium" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding Filter.Name}" FontFamily="RobotoSerifMedium" FontSize="14" TextColor="Black"/>
                                     <Label Text="{Binding LotSizeDisplay}" TextColor="Gray" FontSize="12"/>
                                 </VerticalStackLayout>
 

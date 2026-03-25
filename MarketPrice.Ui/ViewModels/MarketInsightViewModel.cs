@@ -7,18 +7,20 @@ using MarketPrice.Ui.Services.Api;
 using MarketPrice.Domain.Market.DTOs;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
+using MarketPrice.Domain.Reference.DTOs;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    [QueryProperty(nameof(SelectedMarketItem), "SelectedMarketItem")]
+    [QueryProperty(nameof(SelectedMarketItemFilter), "SelectedMarketItemFilter")]
     public partial class MarketInsightViewModel : ObservableObject
     {
         private readonly ReferenceDataApiService _referenceDataApi;
         private readonly MarketApiService _marketApi;
 
-        [ObservableProperty] MarketItem? selectedMarketItem;
+        [ObservableProperty] MarketItemFilter? selectedMarketItemFilter;
+        private MarketItemFilter? _incomingMarketItemFilter;
 
-        public ObservableCollection<MarketItem> Commodities { get; } = new();
+        public ObservableCollection<MarketItemFilter> Commodities { get; } = new();
 
         [ObservableProperty] private MarketInsightResponseDto? dto;
         public ObservableCollection<MarketInsightChartResponseDto>? PriceHistory { get; } = new();
@@ -29,11 +31,40 @@ namespace MarketPrice.Ui.ViewModels
             _marketApi = marketApiService;
         }
 
-        partial void OnSelectedMarketItemChanged(MarketItem? value)
+        public async Task InitializeAsync()
         {
-            if (value != null) _ = GetCommodityMarketInsightAsync(value.CommodityId);
-            if (value != null) _ = LoadApiDataAsync(value.CommodityId);
-            if (value != null) _ = LoadApiChartDataAsync(value.CommodityId);
+            await LoadCommoditiesFilterAsync();
+
+            ApplySelectedCommodity();
+        }
+
+        partial void OnSelectedMarketItemFilterChanged(MarketItemFilter? value)
+        {
+            if (value == null) return;
+
+            _incomingMarketItemFilter = value;
+
+            if (Commodities.Count > 0) ApplySelectedCommodity();
+        }
+
+        private void ApplySelectedCommodity()
+        {
+            if (_incomingMarketItemFilter == null) return;
+
+            SelectedMarketItemFilter =
+                Commodities.FirstOrDefault(c => c.CommodityId == _incomingMarketItemFilter.CommodityId);
+
+            if (SelectedMarketItemFilter != null) _ = LoadMarketInsightAsync(SelectedMarketItemFilter.CommodityId);
+        }
+
+        //partial void OnSelectedMarketItemFilterChanged(MarketItemFilter? value)
+        //{
+        //    if (value != null) _ = LoadMarketInsightAsync(value.CommodityId);
+        //}
+
+        private async Task LoadMarketInsightAsync(Guid commodityId)
+        {
+            await Task.WhenAll(GetCommodityMarketInsightAsync(commodityId), LoadChartDataAsync(commodityId));
         }
 
         public string CommodityName => Dto?.CommodityName.ToUpper() ?? "---";
@@ -64,13 +95,7 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        //partial void OnSelectedMarketItemChanged(MarketItem? value)
-        //{
-        //    if (value != null)
-        //        _ = LoadApiDataAsync(value.CommodityId);
-        //}
-
-        private async Task LoadApiChartDataAsync(Guid commodityId)
+        private async Task LoadChartDataAsync(Guid commodityId)
         {
             try
             {
@@ -96,27 +121,29 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        private async Task LoadApiDataAsync(Guid commodityId)
+        private async Task LoadCommoditiesFilterAsync()
         {
             try
             {
-                var response = await _marketApi.GetMarketInsightAsync(commodityId);
+                var response = await _referenceDataApi.GetCommoditiesAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
-                    if (result != null)
+                    var commodities = await response.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                    Commodities.Clear();
+                    foreach (var commodity in commodities!)
                     {
-                        selectedMarketItem.HighBid = result.MaxBid24H;
-                        selectedMarketItem.HighOffer = result.MaxOffer24H;
-                        selectedMarketItem.LowBid = result.MinBid24H;
-                        selectedMarketItem.LowOffer = result.MinOffer24H;
+                        Commodities.Add(new MarketItemFilter
+                        {
+                            CommodityTypeId = commodity.CommodityTypeId,
+                            CommodityId = commodity.Id,
+                            Name = commodity.Name.ToUpper()
+                        });
                     }
                 }
             }
-
-            catch (Exception ex)
+            catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error", $"Something went wrong while loading commodities. {e.Message} Please try again later.", "OK");
             }
         }
 

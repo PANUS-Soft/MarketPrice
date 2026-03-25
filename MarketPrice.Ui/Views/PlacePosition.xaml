@@ -33,7 +33,7 @@
             <Grid ColumnDefinitions="45,*">
                 <ImageButton Source="back.png" HeightRequest="25" WidthRequest="25"
                                  MaximumHeightRequest="22" MaximumWidthRequest="22"
-                                 Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" IsVisible="{Binding IsCommodityDetailsStep}" Command="{Binding BackToMarketCommand}"/>
+                                 Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" IsVisible="{Binding IsCommodityDetailsStep}" Command="{Binding BackToMarketInsightCommand}"/>
                 <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" HorizontalOptions="Start" Background="Transparent">
                     <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer/>

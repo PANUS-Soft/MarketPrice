@@ -142,7 +142,7 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task BackToMarketAsync()
+        private async Task BackToMarketInsightAsync()
         {
             await Shell.Current.GoToAsync("..");
         }
