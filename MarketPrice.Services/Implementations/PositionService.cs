@@ -8,9 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MarketPrice.Services.Implementations;
 
-public class PositionService(MarketPriceDbContext context, ILookupProviderService lookups) : IPositionService
+public class PositionService(MarketPriceDbContext context, ILookupProviderService lookups, IMarketRealtimeService realtime) : IPositionService
 {
     private readonly MarketPriceDbContext _context = context;
+    private readonly IMarketRealtimeService _realtime = realtime;
 
     // Define the Type IDs as per your LookupDataTypes table
     private const int LOCATION_TYPE = 4000;
@@ -115,7 +116,11 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             _context.Locations.Add(destination);
         }
 
+
         await _context.SaveChangesAsync();
+        await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
+
+        //provide information to the grave curve
         return new PositionResponseDto
         {
             PositionId = position.PositionId,
