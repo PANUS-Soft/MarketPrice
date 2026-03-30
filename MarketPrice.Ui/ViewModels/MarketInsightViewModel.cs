@@ -7,6 +7,7 @@ using MarketPrice.Ui.Services.Api;
 using MarketPrice.Domain.Market.DTOs;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
+using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Reference.DTOs;
 
 namespace MarketPrice.Ui.ViewModels
@@ -170,6 +171,44 @@ namespace MarketPrice.Ui.ViewModels
                 [NavigationKeys.PositionType] = PositionType.Offer
             });
         }
+
+        [RelayCommand]
+        private async Task NavigateToBidPositionListingAsync(MarketDepthItemDto item)
+        {
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = Dto!.CommodityTypeId,
+                CommodityId = Dto?.CommodityId,
+                CommodityName = Dto?.CommodityName,
+                PositionTypeId = 6001,
+                UnitPrice = item.Price
+
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
+            });
+        }
+
+        [RelayCommand]
+        private async Task NavigateToOfferPositionListingAsync(MarketDepthItemDto item)
+        {
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = Dto!.CommodityTypeId,
+                CommodityId = Dto?.CommodityId,
+                CommodityName = Dto?.CommodityName,
+                PositionTypeId = 6002,
+                UnitPrice = item.Price
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
+            });
+        }
+
     }
 
     public partial class MarketDepthItem
