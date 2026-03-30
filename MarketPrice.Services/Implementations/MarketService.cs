@@ -182,6 +182,7 @@ namespace MarketPrice.Services.Implementations
             // 4. Compose Response
             return new MarketInsightResponseDto
             {
+                CommodityTypeId = commodity.CommodityTypeId,
                 CommodityId = commodityId,
                 CommodityName = commodity.CommodityName,
 
