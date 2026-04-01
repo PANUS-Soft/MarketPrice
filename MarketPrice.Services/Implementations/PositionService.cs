@@ -58,8 +58,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException(
-                $"Position Type lookup failed for '{posTypeText}'", ex);
+            throw new InvalidOperationException($"Position Type lookup failed for '{posTypeText}'", ex);
         }
 
 

@@ -36,7 +36,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Market Insight
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.GET_MARKET_INSIGHT + "/{commodityId}")]
         public async Task<ActionResult<MarketInsightResponseDto>> GetMarketDetails(Guid commodityId)
         {
@@ -44,9 +44,9 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Price Chart Data
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.GET_CHART_DATA)]
-        public async Task<ActionResult> GetChartData( [FromQuery] Guid commodityId, [FromQuery] string range = "1M")
+        public async Task<ActionResult> GetChartData( [FromQuery] Guid commodityId, [FromQuery] string range = "1D")
         {
             try
             {
@@ -55,9 +55,10 @@ namespace MarketPrice.Api.Controllers
 
                 range = range.ToUpper();
 
-                var validRanges = new[] { "1M", "1D", "1W", "1MO", "1Y" };
+                var validRanges = new[] { "1M", "1D", "1W","1Y" };
 
                 if (!validRanges.Contains(range))
+                    //&& range != "1m"
                     return BadRequest("Invalid range");
 
                 var data = await _service.GetPriceChartAsync(commodityId, range);

@@ -65,14 +65,14 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.AUTH_PING)]
         public IActionResult Ping()
         {
             return Ok("Alive 😁😁😁");
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.GET_USER_PROFILE + "/{id}")]
         public async Task<ActionResult<UserProfileResponseDto>> GetUserProfile(Guid id)
         {
