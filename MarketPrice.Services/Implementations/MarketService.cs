@@ -226,18 +226,19 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range)
         {
+            string searchRange = range.ToUpper();
             // 1. Map the ranges to their respective intervals and look back windows
-            (string interval, DateTime startDate, int minPoints) = range.ToLower() switch
+            (string interval, DateTime startDate, int minPoints) = searchRange  switch
             {
-                "1d" => ("2H", DateTime.UtcNow.AddDays(-1), 12),  
-                "1w" => ("2H", DateTime.UtcNow.AddDays(-7), 84),  
-                "1m" => ("1D", DateTime.UtcNow.AddMonths(-1), 30), 
-                "1y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),  
+                "1D" => ("1m", DateTime.UtcNow.AddDays(-1), 12),  //60      
+                "1W" => ("1D", DateTime.UtcNow.AddDays(-7), 7),  //82
+                "1M" => ("1D", DateTime.UtcNow.AddMonths(-1), 30), 
+                "1Y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),  
                 _ => ("1D", DateTime.UtcNow.AddMonths(-1), 15)
             };
 
             // 2. Base Query
-            var query = _context.AggregatedPrices
+            var query =  _context.AggregatedPrices
                 .AsNoTracking()
                 .Where(ap => ap.CommodityId == commodityId && ap.Interval == interval);
 
@@ -247,13 +248,18 @@ namespace MarketPrice.Services.Implementations
                 .OrderBy(ap => ap.Timestamp)
                 .Select(ap => new MarketInsightChartResponseDto
                 {
+                    CommodityId = ap.CommodityId,
+                    Interval = ap.Interval,
                     Timestamp = ap.Timestamp,
                     AvgBid = ap.AvgBid,
                     HighBid = ap.HighBid,
                     LowBid = ap.LowBid,
                     AvgOffer = ap.AvgOffer,
                     HighOffer = ap.HighOffer,
-                    LowOffer = ap.LowOffer
+                    LowOffer = ap.LowOffer,
+                    PositionCount = ap.PositionCount,
+
+
                 })
                 .ToListAsync();
 
@@ -266,13 +272,17 @@ namespace MarketPrice.Services.Implementations
                     .Take(minPoints)
                     .Select(ap => new MarketInsightChartResponseDto
                     {
+                        CommodityId = ap.CommodityId,
+                        Interval = ap.Interval,
                         Timestamp = ap.Timestamp,
                         AvgBid = ap.AvgBid,
                         HighBid = ap.HighBid,
                         LowBid = ap.LowBid,
                         AvgOffer = ap.AvgOffer,
                         HighOffer = ap.HighOffer,
-                        LowOffer = ap.LowOffer
+                        LowOffer = ap.LowOffer,
+                        PositionCount = ap.PositionCount,
+
                     })
                     .OrderBy(dto => dto.Timestamp) // Important: Re-sort for the chart UI
                     .ToListAsync();

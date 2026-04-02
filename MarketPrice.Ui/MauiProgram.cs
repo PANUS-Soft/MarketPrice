@@ -79,6 +79,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<PositionDetailViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
             builder.Services.AddTransient<EditProfileViewModel>();
+            builder.Services.AddTransient<ChangePasswordViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -91,6 +92,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<PositionDetail>();
             builder.Services.AddTransient<Profile>();
             builder.Services.AddTransient<EditProfile>();
+            builder.Services.AddTransient<ChangePassword>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MarketPrice.Api.Controllers
 {
 
-    //controller to handle market insights requests
+    // Controller to handle market insights requests
     [Route("[controller]")]
     [ApiController]
     public class MarketsController(
@@ -44,30 +44,45 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Price Chart Data
-        [Authorize]
+        // [Authorize]
         [HttpGet(ApiRoutes.GET_CHART_DATA)]
-        public async Task<ActionResult<List<MarketInsightChartResponseDto>>> GetChartData(Guid commodityId, [FromQuery] string range = "1m")
+        public async Task<ActionResult> GetChartData( [FromQuery] Guid commodityId, [FromQuery] string range = "1D")
         {
             try
             {
+                if (commodityId == Guid.Empty)
+                    return BadRequest("Invalid commodityId");
+
+                range = range.ToUpper();
+
+                var validRanges = new[] { "1M", "1D", "1W","1Y" };
+
+                if (!validRanges.Contains(range))
+                    //&& range != "1m"
+                    return BadRequest("Invalid range");
+
                 var data = await _service.GetPriceChartAsync(commodityId, range);
+
                 if (data == null || data.Count == 0)
                 {
-                    return NotFound("No chart data found for the specified commodity and range.");
+                    return NotFound("No chart data found.");
                 }
+
                 return Ok(new
                 {
                     data,
-                    IsRunnning = true,
+                    IsRunning = true,
                     LastRun = MarketAggregationWorker.LastSuccessfulRun,
                     CurrentStatus = MarketAggregationWorker.Status
-
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching price chart data for CommodityId: {CommodityId} and Range: {Range}", commodityId, range);
-                return StatusCode(500, "An error occurred while processing the request.");
+                _logger.LogError(ex,
+                    "Error fetching chart data for CommodityId: {CommodityId}, Range: {Range}",
+                    commodityId, range);
+
+                return StatusCode(500, "Internal server error");
             }
         }
     }
