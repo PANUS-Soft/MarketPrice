@@ -14,6 +14,14 @@ public partial class Market : ContentPage
     {
         base.OnAppearing();
 
-        if (BindingContext is MarketViewModel marketViewModel) await marketViewModel.InitializeAsync();
+        if (BindingContext is MarketViewModel marketViewModel)
+        {
+            while (marketViewModel.IsLoading)
+            {
+                await this.FadeTo(0.5, 800, Easing.CubicIn);
+                await this.FadeTo(1.0, 800, Easing.CubicOut);
+            }
+            await marketViewModel.InitializeAsync();
+        }
     }
 }

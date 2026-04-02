@@ -15,7 +15,7 @@ namespace MarketPrice.Api.Controllers
         IMarketService marketService,
         ILogger<MarketsController> logger) : ControllerBase
     {
-        private readonly IMarketService _service = marketService;
+        private readonly IMarketService _marketService = marketService;
         private readonly ILogger<MarketsController> _logger = logger;
 
         // Load Market Data
@@ -25,7 +25,7 @@ namespace MarketPrice.Api.Controllers
         {
             try
             {
-                var result = await _service.GetMarketTrendAsync();
+                var result = await _marketService.GetMarketTrendAsync();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -40,7 +40,7 @@ namespace MarketPrice.Api.Controllers
         [HttpGet(ApiRoutes.GET_MARKET_INSIGHT + "/{commodityId}")]
         public async Task<ActionResult<MarketInsightResponseDto>> GetMarketDetails(Guid commodityId)
         {
-            return Ok(await _service.GetMarketInsightAsync(commodityId));
+            return Ok(await _marketService.GetMarketInsightAsync(commodityId));
         }
 
         // Get Price Chart Data

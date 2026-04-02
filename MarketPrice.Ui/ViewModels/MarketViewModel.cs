@@ -18,7 +18,6 @@ namespace MarketPrice.Ui.ViewModels
 {
     public partial class MarketViewModel : ObservableObject
     {
-        private readonly SessionService _sessionService;
         private readonly ReferenceDataApiService _referenceDataApi;
         private readonly MarketApiService _marketApi;
         private readonly ApiSettings _apiSettingOptions;
@@ -29,15 +28,15 @@ namespace MarketPrice.Ui.ViewModels
 
         [ObservableProperty] private ImageSource previewImage;
         [ObservableProperty] private bool isImagePreviewVisible;
-        [ObservableProperty] private string selectedCommodityTypeName;
+        [ObservableProperty] private string? selectedCommodityTypeName;
 
         [ObservableProperty] private string selectedCommodityType = "ALL";
         [ObservableProperty] private string searchText = string.Empty;
         [ObservableProperty] private bool isListEmpty;
+        [ObservableProperty] private bool isLoading;
 
-        public MarketViewModel(SessionService sessionService, ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
+        public MarketViewModel(ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
         {
-            _sessionService = sessionService;
             _referenceDataApi = referenceDataApi;
             _marketApi = marketApi;
             _apiSettingOptions = apiSettingOptions.Value;
@@ -51,17 +50,16 @@ namespace MarketPrice.Ui.ViewModels
 
         public async Task InitializeAsync()
         {
-            await EnsureSessionActiveAsync();
-            await LoadCommodityTypesAsync();
-            await LoadMarketAsync();
-        }
-
-        private async Task EnsureSessionActiveAsync()
-        {
-            var isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
-            
-            if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
-            else await _sessionService.TryRefreshTokenAsync();
+            IsLoading = true;
+            try
+            {
+                await LoadCommodityTypesAsync();
+                await LoadMarketAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         [RelayCommand]
@@ -80,7 +78,8 @@ namespace MarketPrice.Ui.ViewModels
             CommodityTypesList.Clear();
             CommodityTypesList.Add("ALL");
 
-            foreach (var type in commodityTypes) CommodityTypesList.Add(type.Name!.ToUpper());
+            foreach (var type in commodityTypes.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase)) CommodityTypesList.Add(type.Name!.ToUpper());
+
             SelectedCommodityType = "ALL";
         }
 
@@ -100,15 +99,18 @@ namespace MarketPrice.Ui.ViewModels
             {
                 _allMarketItems.Add(new MarketItem
                 {
-                    CommodityTypeId = insight.CommodityTypeId,
-                    CommodityId = insight.CommodityId,
-                    Name = insight.CommodityName!,
-                    ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")) ?? "smile.png",
-                    BestBid = insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                    Filter = new MarketItemFilter
+                    {
+                        CommodityTypeId = insight.CommodityTypeId,
+                        CommodityId = insight.CommodityId,
+                        Name = insight.CommodityName!
+                    },
+                    ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")),
+                    BestBid = insight.BestBid != 0 ? insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Bids",
                     LotSize = insight.LotSize,
                     UnitOfMeasure = insight.UnitOfMeasure,
                     LotSizeDisplay = $"{insight.LotSize} {insight.UnitOfMeasure}",
-                    BestOffer = insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                    BestOffer = insight.BestOffer != 0 ? insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Offers",
                     IsBidUp = insight.IsBidImproved,
                     IsBidDown = !insight.IsBidImproved,
                     IsBidNull = insight.BestBid == 0,
@@ -130,44 +132,46 @@ namespace MarketPrice.Ui.ViewModels
 
             if (!string.IsNullOrEmpty(SelectedCommodityType) && SelectedCommodityType != "ALL")
             {
-                filtered = filtered.Where(item => item.Name != null && item.Name.Contains(SelectedCommodityType, StringComparison.OrdinalIgnoreCase));
+                filtered = filtered.Where(item => item.Filter.Name != null && item.Filter.Name.Contains(SelectedCommodityType, StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
-                filtered = filtered.Where(item => item.Name != null && item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+                filtered = filtered.Where(item => item.Filter.Name != null && item.Filter.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
             }
+
+            filtered = filtered.OrderBy(item => item.Filter.Name, StringComparer.OrdinalIgnoreCase);
 
             MarketItems.Clear();
 
             foreach (var item in filtered) MarketItems.Add(item);
 
-            IsListEmpty = MarketItems.Count == 0;
+            IsListEmpty = !IsLoading && MarketItems.Count == 0;
         }
 
         [RelayCommand]
-        private async Task NavigateToCommodityInsightAsync(MarketItem? selectedItem)
+        private async Task NavigateToMarketInsightAsync(MarketItemFilter? selectedItem)
         {
             if (selectedItem == null) return;
 
             await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
             {
-                {"SelectedMarketItem", selectedItem }
+                {"SelectedMarketItemFilter", selectedItem }
             });
         }
 
         [RelayCommand]
         private async Task NavigateToBidPositionListing(MarketItem item)
         {
-            if (item == null) return;
+            if (item.BestBid == "No Bids") return;
 
             var args = new PositionListingCommand
             {
-                CommodityTypeId = item.CommodityTypeId,
-                CommodityId = item.CommodityId,
+                CommodityTypeId = item.Filter.CommodityTypeId,
+                CommodityId = item.Filter.CommodityId,
                 PositionTypeId = 6001,
-                UnitPrice = decimal.Parse(item.BestBid),
-                CommodityName = item.Name
+                UnitPrice = decimal.Parse(item.BestBid!),
+                CommodityName = item.Filter.Name
             };
 
             await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
@@ -179,15 +183,15 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToOfferPositionListing(MarketItem item)
         {
-            if (item == null) return;
+            if (item.BestOffer == "No Offers") return;
 
             var args = new PositionListingCommand
             {
-                CommodityTypeId = item.CommodityTypeId,
-                CommodityId = item.CommodityId,
+                CommodityTypeId = item.Filter.CommodityTypeId,
+                CommodityId = item.Filter.CommodityId,
                 PositionTypeId = 6002,
-                UnitPrice = decimal.Parse(item.BestOffer),
-                CommodityName = item.Name
+                UnitPrice = decimal.Parse(item.BestOffer!),
+                CommodityName = item.Filter.Name
             };
 
             await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
@@ -202,7 +206,7 @@ namespace MarketPrice.Ui.ViewModels
             if (item == null) return;
 
             PreviewImage = item.ImageSource;
-            SelectedCommodityTypeName = item.Name.ToUpper();
+            SelectedCommodityTypeName = item.Filter.Name.ToUpper();
             IsImagePreviewVisible = true;
         }
 

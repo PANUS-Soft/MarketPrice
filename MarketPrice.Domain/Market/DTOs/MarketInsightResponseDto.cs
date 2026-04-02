@@ -2,6 +2,7 @@
 {
     public class MarketInsightResponseDto
     {
+        public Guid CommodityTypeId { get; set; }
         public Guid CommodityId { get; set; }
         public string CommodityName { get; set; }
         public decimal BestBid { get; set; }

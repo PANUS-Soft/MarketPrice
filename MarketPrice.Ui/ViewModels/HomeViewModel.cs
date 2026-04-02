@@ -47,20 +47,23 @@ namespace MarketPrice.Ui.ViewModels
                     var homeData = await homeDataResponse.Content.ReadFromJsonAsync<List<LoadHomeResponseDto>>();
                     if (homeData != null)
                     {
-                        foreach (var item in homeData)
+                        var sortedHomeData = homeData
+                            .OrderBy(x => x.CommodityTypeName, StringComparer.OrdinalIgnoreCase).ToList();
+
+                        foreach (var item in sortedHomeData)
                         {
                             CommodityTypes.Add(item);
                             var data = new HomeDisplayInformation
                             {
                                 CommodityTypeId = item.CommodityTypeId,
-                                Name = item.CommodityTypeName! ?? "Unknown",
-                                ImageSource = item.ImageUrl! ?? "smile.png",
+                                Name = item.CommodityTypeName!,
+                                ImageSource = item.ImageUrl!,
                                 BackgroundColor = Color.FromArgb("#795548"),
                                 LotSize = $"{item.LotSize} {item.UnitOfMeasure}" ?? "---",
-                                BestBidPrice = item.BestBidPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                                BestBidPrice = item.BestBidPrice != 0 ? item.BestBidPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Bids",
                                 IsBidTrendUp = item.IsBidImproved && item.BestBidPrice != 0,
                                 IsBidTrendDown = !item.IsBidImproved && item.BestBidPrice != 0,
-                                BestOfferPrice = item.BestOfferPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                                BestOfferPrice = item.BestOfferPrice != 0 ? item.BestOfferPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Offers",
                                 IsOfferTrendUp = item.IsOfferImproved && item.BestOfferPrice != 0,
                                 IsOfferTrendDown = !item.IsOfferImproved && item.BestOfferPrice != 0,
                             };
@@ -102,7 +105,7 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToBidPositionListing(HomeDisplayInformation item)
         {
-            if (item == null) return;
+            if (item.BestBidPrice == "No Bids") return;
 
             var args = new PositionListingCommand
             {
@@ -120,7 +123,7 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToOfferPositionListing(HomeDisplayInformation item)
         {
-            if (item == null) return;
+            if (item.BestOfferPrice == "No Offers") return;
 
             var args = new PositionListingCommand
             {

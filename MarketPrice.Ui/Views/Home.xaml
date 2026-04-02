@@ -88,29 +88,29 @@
                           ColumnSpacing="5">
 
                             <Label Grid.Column="0" 
-                               Text="Commodity Types"
-                               FontFamily="RobotoSerifSemibold"
-                               Grid.ColumnSpan="2"
-                               FontSize="15" 
-                               FontAttributes="Bold" 
-                               TextColor="Black" 
-                               VerticalOptions="End"/>
-
-                            <Label Grid.Column="2" 
-                               Text="BEST BID" 
-                               FontFamily="RobotoSerifSemibold"
-                               FontSize="15" 
-                               FontAttributes="Bold" 
-                               TextColor="Black" 
-                               HorizontalOptions="Center"/>
+                                   Text="Commodity Types"
+                                   FontFamily="RobotoSerifSemibold"
+                                   Grid.ColumnSpan="2"
+                                   FontSize="15" 
+                                   FontAttributes="Bold" 
+                                   Style="{StaticResource HeaderLabelStyle}" />
+                                   
+                            <Label Grid.Column="2"
+                                   Text="BEST BID &#10; (FCFA)" 
+                                   FontFamily="RobotoSerifSemibold"
+                                   FontSize="15" 
+                                   FontAttributes="Bold" 
+                                   HorizontalTextAlignment="Center"
+                                   Style="{StaticResource HeaderLabelStyle}" />
 
                             <Label Grid.Column="3" 
-                               Text="BEST OFFER" 
-                               FontFamily="RobotoSerifSemibold"
-                               FontSize="15" 
-                               FontAttributes="Bold" 
-                               TextColor="Black" 
-                               HorizontalOptions="Center"/>
+                                   Text="BEST OFFER &#10; (FCFA)" 
+                                   FontFamily="RobotoSerifSemibold"
+                                   FontSize="15" 
+                                   FontAttributes="Bold" 
+                                   HorizontalTextAlignment="Center"
+                                   Style="{StaticResource HeaderLabelStyle}" />
+                            
                         </Grid>
                     </VerticalStackLayout>
                 </CollectionView.Header>
@@ -165,22 +165,17 @@
 
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                                      CommandParameter="{Binding .}"/>
+                                                          CommandParameter="{Binding .}"/>
                                 </Border.GestureRecognizers>
 
                                 <Grid ColumnDefinitions="*, Auto">
                                     <VerticalStackLayout Grid.Column="0"
                                                      VerticalOptions="Center">
                                         <Label Text="{Binding BestBidPrice}" 
-                                           FontSize="11"
-                                           HorizontalOptions="Center"
-                                           FontFamily="RobotoSerifMedium"
-                                           VerticalOptions="Center"/>
-                                        <Label Text="FCFA" 
-                                           FontSize="10"
-                                           HorizontalOptions="Center"
-                                           FontFamily="RobotoSerifRegular"
-                                           VerticalOptions="End"/>
+                                               FontSize="11"
+                                               HorizontalOptions="Center"
+                                               FontFamily="RobotoSerifMedium"
+                                               VerticalOptions="Center"/>
                                     </VerticalStackLayout>
                                     <Image Grid.Column="1" Source="top_arrow.png" HeightRequest="10" IsVisible="{Binding IsBidTrendUp}" VerticalOptions="Center"/>
                                     <Image Grid.Column="1" Source="down_arrow.png" HeightRequest="10" IsVisible="{Binding IsBidTrendDown}" VerticalOptions="Center"/>
@@ -201,18 +196,12 @@
 
                                 <Grid ColumnDefinitions="*, Auto">
                                     <VerticalStackLayout Grid.Column="0"
-                                                     VerticalOptions="Center">
-                                        <Label Grid.Column="0" 
-                                           Text="{Binding BestOfferPrice}" 
-                                           FontSize="11" 
-                                           HorizontalOptions="Center"
-                                           FontFamily="RobotoSerifMedium"
-                                           VerticalOptions="Center"/>
-                                        <Label Text="FCFA" 
-                                           FontSize="10"
-                                           HorizontalOptions="Center"
-                                           FontFamily="RobotoSerifRegular"
-                                           VerticalOptions="End"/>
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding BestOfferPrice}" 
+                                               FontSize="11" 
+                                               HorizontalOptions="Center"
+                                               FontFamily="RobotoSerifMedium"
+                                               VerticalOptions="Center"/>
                                     </VerticalStackLayout>
                                     <Image Grid.Column="1" Source="top_arrow.png" HeightRequest="10" IsVisible="{Binding IsOfferTrendUp}" VerticalOptions="Center"/>
                                     <Image Grid.Column="1" Source="down_arrow.png" HeightRequest="10" IsVisible="{Binding IsOfferTrendDown}" VerticalOptions="Center"/>

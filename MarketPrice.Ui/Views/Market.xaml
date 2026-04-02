@@ -12,6 +12,18 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+
+            <converters:AllTrueToVisibleConverter x:Key="AllTrueToVisibleConverter"/>
+
+            <ControlTemplate x:Key="MarketItemSkeleton">
+                <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10">
+                    <BoxView Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="#F0F0F0"/>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                        <BoxView WidthRequest="80" HeightRequest="12" CornerRadius="4" BackgroundColor="#F0F0F0" HorizontalOptions="Start"/>
+                        <BoxView WidthRequest="50" HeightRequest="10" CornerRadius="4" BackgroundColor="#F5F5F5" HorizontalOptions="Start"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </ControlTemplate>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -63,15 +75,22 @@
             </Grid>
 
             <Grid Grid.Row="3" Padding="15,0">
-                <dxcv:DXCollectionView ItemsSource="{Binding MarketItems}" SelectionMode="None" IsVisible="{Binding IsListEmpty, Converter={StaticResource InvertedBoolConverter}}">
+                <dxcv:DXCollectionView ItemsSource="{Binding MarketItems}" SelectionMode="None">
+                    <dxcv:DXCollectionView.IsVisible>
+                        <MultiBinding Converter="{StaticResource AllTrueToVisibleConverter}">
+                            <Binding Path="IsLoading" Converter="{StaticResource InvertedBoolConverter}"/>
+                            <Binding Path="IsListEmpty" Converter="{StaticResource InvertedBoolConverter}"/>
+                        </MultiBinding>
+                    </dxcv:DXCollectionView.IsVisible>
+                    
                     <dxcv:DXCollectionView.ItemTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10">
 
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToCommodityInsightCommand}"
-                                    CommandParameter="{Binding .}"/>
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToMarketInsightCommand}"
+                                    CommandParameter="{Binding Filter}"/>
                                 </Grid.GestureRecognizers>
 
                                 <Border Grid.Column="0" StrokeShape="Ellipse"
@@ -90,7 +109,7 @@
                                 </Border>
 
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                    <Label Text="{Binding Name}" FontFamily="RobotoSerifMedium" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding Filter.Name}" FontFamily="RobotoSerifMedium" FontSize="14" TextColor="Black"/>
                                     <Label Text="{Binding LotSizeDisplay}" TextColor="Gray" FontSize="12"/>
                                 </VerticalStackLayout>
 
@@ -158,7 +177,44 @@
                     </dxcv:DXCollectionView.ItemTemplate>
                 </dxcv:DXCollectionView>
 
-                <VerticalStackLayout IsVisible="{Binding IsListEmpty}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                <VerticalStackLayout IsVisible="{Binding IsLoading}" Spacing="5" VerticalOptions="Start">
+                    <VerticalStackLayout>
+                        <BindableLayout.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>1</x:String>
+                                <x:String>2</x:String>
+                                <x:String>3</x:String>
+                                <x:String>4</x:String>
+                                <x:String>5</x:String>
+                                <x:String>6</x:String>
+                                <x:String>7</x:String>
+                                <x:String>8</x:String>
+                                <x:String>9</x:String>
+                                <x:String>10</x:String>
+                            </x:Array>
+                        </BindableLayout.ItemsSource>
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10" Opacity="0.5">
+                                    <BoxView Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="#E0E0E0"/>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                                        <BoxView WidthRequest="100" HeightRequest="12" CornerRadius="4" BackgroundColor="#E0E0E0" HorizontalOptions="Start"/>
+                                        <BoxView WidthRequest="60" HeightRequest="10" CornerRadius="4" BackgroundColor="#F0F0F0" HorizontalOptions="Start"/>
+                                    </VerticalStackLayout>
+                                    <BoxView Grid.Column="2" HeightRequest="35" CornerRadius="8" BackgroundColor="#E0E0E0"/>
+                                    <BoxView Grid.Column="3" HeightRequest="35" CornerRadius="8" BackgroundColor="#E0E0E0"/>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                    <VerticalStackLayout.IsVisible>
+                        <MultiBinding Converter="{StaticResource AllTrueToVisibleConverter}">
+                            <Binding Path="Isloading" Converter="{StaticResource InvertedBoolConverter}"/>
+                            <Binding Path="IsListEmpty" Converter="{StaticResource InvertedBoolConverter}"/>
+                        </MultiBinding>
+                    </VerticalStackLayout.IsVisible>
                     <Image Source="no_result_icon.png" HeightRequest="80" Opacity="0.5"/>
                     <Label Text="No commodities found" FontSize="16" FontFamily="RobotoSerifMedium" HorizontalOptions="Center"/>
                     <Label Text="Try adjusting your search or commodity type" FontSize="13" FontFamily="RobotoSerifRegular" HorizontalOptions="Center"/>
