@@ -11,6 +11,9 @@
         public decimal MaxOffer24H { get; set; }
         public decimal MinBid24H { get; set; }
         public decimal MinOffer24H { get; set; }
+        public decimal BidPercentage { get; set; }
+        public decimal OfferPercentage { get; set; }
+        public decimal TotalMarketValue { get; set; }
         public List<MarketDepthItemDto> Bids {get; set;}
         public List<MarketDepthItemDto> Offers { get; set;}
     }

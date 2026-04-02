@@ -1,11 +1,13 @@
+using MarketPrice.Api.Hubs;
+using MarketPrice.Api.Realtime;
 using MarketPrice.Data;
 using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
+using MarketPrice.Services.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
-using MarketPrice.Services.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +30,10 @@ builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IChangePasswordService,ChangePasswordService>();
 builder.Services.AddHostedService<MarketAggregationWorker>();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IMarketRealtimeService, SignalRMarketRealtimeService>();
 
 // --- 3. CONFIGURE ASYMMETRIC AUTHENTICATION ---
 // Note: Updated to match your new app settings key "PUBLIC_KEY"
@@ -125,5 +130,6 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<MarketHub>("/marketHub");
 
 app.Run();

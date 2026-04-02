@@ -35,7 +35,7 @@ namespace MarketPrice.Services.Implementations
         /// Hashes a password using PBKDF2 with SHA256
         /// </summary>
         /// <param name="password"></param>
-        /// <param name="salt"></param>
+        /// <param name="passwordSalt"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
 
@@ -45,7 +45,7 @@ namespace MarketPrice.Services.Implementations
                 throw new ArgumentNullException(nameof(password), "password cannot be null or empty");
 
             if (String.IsNullOrEmpty(passwordSalt))
-                throw new ArgumentNullException(nameof(passwordSalt), "Salt connot be null or empty");
+                throw new ArgumentNullException(nameof(passwordSalt), "Salt cannot be null or empty");
 
             byte[] saltBytes = Convert.FromBase64String(passwordSalt);
 
@@ -60,8 +60,8 @@ namespace MarketPrice.Services.Implementations
         /// Verifies whether a plain text password matches a stored hash.
         /// </summary>
         /// <param name="password"></param>
-        /// <param name="hash"></param>
-        /// <param name="salt"></param>
+        /// <param name="passwordHash"></param>
+        /// <param name="passwordSalt"></param>
         /// <returns></returns>
 
         public bool VerifyPassword(string password, string passwordHash, string passwordSalt)

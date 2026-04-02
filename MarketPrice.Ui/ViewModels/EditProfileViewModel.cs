@@ -14,8 +14,8 @@ namespace MarketPrice.Ui.ViewModels
     [QueryProperty(nameof(UserProfile), "UserProfile")]
     public partial class EditProfileViewModel : ObservableObject
     {
-        private readonly ProfileApiService _profileApi;
-        private readonly SessionService _sessionApi;
+        public readonly ProfileApiService _profileApi;
+        public readonly SessionService _sessionService;
 
         [ObservableProperty] private string firstName;
         [ObservableProperty] private string familyName;
@@ -26,7 +26,7 @@ namespace MarketPrice.Ui.ViewModels
         public EditProfileViewModel(ProfileApiService profileApiService, SessionService sessionService)
         {
             _profileApi = profileApiService;
-            _sessionApi = sessionService;
+            _sessionService = sessionService;
         }
 
         private UserProfileResponseDto userProfile;
@@ -106,7 +106,7 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
-                var userSession = await _sessionApi.GetCurrentSessionAsync();
+                var userSession = await _sessionService.GetCurrentSessionAsync();
 
                 var command = new UpdateUserProfileCommand
                 {

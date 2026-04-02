@@ -70,10 +70,10 @@ namespace MarketPrice.Ui.ViewModels
         private void LoadProfileComponentAsync()
         {
             MenuItems.Clear();
-            MenuItems.Add(new ProfileMenuItem("Settings", "settings_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("My Position", "position_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("Change Password", "lock_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("Verification", "verification_icon.png"));
+            MenuItems.Add(new ProfileMenuItem("Settings","", "settings_icon.png"));
+            MenuItems.Add(new ProfileMenuItem("My Position", "","position_icon.png"));
+            MenuItems.Add(new ProfileMenuItem("Change Password", "ChangePassword", "lock_icon.png"));
+            MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png"));
         }
 
         // Menu Collection
@@ -89,10 +89,11 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task NavigateToItem(ProfileMenuItem item)
+        private async Task NavigateToItem(ProfileMenuItem? item)
         {
             if (item == null) return;
-            await Shell.Current.DisplayAlert("Navigate", $"Go to {item.Title}", "OK");
+            if (item.MenuItemView == "") return;
+            await Shell.Current.GoToAsync(item.MenuItemView);
         }
 
         [RelayCommand]
@@ -140,15 +141,10 @@ namespace MarketPrice.Ui.ViewModels
         }
     }
 
-    public class ProfileMenuItem
+    public class ProfileMenuItem(string title, string? menuItemView, string iconSource)
     {
-        public string Title { get; set; }
-        public string IconSource { get; set; }
-
-        public ProfileMenuItem(string title, string iconSource)
-        {
-            Title = title;
-            IconSource = iconSource;
-        }
+        public string Title { get; set; } = title;
+        public string? MenuItemView { get; set; } = menuItemView;
+        public string IconSource { get; set; } = iconSource;
     }
 }
