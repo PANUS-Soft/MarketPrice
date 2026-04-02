@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Activity"
-             BackgroundColor="{StaticResource Background}"
+               BackgroundColor="{StaticResource Background}"
              Shell.NavBarIsVisible="False"
              NavigationPage.HasNavigationBar="False"
              Title="Activity">
 
-    <Grid RowDefinitions="Auto, Auto, Auto, *" Padding="20,20,20,0">
+    <Grid RowDefinitions="Auto, Auto, Auto, *" 
+          Padding="20,20,20,0">
 
         <Label Grid.Row="0" 
                Text="Activity"
@@ -17,21 +18,38 @@
                TextColor="Black"
                Margin="0,0,0,15"/>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,0,0,15">
-            <Border Grid.Column="0" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" HeightRequest="40">
+        <Grid Grid.Row="1" 
+              ColumnDefinitions="*, Auto" 
+              ColumnSpacing="10" 
+              Margin="0,0,0,15">
+
+            <Border Grid.Column="0" 
+                    Stroke="#00569D" 
+                    StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 5" 
+                    BackgroundColor="White" 
+                    HeightRequest="40">
+
                 <SearchBar Placeholder="Search" 
-                           Text="{Binding SearchText}"
-                           SearchCommand="{Binding ApplyFiltersCommand}"
-                           BackgroundColor="Transparent"
+                           Text="{Binding SearchText}" 
+                           SearchCommand="{Binding ApplyFiltersCommand}" 
+                           BackgroundColor="Transparent" 
                            VerticalOptions="Center"/>
             </Border>
 
-            <Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
+            <Border Grid.Column="1" 
+                    Stroke="#00569D" 
+                    StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 5" 
+                    BackgroundColor="White" 
+                    HeightRequest="40" 
+                    WidthRequest="100">
+
                 <Picker ItemsSource="{Binding PositionTypes}" 
-                        SelectedItem="{Binding SelectedPositionType}"
-                        TextColor="Black"
-                        Title="All"
-                        HorizontalTextAlignment="Center"
+                        SelectedItem="{Binding SelectedPositionType}" 
+                        TextColor="Black" 
+                        Title="All" 
+                        HorizontalTextAlignment="Center" 
                         VerticalOptions="Center"/>
             </Border>
         </Grid>
@@ -39,102 +57,236 @@
         <CollectionView Grid.Row="2" 
                         ItemsSource="{Binding CommodityTypes}" 
                         HeightRequest="40" 
-                        Margin="0,0,0,15"
-                        SelectionMode="Single"
+                        Margin="0,0,0,15" 
+                        SelectionMode="Single" 
                         SelectedItem="{Binding SelectedCommodityType}">
+
             <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                <LinearItemsLayout Orientation="Horizontal" 
+                                   ItemSpacing="10" />
             </CollectionView.ItemsLayout>
+
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" Padding="20,0" VerticalOptions="Center" HeightRequest="35">
+                    <Border Stroke="#00569D" 
+                            StrokeThickness="1" 
+                            StrokeShape="RoundRectangle 5" 
+                            BackgroundColor="White" 
+                            Padding="20,0" 
+                            VerticalOptions="Center" 
+                            HeightRequest="35">
 
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup Name="CommonStates">
                                 <VisualState Name="Normal" />
                                 <VisualState Name="Selected">
                                     <VisualState.Setters>
-                                        <Setter Property="BackgroundColor" Value="#00569D" />
-                                        <Setter TargetName="ChipLabel" Property="Label.TextColor" Value="White" />
+                                        <Setter Property="BackgroundColor" 
+                                                Value="#00569D" />
+                                        <Setter TargetName="ChipLabel" 
+                                                Property="Label.TextColor" 
+                                                Value="White" />
                                     </VisualState.Setters>
                                 </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
 
-                        <Label x:Name="ChipLabel" Text="{Binding .}" TextColor="Black" FontFamily="RobotoSerifBold" VerticalOptions="Center" HorizontalOptions="Center"/>
+                        <Label x:Name="ChipLabel" 
+                               Text="{Binding .}" 
+                               TextColor="Black" 
+                               FontFamily="RobotoSerifBold" 
+                               VerticalOptions="Center" 
+                               HorizontalOptions="Center"/>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <CollectionView Grid.Row="3" 
-                        ItemsSource="{Binding GroupedActivities}" 
-                        IsGrouped="True" 
-                        SelectionMode="None"
-                        VerticalScrollBarVisibility="Never">
+        <Grid Grid.Row="3">
 
-            <CollectionView.GroupHeaderTemplate>
-                <DataTemplate>
-                    <Label Text="{Binding Name}" 
+            <CollectionView ItemsSource="{Binding GroupedActivities}" 
+                            IsGrouped="True" 
+                            SelectionMode="None"
+                            VerticalScrollBarVisibility="Never">
+
+                <CollectionView.Triggers>
+                    <DataTrigger TargetType="CollectionView" 
+                                 Binding="{Binding IsLoading}" 
+                                 Value="True">
+
+                        <Setter Property="IsVisible" 
+                                Value="False" />
+                    </DataTrigger>
+                </CollectionView.Triggers>
+
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}" 
+                               FontAttributes="Bold" 
+                               FontSize="20" 
+                               TextColor="Black" 
+                               Margin="0,10,0,10"/>
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Stroke="#00569D" 
+                                StrokeThickness="1" 
+                                StrokeShape="RoundRectangle 5" 
+                                BackgroundColor="White" 
+                                Margin="0,0,0,10" 
+                                Padding="15">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ActivityViewModel}}, Path=GoToDetailsCommand}" 
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+
+                            <Grid ColumnDefinitions="Auto, *, Auto" 
+                                  ColumnSpacing="15">
+
+                                <Frame Grid.Column="0" 
+                                       WidthRequest="70" 
+                                       HeightRequest="70" 
+                                       CornerRadius="35" 
+                                       IsClippedToBounds="True" 
+                                       Padding="0" 
+                                       VerticalOptions="Center">
+
+                                    <Image Source="{Binding ImageUrl}" 
+                                           Aspect="AspectFill" 
+                                           BackgroundColor="#F0F0F0" />
+                                </Frame>
+
+                                <VerticalStackLayout Grid.Column="1" 
+                                                     VerticalOptions="Center" 
+                                                     Spacing="2">
+
+                                    <Label TextColor="Black">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Commodity Name: " 
+                                                      FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding CommodityName}" 
+                                                      FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <Label TextColor="Black">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Quantity: " 
+                                                      FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding Quantity}" 
+                                                      FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <Label TextColor="Black">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Price: " 
+                                                      FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding Price}" 
+                                                      FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="2" 
+                                       Text="{Binding State}" 
+                                       FontFamily="RobotoSerifBold" 
+                                       TextColor="Black" 
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <CollectionView ItemsSource="{Binding SkeletonItems}" 
+                            SelectionMode="None"
+                            VerticalScrollBarVisibility="Never">
+
+                <CollectionView.Triggers>
+                    <DataTrigger TargetType="CollectionView" 
+                                 Binding="{Binding IsLoading}" 
+                                 Value="False">
+
+                        <Setter Property="IsVisible" 
+                                Value="False" />
+                    </DataTrigger>
+                </CollectionView.Triggers>
+
+                <CollectionView.Header>
+                    <Label Text="Loading Data..." 
                            FontAttributes="Bold" 
                            FontSize="20" 
-                           TextColor="Black" 
+                           TextColor="#B0B0B0" 
                            Margin="0,10,0,10"/>
-                </DataTemplate>
-            </CollectionView.GroupHeaderTemplate>
+                </CollectionView.Header>
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" Margin="0,0,0,10" Padding="15">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Stroke="#E0E0E0" 
+                                StrokeThickness="1" 
+                                StrokeShape="RoundRectangle 5" 
+                                BackgroundColor="White" 
+                                Margin="0,0,0,10" 
+                                Padding="15">
 
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer 
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ActivityViewModel}}, Path=GoToDetailsCommand}"
-                                CommandParameter="{Binding .}"/>
-                        </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto, *, Auto" 
+                                  ColumnSpacing="15">
 
-                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
+                                <Frame Grid.Column="0" 
+                                       WidthRequest="70" 
+                                       HeightRequest="70" 
+                                       CornerRadius="35" 
+                                       BackgroundColor="#E8E8E8" 
+                                       HasShadow="False" 
+                                       BorderColor="Transparent" 
+                                       Padding="0" 
+                                       VerticalOptions="Center" />
 
-                            <Frame Grid.Column="0" WidthRequest="70" HeightRequest="70" CornerRadius="35" IsClippedToBounds="True" Padding="0" VerticalOptions="Center">
-                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill" BackgroundColor="#F0F0F0" />
-                            </Frame>
+                                <VerticalStackLayout Grid.Column="1" 
+                                                     VerticalOptions="Center" 
+                                                     Spacing="8">
 
-                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                <Label TextColor="Black">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Commodity Name: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding CommodityName}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label TextColor="Black">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Quantity: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding Quantity}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label TextColor="Black">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Price: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding Price}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                            </VerticalStackLayout>
+                                    <BoxView HeightRequest="15" 
+                                             WidthRequest="150" 
+                                             Color="#E8E8E8" 
+                                             CornerRadius="4" 
+                                             HorizontalOptions="Start"/>
 
-                            <Label Grid.Column="2" 
-                                   Text="{Binding State}" 
-                                   FontFamily="RobotoSerifBold" 
-                                   TextColor="Black" 
-                                   VerticalOptions="Center" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                    <BoxView HeightRequest="15" 
+                                             WidthRequest="100" 
+                                             Color="#E8E8E8" 
+                                             CornerRadius="4" 
+                                             HorizontalOptions="Start"/>
+
+                                    <BoxView HeightRequest="15" 
+                                             WidthRequest="120" 
+                                             Color="#E8E8E8" 
+                                             CornerRadius="4" 
+                                             HorizontalOptions="Start"/>
+                                </VerticalStackLayout>
+
+                                <BoxView Grid.Column="2" 
+                                         HeightRequest="20" 
+                                         WidthRequest="60" 
+                                         Color="#E8E8E8" 
+                                         CornerRadius="4" 
+                                         VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
     </Grid>
 </ContentPage>

@@ -150,6 +150,9 @@
 	  <MauiXaml Update="Views\SplashScreen.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Verification.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Welcome.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

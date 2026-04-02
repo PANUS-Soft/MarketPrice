@@ -14,7 +14,7 @@ namespace MarketPrice.Ui
 
             // 1. Immediately show the SplashPage to match the OS loading screen
             //MainPage = new SplashScreen();
-            MainPage = new NavigationPage(new Views.Activity());
+            MainPage = new NavigationPage(new Views.Verification());
         }
 
         protected override async void OnStart()
