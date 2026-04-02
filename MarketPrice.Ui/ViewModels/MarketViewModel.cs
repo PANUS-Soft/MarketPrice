@@ -105,12 +105,12 @@ namespace MarketPrice.Ui.ViewModels
                         CommodityId = insight.CommodityId,
                         Name = insight.CommodityName!
                     },
-                    ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")) ?? "smile.png",
-                    BestBid = insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                    ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")),
+                    BestBid = insight.BestBid != 0 ? insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Bids",
                     LotSize = insight.LotSize,
                     UnitOfMeasure = insight.UnitOfMeasure,
                     LotSizeDisplay = $"{insight.LotSize} {insight.UnitOfMeasure}",
-                    BestOffer = insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")),
+                    BestOffer = insight.BestOffer != 0 ? insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Offers",
                     IsBidUp = insight.IsBidImproved,
                     IsBidDown = !insight.IsBidImproved,
                     IsBidNull = insight.BestBid == 0,
@@ -163,14 +163,14 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToBidPositionListing(MarketItem item)
         {
-            if (item == null) return;
+            if (item.BestBid == "No Bids") return;
 
             var args = new PositionListingCommand
             {
                 CommodityTypeId = item.Filter.CommodityTypeId,
                 CommodityId = item.Filter.CommodityId,
                 PositionTypeId = 6001,
-                UnitPrice = decimal.Parse(item.BestBid),
+                UnitPrice = decimal.Parse(item.BestBid!),
                 CommodityName = item.Filter.Name
             };
 
@@ -183,14 +183,14 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToOfferPositionListing(MarketItem item)
         {
-            if (item == null) return;
+            if (item.BestOffer == "No Offers") return;
 
             var args = new PositionListingCommand
             {
                 CommodityTypeId = item.Filter.CommodityTypeId,
                 CommodityId = item.Filter.CommodityId,
                 PositionTypeId = 6002,
-                UnitPrice = decimal.Parse(item.BestOffer),
+                UnitPrice = decimal.Parse(item.BestOffer!),
                 CommodityName = item.Filter.Name
             };
 
