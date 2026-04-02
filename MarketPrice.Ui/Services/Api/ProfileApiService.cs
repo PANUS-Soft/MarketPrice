@@ -21,5 +21,12 @@ namespace MarketPrice.Ui.Services.Api
             var response = await PatchAsync(url, updateUserProfileCommand);
             return response;
         }
+
+        public async Task<HttpResponseMessage> ChangePasswordAsync(ChangePasswordCommand changePasswordCommand)
+        {
+            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.CHANGE_PASSWORD);
+            var response = await PostAsync(url, changePasswordCommand);
+            return response;
+        }
     }
 }
