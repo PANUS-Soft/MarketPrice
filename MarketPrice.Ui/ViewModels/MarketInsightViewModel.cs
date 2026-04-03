@@ -75,8 +75,13 @@ namespace MarketPrice.Ui.ViewModels
         public string MinBid24H => Dto?.MinBid24H.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
         public string MaxOffer24H => Dto?.MaxOffer24H.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
         public string MinOffer24H => Dto?.MinOffer24H.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
+        public decimal? BidPercentage => Dto?.BidPercentage;
+        public decimal? OfferPercentage => Dto?.OfferPercentage;
         public List<MarketDepthItemDto> Bids => Dto?.Bids ?? new List<MarketDepthItemDto>();
         public List<MarketDepthItemDto> Offers => Dto?.Offers ?? new List<MarketDepthItemDto>();
+
+        public GridLength BidWidth => new GridLength((double)(BidPercentage ?? 0), GridUnitType.Star);
+        public GridLength OfferWidth => new GridLength((double)(OfferPercentage ?? 0), GridUnitType.Star);
 
         private async Task GetCommodityMarketInsightAsync(Guid id)
         {
