@@ -61,7 +61,8 @@ namespace MarketPrice.Api.Controllers
                     //&& range != "1m"
                     return BadRequest("Invalid range");
 
-                var data = await _service.GetPriceChartAsync(commodityId, range);
+                //var data = await _service.GetPriceChartAsync(commodityId, range);
+                var data = await _marketService.GetPriceChartAsync(commodityId, range);
 
                 if (data == null || data.Count == 0)
                 {
