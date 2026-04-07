@@ -20,5 +20,6 @@ namespace MarketPrice.Domain.Position.DTOs
         public string? CommodityName { get; set; }
         public decimal Quantity { get; set; }
         public string? UnitOfMeasure { get; set; }
+        public bool IsSoonToExpire { get; set; }
     }
 }

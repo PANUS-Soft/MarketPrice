@@ -14,6 +14,7 @@
         public bool IsBidImproved { get; set; }
         public bool IsOfferImproved { get; set; }
         public string? UnitOfMeasure { get; set; }
+        public bool IsSoonToExpire { get; set; }
     }
 
 

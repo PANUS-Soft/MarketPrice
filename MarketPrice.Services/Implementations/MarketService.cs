@@ -22,6 +22,8 @@ namespace MarketPrice.Services.Implementations
 
         public async Task<List<MarketResponseDto>> GetMarketTrendAsync()
         {
+            var now = DateTime.UtcNow;
+
             // 1️ Load current market state
             var marketData = await (
                 from c in _context.Commodities
@@ -50,10 +52,13 @@ namespace MarketPrice.Services.Implementations
                         .Select(p => (decimal?)p.UnitPrice)
                         .Min() ?? 0m,
 
+                    TargetPosition = posGroup.OrderByDescending(p => p.UnitPrice).FirstOrDefault(),
                     ImageFileName = ci != null ? ci.FileName : null,
                     CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty
                 }
             ).ToListAsync();
+
+
 
             // 2️ Apply market improvement logic
             var response = new List<MarketResponseDto>();
@@ -61,6 +66,19 @@ namespace MarketPrice.Services.Implementations
             foreach (var x in marketData)
             {
                 var item = x.Commodity;
+                bool isSoonToExpire = false;
+
+                // 2. Apply the 80% Threshold.
+                if (x.TargetPosition != null) {
+                    var totalDuration = x.TargetPosition.ExpiryDate - x.TargetPosition.StartDate;
+                    var elapsedDuration = now - x.TargetPosition.StartDate;
+
+                    // condition: (Elapsed/Total) > 0.8
+                    if( totalDuration.TotalSeconds > 0)
+                    {
+                        isSoonToExpire = elapsedDuration.TotalSeconds / totalDuration.TotalSeconds >= 0.8;
+                    }
+                }
 
                 // Handle Bid Logic (higher price is better)
                 if (x.BestBid > item.LastBestBid && x.BestBid > 0)
@@ -111,7 +129,8 @@ namespace MarketPrice.Services.Implementations
                     BestOffer = x.BestOffer,
 
                     IsBidImproved = item.IsBidImproved,
-                    IsOfferImproved = item.IsOfferImproved
+                    IsOfferImproved = item.IsOfferImproved,
+                    IsSoonToExpire = isSoonToExpire
                 });
             }
 
