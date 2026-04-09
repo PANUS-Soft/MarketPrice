@@ -23,24 +23,34 @@ namespace MarketPrice.Ui.Services.Session
                 return false;
             }
 
-            var isSessionValid = await ValidateAndRefreshSessionAsync();
+            return await ValidateAndRefreshSessionAsync();
 
-            if (!isSessionValid)
-            {
-                await Shell.Current.GoToAsync("//Welcome");
-                return false;
-            }
+            //var isSessionValid = await ValidateAndRefreshSessionAsync();
 
-            return true;
+            //if (!isSessionValid)
+            //{
+            //    await Shell.Current.GoToAsync("//Welcome");
+            //    return false;
+            //}
+
+            //return true;
         }
 
         public async Task<UserSession?> GetCurrentSessionAsync()
         {
-            var sessionString = await SecureStorage.GetAsync(_sessionKey);
-            if (string.IsNullOrEmpty(sessionString))
-                return null;
+            try
+            {
+                var sessionString = await SecureStorage.GetAsync(_sessionKey);
+                if (string.IsNullOrEmpty(sessionString))
+                    return null;
 
-            return sessionString.FromJson<UserSession?>();
+                return sessionString.FromJson<UserSession?>();
+            }
+            catch (Exception e)
+            {
+                SecureStorage.Remove(_sessionKey);
+                return null;
+            }
         }
 
         public async Task<bool> StartSessionAsync(UserSession session)
@@ -49,6 +59,8 @@ namespace MarketPrice.Ui.Services.Session
             {
                 // Persist session in storage
                 await SecureStorage.SetAsync(_sessionKey, session.ToJson());
+
+                IsLoggedIn = true;
 
                 return true;
             }
@@ -66,6 +78,7 @@ namespace MarketPrice.Ui.Services.Session
                 try
                 {
                     SecureStorage.Remove(_sessionKey);
+                    IsLoggedIn = false;
                     return true;
                 }
                 catch (Exception e)
@@ -144,7 +157,7 @@ namespace MarketPrice.Ui.Services.Session
         public async Task InitializeAsync()
         {
             var currentSession = await GetCurrentSessionAsync();
-            if(currentSession is null) return;
+            if (currentSession is null) return;
 
             await StartSessionAsync(currentSession);
 

@@ -26,7 +26,7 @@ public partial class Home : ContentPage
             bool isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
             if (!isSessionValid) await _sessionService.TryRefreshTokenAsync();
 
-            await _authenticationApiService.PingAsync();
+            //await _authenticationApiService.PingAsync();
 
             if (BindingContext is HomeViewModel homeViewModel)
             {

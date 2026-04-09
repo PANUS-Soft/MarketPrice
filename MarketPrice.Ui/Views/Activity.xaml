@@ -10,19 +10,25 @@
         <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
 
-    <StackLayout>
+    <Grid VerticalOptions="FillAndExpand">
 
         <StackLayout IsVisible="{Binding IsUserLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
-                     VerticalOptions="Center">
+                     VerticalOptions="CenterAndExpand"
+                     Spacing="3"
+                     HorizontalOptions="Center">
 
             <Image Source="no_activity.png"
-                   HeightRequest="120"/>
+                   HeightRequest="150"/>
 
             <Label Text="No activity yet. You are here as a guest."
-                   FontSize="22"
+                   FontFamily="RobotoSerifRegular"
+                   HorizontalTextAlignment="Center"
+                   FontSize="18"
                    HorizontalOptions="Center"/>
 
-            <Label Text="Login or create an account to track your activity."
+            <Label Text="Register or login to track your activity."
+                   FontSize="15"
+                   FontFamily="RobotoSerifRegular"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"/>
 
@@ -127,5 +133,5 @@
                 <dx:TabViewItem HeaderText="Offers" />
             </dx:TabView>
         </Grid>
-    </StackLayout>
+    </Grid>
 </ContentPage>

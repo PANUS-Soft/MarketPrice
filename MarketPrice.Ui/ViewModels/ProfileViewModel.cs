@@ -135,7 +135,7 @@ namespace MarketPrice.Ui.ViewModels
                         var isSessionEnded = await _sessionService.EndSessionAsync();
                         if (isSessionEnded)
                         {
-                            await Toast.Make("You have been logged out successfully.", ToastDuration.Long).Show();
+                            await Toast.Make("You have been logged out successfully.", ToastDuration.Short).Show();
                             await Shell.Current.GoToAsync("//Welcome");
                         }
                     }

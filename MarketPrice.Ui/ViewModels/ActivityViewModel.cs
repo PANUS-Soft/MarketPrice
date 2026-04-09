@@ -32,9 +32,15 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task NavigateToWelcomeAsync()
+        private async Task NavigateToLoginAsync()
         {
-            await Shell.Current.GoToAsync("//Welcome");
+            await Shell.Current.GoToAsync("//Login");
+        }
+
+        [RelayCommand]
+        private async Task NavigateToWRegisterAsync()
+        {
+            await Shell.Current.GoToAsync("//Register");
         }
 
         public bool IsUserLoggedIn => _sessionService.IsLoggedIn;

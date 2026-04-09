@@ -17,19 +17,23 @@
         <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
 
-    <StackLayout>
+    <Grid VerticalOptions="FillAndExpand">
 
         <StackLayout IsVisible="{Binding IsUserLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
-                     VerticalOptions="Center">
+                     VerticalOptions="CenterAndExpand"
+                     Spacing="3">
 
             <Image Source="no_profile.png"
                    HeightRequest="120"/>
 
-            <Label Text="Welcome to MarketPrice"
-                   FontSize="26"
+            <Label Text="No profile. You are here as a guest."
+                   FontFamily="RobotoSerifRegular"
+                   FontSize="18"
                    HorizontalOptions="Center"/>
 
-            <Label Text="Register or Log in to manage your profile."
+            <Label Text="Register or log in to manage your profile."
+                   FontSize="15"
+                   FontFamily="RobotoSerifRegular"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"/>
 
@@ -243,5 +247,5 @@
 
 
         </Grid>
-    </StackLayout>
+    </Grid>
 </ContentPage>

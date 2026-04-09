@@ -158,11 +158,12 @@ namespace MarketPrice.Ui.ViewModels
 
             if (!accessAllowed)
             {
-                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\n You can either create an account or login into an existing one", "Register or Login", "Cancel");
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform.\n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
 
                 if (!accessAccount) return;
 
                 await Shell.Current.GoToAsync("//Welcome");
+                return;
             }
 
             if (selectedItem == null) return;
@@ -185,6 +186,8 @@ namespace MarketPrice.Ui.ViewModels
                 if (!accessAccount) return;
 
                 await Shell.Current.GoToAsync("//Welcome");
+
+                return;
             }
 
             if (item.BestBid == "No Bids") return;
@@ -216,6 +219,8 @@ namespace MarketPrice.Ui.ViewModels
                 if (!accessAccount) return;
 
                 await Shell.Current.GoToAsync("//Welcome");
+
+                return;
             }
 
             if (item.BestOffer == "No Offers") return;

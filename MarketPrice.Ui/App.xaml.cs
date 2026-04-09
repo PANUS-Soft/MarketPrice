@@ -22,8 +22,8 @@ namespace MarketPrice.Ui
 
             try
             {
-                //// 2. Run all background checks while SplashPage is active
-                //await _sessionService.InitializeAsync();
+                // 2. Run all background checks while SplashPage is active
+                await _sessionService.InitializeAsync();
 
                 //// We check these two variables to decide the path
                 //var hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);

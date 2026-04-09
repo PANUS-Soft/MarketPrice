@@ -111,7 +111,7 @@ namespace MarketPrice.Services.Implementations
                     CommodityTypeId = ct.CommodityTypeId,
                     CommodityTypeName = x.TypeName,
                     CommodityTypeImageId = x.ImageId,
-                    ImageUrl = $"CommodityTypeImages/{ct.CommodityTypeId}/image",
+                    ImageUrl = $"{ApiControllers.CommodityTypeImages}/{ct.CommodityTypeId}/image",
                     LotSize = firstItem?.LotSize ?? 0,
                     UnitOfMeasure = firstItem?.UomCode ?? "N/A",
                     BestBidPrice = currentBestBid,
