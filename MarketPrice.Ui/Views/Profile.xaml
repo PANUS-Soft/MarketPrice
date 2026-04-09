@@ -14,15 +14,39 @@
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
+        <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
-    <Grid Padding="20" RowDefinitions="Auto, *">
 
-        <Grid
+    <StackLayout>
+
+        <StackLayout IsVisible="{Binding IsUserLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
+                     VerticalOptions="Center">
+
+            <Image Source="no_profile.png"
+                   HeightRequest="120"/>
+
+            <Label Text="Welcome to MarketPrice"
+                   FontSize="26"
+                   HorizontalOptions="Center"/>
+
+            <Label Text="Register or Log in to manage your profile."
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <Grid ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10" BackgroundColor="White">
+                <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Register" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="10" Command="{Binding NavigateToRegisterCommand}"/>
+                <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Log in" BackgroundColor="White" BorderColor="{StaticResource PrimaryBase}" BorderWidth="3" TextColor="{StaticResource PrimaryBase}" CornerRadius="10" Command="{Binding NavigateToLoginCommand}"/>
+            </Grid>
+        </StackLayout>
+
+        <Grid IsVisible="{Binding IsUserLoggedIn}" Padding="20" RowDefinitions="Auto, *">
+
+            <Grid
             Grid.Row="0"
             ColumnDefinitions="Auto, *, Auto" 
             Margin="0,0,0,20">
 
-            <Label 
+                <Label 
                 Grid.Column="1" 
                 Text="Profile" 
                 FontFamily="RobotoSerifBold" 
@@ -30,22 +54,22 @@
                 HorizontalOptions="Center" 
                 TextColor="Black"/>
 
-            <!--<ImageButton 
+                <!--<ImageButton 
                 Grid.Column="2" 
                 Source="moon_icon.png" 
                 WidthRequest="4" 
                 HeightRequest="4" 
                 HorizontalOptions="End" />-->
-        </Grid>
+            </Grid>
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout>
-                <VerticalStackLayout 
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout>
+                    <VerticalStackLayout 
                     HorizontalOptions="Center" 
                     Spacing="12" 
                     Margin="0,10,0,20">
 
-                    <Border 
+                        <Border 
                         Stroke="{StaticResource PrimaryBase}"
                         StrokeThickness="3"
                         StrokeShape="RoundRectangle 50"
@@ -54,7 +78,7 @@
                         BackgroundColor="White"
                         HorizontalOptions="Center">
 
-                        <Label 
+                            <Label 
                             Text="{Binding FullName, Converter={StaticResource NameToInitialsConverter}}" 
                             FontSize="30" 
                             FontFamily="RobotoSerifBold" 
@@ -62,9 +86,9 @@
                             HorizontalOptions="Center" 
                             VerticalOptions="Center"/>
 
-                    </Border>
+                        </Border>
 
-                    <Label 
+                        <Label 
                         Text="{Binding FullName}" 
                         FontSize="22" 
                         FontFamily="RobotoSerifBold" 
@@ -72,7 +96,7 @@
                         HorizontalTextAlignment="Center"
                         HorizontalOptions="Center"/>
 
-                    <dxc:DXButton 
+                        <dxc:DXButton 
                         Content="Edit Profile"
                         Command="{Binding NavigateToEditProfileCommand}"
                         BackgroundColor="{StaticResource PrimaryBase}"
@@ -84,69 +108,69 @@
                         FontSize="14"
                         HorizontalOptions="Center"
                         Margin="0,5,0,0"/>
-                </VerticalStackLayout>
+                    </VerticalStackLayout>
 
-                <BoxView 
+                    <BoxView 
                     HeightRequest="3" 
                     Color="{StaticResource PrimaryBase}" 
                     Margin="0,10"/>
 
-                <VerticalStackLayout 
+                    <VerticalStackLayout 
                     Spacing="15" 
                     Padding="0,15">
 
-                    <Grid ColumnDefinitions="140, *">
-                        <Label 
+                        <Grid ColumnDefinitions="140, *">
+                            <Label 
                             Grid.Column="0" 
                             Text="Email:" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="Black" 
                             FontSize="15"/>
-                        <Label 
+                            <Label 
                             Grid.Column="1" 
                             Text="{Binding EmailAddress}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="Black" 
                             FontSize="15"/>
-                    </Grid>
+                        </Grid>
 
-                    <Grid ColumnDefinitions="140, *">
-                        <Label 
+                        <Grid ColumnDefinitions="140, *">
+                            <Label 
                             Grid.Column="0" 
                             Text="Phone Number:" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="Black" 
                             FontSize="15"/>
-                        <Label 
+                            <Label 
                             Grid.Column="1" 
                             Text="{Binding PhoneNumber}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="Black" 
                             FontSize="15"/>
-                    </Grid>
+                        </Grid>
 
-                    <Grid ColumnDefinitions="140, *">
-                        <Label 
+                        <Grid ColumnDefinitions="140, *">
+                            <Label 
                             Grid.Column="0" 
                             Text="Account Type:" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="Black" 
                             FontSize="15"/>
-                        <Label 
+                            <Label 
                             Grid.Column="1" 
                             Text="{Binding AccountType}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="Black" 
                             FontSize="15"/>
-                    </Grid>
-                </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
 
-                <BoxView 
+                    <BoxView 
                     HeightRequest="3" 
                     Color="{StaticResource PrimaryBase}" 
                     Margin="0,10"/>
 
-                <dxcv:DXCollectionView 
+                    <dxcv:DXCollectionView 
                     ItemsSource="{Binding MenuItems}" 
                     SelectionMode="Single"
                     ItemSpacing="0"
@@ -154,20 +178,20 @@
                     HeightRequest="230"
                     Margin="0,5,0,0">
 
-                    <dxcv:DXCollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid 
+                        <dxcv:DXCollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid 
                                 ColumnDefinitions="35, *" 
                                 Padding="0,15" 
                                 BackgroundColor="Transparent">
 
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer 
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ProfileViewModel}}, Path=NavigateToItemCommand}"
                                         CommandParameter="{Binding .}"/>
-                                </Grid.GestureRecognizers>
+                                    </Grid.GestureRecognizers>
 
-                                <Image 
+                                    <Image 
                                     Grid.Column="0" 
                                     Source="{Binding IconSource}" 
                                     HeightRequest="20" 
@@ -175,48 +199,49 @@
                                     VerticalOptions="Center" 
                                     HorizontalOptions="Start"/>
 
-                                <Label 
+                                    <Label 
                                     Grid.Column="1" 
                                     Text="{Binding Title}" 
                                     FontFamily="RobotoSerifMedium" 
                                     FontSize="16" 
                                     TextColor="Black" 
                                     VerticalOptions="Center"/>
-                            </Grid>
-                        </DataTemplate>
-                    </dxcv:DXCollectionView.ItemTemplate>
-                </dxcv:DXCollectionView>
+                                </Grid>
+                            </DataTemplate>
+                        </dxcv:DXCollectionView.ItemTemplate>
+                    </dxcv:DXCollectionView>
 
-                <BoxView 
+                    <BoxView 
                     HeightRequest="3" 
                     Color="{StaticResource PrimaryBase}" 
                     Margin="0,5,0,15"/>
 
-                <dx:SimpleButton
+                    <dx:SimpleButton
                     Command="{Binding LogoutCommand}"
                     BackgroundColor="{StaticResource Danger}"
                     CornerRadius="5"
                     HeightRequest="45"
                     WidthRequest="150"
                     Padding="15,0">
-                    <HorizontalStackLayout Spacing="10"
+                        <HorizontalStackLayout Spacing="10"
                                            VerticalOptions="Center"
                                            HorizontalOptions="Center">
-                        <Image Source="logout_icon.png"
+                            <Image Source="logout_icon.png"
                                HeightRequest="25"
                                WidthRequest="25"/>
 
-                        <Label Text="Logout"
+                            <Label Text="Logout"
                                TextColor="Black"
                                FontSize="15"
                                FontFamily="RobotoSerifBold"/>
-                    </HorizontalStackLayout>
-                </dx:SimpleButton>
+                        </HorizontalStackLayout>
+                    </dx:SimpleButton>
 
-            </VerticalStackLayout>
-        </ScrollView>
+                </VerticalStackLayout>
+            </ScrollView>
 
 
 
-    </Grid>
+        </Grid>
+    </StackLayout>
 </ContentPage>

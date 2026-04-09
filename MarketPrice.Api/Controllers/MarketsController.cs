@@ -19,7 +19,6 @@ namespace MarketPrice.Api.Controllers
         private readonly ILogger<MarketsController> _logger = logger;
 
         // Load Market Data
-        [Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {

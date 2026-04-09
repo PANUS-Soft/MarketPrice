@@ -11,6 +11,29 @@ namespace MarketPrice.Ui.Services.Session
     {
         private readonly string _sessionKey = "UserSession";
 
+        public bool IsLoggedIn { get; private set; }
+
+        public async Task<bool> EnsureUserAccessAsync()
+        {
+            bool hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);
+
+            if (!hasCompletedOnboarding)
+            {
+                await Shell.Current.GoToAsync("//Onboarding");
+                return false;
+            }
+
+            var isSessionValid = await ValidateAndRefreshSessionAsync();
+
+            if (!isSessionValid)
+            {
+                await Shell.Current.GoToAsync("//Welcome");
+                return false;
+            }
+
+            return true;
+        }
+
         public async Task<UserSession?> GetCurrentSessionAsync()
         {
             var sessionString = await SecureStorage.GetAsync(_sessionKey);
@@ -124,6 +147,8 @@ namespace MarketPrice.Ui.Services.Session
             if(currentSession is null) return;
 
             await StartSessionAsync(currentSession);
+
+            IsLoggedIn = await ValidateAndRefreshSessionAsync();
         }
 
         public async Task<bool> StartSessionAsync(AuthenticationResponseDto authResponseDto)

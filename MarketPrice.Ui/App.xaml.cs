@@ -22,32 +22,17 @@ namespace MarketPrice.Ui
 
             try
             {
-                // 2. Run all background checks while SplashPage is active
-                await _sessionService.InitializeAsync();
+                //// 2. Run all background checks while SplashPage is active
+                //await _sessionService.InitializeAsync();
 
-                // We check these two variables to decide the path
-                var hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);
-                bool hasValidSession = await _sessionService.ValidateAndRefreshSessionAsync();
+                //// We check these two variables to decide the path
+                //var hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);
 
                 // 3. Initialize the Shell (but don't show it yet)
                 MainPage = new AppShell();
 
-                // 4. Perform the "Silent Navigation"
-                if (!hasCompletedOnboarding)
-                {
-                    // Case A: Brand New User -> Onboarding
-                    await Shell.Current.GoToAsync("//Onboarding");
-                }
-                else if (hasValidSession)
-                {
-                    // Case B: Returning User with active session -> Home
-                    await Shell.Current.GoToAsync("//Home");
-                }
-                else
-                {
-                    // Case C: Returning User with expired session -> Welcome
-                    await Shell.Current.GoToAsync("//Welcome");
-                }
+                // Always go to Market first
+                await Shell.Current.GoToAsync("//Market");
             }
             catch (Exception)
             {
