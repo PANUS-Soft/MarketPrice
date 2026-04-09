@@ -52,16 +52,32 @@ namespace MarketPrice.Services.Implementations
                 // Faltten all positions to easily get best prices for positions.
                 var allPositions = x.ActivePrices.SelectMany(ap => ap.Positions).ToList();
 
-                var currentBestBid = allPositions.Where(p => p.PositionTypeId == BidPosition).Any()
-                    ? allPositions.Where(p => p.PositionTypeId == BidPosition).Max(p => p.UnitPrice) : 0;
-                var currentBestOffer = allPositions.Where(p => p.PositionTypeId == AskPosition).Any()
-                    ? allPositions.Where(p => p.PositionTypeId == AskPosition).Min(p => p.UnitPrice) : 0;
-                bool isSoonToExpire = allPositions.Any(p =>
+                var bestBidPos = allPositions
+                    .Where(p => p.PositionTypeId == BidPosition)
+                    .OrderByDescending(p => p.UnitPrice)
+                    .FirstOrDefault();
+                var bestOfferPos = allPositions
+                    .Where(p => p.PositionTypeId == AskPosition)
+                    .OrderBy(p => p.UnitPrice)
+                    .FirstOrDefault();
+
+                decimal currentBestBid = bestBidPos?.UnitPrice ?? 0;
+                decimal currentBestOffer = bestOfferPos?.UnitPrice ?? 0;
+
+                // Prioritize Bid to display soon to expire state
+                var displayPosition = bestBidPos ?? bestOfferPos;
+
+                bool isSoonToExpire = false;
+                if (displayPosition != null)
                 {
-                    var totalDuration = p.ExpiryDate - p.StartDate;
-                    var elapsedDuration = now - p.StartDate;
-                    return totalDuration.TotalSeconds > 0 && (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
-                });
+                    var totalDuration = displayPosition.ExpiryDate - displayPosition.StartDate;
+                    var elapsedDuration = now - displayPosition.StartDate;
+
+                    if (totalDuration.TotalSeconds > 0)
+                    {
+                        isSoonToExpire = (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+                    }
+                }
 
                 _context.Attach(ct);
 

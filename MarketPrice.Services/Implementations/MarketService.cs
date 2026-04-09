@@ -28,7 +28,7 @@ namespace MarketPrice.Services.Implementations
             var marketData = await (
                 from c in _context.Commodities
                 join p in _context.Positions.AsNoTracking()
-                        .Where(p => p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow)
+                        .Where(p => p.StartDate <= now && p.ExpiryDate > now)
                     on c.CommodityId equals p.CommodityId into posGroup
                 join ci in _context.CommodityImage
                     on c.CommodityId equals ci.CommodityId into ciGroup
@@ -42,17 +42,16 @@ namespace MarketPrice.Services.Implementations
 
                     UnitOfMeasure = uom,
 
-                    BestBid = posGroup
+                    BestBidPosition = posGroup
                         .Where(p => p.PositionTypeId == BidPosition)
-                        .Select(p => (decimal?)p.UnitPrice)
-                        .Max() ?? 0m,
+                        .OrderByDescending(p => p.UnitPrice)
+                        .FirstOrDefault(),
 
-                    BestOffer = posGroup
+                    BestOfferPosition = posGroup
                         .Where(p => p.PositionTypeId == AskPosition)
-                        .Select(p => (decimal?)p.UnitPrice)
-                        .Min() ?? 0m,
+                        .OrderBy(p => p.UnitPrice)
+                        .FirstOrDefault(),
 
-                    TargetPosition = posGroup.OrderByDescending(p => p.UnitPrice).FirstOrDefault(),
                     ImageFileName = ci != null ? ci.FileName : null,
                     CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty
                 }
@@ -66,47 +65,51 @@ namespace MarketPrice.Services.Implementations
             foreach (var x in marketData)
             {
                 var item = x.Commodity;
+                var bestBid = x.BestBidPosition?.UnitPrice ?? 0m;
+                var bestOffer = x.BestOfferPosition?.UnitPrice ?? 0m;
                 bool isSoonToExpire = false;
 
-                // 2. Apply the 80% Threshold.
-                if (x.TargetPosition != null) {
-                    var totalDuration = x.TargetPosition.ExpiryDate - x.TargetPosition.StartDate;
-                    var elapsedDuration = now - x.TargetPosition.StartDate;
+                // Prioritize the Bid if available, otherwise check the Offer
+                var displayPosition = x.BestBidPosition ?? x.BestOfferPosition;
 
-                    // condition: (Elapsed/Total) > 0.8
-                    if( totalDuration.TotalSeconds > 0)
+                if (displayPosition != null)
+                {
+                    var totalDuration = displayPosition.ExpiryDate - displayPosition.StartDate;
+                    var elapsedDuration = now - displayPosition.StartDate;
+                    
+                    if(totalDuration.TotalSeconds > 0)
                     {
-                        isSoonToExpire = elapsedDuration.TotalSeconds / totalDuration.TotalSeconds >= 0.8;
+                        isSoonToExpire = (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
                     }
                 }
 
                 // Handle Bid Logic (higher price is better)
-                if (x.BestBid > item.LastBestBid && x.BestBid > 0)
+                if (bestBid > item.LastBestBid && bestBid > 0)
                 {
                     item.IsBidImproved = true;
-                    item.LastBestBid = x.BestBid;
+                    item.LastBestBid = bestBid;
                 }
-                else if (x.BestBid < item.LastBestBid && x.BestBid > 0)
+                else if (bestBid < item.LastBestBid && bestBid > 0)
                 {
                     item.IsBidImproved = false;
-                    item.LastBestBid = x.BestBid;
+                    item.LastBestBid = bestBid;
                 }
 
                 // Handle Offer Logic (lower price is better)
-                if (x.BestOffer < item.LastBestOffer && x.BestOffer > 0)
+                if (bestOffer < item.LastBestOffer && bestOffer > 0)
                 {
                     item.IsOfferImproved = true;
-                    item.LastBestOffer = x.BestOffer;
+                    item.LastBestOffer = bestOffer;
                 }
-                else if (item.LastBestOffer == 0 && x.BestOffer > 0)
+                else if (item.LastBestOffer == 0 && bestOffer > 0)
                 {
                     item.IsOfferImproved = true;
-                    item.LastBestOffer = x.BestOffer;
+                    item.LastBestOffer = bestOffer;
                 }
-                else if (x.BestOffer > item.LastBestOffer && x.BestOffer > 0)
+                else if (bestOffer > item.LastBestOffer && bestOffer > 0)
                 {
                     item.IsOfferImproved = false;
-                    item.LastBestOffer = x.BestOffer;
+                    item.LastBestOffer = bestOffer;
                 }
 
                 item.DateUpdated = DateTimeOffset.Now;
@@ -125,8 +128,8 @@ namespace MarketPrice.Services.Implementations
                     UnitOfMeasure = x.UnitOfMeasure.UnitOfMeasureCodeEnglish,
                     ImageUrl = $"{ApiControllers.CommodityImages}/{item.CommodityId}/image",
 
-                    BestBid = x.BestBid,
-                    BestOffer = x.BestOffer,
+                    BestBid = bestBid,
+                    BestOffer = bestOffer,
 
                     IsBidImproved = item.IsBidImproved,
                     IsOfferImproved = item.IsOfferImproved,
