@@ -154,6 +154,8 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToMarketInsightAsync(MarketItemFilter? selectedItem)
         {
+            if (selectedItem == null) return;
+
             bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
 
             if (!accessAllowed)
@@ -166,8 +168,6 @@ namespace MarketPrice.Ui.ViewModels
                 return;
             }
 
-            if (selectedItem == null) return;
-
             await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
             {
                 {"SelectedMarketItemFilter", selectedItem }
@@ -177,11 +177,13 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToBidPositionListing(MarketItem item)
         {
+            if (item.BestBid == "No Bids") return;
+
             bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
 
             if (!accessAllowed)
             {
-                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\n You can either create an account or login into an existing one", "Register or Login", "Cancel");
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
 
                 if (!accessAccount) return;
 
@@ -189,8 +191,6 @@ namespace MarketPrice.Ui.ViewModels
 
                 return;
             }
-
-            if (item.BestBid == "No Bids") return;
 
             var args = new PositionListingCommand
             {
@@ -210,11 +210,13 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToOfferPositionListing(MarketItem item)
         {
+            if (item.BestOffer == "No Offers") return;
+
             bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
 
             if (!accessAllowed)
             {
-                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\n You can either create an account or login into an existing one", "Register or Login", "Cancel");
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
 
                 if (!accessAccount) return;
 
@@ -222,8 +224,6 @@ namespace MarketPrice.Ui.ViewModels
 
                 return;
             }
-
-            if (item.BestOffer == "No Offers") return;
 
             var args = new PositionListingCommand
             {

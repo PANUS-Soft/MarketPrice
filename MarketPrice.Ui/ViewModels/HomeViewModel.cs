@@ -107,6 +107,19 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (item.BestBidPrice == "No Bids") return;
 
+            bool accessAllowed = await sessionService.EnsureUserAccessAsync();
+
+            if (!accessAllowed)
+            {
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
+
+                if (!accessAccount) return;
+
+                await Shell.Current.GoToAsync("//Welcome");
+
+                return;
+            }
+
             var args = new PositionListingCommand
             {
                 CommodityTypeId = item.CommodityTypeId,
@@ -124,6 +137,19 @@ namespace MarketPrice.Ui.ViewModels
         private async Task NavigateToOfferPositionListing(HomeDisplayInformation item)
         {
             if (item.BestOfferPrice == "No Offers") return;
+
+            bool accessAllowed = await sessionService.EnsureUserAccessAsync();
+
+            if (!accessAllowed)
+            {
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
+
+                if (!accessAccount) return;
+
+                await Shell.Current.GoToAsync("//Welcome");
+
+                return;
+            }
 
             var args = new PositionListingCommand
             {
