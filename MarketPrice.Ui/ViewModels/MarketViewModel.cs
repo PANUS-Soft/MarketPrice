@@ -116,7 +116,9 @@ namespace MarketPrice.Ui.ViewModels
                     IsBidNull = insight.BestBid == 0,
                     IsOfferUp = insight.IsOfferImproved,
                     IsOfferDown = !insight.IsOfferImproved,
-                    IsOfferNull = insight.BestOffer == 0
+                    IsOfferNull = insight.BestOffer == 0,
+                    IsBidSoonToExpire = insight.IsBidSoonToExpire,
+                    IsOfferSoonToExpire = insight.IsOfferSoonToExpire
                 });
             }
 

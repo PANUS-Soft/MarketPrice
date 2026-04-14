@@ -13,12 +13,14 @@
         public decimal LowOffer { get; set; }
         public bool IsBidUp { get; set; }
         public bool IsBidDown { get; set; }
+        public bool IsBidNull { get; set; }
+        public bool IsBidSoonToExpire { get; set; }
         public bool IsOfferUp { get; set; }
         public bool IsOfferDown { get; set; }
+        public bool IsOfferNull { get; set; }
+        public bool IsOfferSoonToExpire { get; set; }
         public string? UnitOfMeasure { get; set; }
         public string? LotSizeDisplay { get; set; }
-        public bool IsBidNull { get; set; }
-        public bool IsOfferNull { get; set; }
     }
 
     public class MarketItemFilter

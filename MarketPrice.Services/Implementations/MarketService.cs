@@ -42,6 +42,8 @@ namespace MarketPrice.Services.Implementations
 
                     UnitOfMeasure = uom,
 
+                    Positions = posGroup.ToList(),
+
                     BestBid = posGroup
                         .Where(p => p.PositionTypeId == BidPosition)
                         .Select(p => (decimal?)p.UnitPrice)
@@ -66,18 +68,46 @@ namespace MarketPrice.Services.Implementations
             foreach (var x in marketData)
             {
                 var item = x.Commodity;
-                bool isSoonToExpire = false;
+                //bool isSoonToExpire = false;
 
-                // 2. Apply the 80% Threshold.
-                if (x.TargetPosition != null) {
-                    var totalDuration = x.TargetPosition.ExpiryDate - x.TargetPosition.StartDate;
-                    var elapsedDuration = now - x.TargetPosition.StartDate;
+                //// 2. Apply the 80% Threshold.
+                //if (x.TargetPosition != null) {
+                //    var totalDuration = x.TargetPosition.ExpiryDate - x.TargetPosition.StartDate;
+                //    var elapsedDuration = now - x.TargetPosition.StartDate;
 
-                    // condition: (Elapsed/Total) > 0.8
-                    if( totalDuration.TotalSeconds > 0)
-                    {
-                        isSoonToExpire = elapsedDuration.TotalSeconds / totalDuration.TotalSeconds >= 0.8;
-                    }
+                //    // condition: (Elapsed/Total) > 0.8
+                //    if( totalDuration.TotalSeconds > 0)
+                //    {
+                //        isSoonToExpire = elapsedDuration.TotalSeconds / totalDuration.TotalSeconds >= 0.8;
+                //    }
+                //}
+
+                bool isBidSoonToExpire = false;
+                bool isOfferSoonToExpire = false;
+
+                var bestBidPosition = x.Positions
+                    .Where(p => p.PositionTypeId == BidPosition).OrderByDescending(p => p.UnitPrice).FirstOrDefault();
+
+
+                var bestOfferPosition = x.Positions
+                    .Where(p => p.PositionTypeId == AskPosition).OrderBy(p => p.UnitPrice).FirstOrDefault();
+
+                if (bestBidPosition != null)
+                {
+                    var totalDuration = bestBidPosition.ExpiryDate - bestBidPosition.StartDate;
+                    var elapsed = now - bestBidPosition.StartDate;
+
+                    if (totalDuration.TotalSeconds > 0)
+                        isBidSoonToExpire = (elapsed.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+                }
+
+                if (bestOfferPosition != null)
+                {
+                    var totalDuration = bestOfferPosition.ExpiryDate - bestOfferPosition.StartDate;
+                    var elapsed = now - bestOfferPosition.StartDate;
+
+                    if (totalDuration.TotalSeconds > 0)
+                        isOfferSoonToExpire = (elapsed.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
                 }
 
                 // Handle Bid Logic (higher price is better)
@@ -130,7 +160,8 @@ namespace MarketPrice.Services.Implementations
 
                     IsBidImproved = item.IsBidImproved,
                     IsOfferImproved = item.IsOfferImproved,
-                    IsSoonToExpire = isSoonToExpire
+                    IsBidSoonToExpire = isBidSoonToExpire,
+                    IsOfferSoonToExpire = isOfferSoonToExpire
                 });
             }
 
