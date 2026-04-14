@@ -13,4 +13,6 @@ public class HomeDisplayInformation
     public string BestOfferPrice { get; set; }
     public bool IsOfferTrendUp { get; set; }
     public bool IsOfferTrendDown { get; set; }
+    public bool IsBidSoonToExpire { get; set; }
+    public bool IsOfferSoonToExpire { get; set; }
 }

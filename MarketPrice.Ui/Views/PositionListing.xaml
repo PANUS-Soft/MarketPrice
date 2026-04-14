@@ -184,6 +184,14 @@
                                     </Label>
                                 </Grid>
                             </Border>
+
+                            <Image Source="soon_to_expire.png"
+                                   WidthRequest="30"
+                                   HeightRequest="30"
+                                   IsVisible="{Binding IsSoonToExpire}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Start"
+                                   Margin="0, -5, -10, 0"/>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

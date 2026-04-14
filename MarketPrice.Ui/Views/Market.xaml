@@ -113,65 +113,86 @@
                                     <Label Text="{Binding LotSizeDisplay}" TextColor="Gray" FontSize="12"/>
                                 </VerticalStackLayout>
 
-                                <Button Grid.Column="2" 
-                                        Text="{Binding BestBid}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsBidUp}" 
-                                        BackgroundColor="#369F79"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                
-                                <Button Grid.Column="2" 
-                                        Text="{Binding BestBid}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsBidDown}" 
-                                        BackgroundColor="#E84235"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                
-                                <Button Grid.Column="2" 
-                                        BorderWidth="3" 
-                                        BorderColor="{StaticResource PrimaryBase}" 
-                                        BackgroundColor="White" 
-                                        Text="{Binding BestBid}" 
-                                        TextColor="{StaticResource PrimaryBase}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsBidNull}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                <Grid Grid.Column="2" HeightRequest="50">
+                                    <Button Grid.Column="2" 
+                                            Text="{Binding BestBid}" 
+                                            FontSize="12" 
+                                            FontFamily="RobotoSerifRegular" 
+                                            IsVisible="{Binding IsBidUp}" 
+                                            BackgroundColor="#369F79"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
+                                            CommandParameter="{Binding .}"/>
 
-                                <Button Grid.Column="3" 
-                                        Text="{Binding BestOffer}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsOfferUp}" 
-                                        BackgroundColor="#369F79"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="2" 
+                                            Text="{Binding BestBid}" 
+                                            FontSize="12" 
+                                            FontFamily="RobotoSerifRegular" 
+                                            IsVisible="{Binding IsBidDown}" 
+                                            BackgroundColor="#E84235"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
+                                            CommandParameter="{Binding .}"/>
 
-                                <Button Grid.Column="3" 
-                                        Text="{Binding BestOffer}" 
-                                        FontSize="12"
-                                        FontFamily="RobotoSerifRegular"
-                                        IsVisible="{Binding IsOfferDown}" 
-                                        BackgroundColor="#E84235"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                    <Button Grid.Column="2" 
+                                            BorderWidth="3" 
+                                            BorderColor="{StaticResource PrimaryBase}" 
+                                            BackgroundColor="White" 
+                                            Text="{Binding BestBid}" 
+                                            TextColor="{StaticResource PrimaryBase}" 
+                                            FontSize="12" 
+                                            FontFamily="RobotoSerifRegular" 
+                                            IsVisible="{Binding IsBidNull}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
+                                            CommandParameter="{Binding .}"/>
 
-                                <Button Grid.Column="3" 
-                                        BorderWidth="3" 
-                                        BorderColor="{StaticResource PrimaryBase}" 
-                                        BackgroundColor="White" 
-                                        Text="{Binding BestOffer}" 
-                                        TextColor="{StaticResource PrimaryBase}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsOfferNull}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                    <Image Source="soon_to_expire.png"
+                                           IsVisible="{Binding IsBidSoonToExpire}"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           HorizontalOptions="End"
+                                           VerticalOptions="Start"
+                                           Margin="0, -5, -5, 0"/>
+                                </Grid>
+
+                                <Grid Grid.Column="3" HeightRequest="50">
+                                    <Button Grid.Column="3" 
+                                            Text="{Binding BestOffer}" 
+                                            FontSize="12" 
+                                            FontFamily="RobotoSerifRegular" 
+                                            IsVisible="{Binding IsOfferUp}" 
+                                            BackgroundColor="#369F79"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
+                                            CommandParameter="{Binding .}"/>
+
+                                    <Button Grid.Column="3" 
+                                            Text="{Binding BestOffer}" 
+                                            FontSize="12"
+                                            FontFamily="RobotoSerifRegular"
+                                            IsVisible="{Binding IsOfferDown}" 
+                                            BackgroundColor="#E84235"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
+                                            CommandParameter="{Binding .}"/>
+
+                                    <Button Grid.Column="3" 
+                                            BorderWidth="3" 
+                                            BorderColor="{StaticResource PrimaryBase}" 
+                                            BackgroundColor="White" 
+                                            Text="{Binding BestOffer}" 
+                                            TextColor="{StaticResource PrimaryBase}" 
+                                            FontSize="12" 
+                                            FontFamily="RobotoSerifRegular" 
+                                            IsVisible="{Binding IsOfferNull}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
+                                            CommandParameter="{Binding .}"/>
+
+                                    <Image Source="soon_to_expire.png"
+                                           IsVisible="{Binding IsOfferSoonToExpire}"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           HorizontalOptions="End"
+                                           VerticalOptions="Start"
+                                           Margin="0, -5, 0, 0"/>
+                                </Grid>
+
                             </Grid>
                         </DataTemplate>
                     </dxcv:DXCollectionView.ItemTemplate>

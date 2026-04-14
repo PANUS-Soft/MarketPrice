@@ -49,34 +49,40 @@ namespace MarketPrice.Services.Implementations
             {
                 var ct = x.TypeEntity;
 
-                // Faltten all positions to easily get best prices for positions.
+                // Flatten all positions to easily get best prices for positions.
                 var allPositions = x.ActivePrices.SelectMany(ap => ap.Positions).ToList();
 
-                var bestBidPos = allPositions
-                    .Where(p => p.PositionTypeId == BidPosition)
-                    .OrderByDescending(p => p.UnitPrice)
-                    .FirstOrDefault();
-                var bestOfferPos = allPositions
-                    .Where(p => p.PositionTypeId == AskPosition)
-                    .OrderBy(p => p.UnitPrice)
-                    .FirstOrDefault();
+                var currentBestBid = allPositions.Where(p => p.PositionTypeId == BidPosition).Any()
+                    ? allPositions.Where(p => p.PositionTypeId == BidPosition).Max(p => p.UnitPrice) : 0;
+                var currentBestOffer = allPositions.Where(p => p.PositionTypeId == AskPosition).Any()
+                    ? allPositions.Where(p => p.PositionTypeId == AskPosition).Min(p => p.UnitPrice) : 0;
 
-                decimal currentBestBid = bestBidPos?.UnitPrice ?? 0;
-                decimal currentBestOffer = bestOfferPos?.UnitPrice ?? 0;
+                var bestBidPosition = allPositions.Where(p => p.PositionTypeId == BidPosition)
+                    .OrderByDescending(p => p.UnitPrice).FirstOrDefault();
 
-                // Prioritize Bid to display soon to expire state
-                var displayPosition = bestBidPos ?? bestOfferPos;
+                bool isBidSoonToExpire = false;
 
-                bool isSoonToExpire = false;
-                if (displayPosition != null)
+                if (bestBidPosition != null)
                 {
-                    var totalDuration = displayPosition.ExpiryDate - displayPosition.StartDate;
-                    var elapsedDuration = now - displayPosition.StartDate;
+                    var totalDuration = bestBidPosition.ExpiryDate - bestBidPosition.StartDate;
+                    var elapsedDuration = now - bestBidPosition.StartDate;
 
-                    if (totalDuration.TotalSeconds > 0)
-                    {
-                        isSoonToExpire = (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
-                    }
+                    isBidSoonToExpire = totalDuration.TotalSeconds > 0 &&
+                                        (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+                }
+
+                var bestOfferPosition = allPositions.Where(p => p.PositionTypeId == AskPosition)
+                    .OrderBy(p => p.UnitPrice).FirstOrDefault();
+
+                bool isOfferSoonToExpire = false;
+
+                if (bestOfferPosition != null)
+                {
+                    var totalDuration = bestOfferPosition.ExpiryDate - bestOfferPosition.StartDate;
+                    var elapsedDuration = now - bestOfferPosition.StartDate;
+
+                    isOfferSoonToExpire = totalDuration.TotalSeconds > 0 &&
+                                          (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
                 }
 
                 _context.Attach(ct);
@@ -137,7 +143,8 @@ namespace MarketPrice.Services.Implementations
                     BestOfferPrice = currentBestOffer,
                     IsBidImproved = ct.IsBidImproved,
                     IsOfferImproved = ct.IsOfferImproved,
-                    IsSoonToExpire = isSoonToExpire
+                    IsBidSoonToExpire = isBidSoonToExpire,
+                    IsOfferSoonToExpire = isOfferSoonToExpire
                 });
             }
 
