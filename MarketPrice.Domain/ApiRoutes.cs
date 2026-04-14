@@ -19,6 +19,10 @@ public static class ApiRoutes
     public const string POSITION_BY_PRICE = "price";
     public const string POSITION_DETAIL = "detail";
 
+    //Activity (PositionHistory)
+
+    public const string ACTIVITY_POSITION = "Bid/Offer_Activity";
+
     // Reference Data Routes
     public const string REF_REGION = "regions";
     public const string REF_COMMODITY = "commodities";

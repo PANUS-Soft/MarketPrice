@@ -43,5 +43,25 @@ namespace MarketPrice.Api.Realtime
                 _logger.LogError(ex, "Error broadcasting market update");
             }
         }
+
+        public async Task BroadcastActivityPositionStatusUpdateAsync(Position position, string state)
+        {
+            await _hub.Clients
+                .Group(position.CommodityId.ToString())
+                .SendAsync("PositionUpdated", new
+                {
+
+                    positionId = position.PositionId,
+                    state = state,
+                    price = position.UnitPrice,
+                    quantity = position.Quantity,
+
+                });
+        }
+
+
+
+
+
     }
 }

@@ -1,4 +1,6 @@
 ﻿using MarketPrice.Domain;
+using MarketPrice.Domain.Activity.Command;
+using MarketPrice.Domain.Activity.Dto;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Services.Implementations;
@@ -42,7 +44,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // List of Positions for a specific commodity type, position type, and unit price
-        [Authorize]
+        //[Authorize]
         [HttpPost(ApiRoutes.POSITION_BY_PRICE)]
         public async Task<ActionResult<PositionListingResponseDto>> GetPositionsForPrice([FromBody] PositionListingCommand command)
         {
@@ -56,11 +58,20 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Position Detail
+        //[Authorize]
         [HttpGet(ApiRoutes.POSITION_DETAIL + "/{id}")]
         public async Task<ActionResult<PositionDetailResponseDto>> GetPositionDetail(Guid id)
         {
             var result = await positionService.GetPositionDetailAsync(id);
 
+            return Ok(result);
+        }
+
+        //[Authorize]
+        [HttpGet(ApiRoutes.ACTIVITY_POSITION)]
+        public async Task<ActionResult<ActivityResponseDto>> GetActivity([FromBody] ActivityCommand command)
+        {
+            var result = await positionService.GetActivityAsync(command);
             return Ok(result);
         }
     }

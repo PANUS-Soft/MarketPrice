@@ -1,5 +1,8 @@
-﻿using MarketPrice.Data;
+﻿using LinqToDB.Internal.Linq;
+using MarketPrice.Data;
 using MarketPrice.Data.Models;
+using MarketPrice.Domain.Activity.Command;
+using MarketPrice.Domain.Activity.Dto;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
@@ -21,6 +24,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
     public async Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer)
     {
+        //verify if the command is null before process the data 
         if (command == null)
         {
             throw new ArgumentNullException(nameof(command));
@@ -115,9 +119,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             _context.Locations.Add(destination);
         }
 
+        string state = DateTime.UtcNow < position.StartDate ? "Pending" :
+            DateTime.UtcNow <= position.ExpiryDate ? "Open" : "Close";
 
         await _context.SaveChangesAsync();
         await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
+        await _realtime.BroadcastActivityPositionStatusUpdateAsync(position,state);
 
         //provide information to the grave curve
         return new PositionResponseDto
@@ -319,7 +326,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             ShelfLifeInDays = position.Commodity != null ? position.Commodity.ShelfLifeInDays : 0,
             DeliveryAvailable = deliverable,
 
-            // Logistics information
+            // Logistics infor mation
             Origin = originLocation != null
                 ? new LocationResponse
                 {
@@ -343,6 +350,72 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             } : null,
             LeadTimeInDays = deliverable ? deliveryDetail?.LeadTimeInDays : null,
             DeliveryFee = deliverable ? deliveryDetail?.Fee : null
+        };
+    }
+
+    public async Task<ActivityGroupDto> GetActivityAsync(ActivityCommand command)
+    {
+
+        var positionHistory = _context.Positions.AsQueryable();
+
+        //Filter: Position type (SAFE using Lookup IDs)
+        if(!string.IsNullOrEmpty(command.PositionType))
+        {
+            int typeId = command.PositionType switch
+            {
+                "Bid" => lookups.GetLookupId("Bid", POSITION_TYPE),
+                "Offer" => lookups.GetLookupId("Offer", POSITION_TYPE),
+                _ => throw new ArgumentException($"Unknow PositionType: {command.PositionType}")
+            };
+        positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
+
+        }
+
+        //Filter: Commodity
+        if(command.CommodityId.HasValue && command.CommodityId != Guid.Empty)
+        {
+            positionHistory = positionHistory.Where(p => p.CommodityId == command.CommodityId.Value);
+        }
+
+        //limit Data (Performance)
+
+        //last week position placement
+        var LastWeek = DateTime.UtcNow.AddDays(-7);
+        positionHistory = positionHistory.Where(p => p.Date >= LastWeek);
+
+        var data = await positionHistory.Select(p => new ActivityResponseDto
+        {
+            CommodityName = p.Commodity.CommodityName,
+            Quantity = p.Quantity,
+            Price = p.UnitPrice,
+
+            State = DateTime.UtcNow < p.StartDate? "Pending..":
+            p.ExpiryDate >= DateTime.UtcNow ? "Open" : "Close",
+            
+
+            PositionType = p.PositionType.LookupDataTextEnglish,
+            CreatedAt = p.Date
+       
+        }).OrderByDescending(X => X.CreatedAt).ToListAsync();
+
+        //Grouping all them with they respective time range 
+        var today = DateTime.UtcNow.Date;
+
+        //var yesterday = today.AddDays(-1);
+
+        //var ThisWeek = DateTime.UtcNow.AddDays(7);
+
+        //var ThisMonth = LastWeek.AddMonths(1);
+        //var LastMonth = DateTime.UtcNow.AddMonths(-1);
+
+
+        return new ActivityGroupDto
+        {
+            Today = data.Where(x => x.CreatedAt >= today).ToList(),
+
+            //Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
+            //LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
+            //ThisMonth = data.Where(x => x.CreatedAt < ThisMonth).ToList()
         };
     }
 
