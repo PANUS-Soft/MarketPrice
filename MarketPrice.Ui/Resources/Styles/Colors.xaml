@@ -15,9 +15,8 @@
     <Color x:Key="Danger">#E74C3C</Color>
 
     <!-- Neutral Colors -->
-    <Color x:Key="Background">#FAFAFA</Color>
-    <Color x:Key="TextPrimary">#333333</Color>
-    <Color x:Key="TextSecondary">#808080</Color>
+    <Color x:Key="Background">#0F1117</Color>
+   
     <Color x:Key="Separator">#CCCCCC</Color>
     
     <Color x:Key="LightGrayText">#A0A0A0</Color>
@@ -45,6 +44,19 @@
     <Color x:Key="Gray600">#404040</Color>
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
+
+    <Color x:Key="BgPage">#0F1117</Color>
+    <Color x:Key="BgCard">#1A1D27</Color>
+    <Color x:Key="BgCardInner">#12151E</Color>
+    <Color x:Key="BgHeader">#0D0F18</Color>
+    <Color x:Key="AccentBlue">#3B82F6</Color>
+    <Color x:Key="AccentGreen">#22C55E</Color>
+    <Color x:Key="AccentRed">#EF4444</Color>
+    <Color x:Key="TextPrimary">#F1F5F9</Color>
+    <Color x:Key="TextSecondary">#94A3B8</Color>
+    <Color x:Key="TextMuted">#475569</Color>
+    <Color x:Key="BorderColor">#2A2D3E</Color>
+    <Color x:Key="SearchBg">#1E2130</Color>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>

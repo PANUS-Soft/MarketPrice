@@ -10,7 +10,7 @@
       {
         "Path": "MarketPrice.Ui\\MarketPrice.Ui.csproj",
         "Action": "Start",
-        "DebugTarget": "Pixel 7 - API 35 (Android 15.0 - API 35)"
+        "DebugTarget": "Pixel 7 - API 34 (Android 14.0 - API 34)"
       }
     ]
   }

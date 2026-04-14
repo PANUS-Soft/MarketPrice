@@ -451,4 +451,30 @@
         <Setter Property="VerticalOptions" Value="Center" />
     </Style>
 
+    <Style x:Key="GroupHeaderStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="CharacterSpacing" Value="2"/>
+        <Setter Property="Margin" Value="16,18,16,6"/>
+    </Style>
+
+    <Style x:Key="ColHeaderStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextMuted}"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+        <Setter Property="CharacterSpacing" Value="1"/>
+    </Style>
+
+    <Style x:Key="PriceStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SubPriceStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+    </Style>
 </ResourceDictionary>
