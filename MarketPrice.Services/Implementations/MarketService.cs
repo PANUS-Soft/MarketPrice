@@ -28,7 +28,7 @@ namespace MarketPrice.Services.Implementations
             var marketData = await (
                 from c in _context.Commodities
                 join p in _context.Positions.AsNoTracking()
-                        .Where(p => p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow)
+                        .Where(p => p.StartDate <= now && p.ExpiryDate > now)
                     on c.CommodityId equals p.CommodityId into posGroup
                 join ci in _context.CommodityImage
                     on c.CommodityId equals ci.CommodityId into ciGroup
