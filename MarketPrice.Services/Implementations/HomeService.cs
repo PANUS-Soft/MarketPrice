@@ -72,6 +72,26 @@ namespace MarketPrice.Services.Implementations
                 var currentBestBid = bestBidPos?.Position.UnitPrice ?? 0m;
                 var currentBestOffer = bestOfferPos?.Position.UnitPrice ?? 0m;
 
+                // Market Depth Logic
+                var bidDepth = bids
+                    .GroupBy(ap => ap.Position.UnitPrice)
+                    .OrderByDescending(g => g.Key)
+                    .Select(g => new HomeMarketDepthDto
+                    {
+                        Price = g.Key,
+                        Locations = g.Select(ap => ap.LocationName).Distinct().ToList(),
+                        TotalActivePosforPrice = g.Count()
+                    }).ToList();
+
+                var offerDepth = offers
+                    .GroupBy(ap => ap.Position.UnitPrice)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new HomeMarketDepthDto
+                    {
+                        Price = g.Key,
+                        Locations = g.Select(ap => ap.LocationName).Distinct().ToList(),
+                        TotalActivePosforPrice = g.Count()
+                    }).ToList();
                 // 4. Trend / Improvement Logic (Sticky Logic)
                 _context.Attach(ctEntity);
             
@@ -110,6 +130,8 @@ namespace MarketPrice.Services.Implementations
                     }
                 }
 
+                ctEntity.LastBestBid = currentBestBid;
+                ctEntity.LastBestOffer = currentBestOffer;
                 ctEntity.DateUpdated = DateTime.UtcNow;
                 _context.Entry(ctEntity).State = EntityState.Modified;
 
@@ -120,23 +142,28 @@ namespace MarketPrice.Services.Implementations
                     CommodityTypeName = first.TypeName,
                     CommodityTypeImageId = first.CommodityTypeImageId,
                     ImageUrl = $"CommodityTypeImages/{first.CommodityTypeId}/image",
-                    LotSize = first.LotSize,
+                    LotSize = (short)first.LotSize,
                     UnitOfMeasure = first.UnitOfMeasureCode,
-
-                    BestBidPrice = currentBestBid,
-                    BestOfferPrice = currentBestOffer,
 
                     IsBidImproved = ctEntity.IsBidImproved,
                     IsOfferImproved = ctEntity.IsOfferImproved,
-
-                    // Expiry logic using your IsExpired helper
                     IsBidSoonToExpire = bestBidPos != null && IsExpired(bestBidPos.Position.StartDate, bestBidPos.Position.ExpiryDate, now),
-                    IsOfferSoonToExpire = bestOfferPos != null && IsExpired(bestOfferPos.Position.StartDate, bestOfferPos.Position.ExpiryDate, now)
+                    IsOfferSoonToExpire = bestOfferPos != null && IsExpired(bestOfferPos.Position.StartDate, bestOfferPos.Position.ExpiryDate, now),
+                    BidDepth = bidDepth,
+                    OfferDepth = offerDepth
                 });
             }
 
             await _context.SaveChangesAsync();
             return result;
+        }
+
+        // Helper method used to calculate soon-to-expire for positions
+        private bool IsExpired(DateTime start, DateTime expiry, DateTime now)
+        {
+            var total = (expiry - start).TotalSeconds;
+            if (total <= 0) return false;
+            return ((now - start).TotalSeconds / total) >= 0.8;
         }
     }
 }
