@@ -67,6 +67,7 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
+        //Get Activity for each position over time 
         //[Authorize]
         [HttpGet(ApiRoutes.ACTIVITY_POSITION)]
         public async Task<ActionResult<ActivityResponseDto>> GetActivity([FromBody] ActivityCommand command)

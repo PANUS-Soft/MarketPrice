@@ -352,10 +352,8 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             DeliveryFee = deliverable ? deliveryDetail?.Fee : null
         };
     }
-
     public async Task<ActivityGroupDto> GetActivityAsync(ActivityCommand command)
     {
-
         var positionHistory = _context.Positions.AsQueryable();
 
         //Filter: Position type (SAFE using Lookup IDs)
@@ -370,7 +368,6 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
 
         }
-
         //Filter: Commodity
         if(command.CommodityId.HasValue && command.CommodityId != Guid.Empty)
         {
@@ -378,7 +375,6 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         }
 
         //limit Data (Performance)
-
         //last week position placement
         var LastWeek = DateTime.UtcNow.AddDays(-7);
         positionHistory = positionHistory.Where(p => p.Date >= LastWeek);
@@ -391,32 +387,24 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             State = DateTime.UtcNow < p.StartDate? "Pending..":
             p.ExpiryDate >= DateTime.UtcNow ? "Open" : "Close",
-            
 
             PositionType = p.PositionType.LookupDataTextEnglish,
             CreatedAt = p.Date
-       
+
         }).OrderByDescending(X => X.CreatedAt).ToListAsync();
 
         //Grouping all them with they respective time range 
+
         var today = DateTime.UtcNow.Date;
-
-        //var yesterday = today.AddDays(-1);
-
-        //var ThisWeek = DateTime.UtcNow.AddDays(7);
-
-        //var ThisMonth = LastWeek.AddMonths(1);
-        //var LastMonth = DateTime.UtcNow.AddMonths(-1);
+        var yesterday = today.AddDays(-1);
+        var ThisWeek = DateTime.UtcNow.AddDays(7);
 
 
         return new ActivityGroupDto
         {
             Today = data.Where(x => x.CreatedAt >= today).ToList(),
-
-            //Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
-            //LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
-            //ThisMonth = data.Where(x => x.CreatedAt < ThisMonth).ToList()
+            Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
+            LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
         };
     }
-
 }
