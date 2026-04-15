@@ -17,134 +17,121 @@ namespace MarketPrice.Services.Implementations
         {
             var now = DateTime.UtcNow;
 
-            // 1. Get CommodityTypes and their child Commodities + Active Positions in one query
-            var data = await _context.CommodityTypes
-                .AsNoTracking()
-                .Select(ct => new
-                {
-                    TypeEntity = ct,
-                    TypeName = ct.Name.LookupDataTextEnglish,
-                    ImageId = _context.CommodityTypeImage
-                        .Where(cti => cti.CommodityTypeId == ct.CommodityTypeId)
-                        .Select(cti => (Guid?)cti.CommodityTypeImageId)
-                        .FirstOrDefault() ?? Guid.Empty,
+            var flatData = await (
+                    from ct in _context.CommodityTypes
+                    join c in _context.Commodities on ct.CommodityTypeId equals c.CommodityTypeId
+                    join p in _context.Positions.AsNoTracking() on c.CommodityId equals p.CommodityId
+                    join dd in _context.DeliveryDetails on p.PositionId equals dd.PositionId
+                    join loc in _context.Locations on dd.OriginLocationId equals loc.LocationId
+                    join ld in _context.LookupData on loc.RegionId equals ld.LookupDataId
+                    join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
 
-                    ActivePrices = _context.Commodities
-                        .Where(c => c.CommodityTypeId == ct.CommodityTypeId)
-                        .Select(c => new
-                        {
-                            c.LotSize,
-                            UomCode = c.UnitOfMeasure.UnitOfMeasureCodeEnglish,
-                            Positions = _context.Positions
-                            .Where(p => p.CommodityId == c.CommodityId &&
-                                        p.StartDate <= now && p.ExpiryDate > now)
-                            .Select(p => new { p.UnitPrice, p.PositionTypeId, p.StartDate, p.ExpiryDate })
-                            .ToList()
-                        }).ToList()
-                }).ToListAsync();
+                    // Join for the Category/Type Image
+                    join cti in _context.CommodityTypeImage on ct.CommodityTypeId equals cti.CommodityTypeId into ctiGroup
+                    from cti in ctiGroup.DefaultIfEmpty()
+
+                    where p.StartDate <= now && p.ExpiryDate > now
+                          && ld.LookupDataTypeId == 7000
+
+                    select new
+                    {
+                        ct.CommodityTypeId,
+                        CommodityTypeEntity = ct, // Keep entity for tracking updates
+                        TypeName = ct.Name.LookupDataTextEnglish,
+                        CommodityTypeImageId = cti != null ? cti.CommodityTypeImageId : Guid.Empty,
+
+                        // Commodity & Position Info
+                        c.LotSize,
+                        UnitOfMeasureCode = uom.UnitOfMeasureCodeEnglish,
+                        Position = p,
+                        LocationName = ld.LookupDataTextEnglish
+                    }
+                ).ToListAsync();
+
+            // 2. Group by CommodityTypeId to aggregate data for the Type (e.g., "BEANS", "CORN")
+            var groupedData = flatData
+                .GroupBy(x => x.CommodityTypeId)
+                .ToList();
 
             var result = new List<LoadHomeResponseDto>();
 
-            foreach (var x in data)
+            foreach (var group in groupedData)
             {
-                var ct = x.TypeEntity;
+                var first = group.First();
+                var ctEntity = first.CommodityTypeEntity;
 
-                // Flatten all positions to easily get best prices for positions.
-                var allPositions = x.ActivePrices.SelectMany(ap => ap.Positions).ToList();
+                // Flatten all positions under this CommodityType
+                var allPositions = group.Select(g => new { g.Position, g.LocationName }).ToList();
+                var bids = allPositions.Where(ap => ap.Position.PositionTypeId == BidPosition).ToList();
+                var offers = allPositions.Where(ap => ap.Position.PositionTypeId == AskPosition).ToList();
 
-                var currentBestBid = allPositions.Where(p => p.PositionTypeId == BidPosition).Any()
-                    ? allPositions.Where(p => p.PositionTypeId == BidPosition).Max(p => p.UnitPrice) : 0;
-                var currentBestOffer = allPositions.Where(p => p.PositionTypeId == AskPosition).Any()
-                    ? allPositions.Where(p => p.PositionTypeId == AskPosition).Min(p => p.UnitPrice) : 0;
+                // 3. Identify Best Positions across the whole Type
+                var bestBidPos = bids.OrderByDescending(ap => ap.Position.UnitPrice).FirstOrDefault();
+                var bestOfferPos = offers.OrderBy(ap => ap.Position.UnitPrice).FirstOrDefault();
 
-                var bestBidPosition = allPositions.Where(p => p.PositionTypeId == BidPosition)
-                    .OrderByDescending(p => p.UnitPrice).FirstOrDefault();
+                var currentBestBid = bestBidPos?.Position.UnitPrice ?? 0m;
+                var currentBestOffer = bestOfferPos?.Position.UnitPrice ?? 0m;
 
-                bool isBidSoonToExpire = false;
-
-                if (bestBidPosition != null)
-                {
-                    var totalDuration = bestBidPosition.ExpiryDate - bestBidPosition.StartDate;
-                    var elapsedDuration = now - bestBidPosition.StartDate;
-
-                    isBidSoonToExpire = totalDuration.TotalSeconds > 0 &&
-                                        (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
-                }
-
-                var bestOfferPosition = allPositions.Where(p => p.PositionTypeId == AskPosition)
-                    .OrderBy(p => p.UnitPrice).FirstOrDefault();
-
-                bool isOfferSoonToExpire = false;
-
-                if (bestOfferPosition != null)
-                {
-                    var totalDuration = bestOfferPosition.ExpiryDate - bestOfferPosition.StartDate;
-                    var elapsedDuration = now - bestOfferPosition.StartDate;
-
-                    isOfferSoonToExpire = totalDuration.TotalSeconds > 0 &&
-                                          (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
-                }
-
-                _context.Attach(ct);
-
+                // 4. Trend / Improvement Logic (Sticky Logic)
+                _context.Attach(ctEntity);
+            
                 // 2. STICKY BID TREND LOGIC
                 // Only update the flag if the price has actually moved.
-                if (currentBestBid > 0 && ct.LastBestBid > 0)
+                if (currentBestBid > 0 && ctEntity.LastBestBid > 0)
                 {
-                    if (currentBestBid > ct.LastBestBid)
+                    if (currentBestBid > ctEntity.LastBestBid)
                     {
-                        ct.IsBidImproved = true; // Upward trend
+                        ctEntity.IsBidImproved = true; // Upward trend
                     }
-                    else if (currentBestBid < ct.LastBestBid)
+                    else if (currentBestBid < ctEntity.LastBestBid)
                     {
-                        ct.IsBidImproved = false; // Downward trend
+                        ctEntity.IsBidImproved = false; // Downward trend
                     }
                     else
                     {
-                        ct.IsBidImproved = ct.IsBidImproved;
+                        ctEntity.IsBidImproved = ctEntity.IsBidImproved;
                     }
                 }
 
                 // 3. STICKY OFFER TREND LOGIC
-                if (currentBestOffer > 0 && ct.LastBestOffer > 0)
+                if (currentBestOffer > 0 && ctEntity.LastBestOffer > 0)
                 {
-                    if (currentBestOffer < ct.LastBestOffer)
+                    if (currentBestOffer < ctEntity.LastBestOffer)
                     {
-                        ct.IsOfferImproved = true; // Price improved (dropped)
+                        ctEntity.IsOfferImproved = true; // Price improved (dropped)
                     }
-                    else if (currentBestOffer > ct.LastBestOffer)
+                    else if (currentBestOffer > ctEntity.LastBestOffer)
                     {
-                        ct.IsOfferImproved = false; // Price declined (rose)
+                        ctEntity.IsOfferImproved = false; // Price declined (rose)
                     }
                     else
                     {
-                        ct.IsOfferImproved = ct.IsOfferImproved;
+                        ctEntity.IsOfferImproved = ctEntity.IsOfferImproved;
                     }
                 }
 
-                // 4. Update Reference Prices
-                // Note: If market is 0, we update LastBest to 0 to stop "stale" prices from showing,
-                // but the trend flags above were skipped, so they stay in their last state.
-                ct.LastBestBid = currentBestBid;
-                ct.LastBestOffer = currentBestOffer;
-                ct.DateUpdated = DateTime.UtcNow;
+                ctEntity.DateUpdated = DateTime.UtcNow;
+                _context.Entry(ctEntity).State = EntityState.Modified;
 
-                var firstItem = x.ActivePrices.FirstOrDefault();
-
+                // 5. Build the DTO
                 result.Add(new LoadHomeResponseDto
                 {
-                    CommodityTypeId = ct.CommodityTypeId,
-                    CommodityTypeName = x.TypeName,
-                    CommodityTypeImageId = x.ImageId,
-                    ImageUrl = $"CommodityTypeImages/{ct.CommodityTypeId}/image",
-                    LotSize = firstItem?.LotSize ?? 0,
-                    UnitOfMeasure = firstItem?.UomCode ?? "N/A",
+                    CommodityTypeId = first.CommodityTypeId,
+                    CommodityTypeName = first.TypeName,
+                    CommodityTypeImageId = first.CommodityTypeImageId,
+                    ImageUrl = $"CommodityTypeImages/{first.CommodityTypeId}/image",
+                    LotSize = first.LotSize,
+                    UnitOfMeasure = first.UnitOfMeasureCode,
+
                     BestBidPrice = currentBestBid,
                     BestOfferPrice = currentBestOffer,
-                    IsBidImproved = ct.IsBidImproved,
-                    IsOfferImproved = ct.IsOfferImproved,
-                    IsBidSoonToExpire = isBidSoonToExpire,
-                    IsOfferSoonToExpire = isOfferSoonToExpire
+
+                    IsBidImproved = ctEntity.IsBidImproved,
+                    IsOfferImproved = ctEntity.IsOfferImproved,
+
+                    // Expiry logic using your IsExpired helper
+                    IsBidSoonToExpire = bestBidPos != null && IsExpired(bestBidPos.Position.StartDate, bestBidPos.Position.ExpiryDate, now),
+                    IsOfferSoonToExpire = bestOfferPos != null && IsExpired(bestOfferPos.Position.StartDate, bestOfferPos.Position.ExpiryDate, now)
                 });
             }
 
