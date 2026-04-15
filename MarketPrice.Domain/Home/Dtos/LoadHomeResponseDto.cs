@@ -12,5 +12,7 @@ namespace MarketPrice.Domain.Home.DTOs
         public decimal BestOfferPrice { get; set; }
         public bool IsBidImproved { get; set; }
         public bool IsOfferImproved { get; set; }
+        public bool IsBidSoonToExpire { get; set; }
+        public bool IsOfferSoonToExpire { get; set; }
     }
 }

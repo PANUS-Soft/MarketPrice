@@ -66,6 +66,8 @@ namespace MarketPrice.Ui.ViewModels
                                 BestOfferPrice = item.BestOfferPrice != 0 ? item.BestOfferPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Offers",
                                 IsOfferTrendUp = item.IsOfferImproved && item.BestOfferPrice != 0,
                                 IsOfferTrendDown = !item.IsOfferImproved && item.BestOfferPrice != 0,
+                                IsBidSoonToExpire = item.IsBidSoonToExpire,
+                                IsOfferSoonToExpire = item.IsOfferSoonToExpire
                             };
 
                             data.ImageSource = ImageSource.FromUri(new Uri($"{apiSettingOptions.Value.BaseUrl}{item.ImageUrl}"));

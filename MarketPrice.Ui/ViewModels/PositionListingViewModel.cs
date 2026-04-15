@@ -28,6 +28,7 @@ namespace MarketPrice.Ui.ViewModels
 
         [ObservableProperty] private bool isBusy;
         [ObservableProperty] private bool isListEmpty;
+        [ObservableProperty] private bool isSoonToExpire;
         [ObservableProperty] private string commodityTypeName;
         [ObservableProperty] private string positionTypeName;
         [ObservableProperty] private string unitPrice;

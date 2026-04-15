@@ -35,16 +35,11 @@ namespace MarketPrice.Services.Implementations
                         {
                             c.LotSize,
                             UomCode = c.UnitOfMeasure.UnitOfMeasureCodeEnglish,
-                            BestBid = _context.Positions
-                                .Where(p => p.CommodityId == c.CommodityId &&
-                                            p.PositionTypeId == BidPosition &&
-                                            p.StartDate <= now && p.ExpiryDate > now)
-                                .Max(p => (decimal?)p.UnitPrice) ?? 0,
-                            BestOffer = _context.Positions
-                                .Where(p => p.CommodityId == c.CommodityId &&
-                                            p.PositionTypeId == AskPosition &&
-                                            p.StartDate <= now && p.ExpiryDate > now)
-                                .Min(p => (decimal?)p.UnitPrice) ?? 0
+                            Positions = _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.StartDate <= now && p.ExpiryDate > now)
+                            .Select(p => new { p.UnitPrice, p.PositionTypeId, p.StartDate, p.ExpiryDate })
+                            .ToList()
                         }).ToList()
                 }).ToListAsync();
 
@@ -54,11 +49,41 @@ namespace MarketPrice.Services.Implementations
             {
                 var ct = x.TypeEntity;
 
-                // Determine the Live Best Bid/Offer across all commodities of this type
-                var currentBestBid = x.ActivePrices.Any() ? x.ActivePrices.Max(p => p.BestBid) : 0;
-                var currentBestOffer = x.ActivePrices.Any(p => p.BestOffer > 0)
-                    ? x.ActivePrices.Where(p => p.BestOffer > 0).Min(p => p.BestOffer)
-                    : 0;
+                // Flatten all positions to easily get best prices for positions.
+                var allPositions = x.ActivePrices.SelectMany(ap => ap.Positions).ToList();
+
+                var currentBestBid = allPositions.Where(p => p.PositionTypeId == BidPosition).Any()
+                    ? allPositions.Where(p => p.PositionTypeId == BidPosition).Max(p => p.UnitPrice) : 0;
+                var currentBestOffer = allPositions.Where(p => p.PositionTypeId == AskPosition).Any()
+                    ? allPositions.Where(p => p.PositionTypeId == AskPosition).Min(p => p.UnitPrice) : 0;
+
+                var bestBidPosition = allPositions.Where(p => p.PositionTypeId == BidPosition)
+                    .OrderByDescending(p => p.UnitPrice).FirstOrDefault();
+
+                bool isBidSoonToExpire = false;
+
+                if (bestBidPosition != null)
+                {
+                    var totalDuration = bestBidPosition.ExpiryDate - bestBidPosition.StartDate;
+                    var elapsedDuration = now - bestBidPosition.StartDate;
+
+                    isBidSoonToExpire = totalDuration.TotalSeconds > 0 &&
+                                        (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+                }
+
+                var bestOfferPosition = allPositions.Where(p => p.PositionTypeId == AskPosition)
+                    .OrderBy(p => p.UnitPrice).FirstOrDefault();
+
+                bool isOfferSoonToExpire = false;
+
+                if (bestOfferPosition != null)
+                {
+                    var totalDuration = bestOfferPosition.ExpiryDate - bestOfferPosition.StartDate;
+                    var elapsedDuration = now - bestOfferPosition.StartDate;
+
+                    isOfferSoonToExpire = totalDuration.TotalSeconds > 0 &&
+                                          (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+                }
 
                 _context.Attach(ct);
 
@@ -117,7 +142,9 @@ namespace MarketPrice.Services.Implementations
                     BestBidPrice = currentBestBid,
                     BestOfferPrice = currentBestOffer,
                     IsBidImproved = ct.IsBidImproved,
-                    IsOfferImproved = ct.IsOfferImproved
+                    IsOfferImproved = ct.IsOfferImproved,
+                    IsBidSoonToExpire = isBidSoonToExpire,
+                    IsOfferSoonToExpire = isOfferSoonToExpire
                 });
             }
 

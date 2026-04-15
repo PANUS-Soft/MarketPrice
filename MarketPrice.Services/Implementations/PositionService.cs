@@ -146,6 +146,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
     {
         try
         {
+            var now = DateTime.UtcNow;
             if (command.UnitPrice <= 0)
             {
                 return DtoManager.Failed<PositionListingResponseDto>(
@@ -185,7 +186,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 p.Commodity.CommodityTypeId == command.CommodityTypeId &&
                 p.PositionTypeId == command.PositionTypeId &&
                 p.UnitPrice == command.UnitPrice &&
-                p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow);
+                p.StartDate <= now && p.ExpiryDate > now);
 
             // OPTIONAL FILTER: If a specific CommodityId is passed, filter further.
             // If it is null/empty, it includes EVERYTHING under the CommodityType.
@@ -194,26 +195,46 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 listingsQuery = listingsQuery.Where(p => p.CommodityId == command.CommodityId);
             }
 
-            var listings = await listingsQuery
-                .Select(p => new PositionListing
+            // Fetch data
+            var rawListings = await listingsQuery
+                .Select(p => new
                 {
-                    PositionId = p.PositionId,
-                    UserName = p.User.FirstName + " " + p.User.FamilyName,
-                    CommodityName = p.Commodity.CommodityName,
-                    Quantity = p.Quantity * (decimal)p.Commodity.LotSize!,
-                    UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
+                    p.PositionId,
+                    FullName = p.User.FirstName + " " + p.User.FamilyName,
+                    p.Commodity.CommodityName,
+                    p.Quantity,
+                    LotSizeValue = p.Commodity.LotSize,
+                    UomCode = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+                    p.StartDate,
+                    p.ExpiryDate
                 })
                 .ToListAsync();
 
-            var ls = _context.Commodities
+            var listings = rawListings.Select(p =>
+            {
+                var totalDuration = p.ExpiryDate - p.StartDate;
+                var elapsedDuration = now - p.StartDate;
+                bool soonToExpire = totalDuration.TotalSeconds > 0 &&
+                                    (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+
+                return new PositionListing
+                {
+                    PositionId = p.PositionId,
+                    UserName = p.FullName,
+                    CommodityName = p.CommodityName,
+                    Quantity = p.Quantity * (decimal)(p.LotSizeValue ?? 1),
+                    UnitOfMeasure = p.UomCode,
+                    IsSoonToExpire = soonToExpire
+                };
+            }).ToList();
+
+            // Get LotSize Info (using first commodity in defined type as reference)
+            var commodityRefs = _context.Commodities
                 .Where(c => c.CommodityTypeId == command.CommodityTypeId)
-                .Select(c => c.LotSize)
+                .Select(c => new { c.LotSize, c.UnitOfMeasure.UnitOfMeasureCodeEnglish})
                 .FirstOrDefault();
 
-            var uom = _context.Commodities
-                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
-                .Select(c => c.UnitOfMeasure.UnitOfMeasureCodeEnglish)
-                .FirstOrDefault();
+            
 
             // 3. Compose Response
             return DtoManager.Succeed(new PositionListingResponseDto
@@ -223,7 +244,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 CommodityNames = categoryInfo.AllCommodities, // All items for the filter UI
                 Listings = listings, // Filtered result set
                 UnitPrice = command.UnitPrice,
-                LotSize = $"{ls} {uom}",
+                LotSize = commodityRefs != null ? $"{commodityRefs.LotSize}{commodityRefs.UnitOfMeasureCodeEnglish}" : "N/A",
                 Status = "Data Retrieved"
             });
         }
