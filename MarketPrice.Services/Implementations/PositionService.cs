@@ -1,8 +1,7 @@
 ﻿using LinqToDB.Internal.Linq;
 using MarketPrice.Data;
 using MarketPrice.Data.Models;
-using MarketPrice.Domain.Activity.Command;
-using MarketPrice.Domain.Activity.Dto;
+using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
@@ -353,36 +352,38 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         };
     }
 
-    // Activity position history for each users.
-    public async Task<ActivityGroupDto> GetActivityAsync(ActivityCommand command)
+    // Activity position history for each user.
+    public async Task<ActivityGroupDto> GetActivityAsync(Guid id)
     {
 
-        if (command.UserId == Guid.Empty)
+        if (id == Guid.Empty)
             throw new ArgumentException("UserId is required");
 
         var now = DateTime.UtcNow;
 
-        var positionHistory = _context.Positions.Where(p => p.UserId == command.UserId);
+        var positionHistory = _context.Positions.Where(p => p.UserId == id);
 
-        //Filter: Position type (SAFE using Lookup IDs) and get one position for 
-        if(!string.IsNullOrEmpty(command.PositionType))
-        {
-            int typeId = command.PositionType switch
-            {
-                "Bid" => lookups.GetLookupId("Bid", POSITION_TYPE),
-                "Offer" => lookups.GetLookupId("Offer", POSITION_TYPE),
-                _ => throw new ArgumentException($"Unknow PositionType: {command.PositionType}")
-            };
-        positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
+        // Filter: Position type (SAFE using Lookup IDs) and get one position for 
+        //if(!string.IsNullOrEmpty(command.PositionType))
+        //{
+        //    int typeId = command.PositionType switch
+        //    {
+        //        "Bid" => lookups.GetLookupId("Bid", POSITION_TYPE),
+        //        "Offer" => lookups.GetLookupId("Offer", POSITION_TYPE),
+        //        _ => throw new ArgumentException($"Unknow PositionType: {command.PositionType}")
+        //    };
+        //positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
 
-        }
+        //}
+
         var data = await positionHistory.Select(p => new ActivityResponseDto
         {
             CommodityName = p.Commodity.CommodityName,
             Quantity = p.Quantity,
             Price = p.UnitPrice,
-            State = DateTime.UtcNow < p.StartDate ? "Pending.." :
-                    p.ExpiryDate >= DateTime.UtcNow ? "Open" : "Close",
+            PositionType = p.PositionTypeId == lookups.GetLookupId("Bid", POSITION_TYPE) ? "Bid" : "Offer",
+            State = now < p.StartDate ? "Pending.." :
+                    p.ExpiryDate >= now ? "Open" : "Close",
             CreatedAt = p.Date
 
         }).OrderByDescending(X => X.CreatedAt).ToListAsync();
@@ -396,7 +397,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
         var startOfMonth = new DateTime(today.Year, today.Month, 1);
         var startOfLastMonth = startOfMonth.AddMonths(-1);
-        var endOfthisMonth = startOfMonth.AddTicks(-1);
+        var endOfThisMonth = startOfMonth.AddTicks(-1);
 
         return new ActivityGroupDto
         {
@@ -410,7 +411,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
 
-            LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfthisMonth).ToList(),
+            LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfThisMonth).ToList(),
 
         };
     }

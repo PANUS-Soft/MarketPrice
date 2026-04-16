@@ -1,6 +1,4 @@
 ﻿using MarketPrice.Domain;
-using MarketPrice.Domain.Activity.Command;
-using MarketPrice.Domain.Activity.Dto;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Services.Implementations;
@@ -64,15 +62,6 @@ namespace MarketPrice.Api.Controllers
         {
             var result = await positionService.GetPositionDetailAsync(id);
 
-            return Ok(result);
-        }
-
-        //Get Activity for each position over time 
-        //[Authorize]
-        [HttpGet(ApiRoutes.ACTIVITY_POSITION)]
-        public async Task<ActionResult<ActivityResponseDto>> GetActivity([FromBody] ActivityCommand command)
-        {
-            var result = await positionService.GetActivityAsync(command);
             return Ok(result);
         }
     }

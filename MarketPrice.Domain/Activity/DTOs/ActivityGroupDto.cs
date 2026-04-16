@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPrice.Domain.Activity.Dto
+namespace MarketPrice.Domain.Activity.DTOs
 {
    public class ActivityGroupDto
     {
