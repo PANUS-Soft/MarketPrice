@@ -8,8 +8,7 @@ namespace MarketPrice.Domain.Activity.Command
 {
     public class ActivityCommand
     {
+        public required Guid UserId{ get; set; }
         public string? PositionType { get; set; }
-        public Guid? CommodityId { get; set; }
-
     }
 }

@@ -352,11 +352,19 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             DeliveryFee = deliverable ? deliveryDetail?.Fee : null
         };
     }
+
+    // Activity position history for each users.
     public async Task<ActivityGroupDto> GetActivityAsync(ActivityCommand command)
     {
-        var positionHistory = _context.Positions.AsQueryable();
 
-        //Filter: Position type (SAFE using Lookup IDs)
+        if (command.UserId == Guid.Empty)
+            throw new ArgumentException("UserId is required");
+
+        var now = DateTime.UtcNow;
+
+        var positionHistory = _context.Positions.Where(p => p.UserId == command.UserId);
+
+        //Filter: Position type (SAFE using Lookup IDs) and get one position for 
         if(!string.IsNullOrEmpty(command.PositionType))
         {
             int typeId = command.PositionType switch
@@ -368,43 +376,44 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
 
         }
-        //Filter: Commodity
-        if(command.CommodityId.HasValue && command.CommodityId != Guid.Empty)
-        {
-            positionHistory = positionHistory.Where(p => p.CommodityId == command.CommodityId.Value);
-        }
-
-        //limit Data (Performance)
-        //last week position placement
-        var LastWeek = DateTime.UtcNow.AddDays(-7);
-        positionHistory = positionHistory.Where(p => p.Date >= LastWeek);
-
         var data = await positionHistory.Select(p => new ActivityResponseDto
         {
             CommodityName = p.Commodity.CommodityName,
             Quantity = p.Quantity,
             Price = p.UnitPrice,
-
-            State = DateTime.UtcNow < p.StartDate? "Pending..":
-            p.ExpiryDate >= DateTime.UtcNow ? "Open" : "Close",
-
-            PositionType = p.PositionType.LookupDataTextEnglish,
+            State = DateTime.UtcNow < p.StartDate ? "Pending.." :
+                    p.ExpiryDate >= DateTime.UtcNow ? "Open" : "Close",
             CreatedAt = p.Date
 
         }).OrderByDescending(X => X.CreatedAt).ToListAsync();
-
-        //Grouping all them with they respective time range 
-
-        var today = DateTime.UtcNow.Date;
+        
+        var today = now.Date;
         var yesterday = today.AddDays(-1);
-        var ThisWeek = DateTime.UtcNow.AddDays(7);
 
+        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday) % 7);
+        var startOfWeek = today.AddDays(-diff);
+        var startOfLastWeek = startOfWeek.AddDays(-7);
+
+        var startOfMonth = new DateTime(today.Year, today.Month, 1);
+        var startOfLastMonth = startOfMonth.AddMonths(-1);
+        var endOfthisMonth = startOfMonth.AddTicks(-1);
 
         return new ActivityGroupDto
         {
             Today = data.Where(x => x.CreatedAt >= today).ToList(),
+
             Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
+
+            ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek).ToList(),
+
             LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
+
+            ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
+
+            LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfthisMonth).ToList(),
+
         };
     }
+
+
 }
