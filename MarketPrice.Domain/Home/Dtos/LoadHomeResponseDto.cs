@@ -3,10 +3,17 @@ namespace MarketPrice.Domain.Home.DTOs
     public class LoadHomeResponseDto
     {
         public Guid CommodityTypeId { get; set; }
-        public Guid CommodityTypeImageId { get; set; }
         public string? CommodityTypeName { get; set; }
+        public List<HomeCommodityDetailDto> Commodities { get; set; } = new();
+    }
+
+    public class HomeCommodityDetailDto
+    {
+        public Guid CommodityId { get; set; }
+        public string? CommodityName { get; set; }
+        public Guid CommodityImageId { get; set; }
         public string? ImageUrl { get; set; }
-        public decimal LotSize { get; set; }
+        public short? LotSize { get; set; }
         public string? UnitOfMeasure { get; set; }
         public bool IsBidImproved { get; set; }
         public bool IsOfferImproved { get; set; }
