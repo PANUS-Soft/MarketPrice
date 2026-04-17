@@ -12,9 +12,12 @@ namespace MarketPrice.Ui.Models
         public string Quantity { get; set; }
         public string Price { get; set; }
         public string State { get; set; }
+        public Color StateColor { get; set; }
         public string ImageUrl { get; set; }
         public DateTime Date { get; set; }
         public string PositionType { get; set; } // <-- Added this (e.g., "Bid" or "Offer")
+        public string UnitOfMeasure { get; set; }
+        public string LotSize { get; set; }
     }
 
     public class ActivityGroup : List<Activity>

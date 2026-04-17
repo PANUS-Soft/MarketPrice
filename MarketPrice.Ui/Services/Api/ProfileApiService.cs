@@ -6,7 +6,7 @@ using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class ProfileApiService(HttpClient httpClient, SessionService sessionService, IOptions<ApiSettings> apiSettingOptions) : BaseApiService(httpClient, apiSettingOptions)
+    public class ProfileApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingOptions) : BaseApiService(httpClient, apiSettingOptions)
     {
         public async Task<HttpResponseMessage> GetUserProfileAsync(Guid userId)
         {

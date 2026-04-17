@@ -379,10 +379,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         var data = await positionHistory.Select(p => new ActivityResponseDto
         {
             CommodityName = p.Commodity.CommodityName,
-            Quantity = p.Quantity,
+            Quantity = p.Quantity * (decimal)p.Commodity.LotSize,
             Price = p.UnitPrice,
             PositionType = p.PositionTypeId == lookups.GetLookupId("Bid", POSITION_TYPE) ? "Bid" : "Offer",
-            State = now < p.StartDate ? "Pending.." :
+            UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+            LotSize = $"{p.Commodity.LotSize} {p.Commodity.UnitOfMeasure.UnitOfMeasureNameEnglish}",
+            State = now < p.StartDate ? "Pending" :
                     p.ExpiryDate >= now ? "Open" : "Close",
             CreatedAt = p.Date
 

@@ -1,4 +1,5 @@
 ﻿using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.ViewModels;
 using MarketPrice.Ui.Views;
 
 namespace MarketPrice.Ui
@@ -7,14 +8,14 @@ namespace MarketPrice.Ui
     {
         private readonly SessionService _sessionService;
 
-        public App(SessionService sessionService)
+        public App(SessionService sessionService, ActivityViewModel activityViewModel)
         {
             InitializeComponent();
             _sessionService = sessionService;
 
             // 1. Immediately show the SplashPage to match the OS loading screen
             //MainPage = new SplashScreen();
-            MainPage = new NavigationPage(new Views.Activity());
+            MainPage = new NavigationPage(new Views.Activity(activityViewModel));
         }
 
         protected override async void OnStart()

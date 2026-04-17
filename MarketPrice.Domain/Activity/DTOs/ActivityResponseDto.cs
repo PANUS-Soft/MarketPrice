@@ -14,5 +14,7 @@ namespace MarketPrice.Domain.Activity.DTOs
         public string State { get; set; }
         public decimal Price { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
+        public string UnitOfMeasure { get; set; }
+        public string LotSize { get; set; }
     }
 }

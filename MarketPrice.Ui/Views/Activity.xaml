@@ -18,7 +18,7 @@
                Margin="0,0,0,15"/>
 
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,0,0,15">
-            <Border Grid.Column="0" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" HeightRequest="40">
+            <Border Grid.Column="0" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40">
                 <SearchBar Placeholder="Search" 
                            Text="{Binding SearchText}"
                            SearchCommand="{Binding ApplyFiltersCommand}"
@@ -26,18 +26,20 @@
                            VerticalOptions="Center"/>
             </Border>
 
-            <Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
+            <Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
                 <Picker ItemsSource="{Binding PositionTypes}" 
                         SelectedItem="{Binding SelectedPositionType}"
                         TextColor="Black"
-                        Title="All"
+                        Title="Select filtering option"
                         HorizontalTextAlignment="Center"
+                        TitleColor="{StaticResource PrimaryBase}"
+                        FontFamily="RobotoSerifRegular"
                         VerticalOptions="Center"/>
             </Border>
         </Grid>
 
         <CollectionView Grid.Row="2" 
-                        ItemsSource="{Binding CommodityTypes}" 
+                        ItemsSource="{Binding CommodityTypesList}" 
                         HeightRequest="40" 
                         Margin="0,0,0,15"
                         SelectionMode="Single"
@@ -75,8 +77,8 @@
 
             <CollectionView.GroupHeaderTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding Name}" 
-                           FontAttributes="Bold" 
+                    <Label Text="{Binding Name}"
+                           FontFamily="RobotoSerifBold"
                            FontSize="20" 
                            TextColor="Black" 
                            Margin="0,10,0,10"/>
@@ -85,7 +87,7 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 5" BackgroundColor="White" Margin="0,0,0,10" Padding="15">
+                    <Border Stroke="#00569D" StrokeThickness="3" StrokeShape="RoundRectangle 5" BackgroundColor="White" Margin="0,0,0,10" Padding="15">
 
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer 
@@ -95,9 +97,9 @@
 
                         <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
 
-                            <Frame Grid.Column="0" WidthRequest="70" HeightRequest="70" CornerRadius="35" IsClippedToBounds="True" Padding="0" VerticalOptions="Center">
+                            <!--<Frame Grid.Column="0" WidthRequest="70" HeightRequest="70" CornerRadius="35" IsClippedToBounds="True" Padding="0" VerticalOptions="Center">
                                 <Image Source="{Binding ImageUrl}" Aspect="AspectFill" BackgroundColor="#F0F0F0" />
-                            </Frame>
+                            </Frame>-->
 
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                 <Label TextColor="Black">
@@ -111,7 +113,7 @@
                                 <Label TextColor="Black">
                                     <Label.FormattedText>
                                         <FormattedString>
-                                            <Span Text="Quantity: " FontFamily="RobotoSerifBold" />
+                                            <Span Text="Total Quantity: " FontFamily="RobotoSerifBold" />
                                             <Span Text="{Binding Quantity}" FontFamily="RobotoSerifRegular" />
                                         </FormattedString>
                                     </Label.FormattedText>
@@ -119,7 +121,23 @@
                                 <Label TextColor="Black">
                                     <Label.FormattedText>
                                         <FormattedString>
-                                            <Span Text="Price: " FontFamily="RobotoSerifBold" />
+                                            <Span Text="Lot Size: " FontFamily="RobotoSerifBold" />
+                                            <Span Text="{Binding LotSize}" FontFamily="RobotoSerifRegular" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label TextColor="Black">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Position Type: " FontFamily="RobotoSerifBold" />
+                                            <Span Text="{Binding PositionType}" FontFamily="RobotoSerifRegular" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label TextColor="Black">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Unit Price/Lot Size: " FontFamily="RobotoSerifBold" />
                                             <Span Text="{Binding Price}" FontFamily="RobotoSerifRegular" />
                                         </FormattedString>
                                     </Label.FormattedText>
@@ -129,7 +147,7 @@
                             <Label Grid.Column="2" 
                                    Text="{Binding State}" 
                                    FontFamily="RobotoSerifBold" 
-                                   TextColor="Black" 
+                                   TextColor="{Binding StateColor}" 
                                    VerticalOptions="Center" />
                         </Grid>
                     </Border>

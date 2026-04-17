@@ -109,9 +109,9 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.GET_USER_ACTIVITY + "/{id}")]
-        public async Task<ActionResult<ActivityResponseDto>> GetActivity(Guid id)
+        public async Task<ActionResult<ActivityGroupDto>> GetActivity(Guid id)
         {
             var result = await positionService.GetActivityAsync(id);
             return Ok(result);
