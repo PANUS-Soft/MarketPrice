@@ -5,7 +5,8 @@
              xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
              x:Class="MarketPrice.Ui.Views.PositionListing"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="#F5F5F5">
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource Background}">
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />

@@ -5,13 +5,13 @@
              xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
              x:Class="MarketPrice.Ui.Views.PositionDetail"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="{StaticResource Background}">
+             BackgroundColor="White">
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
         <Style x:Key="SeparatorStyle" TargetType="BoxView">
             <Setter Property="HeightRequest" Value="1" />
-            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryBase}" />
+            <Setter Property="BackgroundColor" Value="White" />
             <Setter Property="HorizontalOptions" Value="Fill" />
             <Setter Property="Margin" Value="0,10" />
         </Style>
@@ -36,7 +36,7 @@
                             WidthRequest="60"
                             StrokeShape="RoundRectangle 30"
                             Stroke="Transparent"
-                            BackgroundColor="Black"
+                            BackgroundColor="Grey"
                             VerticalOptions="Center"
                             HorizontalOptions="Center">
                         <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}"
