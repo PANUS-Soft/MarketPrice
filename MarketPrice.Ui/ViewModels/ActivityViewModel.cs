@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using DevExpress.Maui.Controls;
 using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
@@ -28,14 +29,16 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string searchText;
         [ObservableProperty] private string selectedPositionType = "All";
         [ObservableProperty] private string selectedCommodityType = "ALL";
+        [ObservableProperty] private Activity selectedItem;
         [ObservableProperty] private bool isLoading;
+        [ObservableProperty] private BottomSheetState _activityDetailsBottomSheetState = BottomSheetState.Hidden;
+        [ObservableProperty] private Activity selectedActivityDetails;
 
         public ObservableCollection<string> PositionTypes { get; } = new() { "All", "Bids", "Offers" };
 
         public ObservableCollection<ActivityGroup> GroupedActivities { get; } = new();
 
-        public ActivityViewModel(ActivityApiService activityApiService, SessionService sessionService,
-            ReferenceDataApiService referenceDataApiService)
+        public ActivityViewModel(ActivityApiService activityApiService, SessionService sessionService, ReferenceDataApiService referenceDataApiService)
         {
             _referenceDataApi = referenceDataApiService;
             _sessionService = sessionService;
@@ -112,18 +115,48 @@ namespace MarketPrice.Ui.ViewModels
 
         private static Activity MapToUiModel(ActivityResponseDto dto) => new()
         {
-            Quantity = $"{dto.Quantity:N0} {dto.UnitOfMeasure}",
-            Price = $"{dto.Price:N0} FCFA",
+            CommodityId = dto.CommodityId,
+            CommodityTypeId = dto.CommodityTypeId,
+            CommodityName = dto.CommodityName,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate,
+            Date = dto.CreatedAt.DateTime,
+            Description = dto.Description! == string.Empty ? dto.Description! : "---",
+            OriginRegion = dto.OriginRegion!,
+            DestinationRegion = dto.DestinationRegion!,
+            Origin = dto.Origin,
+            Destination = dto.Destination,
+            Grade = dto.Grade,
+            LeadTime = $"{dto.LeadTime!} Days",
+            DeliveryFee = $"{dto.DeliveryFee:N0} FCFA",
+            ShelfLifeInDays = dto.ShelfLifeInDays,
+            IsDeliverable = dto.CanDeliver,
+            Quantity = $"{dto.Quantity:N0}",
+            TotalQuantity = $"{(dto.Quantity * dto.LotSize):N0} {dto.UnitOfMeasure}",
+            Price = $"{dto.UnitPrice:N0} FCFA",
+            TotalPrice = $"{(dto.Quantity * dto.UnitPrice):N0} FCFA",
             State = dto.State,
             StateColor = dto.State == "Open" ? Color.FromArgb("#2ECC71") : dto.State == "Close" ? Color.FromArgb("#E74C3C") : Color.FromArgb("#F39C12"),
             PositionType = dto.PositionType,
-            LotSize = dto.LotSize,
+            LotSize = $"{dto.LotSize} {dto.UnitOfMeasure}",
             UnitOfMeasure = dto.UnitOfMeasure,
-            Date = dto.CreatedAt.DateTime,
-            CommodityName = dto.CommodityName
         };
 
         partial void OnSearchTextChanged(string value) => ApplyFilters();
+        partial void OnSelectedItemChanged(Activity value)
+        {
+            if (value == null) return;
+
+            SelectedActivityDetails = value;            
+            ActivityDetailsBottomSheetState = BottomSheetState.HalfExpanded;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                SelectedItem = null;
+            });
+        }
+
+
         partial void OnSelectedPositionTypeChanged(string value) => ApplyFilters();
 
         private string _lastCommodityType = "ALL";
@@ -197,16 +230,43 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task GoToDetailsAsync(Activity selectedItem)
+        private void GoToDetailsAsync(Activity selectedItem)
         {
             if (selectedItem == null) return;
 
-            var navigationParameter = new Dictionary<string, object>
-            {
-                { "ActivityDetail", selectedItem }
-            };
+            // Here you can implement the logic to open a detailed view of the selected activity.
+            SelectedItem = selectedItem;
+            ActivityDetailsBottomSheetState = BottomSheetState.HalfExpanded;
+        }
 
-            await Shell.Current.GoToAsync(nameof(Views.PositionDetail), navigationParameter);
+        [RelayCommand]
+        private async Task EditActivityAsync(Activity selectedItem)
+        {
+            if (selectedItem == null) return;
+
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+
+            await Shell.Current.GoToAsync("EditPosition");
+        }
+
+        [RelayCommand]
+        private async Task DeleteActivityAsync(Activity selectedItem)
+        {
+            if (selectedItem == null) return;
+
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+
+            var confirm = await Shell.Current.DisplayAlert("Confirm Deletion",
+                $"Are you sure you want to delete the activity for {selectedItem.CommodityName}?",
+                "Yes", "No");
+            if (confirm)
+            {
+                await Shell.Current.DisplayAlert("Infos ⚠️", "The activity was successfully deleted.", "OK");
+            }
+            else
+            {
+                return;
+            }
         }
     }
 }
