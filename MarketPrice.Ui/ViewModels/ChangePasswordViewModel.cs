@@ -1,70 +1,202 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Profile.Commands;
+using MarketPrice.Domain.Profile.DTOs;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+using CommunityToolkit.Maui.Alerts;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    // 'partial' is required for the CommunityToolkit to do its magic behind the scenes
     public partial class ChangePasswordViewModel : ObservableObject
     {
-        // ==========================================
-        // 1. PROPERTIES (The Data)
-        // ==========================================
+        private readonly SessionService _sessionService;
+        private readonly ProfileApiService _profileApi;
 
-        [ObservableProperty]
-        private string currentPassword;
+        [ObservableProperty] private string currentPassword;
+        [ObservableProperty] private string newPassword;
+        [ObservableProperty] private string confirmNewPassword;
 
-        [ObservableProperty]
-        private string newPassword;
+        [ObservableProperty] private bool hasAttemptedSubmit;
 
-        [ObservableProperty]
-        private string repeatPassword;
+        [ObservableProperty] private string? currentPasswordError;
+        [ObservableProperty] private string? newPasswordError;
+        [ObservableProperty] private string? confirmNewPasswordError;
 
-        // ==========================================
-        // 2. COMMANDS (The Actions)
-        // ==========================================
+        public ChangePasswordViewModel(SessionService sessionService, ProfileApiService profileApiService)
+        {
+            _sessionService = sessionService;
+            _profileApi = profileApiService;
+        }
 
-        // This handles the back arrow at the top left
+        // Property change handlers
+        partial void OnCurrentPasswordChanged(string value)
+        {
+            if (!HasAttemptedSubmit) return;
+
+            ValidateCurrentPassword();
+        }
+
+        partial void OnNewPasswordChanged(string value)
+        {
+            if (!HasAttemptedSubmit) return;
+
+            ValidateNewPassword();
+            ValidateConfirmNewPassword();
+        }
+
+        partial void OnConfirmNewPasswordChanged(string value)
+        {
+            if (!HasAttemptedSubmit) return;
+
+            ValidateConfirmNewPassword();
+        }
+
+        // Dedicated validation methods for inputs of the change password form
+        private void ValidateCurrentPassword()
+        {
+            if (string.IsNullOrWhiteSpace(CurrentPassword))
+            {
+                CurrentPasswordError = "Please enter your current password.";
+                return;
+            }
+
+            if (CurrentPassword.Length < 8)
+            {
+                CurrentPasswordError = "Current password must be at least 8 characters";
+                return;
+            }
+
+            CurrentPasswordError = null;
+        }
+
+        private void ValidateNewPassword()
+        {
+            if (string.IsNullOrWhiteSpace(NewPassword))
+            {
+                NewPasswordError = "Please enter a new password.";
+                return;
+            }
+
+            if (NewPassword.Length < 8)
+            {
+                NewPasswordError = "Password must be at least 8 characters.";
+                return;
+            }
+
+            if (NewPassword == CurrentPassword)
+            {
+                NewPasswordError = "New Password must be different from current password.";
+                return;
+            }
+
+            NewPasswordError = null;
+        }
+
+        private void ValidateConfirmNewPassword()
+        {
+            //if (string.IsNullOrWhiteSpace(NewPassword))
+            //{
+            //    ConfirmNewPasswordError = null;
+            //    return;
+            //}
+
+            if (string.IsNullOrWhiteSpace(ConfirmNewPassword))
+            {
+                ConfirmNewPasswordError = "Please confirm your new password.";
+                return;
+            }
+
+            if (NewPassword != ConfirmNewPassword)
+            {
+                ConfirmNewPasswordError = "Passwords do not match.";
+                return;
+            }
+
+            ConfirmNewPasswordError = null;
+        }
+
+        // Global validation check
+        private bool ValidateChangePasswordForm()
+        {
+            ValidateCurrentPassword();
+            ValidateNewPassword();
+            ValidateConfirmNewPassword();
+
+            return CurrentPasswordError == null && NewPasswordError == null && ConfirmNewPasswordError == null;
+        }
+
         [RelayCommand]
         private async Task GoBackAsync()
         {
-            await Shell.Current.GoToAsync(".."); // ".." tells MAUI to go back to the previous page
+            await Shell.Current.GoToAsync("..");
         }
 
-        // This handles the "Forgot Password" text click
         [RelayCommand]
         private async Task ForgotPasswordAsync()
         {
-            // Since we are mocking, we just show an alert for now
             await Shell.Current.DisplayAlert("Forgot Password", "This would navigate to the Forgot Password flow.", "OK");
         }
 
-        // This handles the main "Change Password" blue button
         [RelayCommand]
         private async Task ChangePasswordAsync()
         {
-            // Simple mock logic to prove the frontend works
-            if (string.IsNullOrWhiteSpace(CurrentPassword) ||
-                string.IsNullOrWhiteSpace(NewPassword) ||
-                string.IsNullOrWhiteSpace(RepeatPassword))
+            HasAttemptedSubmit = true;
+
+            if (!ValidateChangePasswordForm()) return;
+
+            try
             {
-                await Shell.Current.DisplayAlert("Error", "Please fill in all password fields.", "OK");
-                return;
-            }
+                var userSession = await _sessionService.GetCurrentSessionAsync();
 
-            if (NewPassword != RepeatPassword)
+                var command = new ChangePasswordCommand
+                {
+                    UserId = userSession!.UserId,
+                    CurrentPassword = CurrentPassword,
+                    NewPassword = NewPassword
+                };
+
+                var confirmPasswordChange = await Shell.Current.DisplayAlert("Confirm Password Change", "Are you sure you want to change your password ? You will use this new password to access your account.", "Change Password", "Cancel");
+
+                if (!confirmPasswordChange) return;
+
+                var response = await _profileApi.ChangePasswordAsync(command);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<ChangePasswordResponseDto>();
+
+                    if (dto == null) return;
+
+                    if (dto is { Success: true, Message: not null })
+                    {
+                        await Toast.Make(dto.Message, ToastDuration.Long).Show();
+
+                        CurrentPassword = string.Empty;
+                        NewPassword = string.Empty;
+                        ConfirmNewPassword = string.Empty;
+                        CurrentPasswordError = null;
+                        NewPasswordError = null;
+                        ConfirmNewPasswordError = null;
+                        HasAttemptedSubmit = false;
+                    }
+                    else
+                    {
+                        await Shell.Current.DisplayAlert("Error", $"An error occurred. {dto.Message}", "OK");
+                    }
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", $"Server returned status: {response.StatusCode}", "OK");
+                }
+            }
+            catch (Exception e)
             {
-                await Shell.Current.DisplayAlert("Error", "Your new passwords do not match.", "OK");
-                return;
+                await Shell.Current.DisplayAlert("Error", $"An error occured when trying to change password. {e.Message}", "OK");
             }
-
-            // If we get here, it means the validation passed!
-            await Shell.Current.DisplayAlert("Success", "Your password has been changed successfully! (Mock)", "OK");
-
-            // Clear the fields after success
-            CurrentPassword = string.Empty;
-            NewPassword = string.Empty;
-            RepeatPassword = string.Empty;
         }
     }
 }

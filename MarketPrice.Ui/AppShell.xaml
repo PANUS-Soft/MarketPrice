@@ -29,10 +29,10 @@
         ContentTemplate="{DataTemplate views:Login}"
         Route="Login"/>
 
-    <!--<ShellContent
+    <ShellContent
         Title="Place Position"
         ContentTemplate="{DataTemplate views:PositionDetail}"
-        Route="PlacePosition" />-->
+        Route="PlacePosition" />
 
     <TabBar>
         <Tab Title="Home" Icon="home.png" Route="Home">

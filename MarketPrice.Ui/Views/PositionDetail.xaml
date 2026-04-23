@@ -5,7 +5,7 @@
              xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
              x:Class="MarketPrice.Ui.Views.PositionDetail"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="White">
+             BackgroundColor="{StaticResource Background}">
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
@@ -36,11 +36,11 @@
                             WidthRequest="60"
                             StrokeShape="RoundRectangle 30"
                             Stroke="Transparent"
-                            BackgroundColor="Grey"
+                            BackgroundColor="White"
                             VerticalOptions="Center"
                             HorizontalOptions="Center">
                         <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}"
-                                       TextColor="White"
+                                       TextColor="Black"
                                        FontSize="24"
                                        FontFamily="RobotoSerifBold"
                                        HorizontalOptions="Center"
@@ -55,7 +55,7 @@
                             <Label Text="{Binding UserName}" 
                                    FontSize="16" 
                                    FontFamily="RobotoSerifBold" 
-                                   TextColor="Black"/>
+                                   TextColor="White"/>
 
                             <Image Source="verified_badge.png" 
                                    HeightRequest="16" 
@@ -66,7 +66,7 @@
                         <HorizontalStackLayout Spacing="5">
                             <Label Text="{Binding AccountType}" 
                                    FontSize="13" 
-                                   TextColor="Gray"
+                                   TextColor="White"
                                    FontFamily="RobotoSerifRegular"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
@@ -74,7 +74,7 @@
             </HorizontalStackLayout>
 
             <BoxView HeightRequest="1" 
-                     Color="{StaticResource PrimaryBase}" 
+                     Color="White" 
                      Opacity="0.5"/>
         </VerticalStackLayout>
 
@@ -84,18 +84,18 @@
 
             <VerticalStackLayout Spacing="20">
 
-                <Border Stroke="{StaticResource PrimaryBase}" 
-                        StrokeThickness="3" 
+                <Border Stroke="White" 
+                        StrokeThickness="0.5" 
                         StrokeShape="RoundRectangle 5" 
                         Padding="15" 
-                        BackgroundColor="White">
+                        BackgroundColor="#121212">
 
                     <VerticalStackLayout Spacing="15">
 
                         <Label Text="Positon Information" 
                                FontSize="17" 
                                FontFamily="RobotoSerifBold" 
-                               TextColor="Black"/>
+                               TextColor="White"/>
 
                         <!--<Label HorizontalOptions="Start"
                                TextColor="Black">
@@ -115,7 +115,8 @@
                               ColumnSpacing="10">
 
                             <Border Grid.Column="0"
-                                    Stroke="{StaticResource PrimaryBase}"
+                                    Stroke="White"
+                                    BackgroundColor="White"
                                     StrokeThickness="3"
                                     HeightRequest="90"
                                     WidthRequest="90"
@@ -131,14 +132,15 @@
                                            TextColor="Black" 
                                            HorizontalOptions="Center"/>
                                     <Label Text="Grade" 
-                                           FontSize="11" 
+                                           FontSize="14" 
                                            FontFamily="RobotoSerifLight"
                                            HorizontalOptions="Center"/>
                                 </VerticalStackLayout>
                             </Border>
 
                             <Border Grid.Column="1"
-                                    Stroke="{StaticResource PrimaryBase}"
+                                    Stroke="White"
+                                    BackgroundColor="White"
                                     StrokeThickness="3"
                                     HeightRequest="90"
                                     WidthRequest="90"
@@ -154,14 +156,15 @@
                                            TextColor="Black" 
                                            HorizontalOptions="Center"/>
                                     <Label Text="Quantity" 
-                                           FontSize="11"
+                                           FontSize="14"
                                            FontFamily="RobotoSerifLight"
                                            HorizontalOptions="Center"/>
                                 </VerticalStackLayout>
                             </Border>
 
                             <Border Grid.Column="2"
-                                    Stroke="{StaticResource PrimaryBase}"
+                                    Stroke="White"
+                                    BackgroundColor="White"
                                     StrokeThickness="3"
                                     HeightRequest="90"
                                     WidthRequest="90"
@@ -177,7 +180,7 @@
                                            TextColor="Black" 
                                            HorizontalOptions="Center"/>
                                     <Label Text="FCFA/Lot" 
-                                           FontSize="11"
+                                           FontSize="14"
                                            FontFamily="RobotoSerifLight"
                                            HorizontalOptions="Center"/>
                                 </VerticalStackLayout>
@@ -185,7 +188,7 @@
                         </Grid>
 
                         <BoxView HeightRequest="1" 
-                                 Color="{StaticResource PrimaryBase}" 
+                                 Color="White" 
                                  Opacity="0.3"/>
 
                         <Grid RowDefinitions="Auto, Auto" 
@@ -207,7 +210,7 @@
                             </Label>-->
 
                             <Label Grid.Row="0" Grid.Column="0"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Type: "
@@ -221,7 +224,7 @@
                             </Label>
 
                             <Label Grid.Row="0" Grid.Column="1"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Lot size: "
@@ -235,7 +238,7 @@
                             </Label>
 
                             <Label Grid.Row="1" Grid.Column="0"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Code: "
@@ -249,7 +252,7 @@
                             </Label>
                             
                             <Label Grid.Row="1" Grid.Column="1"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Shelf life: "
@@ -266,17 +269,17 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border Stroke="{StaticResource PrimaryBase}" 
-                        StrokeThickness="3" 
+                <Border Stroke="White" 
+                        StrokeThickness="0.5" 
                         StrokeShape="RoundRectangle 5" 
                         Padding="15" 
-                        BackgroundColor="White">
+                        BackgroundColor="#121212">
 
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Logistics Information" 
                                FontSize="17" 
                                FontFamily="RobotoSerifBold" 
-                               TextColor="Black"/>
+                               TextColor="White"/>
 
                         <HorizontalStackLayout Spacing="10">
                             <Label Text="🏠" 
@@ -285,13 +288,14 @@
 
                             <Label Text="Origin"
                                    FontSize="15"
+                                   TextColor="White"
                                    FontFamily="RobotoSerifBold"
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
 
                         <VerticalStackLayout>
                             <Label HorizontalOptions="Start"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Region: "
@@ -305,7 +309,7 @@
                             </Label>
 
                             <Label HorizontalOptions="Start"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Town: "
@@ -319,7 +323,7 @@
                             </Label>
 
                             <Label HorizontalOptions="Start"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Quarter: "
@@ -333,7 +337,7 @@
                             </Label>
 
                             <Label HorizontalOptions="Start"
-                                   TextColor="Black">
+                                   TextColor="White">
                                 <Label.FormattedText>
                                     <FormattedString>
                                         <Span Text="Street: "
@@ -361,7 +365,7 @@
 
                             <VerticalStackLayout>
                                 <Label HorizontalOptions="Start"
-                                       TextColor="Black">
+                                       TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Region: "
@@ -375,7 +379,7 @@
                                 </Label>
 
                                 <Label HorizontalOptions="Start"
-                                       TextColor="Black">
+                                       TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Town: "
@@ -389,7 +393,7 @@
                                 </Label>
 
                                 <Label HorizontalOptions="Start"
-                                       TextColor="Black">
+                                       TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Quarter: "
@@ -403,7 +407,7 @@
                                 </Label>
 
                                 <Label HorizontalOptions="Start"
-                                       TextColor="Black">
+                                       TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Street: "
@@ -467,17 +471,17 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border Stroke="{StaticResource PrimaryBase}" 
-                        StrokeThickness="3" 
+                <Border Stroke="White" 
+                        StrokeThickness="0.5" 
                         StrokeShape="RoundRectangle 5" 
                         Padding="15" 
-                        BackgroundColor="White">
+                        BackgroundColor="#121212">
 
                     <VerticalStackLayout Spacing="15">
                         <Label Text="Contact Information" 
                                FontSize="16" 
                                FontFamily="RobotoSerifBold" 
-                               TextColor="Black"/>
+                               TextColor="White"/>
 
                         <Grid ColumnDefinitions="*, *" 
                               ColumnSpacing="10">

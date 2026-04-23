@@ -55,7 +55,7 @@
             <Grid ColumnDefinitions="45,*">
                 <ImageButton Source="back.png" HeightRequest="25" WidthRequest="25"
                                  MaximumHeightRequest="22" MaximumWidthRequest="22"
-                                 Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" IsVisible="{Binding IsCommodityDetailsStep}" Command="{Binding BackToMarketCommand}"/>
+                                 Aspect="AspectFit" HorizontalOptions="Start" VerticalOptions="Center" IsVisible="{Binding IsCommodityDetailsStep}" Command="{Binding BackToMarketInsightCommand}"/>
                 <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" HorizontalOptions="Start" Background="Transparent">
                     <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer/>
@@ -78,10 +78,11 @@
                         PlaceholderText="Select commodity type"/>
                     <Label Text="{Binding CommodityTypeError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
-                    <HorizontalStackLayout Spacing="10">
+                    <VerticalStackLayout>
                         <Label Text="{Binding ShelfLifeInDaysDisplay}" FontSize="11" FontFamily="RobotoSerifBold" TextColor="#6C757D"/>
                         <Label Text="{Binding LotSizeDisplay}" FontSize="11" FontFamily="RobotoSerifBold" TextColor="#6C757D"/>
-                    </HorizontalStackLayout>
+                        <Label Text="{Binding SelectedCommodity.Name, StringFormat='Selected Commodity: {0}'}" IsVisible="{Binding IsBackTextVisible}" FontSize="11" FontFamily="RobotoSerifBold" TextColor="#6C757D"/>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Grid>
         </Border>
@@ -231,6 +232,14 @@
                             <Label Text="{Binding OriginDetailError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
                         </VerticalStackLayout>
                     </Border>
+
+                    <dxe:FormSwitchItem Text="Is Deliverable ?" 
+                                        TextFontFamily="RobotoSerifRegular" 
+                                        TextFontSize="13"
+                                        Margin="0,0,0,0"
+                                        IsVisible="{Binding IsOffer}"
+                                        IsToggled="{Binding IsDeliverable}"
+                                        OnColor="{StaticResource PrimaryBase}"/>
 
                     <VerticalStackLayout IsVisible="{Binding IsDeliverable}">
                         <Label Text="Destination Location" FontFamily="RobotoSerifBold" TextColor="White" Margin="0,10,0,10"/>

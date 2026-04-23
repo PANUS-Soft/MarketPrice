@@ -73,8 +73,8 @@
 
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToCommodityInsightCommand}"
-                                    CommandParameter="{Binding .}"/>
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToMarketInsightCommand}"
+                                    CommandParameter="{Binding Filter}"/>
                             </Grid.GestureRecognizers>
 
                             <Border Grid.Column="0" StrokeShape="Ellipse"

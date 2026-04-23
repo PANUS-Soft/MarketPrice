@@ -7,30 +7,65 @@ using MarketPrice.Ui.Services.Api;
 using MarketPrice.Domain.Market.DTOs;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
+using MarketPrice.Domain.Position.Commands;
+using MarketPrice.Domain.Reference.DTOs;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    [QueryProperty(nameof(SelectedMarketItem), "SelectedMarketItem")]
-    public partial class MarketInsightViewModel (ReferenceDataApiService referenceDataApi, MarketApiService marketApi) : ObservableObject
+    [QueryProperty(nameof(SelectedMarketItemFilter), "SelectedMarketItemFilter")]
+    public partial class MarketInsightViewModel : ObservableObject
     {
-        private readonly ReferenceDataApiService _referenceDataApi = referenceDataApi;
-        private readonly MarketApiService _marketApi = marketApi;
-        //private readonly LoadMarketApiService _marketApiService;
+        private readonly ReferenceDataApiService _referenceDataApi;
+        private readonly MarketApiService _marketApi;
 
-        [ObservableProperty]
-        MarketItem? selectedMarketItem;
+        [ObservableProperty] MarketItemFilter? selectedMarketItemFilter;
+        private MarketItemFilter? _incomingMarketItemFilter;
 
-        //[ObservableProperty] MarketItem selectedMarketItem;
+        public ObservableCollection<MarketItemFilter> Commodities { get; } = new();
+
         [ObservableProperty] private MarketInsightResponseDto? dto;
-        //[ObservableProperty] private List<MarketDepthItem> bidMarketDepth;
-        //[ObservableProperty] private List<MarketDepthItem> offerMarketDepth;
         public ObservableCollection<MarketInsightChartResponseDto>? PriceHistory { get; } = new();
 
-        partial void OnSelectedMarketItemChanged(MarketItem? value)
+        public MarketInsightViewModel(ReferenceDataApiService referenceDataApiService, MarketApiService marketApiService)
         {
-            if (value != null) _ = GetCommodityMarketInsightAsync(value.CommodityId);
-            if (value != null) _ = LoadApiDataAsync(value.CommodityId);
-            if (value != null) _ = LoadApiChartDataAsync(value.CommodityId);
+            _referenceDataApi = referenceDataApiService;
+            _marketApi = marketApiService;
+        }
+
+        public async Task InitializeAsync()
+        {
+            await LoadCommoditiesFilterAsync();
+
+            ApplySelectedCommodity();
+        }
+
+        partial void OnSelectedMarketItemFilterChanged(MarketItemFilter? value)
+        {
+            if (value == null) return;
+
+            _incomingMarketItemFilter = value;
+
+            if (Commodities.Count > 0) ApplySelectedCommodity();
+        }
+
+        private void ApplySelectedCommodity()
+        {
+            if (_incomingMarketItemFilter == null) return;
+
+            SelectedMarketItemFilter =
+                Commodities.FirstOrDefault(c => c.CommodityId == _incomingMarketItemFilter.CommodityId);
+
+            if (SelectedMarketItemFilter != null) _ = LoadMarketInsightAsync(SelectedMarketItemFilter.CommodityId);
+        }
+
+        //partial void OnSelectedMarketItemFilterChanged(MarketItemFilter? value)
+        //{
+        //    if (value != null) _ = LoadMarketInsightAsync(value.CommodityId);
+        //}
+
+        private async Task LoadMarketInsightAsync(Guid commodityId)
+        {
+            await Task.WhenAll(GetCommodityMarketInsightAsync(commodityId), LoadChartDataAsync(commodityId));
         }
 
         public string CommodityName => Dto?.CommodityName.ToUpper() ?? "---";
@@ -61,13 +96,7 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        //partial void OnSelectedMarketItemChanged(MarketItem? value)
-        //{
-        //    if (value != null)
-        //        _ = LoadApiDataAsync(value.CommodityId);
-        //}
-
-        private async Task LoadApiChartDataAsync(Guid commodityId)
+        private async Task LoadChartDataAsync(Guid commodityId)
         {
             try
             {
@@ -84,7 +113,6 @@ namespace MarketPrice.Ui.ViewModels
                             PriceHistory?.Add(point);
                         }
                         OnPropertyChanged(nameof(PriceHistory));
-                        System.Diagnostics.Debug.WriteLine($"Points: {result?.Data.Count}");
                     }
                 }
             }
@@ -94,27 +122,29 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        private async Task LoadApiDataAsync(Guid commodityId)
+        private async Task LoadCommoditiesFilterAsync()
         {
             try
             {
-                var response = await _marketApi.GetMarketInsightAsync(commodityId);
+                var response = await _referenceDataApi.GetCommoditiesAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
-                    if (result != null)
+                    var commodities = await response.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                    Commodities.Clear();
+                    foreach (var commodity in commodities!)
                     {
-                        selectedMarketItem.HighBid = result.MaxBid24H;
-                        selectedMarketItem.HighOffer = result.MaxOffer24H;
-                        selectedMarketItem.LowBid = result.MinBid24H;
-                        selectedMarketItem.LowOffer = result.MinOffer24H;
+                        Commodities.Add(new MarketItemFilter
+                        {
+                            CommodityTypeId = commodity.CommodityTypeId,
+                            CommodityId = commodity.Id,
+                            Name = commodity.Name.ToUpper()
+                        });
                     }
                 }
             }
-
-            catch (Exception ex)
+            catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error", $"Something went wrong while loading commodities. {e.Message} Please try again later.", "OK");
             }
         }
 
@@ -142,35 +172,44 @@ namespace MarketPrice.Ui.ViewModels
             });
         }
 
-        //public ObservableCollection<PricePoint>? PriceHistory { get; set; }
+        [RelayCommand]
+        private async Task NavigateToBidPositionListingAsync(MarketDepthItemDto item)
+        {
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = Dto!.CommodityTypeId,
+                CommodityId = Dto?.CommodityId,
+                CommodityName = Dto?.CommodityName,
+                PositionTypeId = 6001,
+                UnitPrice = item.Price
 
-        //public ObservableCollection<DepthItem>? MarketDepthBids { get; set; }
-        //public ObservableCollection<DepthItem>? MarketDepthOffers { get; set; }
-        //public MarketInsightViewModel()
-        //{
-        //    PriceHistory = new ObservableCollection<PricePoint>()
-        //    {
-        //        new(DateTime.Now.AddDays(-6), 3800), new(DateTime.Now.AddDays(-5), 1200), new(DateTime.Now.AddDays(-4), 1500),
-        //        new(DateTime.Now.AddDays(-3), 800),  new(DateTime.Now.AddDays(-2), 2000),  new(DateTime.Now.AddDays(-1), 3500),
-        //        new(DateTime.Now, 2500)
-        //    };
-        //    MarketDepthBids = new ObservableCollection<DepthItem>(Enumerable.Repeat(new DepthItem { Value = 200 }, 10));
-        //    MarketDepthOffers = new ObservableCollection<DepthItem>(Enumerable.Repeat(new DepthItem { Value = 300 }, 10));
-        //}
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
+            });
+        }
+
+        [RelayCommand]
+        private async Task NavigateToOfferPositionListingAsync(MarketDepthItemDto item)
+        {
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = Dto!.CommodityTypeId,
+                CommodityId = Dto?.CommodityId,
+                CommodityName = Dto?.CommodityName,
+                PositionTypeId = 6002,
+                UnitPrice = item.Price
+            };
+
+            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
+            {
+                { "Args", args }
+            });
+        }
+
     }
-
-    //public class PricePoint
-    //{
-    //    public DateTime Date { get; set; }
-    //    public double Price { get; set; }
-
-    //    public PricePoint(DateTime date, double price)
-    //    {
-    //        Date = date;
-    //        Price = price;
-    //    }
-    //}
-
 
     public partial class MarketDepthItem
     {
