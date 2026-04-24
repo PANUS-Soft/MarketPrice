@@ -85,40 +85,66 @@ namespace MarketPrice.Ui.ViewModels
 
         public async Task LoadMarketAsync()
         {
-            var marketInsightResponse = await _marketApi.LoadMarketAsync();
+            var marketInsightReponse = await _marketApi.LoadMarketAsync();
 
-            if (!marketInsightResponse.IsSuccessStatusCode) return;
-            
-            var marketInsights = await marketInsightResponse.Content.ReadFromJsonAsync<List<MarketResponseDto>>();
-            
+            if (!marketInsightReponse.IsSuccessStatusCode) return;
+
+            var marketInsights = await marketInsightReponse.Content.ReadFromJsonAsync<List<MarketResponseDto>>();
+
             if (marketInsights == null) return;
-            
+
             _allMarketItems.Clear();
+
+            var culture = new CultureInfo("en-CM");
 
             foreach (var insight in marketInsights)
             {
-                _allMarketItems.Add(new MarketItem
+                var bid0 = insight.BidDepth.ElementAtOrDefault(0);
+                var bid1 = insight.BidDepth.ElementAtOrDefault(1);
+                var bid2 = insight.BidDepth.ElementAtOrDefault(2);
+                var offer0 = insight.OfferDepth.ElementAtOrDefault(0);
+                var offer1 = insight.OfferDepth.ElementAtOrDefault(1);
+                var offer2 = insight.OfferDepth.ElementAtOrDefault(2);
+
+                var hasBid = bid0 != null && bid0.Price != 0;
+                var hasOffer = offer0 != null && offer0.Price != 0;
+
+                _allMarketItems.Add(new MarketItem()
                 {
-                    Filter = new MarketItemFilter
+                    Filter = new MarketItemFilter()
                     {
                         CommodityTypeId = insight.CommodityTypeId,
                         CommodityId = insight.CommodityId,
                         Name = insight.CommodityName!
                     },
                     ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")),
-                    BestBid = insight.BestBid != 0 ? insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Bids",
                     LotSize = insight.LotSize,
                     UnitOfMeasure = insight.UnitOfMeasure,
                     LotSizeDisplay = $"{insight.LotSize} {insight.UnitOfMeasure}",
-                    BestOffer = insight.BestOffer != 0 ? insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Offers",
-                    IsBidUp = insight.IsBidImproved,
-                    IsBidDown = !insight.IsBidImproved,
-                    IsBidNull = insight.BestBid == 0,
-                    IsOfferUp = insight.IsOfferImproved,
-                    IsOfferDown = !insight.IsOfferImproved,
-                    IsOfferNull = insight.BestOffer == 0,
-                    IsBidSoonToExpire = insight.IsBidSoonToExpire,
-                    IsOfferSoonToExpire = insight.IsOfferSoonToExpire
+
+                    BestBid = hasBid ? bid0!.Price.ToString("No", culture) : "No Bids",
+                    BestBidRaw = bid0?.Price ?? 0,
+                    BestBidQuantity = bid0?.TotalActivePosforPrice ?? 0,
+                    BestBidLocation = bid0?.Locations.FirstOrDefault() ?? string.Empty,
+                    NextBid1 = bid1?.Price ?? 0,
+                    NextBid2 = bid2?.Price ?? 0,
+
+                    BestOffer = hasOffer ? offer0!.Price.ToString("No", culture) : "No Offers",
+                    BestOfferRaw = offer0?.Price ?? 0,
+                    BestOfferQuantity = offer0?.TotalActivePosforPrice ?? 0,
+                    BestOfferLocation = offer0?.Locations.FirstOrDefault() ?? string.Empty,
+                    NextOffer1 = offer1?.Price ?? 0,
+                    NextOffer2 = offer2?.Price ?? 0,
+
+                    IsBidUp = insight.IsBidImproved && hasBid,
+                    IsBidDown = insight.IsBidImproved && hasBid,
+                    IsBidNull = !hasBid,
+                    IsOfferUp = insight.IsOfferImproved && hasOffer,
+                    IsOfferDown = insight.IsOfferImproved && hasOffer,
+                    IsOfferNull = !hasOffer,
+
+                    IsBidSoonToExpire = insight.IsBestBidSoonToExpire,
+                    IsOfferSoonToExpire = insight.IsBestOfferSoonToExpire,
                 });
             }
 
