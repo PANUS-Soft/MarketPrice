@@ -10,7 +10,7 @@
       {
         "Path": "MarketPrice.Ui\\MarketPrice.Ui.csproj",
         "Action": "Start",
-        "DebugTarget": "Pixel 7 - API 35 (Android 15.0 - API 35)"
+        "DebugTarget": "Samsung SM-J730F (Android 7.0 - API 24)"
       }
     ]
   }

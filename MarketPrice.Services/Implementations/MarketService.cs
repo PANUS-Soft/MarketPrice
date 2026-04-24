@@ -139,7 +139,7 @@ namespace MarketPrice.Services.Implementations
                     item.LastBestOffer = x.BestOffer;
                 }
 
-                item.DateUpdated = DateTimeOffset.Now;
+                item.DateUpdated = DateTime.UtcNow;
 
                 // In case GroupBy broke tracking, this ensures the update is sent.
                 _context.Entry(item).State = EntityState.Modified;

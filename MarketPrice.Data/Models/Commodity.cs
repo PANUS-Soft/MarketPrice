@@ -19,7 +19,7 @@ namespace MarketPrice.Data.Models
         public decimal LastBestOffer { get; set; }
         public required bool IsBidImproved { get; set; }
         public required bool IsOfferImproved { get; set; }
-        public DateTimeOffset DateUpdated { get; set; }
+        public DateTime DateUpdated { get; set; }
 
 
         //Units of measure navigation property
