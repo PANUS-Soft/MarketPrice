@@ -10,7 +10,7 @@
       {
         "Path": "MarketPrice.Ui\\MarketPrice.Ui.csproj",
         "Action": "Start",
-        "DebugTarget": "Samsung SM-J730F (Android 7.0 - API 24)"
+        "DebugTarget": "Samsung SM-G960U (Android 10.0 - API 29)"
       }
     ]
   }
