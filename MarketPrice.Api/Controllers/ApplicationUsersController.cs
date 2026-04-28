@@ -72,7 +72,7 @@ namespace MarketPrice.Api.Controllers
             return Ok("Alive 😁😁😁");
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet(ApiRoutes.GET_USER_PROFILE + "/{id}")]
         public async Task<ActionResult<UserProfileResponseDto>> GetUserProfile(Guid id)
         {

@@ -13,12 +13,12 @@
                WidthRequest ="200"
                Aspect="AspectFit"/>
 
-        <ActivityIndicator IsRunning="True"
+        <!--<ActivityIndicator IsRunning="True"
                            VerticalOptions="End"
                            HorizontalOptions="Center"
                            Margin="0,0,0,80"
                            Color="#005596"
-                           HeightRequest="45"/>
+                           HeightRequest="45"/>-->
     </Grid>
     
 </ContentPage>
