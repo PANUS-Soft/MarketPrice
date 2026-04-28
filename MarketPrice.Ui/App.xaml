@@ -10,7 +10,9 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <converters:TrendArrowConverter x:Key="TrendArrowConverter"/>
+            <converters:NotZeroConverter x:Key="NotZeroConverter"/>
+            <converters:TrendColorConverter x:Key="TrendBidColor" IsOffer="False"/>
+            <converters:TrendColorConverter x:Key="TrendOfferColor" IsOffer="True"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
