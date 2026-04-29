@@ -22,60 +22,6 @@ namespace MarketPrice.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MarketPrice.Data.Models.AggregatedPrice", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("AvgBid")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("AvgOffer")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("CommodityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("HighBid")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("HighOffer")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Interval")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("LowBid")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("LowOffer")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("PositionCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommodityId", "Interval", "Timestamp")
-                        .IsUnique()
-                        .HasDatabaseName("IX_AggregatedPrices_Lookup");
-
-                    b.ToTable("AggregatedPrices");
-                });
-
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>
                 {
                     b.Property<Guid>("CommodityId")
@@ -90,8 +36,8 @@ namespace MarketPrice.Data.Migrations
                     b.Property<Guid>("CommodityTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateUpdated")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateUpdated")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsBidImproved")
                         .HasColumnType("bit");
@@ -123,7 +69,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UnitOfMeasureId");
 
-                    b.ToTable("Commodities");
+                    b.ToTable("Commodities", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityImage", b =>
@@ -151,7 +97,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("CommodityId");
 
-                    b.ToTable("CommodityImage");
+                    b.ToTable("CommodityImage", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityType", b =>
@@ -168,8 +114,8 @@ namespace MarketPrice.Data.Migrations
                     b.Property<int>("CommodityGroupId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("DateUpdated")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateUpdated")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("DefaultUnitOfMeasureId")
                         .HasColumnType("uniqueidentifier");
@@ -199,7 +145,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("CommodityTypes");
+                    b.ToTable("CommodityTypes", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityTypeImage", b =>
@@ -227,7 +173,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("CommodityTypeId");
 
-                    b.ToTable("CommodityTypeImage");
+                    b.ToTable("CommodityTypeImage", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
@@ -269,7 +215,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("PositionId")
                         .IsUnique();
 
-                    b.ToTable("DeliveryDetails");
+                    b.ToTable("DeliveryDetails", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>
@@ -315,7 +261,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupData", b =>
@@ -342,7 +288,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("LookupDataTypeId");
 
-                    b.ToTable("LookupData");
+                    b.ToTable("LookupData", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupDataType", b =>
@@ -356,7 +302,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("LookupDataTypeId");
 
-                    b.ToTable("LookupDataTypes");
+                    b.ToTable("LookupDataTypes", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Position", b =>
@@ -372,17 +318,17 @@ namespace MarketPrice.Data.Migrations
                     b.Property<int>("CurrentStatusId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("Date")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime?>("DateUpdated")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DateUpdated")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ExpiryDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Grade")
                         .HasColumnType("nvarchar(max)");
@@ -394,8 +340,8 @@ namespace MarketPrice.Data.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
@@ -414,7 +360,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Positions");
+                    b.ToTable("Positions", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Rating", b =>
@@ -427,11 +373,11 @@ namespace MarketPrice.Data.Migrations
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DateRecorded")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateRecorded")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime?>("DateUpdated")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DateUpdated")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("RatedUserId")
                         .HasColumnType("uniqueidentifier");
@@ -449,7 +395,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("RatedUserId", "RaterUserId")
                         .IsUnique();
 
-                    b.ToTable("Ratings", t =>
+                    b.ToTable("Ratings", null, t =>
                         {
                             t.HasCheckConstraint("CHK_Ratings_Score", "[Score] BETWEEN 1 AND 5");
                         });
@@ -480,7 +426,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("UnitOfMeasureId");
 
-                    b.ToTable("UnitOfMeasures");
+                    b.ToTable("UnitOfMeasures", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.User", b =>
@@ -493,11 +439,11 @@ namespace MarketPrice.Data.Migrations
                     b.Property<int>("AccountTypeId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("DateRecorded")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateRecorded")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime?>("DateUpdate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DateUpdate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
@@ -543,7 +489,7 @@ namespace MarketPrice.Data.Migrations
                         .IsUnique()
                         .HasFilter("[IdCardNumber] IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.UserSecurityDetail", b =>
@@ -570,7 +516,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserSecurityDetails");
+                    b.ToTable("UserSecurityDetails", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Verification", b =>
@@ -583,11 +529,11 @@ namespace MarketPrice.Data.Migrations
                     b.Property<int>("CurrentVerificationStatusId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("DateCompleted")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DateCompleted")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime>("DateStarted")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateStarted")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -606,7 +552,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("VerificationTypeId");
 
-                    b.ToTable("Verifications");
+                    b.ToTable("Verifications", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>
