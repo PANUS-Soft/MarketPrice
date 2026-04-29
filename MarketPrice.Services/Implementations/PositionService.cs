@@ -194,16 +194,75 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 listingsQuery = listingsQuery.Where(p => p.CommodityId == command.CommodityId);
             }
 
-            var listings = await listingsQuery
-                .Select(p => new PositionListing
+            // --- NEW: First pull raw data so EF Core can translate the sub-queries safely ---
+            var rawListings = await listingsQuery
+                .Select(p => new
                 {
-                    PositionId = p.PositionId,
+                    p.PositionId,
                     UserName = p.User.FirstName + " " + p.User.FamilyName,
                     CommodityName = p.Commodity.CommodityName,
-                    Quantity = p.Quantity * (decimal)p.Commodity.LotSize!,
-                    UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish
+                    CalculatedQuantity = p.Quantity * (decimal)p.Commodity.LotSize!,
+                    UoM = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+                    ShelfLifeInDays = p.Commodity.ShelfLifeInDays,
+                    BaseQuantity = p.Quantity,
+                    p.UnitPrice,
+                    p.StartDate,
+                    p.ExpiryDate,
+                    // Sub-query to fetch the town
+                    Town = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => _context.Locations.Where(l => l.LocationId == dd.OriginLocationId).Select(l => l.Town).FirstOrDefault())
+                        .FirstOrDefault(),
+
+                    // NEW: Sub-query to fetch the Region Name (LocationName)
+                    RegionName = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => _context.Locations
+                            .Where(l => l.LocationId == dd.OriginLocationId)
+                            .Select(l => _context.LookupData.Where(ld => ld.LookupDataId == l.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault())
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+
+                    IsDeliverable = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => dd.IsDeliverable)
+                        .FirstOrDefault(),
+                    Fee = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => dd.Fee)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
+
+            var now = DateTimeOffset.UtcNow;
+
+            // Map the raw data to the final DTO
+            var listings = rawListings.Select(p =>
+            {
+                var timeToExpiry = p.ExpiryDate - now;
+                int daysLeft = Math.Max(0, (int)Math.Ceiling(timeToExpiry.TotalDays));
+
+                return new PositionListing
+                {
+                    PositionId = p.PositionId,
+                    UserName = p.UserName,
+                    CommodityName = p.CommodityName,
+                    Quantity = p.CalculatedQuantity,
+                    UnitOfMeasure = p.UoM,
+                    ShelfLifeInDays = p.ShelfLifeInDays,
+                    OriginTown = p.Town ?? "Unknown",
+
+                    // NEW: Map the Region Name so the UI filter can read it!
+                    LocationName = p.RegionName,
+
+                    TotalPrice = p.BaseQuantity * p.UnitPrice,
+                    IsExpiringSoon = IsExpired(p.StartDate, p.ExpiryDate, now),
+                    ExpiryText = daysLeft <= 1 ? "Expiring in 1 day" : $"Expiring in {daysLeft} days",
+                    IsCriticalExpiry = daysLeft <= 1,
+                    IsDeliverable = p.IsDeliverable,
+                    DeliveryFee = p.Fee.HasValue ? (decimal?)p.Fee.Value : null
+                };
+            }).ToList();
 
             var ls = _context.Commodities
                 .Where(c => c.CommodityTypeId == command.CommodityTypeId)
@@ -215,6 +274,63 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 .Select(c => c.UnitOfMeasure.UnitOfMeasureCodeEnglish)
                 .FirstOrDefault();
 
+            var shelfLife = _context.Commodities
+                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
+                .Select(c => c.ShelfLifeInDays)
+                .FirstOrDefault();
+
+            // FETCH THE REAL PRICE LADDERS AND PEOPLE COUNTS 
+            var ladderBaseQuery = _context.Positions.Where(p =>
+                p.Commodity.CommodityTypeId == command.CommodityTypeId &&
+                p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow);
+
+            if (command.CommodityId != null && command.CommodityId != Guid.Empty)
+            {
+                ladderBaseQuery = ladderBaseQuery.Where(p => p.CommodityId == command.CommodityId);
+            }
+
+            // Bids are sorted Highest to Lowest
+            var bidPrices = await ladderBaseQuery
+                .Where(p => p.PositionTypeId == 6001)
+                .GroupBy(p => p.UnitPrice)
+                .Select(g => new PricePointDto
+                {
+                    Price = g.Key,
+                    Count = g.Select(p => p.UserId).Distinct().Count() // Number of distinct people
+                })
+                .OrderByDescending(p => p.Price)
+                .ToListAsync();
+
+            // Offers are sorted Lowest to Highest
+            var offerPrices = await ladderBaseQuery
+                .Where(p => p.PositionTypeId == 6002)
+                .GroupBy(p => p.UnitPrice)
+                .Select(g => new PricePointDto
+                {
+                    Price = g.Key,
+                    Count = g.Select(p => p.UserId).Distinct().Count() // Number of distinct people
+                })
+                .OrderBy(p => p.Price)
+                .ToListAsync();
+
+            // 3. Compose Response
+            return DtoManager.Succeed(new PositionListingResponseDto
+            {
+                CommodityTypeName = categoryInfo.TypeName,
+                PositionTypeName = positionTypeName,
+                CommodityNames = categoryInfo.AllCommodities,
+                Listings = listings,
+                UnitPrice = command.UnitPrice,
+                LotSize = $"{ls} {uom}",
+                ShelfLife = shelfLife != null ? $"{shelfLife} Days" : "---",
+
+                // ADD THE NEW LISTS HERE
+                BidPrices = bidPrices,
+                OfferPrices = offerPrices,
+
+                Status = "Data Retrieved"
+            });
+
             // 3. Compose Response
             return DtoManager.Succeed(new PositionListingResponseDto
             {
@@ -224,6 +340,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 Listings = listings, // Filtered result set
                 UnitPrice = command.UnitPrice,
                 LotSize = $"{ls} {uom}",
+                ShelfLife = shelfLife != null ? $"{shelfLife} Days" : "---",
                 Status = "Data Retrieved"
             });
         }
@@ -344,6 +461,14 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             LeadTimeInDays = deliverable ? deliveryDetail?.LeadTimeInDays : null,
             DeliveryFee = deliverable ? deliveryDetail?.Fee : null
         };
+    }
+
+    // FIX: Using DateTimeOffset instead of DateTime
+    private bool IsExpired(DateTimeOffset start, DateTimeOffset expiry, DateTimeOffset now)
+    {
+        var total = (expiry - start).TotalSeconds;
+        if (total <= 0) return false;
+        return ((now - start).TotalSeconds / total) >= 0.8;
     }
 
 }

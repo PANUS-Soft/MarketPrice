@@ -19,6 +19,10 @@ namespace MarketPrice.Ui.ViewModels
         private readonly ReferenceDataApiService _referenceDataApi;
         private readonly ApiSettings _apiSettings;
 
+        // These are now correctly holding the PricePointDto from the database
+        private List<PricePointDto> _bidPriceLadder = new();
+        private List<PricePointDto> _offerPriceLadder = new();
+
         [ObservableProperty] private PositionListingCommand? navArgs;
 
         public ObservableCollection<RegionDto> Locations { get; } = new();
@@ -40,11 +44,11 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string commodityTypeName;
         [ObservableProperty] private string lotSize;
         [ObservableProperty] private ImageSource? commodityImage;
-        [ObservableProperty] private string shelfLife = "12 Months";
+        [ObservableProperty] private string shelfLife;
         [ObservableProperty] private string bidPrice = "-";
-        [ObservableProperty] private string bidCount = "0";
+        [ObservableProperty] private string bidCount = "0 People";
         [ObservableProperty] private string offerPrice = "-";
-        [ObservableProperty] private string offerCount = "0";
+        [ObservableProperty] private string offerCount = "0 People";
 
         public PositionListingViewModel(SessionService sessionService, PositionApiService positionApi, ReferenceDataApiService referenceDataApi, IOptions<ApiSettings> apiSettings)
         {
@@ -119,11 +123,26 @@ namespace MarketPrice.Ui.ViewModels
             if (string.IsNullOrEmpty(CommodityTypeName)) CommodityTypeName = dto.CommodityTypeName?.ToUpper() ?? string.Empty;
             if (string.IsNullOrEmpty(LotSize)) LotSize = dto.LotSize;
 
+            ShelfLife = dto.ShelfLife ?? "---";
+
             UnitPrice = dto.UnitPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM"));
             PositionTypeName = $"Position Listings - {dto.PositionTypeName?.ToUpper() ?? string.Empty}";
 
             Listings.Clear();
             foreach (var item in dto.Listings) Listings.Add(item);
+
+            // Save the real ladders from the database
+            _bidPriceLadder = dto.BidPrices ?? new();
+            _offerPriceLadder = dto.OfferPrices ?? new();
+
+            // Update the UI counts for the current prices
+            var currentBid = _bidPriceLadder.FirstOrDefault(b => b.Price.ToString("N0", new System.Globalization.CultureInfo("en-CM")) == BidPrice);
+            if (currentBid != null) BidCount = $"{currentBid.Count} People";
+            else BidCount = "0 People";
+
+            var currentOffer = _offerPriceLadder.FirstOrDefault(o => o.Price.ToString("N0", new System.Globalization.CultureInfo("en-CM")) == OfferPrice);
+            if (currentOffer != null) OfferCount = $"{currentOffer.Count} People";
+            else OfferCount = "0 People";
 
             ApplyFilters();
             IsBusy = false;
@@ -154,24 +173,6 @@ namespace MarketPrice.Ui.ViewModels
             IsListEmpty = Positions.Count == 0;
             PriceDisplay = $"{UnitPrice} FCFA per {LotSize}";
         }
-
-        // =========================================================================
-        // BACKEND DEVELOPER NOTES - PRICE CYCLING INTEGRATION
-        //
-        // Right now, the arrows (< >) use a "Mock Price Ladder" to simulate 
-        // cycling through available prices so the frontend UI can be tested.
-        // 
-        // TO LINK TO THE REAL DATABASE:
-        // 1. You need an API endpoint that returns a List of all distinct prices 
-        //    (decimals) where positions currently exist for this commodity.
-        // 2. Populate `_bidPriceLadder` and `_offerPriceLadder` with those real 
-        //    values during `InitializeAsync()` or `LoadPositionListingAsync()`.
-        // 3. Ensure the lists are sorted from LOWEST to HIGHEST price.
-        // 4. Once you map the real data, DELETE the `GenerateMockPriceLadder()` 
-        //    method at the bottom of this file.
-        // =========================================================================
-        private List<decimal> _bidPriceLadder = new();
-        private List<decimal> _offerPriceLadder = new();
 
         [RelayCommand]
         private async Task SelectPrice(string side)
@@ -228,10 +229,10 @@ namespace MarketPrice.Ui.ViewModels
 
             // 1. Grab the correct list for the side they clicked
             var priceLadder = side == "Bid" ? _bidPriceLadder : _offerPriceLadder;
-            if (priceLadder.Count == 0) return;
+            if (priceLadder == null || priceLadder.Count == 0) return;
 
             // 2. Find where our current price is in the list
-            int currentIndex = priceLadder.IndexOf(NavArgs.UnitPrice);
+            int currentIndex = priceLadder.FindIndex(p => p.Price == NavArgs.UnitPrice);
             if (currentIndex == -1) currentIndex = 0;
 
             // 3. Move to the next/previous index based on the arrow clicked
@@ -241,44 +242,29 @@ namespace MarketPrice.Ui.ViewModels
             if (newIndex < 0) newIndex = 0;
             if (newIndex >= priceLadder.Count) newIndex = priceLadder.Count - 1;
 
-            // 5. Get the new exact price from the list
-            decimal newPrice = priceLadder[newIndex];
+            // 5. Get the exact price point object from the list
+            var selectedPoint = priceLadder[newIndex];
 
             // If we are already at the end of the list, do nothing
-            if (newPrice == NavArgs.UnitPrice) return;
+            if (selectedPoint.Price == NavArgs.UnitPrice) return;
 
-            // 6. Update the string in the UI
-            string formattedPrice = newPrice.ToString("N0", new System.Globalization.CultureInfo("en-CM"));
-            if (side == "Bid") BidPrice = formattedPrice;
-            else OfferPrice = formattedPrice;
+            // 6. Update the string and count in the UI
+            string formattedPrice = selectedPoint.Price.ToString("N0", new System.Globalization.CultureInfo("en-CM"));
+
+            if (side == "Bid")
+            {
+                BidPrice = formattedPrice;
+                BidCount = $"{selectedPoint.Count} People";
+            }
+            else
+            {
+                OfferPrice = formattedPrice;
+                OfferCount = $"{selectedPoint.Count} People";
+            }
 
             // 7. Update the API payload and fetch the new list!
-            NavArgs.UnitPrice = newPrice;
+            NavArgs.UnitPrice = selectedPoint.Price;
             await LoadPositionListingAsync();
-        }
-
-        // =========================================================================
-        // TODO BACKEND DEV: DELETE THIS ENTIRE METHOD ONCE LINKED TO API
-        // This generates temporary prices around the current price so the frontend 
-        // developer can test the clicking of the arrows.
-        // =========================================================================
-        private void GenerateMockPriceLadder(string side, decimal currentPrice)
-        {
-            var targetList = side == "Bid" ? _bidPriceLadder : _offerPriceLadder;
-
-            // Only generate the mock list if it's currently empty
-            if (targetList.Count == 0)
-            {
-                // Creating 5 available prices, stepped by 500 FCFA
-                targetList.Add(currentPrice - 1000);
-                targetList.Add(currentPrice - 500);
-                targetList.Add(currentPrice);
-                targetList.Add(currentPrice + 500);
-                targetList.Add(currentPrice + 1000);
-
-                // Real data must also be sorted from lowest to highest!
-                targetList.Sort();
-            }
         }
 
         [RelayCommand]

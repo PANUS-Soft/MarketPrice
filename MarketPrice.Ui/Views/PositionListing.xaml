@@ -16,32 +16,15 @@
     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" Padding="15,15,15,0" BackgroundColor="#121212">
 
         <Grid Grid.Row="0" 
-              ColumnDefinitions="40, *" 
               Margin="0,0,0,25" 
               VerticalOptions="Center">
 
-            <ImageButton Grid.Column="0" 
-                         Source="back.png" 
+            <ImageButton Source="back.png" 
                          HeightRequest="24" 
                          WidthRequest="24"
                          HorizontalOptions="Start" 
                          VerticalOptions="Center"
                          Command="{Binding GoBackCommand}"/>
-
-            <Border Grid.Column="1"
-                    StrokeShape="RoundRectangle 8"
-                    Stroke="White"
-                    StrokeThickness="1"
-                    BackgroundColor="Transparent"
-                    HeightRequest="45">
-                <SearchBar Placeholder="Search positions..."
-                           Text="{Binding SearchText}"
-                           BackgroundColor="Transparent"
-                           TextColor="White"
-                           PlaceholderColor="#888888"
-                           CancelButtonColor="White"
-                           VerticalOptions="Center"/>
-            </Border>
         </Grid>
 
         <Grid Grid.Row="1" 
@@ -193,38 +176,8 @@
                 <Grid ColumnDefinitions="50, *" ColumnSpacing="15" VerticalOptions="Center">
                     <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" StrokeShape="RoundRectangle 25" BackgroundColor="#222222" StrokeThickness="0"/>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="8">
-                        <BoxView HeightRequest="12" WidthRequest="80" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                        <BoxView HeightRequest="12" WidthRequest="150" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                    </VerticalStackLayout>
-                </Grid>
-            </Border>
-
-            <Border Stroke="White" StrokeThickness="0.5" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8" Padding="15,10">
-                <Grid ColumnDefinitions="50, *" ColumnSpacing="15" VerticalOptions="Center">
-                    <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" StrokeShape="RoundRectangle 25" BackgroundColor="#222222" StrokeThickness="0"/>
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="8">
-                        <BoxView HeightRequest="12" WidthRequest="120" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                        <BoxView HeightRequest="12" WidthRequest="160" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                    </VerticalStackLayout>
-                </Grid>
-            </Border>
-
-            <Border Stroke="White" StrokeThickness="0.5" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8" Padding="15,10">
-                <Grid ColumnDefinitions="50, *" ColumnSpacing="15" VerticalOptions="Center">
-                    <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" StrokeShape="RoundRectangle 25" BackgroundColor="#222222" StrokeThickness="0"/>
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="8">
-                        <BoxView HeightRequest="12" WidthRequest="120" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                        <BoxView HeightRequest="12" WidthRequest="160" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                    </VerticalStackLayout>
-                </Grid>
-            </Border>
-
-            <Border Stroke="White" StrokeThickness="0.5" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8" Padding="15,10">
-                <Grid ColumnDefinitions="50, *" ColumnSpacing="15" VerticalOptions="Center">
-                    <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" StrokeShape="RoundRectangle 25" BackgroundColor="#222222" StrokeThickness="0"/>
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="8">
-                        <BoxView HeightRequest="12" WidthRequest="120" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
-                        <BoxView HeightRequest="12" WidthRequest="160" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
+                        <BoxView HeightRequest="12" WidthRequest="100" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
+                        <BoxView HeightRequest="12" WidthRequest="180" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
                     </VerticalStackLayout>
                 </Grid>
             </Border>
@@ -247,7 +200,7 @@
                                 Margin="0,0,0,10"
                                 Padding="15,10">
 
-                            <Grid ColumnDefinitions="50, *, Auto" ColumnSpacing="15" VerticalOptions="Center">
+                            <Grid ColumnDefinitions="50, *, Auto, Auto" ColumnSpacing="12" VerticalOptions="Center">
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=GoToPositionDetailCommand}" CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
@@ -256,16 +209,78 @@
                                     <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}" TextColor="White" FontSize="18" FontFamily="RobotoSerifSemibold" HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Border>
 
-                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                    <Label Text="{Binding UserName, StringFormat='User: {0}'}" FontFamily="RobotoSerifRegular" FontSize="14" TextColor="White"/>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+
+                                   <!--<Label Text="{Binding UserName, StringFormat='User: {0}'}" FontFamily="RobotoSerifRegular" FontSize="14" TextColor="White"/>-->
+
                                     <HorizontalStackLayout Spacing="4">
-                                        <Label Text="Quantity:" FontFamily="RobotoSerifRegular" FontSize="14" TextColor="White"/>
-                                        <Label Text="{Binding Quantity, StringFormat='{0:0.##}'}" FontFamily="RobotoSerifRegular" FontSize="14" TextColor="White"/>
-                                        <Label Text="{Binding UnitOfMeasure}" FontFamily="RobotoSerifRegular" FontSize="14" TextColor="White"/>
+                                        <Label Text="Origin:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                        <Label Text="{Binding OriginTown}" FontFamily="RobotoSerifBold" FontSize="13" TextColor="White"/>
                                     </HorizontalStackLayout>
+
+                                    <VerticalStackLayout Spacing="3" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=IsBidHighlighted}">
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Quantity:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="{Binding Quantity, StringFormat='{0:0.##}'}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                            <Label Text="{Binding UnitOfMeasure}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                        </HorizontalStackLayout>
+
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Total Price:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="{Binding TotalPrice, StringFormat='{0:N0} FCFA'}" FontFamily="RobotoSerifBold" FontSize="13" TextColor="#4CAF50"/>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Spacing="3" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=IsOfferHighlighted}">
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Stock:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="{Binding Quantity, StringFormat='{0:0.##}'}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                            <Label Text="{Binding UnitOfMeasure}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                        </HorizontalStackLayout>
+
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Deliverable:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="No" FontFamily="RobotoSerifBold" FontSize="13" TextColor="#F44336">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsDeliverable}" Value="True">
+                                                        <Setter Property="Text" Value="Yes" />
+                                                        <Setter Property="TextColor" Value="#4CAF50" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+
                                 </VerticalStackLayout>
 
-                                <Label Grid.Column="2" Text="›" FontFamily="RobotoSerifBold" FontSize="30" TextColor="White" VerticalOptions="Center" HorizontalOptions="End"/>
+                                <Border Grid.Column="2" 
+                                        IsVisible="{Binding IsExpiringSoon}" 
+                                        Stroke="#FF9800" 
+                                        StrokeThickness="1" 
+                                        BackgroundColor="#33FF9800" 
+                                        StrokeShape="RoundRectangle 4" 
+                                        Padding="6,3" 
+                                        VerticalOptions="Center">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsCriticalExpiry}" Value="True">
+                                            <Setter Property="Stroke" Value="#F44336" />
+                                            <Setter Property="BackgroundColor" Value="#33F44336" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+
+                                    <Label Text="{Binding ExpiryText, TargetNullValue='Expiring...', FallbackValue='Expiring...'}" 
+                                           TextColor="#FF9800" 
+                                           FontSize="10" 
+                                           FontFamily="RobotoSerifBold">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsCriticalExpiry}" Value="True">
+                                                <Setter Property="TextColor" Value="#F44336" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+
+                                <Label Grid.Column="3" Text="›" FontFamily="RobotoSerifBold" FontSize="30" TextColor="White" VerticalOptions="Center" HorizontalOptions="End"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
