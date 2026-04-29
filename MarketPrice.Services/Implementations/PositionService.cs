@@ -1,5 +1,7 @@
-﻿using MarketPrice.Data;
+﻿using LinqToDB.Internal.Linq;
+using MarketPrice.Data;
 using MarketPrice.Data.Models;
+using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Domain.Authentication.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
@@ -17,10 +19,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
     private const int LOCATION_TYPE = 4000;
     private const int POSITION_STATUS = 5000;
     private const int POSITION_TYPE = 6000;
+    private const int REGIONS = 7000;
     private const int OPEN_POSITION = 5001;
 
     public async Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer)
     {
+        //verify if the command is null before process the data 
         if (command == null)
         {
             throw new ArgumentNullException(nameof(command));
@@ -115,9 +119,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             _context.Locations.Add(destination);
         }
 
+        string state = DateTime.UtcNow < position.StartDate ? "Pending" :
+            DateTime.UtcNow <= position.ExpiryDate ? "Open" : "Close";
 
         await _context.SaveChangesAsync();
         await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
+        await _realtime.BroadcastActivityPositionStatusUpdateAsync(position,state);
 
         //provide information to the grave curve
         return new PositionResponseDto
@@ -340,7 +347,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             ShelfLifeInDays = position.Commodity != null ? position.Commodity.ShelfLifeInDays : 0,
             DeliveryAvailable = deliverable,
 
-            // Logistics information
+            // Logistics infor mation
             Origin = originLocation != null
                 ? new LocationResponse
                 {
@@ -366,5 +373,186 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             DeliveryFee = deliverable ? deliveryDetail?.Fee : null
         };
     }
+
+    public async Task<ActivityGroupDto> GetActivityAsync(Guid id)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("USerId is required.");
+
+        var now = DateTime.UtcNow;
+
+        var positions = await _context.Positions.AsNoTracking().Where(p => p.UserId == id).Include(p => p.Commodity)
+            .ThenInclude(c => c.UnitOfMeasure).OrderByDescending(p => p.Date).ToListAsync();
+
+        if (!positions.Any()) return new ActivityGroupDto();
+
+        var positionIds = positions.Select(p => p.PositionId).ToList();
+
+        var deliveryDetails = await _context.DeliveryDetails.AsNoTracking()
+            .Where(dd => positionIds.Contains(dd.PositionId)).ToListAsync();
+
+        var allLocationIds = deliveryDetails.Select(dd => dd.OriginLocationId)
+            .Concat(deliveryDetails.Where(dd => dd.DestinationLocationId.HasValue)
+                .Select(dd => dd.DestinationLocationId!.Value)).Distinct().ToList();
+
+        var locationById = await _context.Locations.AsNoTracking().Where(l => allLocationIds.Contains(l.LocationId))
+            .ToDictionaryAsync(l => l.LocationId);
+
+        var deliveryByPositionId = deliveryDetails.ToDictionary(dd => dd.PositionId);
+        var bidTypeId = lookups.GetLookupId("Bid", POSITION_TYPE);
+
+        var data = positions.Select(p =>
+        {
+            var delivery = deliveryByPositionId.TryGetValue(p.PositionId, out var d) ? d : null;
+            var isDeliverable = delivery?.IsDeliverable ?? false;
+
+            var originLocation = delivery != null && locationById.TryGetValue(delivery.OriginLocationId, out var ol)
+                ? ol
+                : null;
+
+            var destinationLocation =
+                isDeliverable && delivery?.DestinationLocationId != null &&
+                locationById.TryGetValue(delivery.DestinationLocationId.Value, out var dl)
+                    ? dl
+                    : null;
+
+            return new ActivityResponseDto
+            {
+                CommodityId = p.CommodityId,
+                CommodityTypeId = p.Commodity?.CommodityTypeId ?? Guid.Empty,
+                CommodityName = p.Commodity?.CommodityName ?? string.Empty,
+                ShelfLifeInDays = p.Commodity?.ShelfLifeInDays ?? 0,
+                UnitOfMeasure = p.Commodity?.UnitOfMeasure?.UnitOfMeasureCodeEnglish ?? string.Empty,
+                LotSize = p.Commodity?.LotSize,
+
+                Quantity = p.Quantity,
+                UnitPrice = p.UnitPrice,
+                Grade = p.Grade ?? string.Empty,
+                Description = p.Description,
+                PositionType = p.PositionTypeId == bidTypeId ? "Bid" : "Offer",
+                StartDate = p.StartDate,
+                EndDate = p.ExpiryDate,
+                CreatedAt = p.Date,
+                State = now < p.StartDate ? "Pending" : p.ExpiryDate >= now ? "Open" : "Close",
+                CanDeliver = isDeliverable,
+                LeadTime = isDeliverable ? delivery?.LeadTimeInDays : null,
+                DeliveryFee = isDeliverable ? delivery?.Fee : null,
+                OriginRegion = originLocation != null ? _context.LookupData.Where(ld => ld.LookupDataId == originLocation.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault() : null,
+                DestinationRegion = destinationLocation != null ? _context.LookupData.Where(ld => ld.LookupDataId == destinationLocation.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault(): null,
+
+                Origin = originLocation != null
+                    ? new LocationCommand
+                    {
+                        RegionId = originLocation.RegionId,
+                        Town = originLocation.Town,
+                        Quarter = originLocation.Quarter,
+                        Street = originLocation.Street
+                    }
+                    : null,
+                Destination = destinationLocation != null
+                    ? new LocationCommand
+                    {
+                        RegionId = destinationLocation.RegionId,
+                        Town = destinationLocation.Town,
+                        Quarter = destinationLocation.Quarter,
+                        Street = destinationLocation.Street
+                    }
+                    : null,
+            };
+        }).ToList();
+
+        var today = now.Date;
+        var yesterday = today.AddDays(-1);
+        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday) % 7);
+        var startOfWeek = today.AddDays(-diff);
+        var startOfLastWeek = startOfWeek.AddDays(-7);
+        var startOfMonth = new DateTime(today.Year, today.Month, 1);
+        var startOfLastMonth = startOfMonth.AddMonths(-1);
+        var endOfThisMonth = startOfMonth.AddTicks(-1);
+
+        return new ActivityGroupDto
+        {
+            Today = data.Where(x => x.CreatedAt >= today).ToList(),
+
+            Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
+
+            ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek).ToList(),
+
+            LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
+
+            ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
+
+            LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfThisMonth).ToList(),
+
+        };
+    }
+
+
+    // Activity position history for each user.
+    //public async Task<ActivityGroupDto> GetActivityAsync(Guid id)
+    //{
+
+    //    if (id == Guid.Empty)
+    //        throw new ArgumentException("UserId is required");
+
+    //    var now = DateTime.UtcNow;
+
+    //    var positionHistory = _context.Positions.Where(p => p.UserId == id);
+
+    //    // Filter: Position type (SAFE using Lookup IDs) and get one position for 
+    //    //if(!string.IsNullOrEmpty(command.PositionType))
+    //    //{
+    //    //    int typeId = command.PositionType switch
+    //    //    {
+    //    //        "Bid" => lookups.GetLookupId("Bid", POSITION_TYPE),
+    //    //        "Offer" => lookups.GetLookupId("Offer", POSITION_TYPE),
+    //    //        _ => throw new ArgumentException($"Unknow PositionType: {command.PositionType}")
+    //    //    };
+    //    //positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
+
+    //    //}
+
+    //    var data = await positionHistory.Select(p => new ActivityResponseDto
+    //    {
+    //        CommodityName = p.Commodity.CommodityName,
+    //        Quantity = p.Quantity * (decimal)p.Commodity.LotSize,
+    //        UnitPrice = p.UnitPrice,
+    //        PositionType = p.PositionTypeId == lookups.GetLookupId("Bid", POSITION_TYPE) ? "Bid" : "Offer",
+    //        UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+    //        LotSize = $"{p.Commodity.LotSize} {p.Commodity.UnitOfMeasure.UnitOfMeasureNameEnglish}",
+    //        State = now < p.StartDate ? "Pending" :
+    //                p.ExpiryDate >= now ? "Open" : "Close",
+    //        CreatedAt = p.Date
+
+    //    }).OrderByDescending(X => X.CreatedAt).ToListAsync();
+
+    //    var today = now.Date;
+    //    var yesterday = today.AddDays(-1);
+
+    //    int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday) % 7);
+    //    var startOfWeek = today.AddDays(-diff);
+    //    var startOfLastWeek = startOfWeek.AddDays(-7);
+
+    //    var startOfMonth = new DateTime(today.Year, today.Month, 1);
+    //    var startOfLastMonth = startOfMonth.AddMonths(-1);
+    //    var endOfThisMonth = startOfMonth.AddTicks(-1);
+
+    //    return new ActivityGroupDto
+    //    {
+    //        Today = data.Where(x => x.CreatedAt >= today).ToList(),
+
+    //        Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
+
+    //        ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek).ToList(),
+
+    //        LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
+
+    //        ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
+
+    //        LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfThisMonth).ToList(),
+
+    //    };
+    //}
+
 
 }

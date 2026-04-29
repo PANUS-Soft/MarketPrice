@@ -10,6 +10,7 @@ namespace MarketPrice.Services.Interfaces
     public interface IMarketRealtimeService
     {
         Task BroadcastPositionUpdateAsync(Position position, bool isOffer);
+        Task BroadcastActivityPositionStatusUpdateAsync(Position position, string state);
 
     }
 }

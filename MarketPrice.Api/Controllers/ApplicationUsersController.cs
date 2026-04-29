@@ -1,4 +1,5 @@
 ﻿using MarketPrice.Domain;
+using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
@@ -20,6 +21,7 @@ namespace MarketPrice.Api.Controllers
         IRefreshTokenService refreshTokenService,
         IProfileService profileService,
         IChangePasswordService changePasswordService,
+        IPositionService positionService,
         ILogger<ApplicationUsersController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
@@ -96,7 +98,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost(ApiRoutes.CHANGE_PASSWORD)]
+        [HttpPost(ApiRoutes.CHANGE_PASSWORD)]   
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
             var result = await changePasswordService.ChangePasswordAsync(command);
@@ -106,5 +108,14 @@ namespace MarketPrice.Api.Controllers
 
             return Ok(result);
         }
+
+        //[Authorize]
+        [HttpGet(ApiRoutes.GET_USER_ACTIVITY + "/{id}")]
+        public async Task<ActionResult<ActivityGroupDto>> GetActivity(Guid id)
+        {
+            var result = await positionService.GetActivityAsync(id);
+            return Ok(result);
+        }
+
     }
 }
