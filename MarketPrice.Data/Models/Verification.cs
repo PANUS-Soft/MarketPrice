@@ -7,7 +7,7 @@
         public required int VerificationTypeId { get; set; }
         public required int CurrentVerificationStatusId { get; set; }
         public string? Notes { get; set; }
-        public DateTimeOffset DateStarted { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset DateStarted { get; set; } = DateTime.UtcNow;
         public DateTimeOffset? DateCompleted { get; set; }
 
 
