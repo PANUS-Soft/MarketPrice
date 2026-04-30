@@ -31,10 +31,10 @@ public partial class Home : ContentPage
 			bool isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
 			System.Diagnostics.Debug.WriteLine($"[HOME PAGE] Session valid: {isSessionValid}");
 
-            if (!isSessionValid)
-            {
-                bool refreshed = await _sessionService.TryRefreshTokenAsync();
-                System.Diagnostics.Debug.WriteLine($"[HOME PAGE] Token refreshed: {refreshed}");
+			if (!isSessionValid)
+			{
+				bool refreshed = await _sessionService.TryRefreshTokenAsync();
+				System.Diagnostics.Debug.WriteLine($"[HOME PAGE] Token refreshed: {refreshed}");
 
 				if (!refreshed)
 				{

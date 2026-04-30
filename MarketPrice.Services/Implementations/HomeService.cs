@@ -19,34 +19,43 @@ namespace MarketPrice.Services.Implementations
             var now = DateTime.UtcNow;
 
             var flatData = await (
-                    from ct in _context.CommodityTypes
-                    join c in _context.Commodities on ct.CommodityTypeId equals c.CommodityTypeId
-                    join p in _context.Positions.AsNoTracking() on c.CommodityId equals p.CommodityId
-                    join dd in _context.DeliveryDetails on p.PositionId equals dd.PositionId
-                    join loc in _context.Locations on dd.OriginLocationId equals loc.LocationId
-                    join ld in _context.LookupData on loc.RegionId equals ld.LookupDataId
-                    join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
+    from ct in _context.CommodityTypes
+    join c in _context.Commodities on ct.CommodityTypeId equals c.CommodityTypeId
+    join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
 
-                    join ci in _context.CommodityImage on c.CommodityId equals ci.CommodityId into ciGroup
-                    from ci in ciGroup.DefaultIfEmpty()
+    join p in _context.Positions.AsNoTracking()
+        on c.CommodityId equals p.CommodityId into pGroup
+    from p in pGroup.Where(pos => pos.StartDate <= now && pos.ExpiryDate > now).DefaultIfEmpty()
 
-                    where p.StartDate <= now && p.ExpiryDate > now
-                          && ld.LookupDataTypeId == 7000
+    join dd in _context.DeliveryDetails
+        on (p == null ? (Guid?)null : p.PositionId) equals dd.PositionId into ddGroup
+    from dd in ddGroup.DefaultIfEmpty()
 
-                    select new
-                    {
-                        ct.CommodityTypeId,
-                        TypeName = ct.Name.LookupDataTextEnglish,
-                        c.CommodityId,
-                        c.CommodityName,
-                        CommodityEntity = c, // Tracking trend flags on the Commodity level now
-                        CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty,
-                        c.LotSize,
-                        UnitOfMeasureCode = uom.UnitOfMeasureCodeEnglish,
-                        Position = p,
-                        LocationName = ld.LookupDataTextEnglish
-                    }
-                ).ToListAsync();
+    join loc in _context.Locations
+        on (dd == null ? (Guid?)null : dd.OriginLocationId) equals loc.LocationId into locGroup
+    from loc in locGroup.DefaultIfEmpty()
+
+    join ld in _context.LookupData
+        on (loc == null ? (int?)null : loc.RegionId) equals ld.LookupDataId into ldGroup
+    from ld in ldGroup.Where(l => l.LookupDataTypeId == 7000).DefaultIfEmpty()
+
+    join ci in _context.CommodityImage on c.CommodityId equals ci.CommodityId into ciGroup
+    from ci in ciGroup.DefaultIfEmpty()
+
+    select new
+    {
+        ct.CommodityTypeId,
+        TypeName = ct.Name.LookupDataTextEnglish,
+        c.CommodityId,
+        c.CommodityName,
+        CommodityEntity = c,
+        CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty,
+        c.LotSize,
+        UnitOfMeasureCode = uom.UnitOfMeasureCodeEnglish,
+        Position = p, // Will be NULL if no active price exists
+        LocationName = ld != null ? ld.LookupDataTextEnglish : "N/A"
+    }
+).ToListAsync();
 
             var result = new List<LoadHomeResponseDto>();
 
@@ -69,8 +78,8 @@ namespace MarketPrice.Services.Implementations
                     var firstComm = commGroup.First();
                     var commodity = firstComm.CommodityEntity;
 
-                    var bids = commGroup.Where(x => x.Position.PositionTypeId == BidPosition).ToList();
-                    var offers = commGroup.Where(x => x.Position.PositionTypeId == AskPosition).ToList();
+                    var bids = commGroup.Where(x => x.Position != null &&  x.Position.PositionTypeId == BidPosition).ToList();
+                    var offers = commGroup.Where(x => x.Position != null && x.Position.PositionTypeId == AskPosition).ToList();
 
                     var bestBidPos = bids.OrderByDescending(x => x.Position.UnitPrice).FirstOrDefault();
                     var bestOfferPos = offers.OrderBy(x => x.Position.UnitPrice).FirstOrDefault();
@@ -122,7 +131,7 @@ namespace MarketPrice.Services.Implementations
         }
 
         // Helper method used to calculate soon-to-expire for positions
-        private bool IsExpired(DateTime start, DateTime expiry, DateTime now)
+        private bool IsExpired(DateTimeOffset start, DateTimeOffset expiry, DateTime now)
         {
             var total = (expiry - start).TotalSeconds;
             if (total <= 0) return false;

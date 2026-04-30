@@ -37,12 +37,12 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
-        //public async Task<HttpResponseMessage> PingAsync()
-        //{
-        //    var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH_PING);
-        //    var response = await GettingAsync(url);
-        //    return response;
-        //}
+        public async Task<HttpResponseMessage> PingAsync()
+        {
+            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH_PING);
+            var response = await GettingAsync(url);
+            return response;
+        }
     }
 
     public class BaseApiService
