@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MarketPrice.Domain.Position.Commands;
+using MarketPrice.Ui.Common;
 
 namespace MarketPrice.Ui.Models
 {
     public class Activity
     {
+        public Guid PositionId { get; set; }
         public Guid CommodityTypeId { get; set; }
         public Guid CommodityId { get; set; }
         public string CommodityName { get; set; }
@@ -22,7 +24,8 @@ namespace MarketPrice.Ui.Models
         public DateTimeOffset Date { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public DateTimeOffset EndDate { get; set; }
-        public string PositionType { get; set; } // <-- Added this (e.g., "Bid" or "Offer")
+        public PositionType PositionType { get; set; }
+        public string PosType { get; set; } // <-- Added this (e.g., "Bid" or "Offer")
         public string UnitOfMeasure { get; set; }
         public string LotSize { get; set; }
         public bool IsDeliverable { get; set; }

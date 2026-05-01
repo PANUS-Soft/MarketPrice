@@ -166,6 +166,7 @@
                             <dxe:FormSwitchItem Text="Start position immediately ?"
                                                 TextFontFamily="RobotoSerifRegular"
                                                 TextFontSize="13"
+                                                IsEnabled="{Binding IsStartPositionImmediatelyEnabled}"
                                                 IsToggled="{Binding StartPositionImmediately}"
                                                 OnColor="{StaticResource PrimaryBase}"/>
 

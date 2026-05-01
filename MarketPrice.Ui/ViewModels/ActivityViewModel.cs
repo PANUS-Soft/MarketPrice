@@ -10,8 +10,11 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using DevExpress.Maui.Controls;
 using MarketPrice.Domain.Activity.DTOs;
+using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.Views;
+using Activity = MarketPrice.Ui.Models.Activity;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -115,13 +118,14 @@ namespace MarketPrice.Ui.ViewModels
 
         private static Activity MapToUiModel(ActivityResponseDto dto) => new()
         {
+            PositionId = dto.PositionId,
             CommodityId = dto.CommodityId,
             CommodityTypeId = dto.CommodityTypeId,
             CommodityName = dto.CommodityName,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
             Date = dto.CreatedAt.DateTime,
-            Description = dto.Description! == string.Empty ? dto.Description! : "---",
+            Description = dto.Description!,
             OriginRegion = dto.OriginRegion!,
             DestinationRegion = dto.DestinationRegion!,
             Origin = dto.Origin,
@@ -137,7 +141,8 @@ namespace MarketPrice.Ui.ViewModels
             TotalPrice = $"{(dto.Quantity * dto.UnitPrice):N0} FCFA",
             State = dto.State,
             StateColor = dto.State == "Open" ? Color.FromArgb("#2ECC71") : dto.State == "Close" ? Color.FromArgb("#E74C3C") : Color.FromArgb("#F39C12"),
-            PositionType = dto.PositionType,
+            PosType = dto.PositionType,
+            PositionType = dto.PositionType == "Bid" ? PositionType.Bid : PositionType.Offer,
             LotSize = $"{dto.LotSize} {dto.UnitOfMeasure}",
             UnitOfMeasure = dto.UnitOfMeasure,
         };
@@ -244,9 +249,12 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (selectedItem == null) return;
 
-            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
+            {
+                { "ActivityToEdit", selectedItem}
+            });
 
-            await Shell.Current.GoToAsync("EditPosition");
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
         }
 
         [RelayCommand]

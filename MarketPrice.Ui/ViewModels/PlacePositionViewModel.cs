@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
+using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Ui.Common;
@@ -12,9 +13,11 @@ using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
 using MarketPrice.Domain.Reference.DTOs;
+using MarketPrice.Ui.Models;
 
 namespace MarketPrice.Ui.ViewModels
 {
+    [QueryProperty(nameof(ActivityToEdit), "ActivityToEdit")]
     [QueryProperty(nameof(PositionType), "PositionType")]
     public partial class PlacePositionViewModel : ObservableObject
     {
@@ -25,10 +28,26 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private PositionStep currentStep;
         [ObservableProperty] private PositionType positionType;
 
+        [ObservableProperty] private bool isEditMode;
+        [ObservableProperty] private Guid? editingPositionId;
+
         // Collections used to store reference data 
         public ObservableCollection<CommodityTypeDto> CommodityTypes { get; } = new();
         public ObservableCollection<CommodityDto> Commodities { get; } = new();
         public ObservableCollection<RegionDto> Regions { get; } = new();
+
+        // Properties used for receiving navigation parameters
+        private Activity? activityToEdit;
+
+        public Activity? ActivityToEdit
+        {
+            get => activityToEdit;
+            set
+            {
+                SetProperty(ref activityToEdit, value);
+                if (value != null) LoadFromActivity(value);
+            }
+        }
 
         // Properties used to bound data to the view
         [ObservableProperty] private CommodityTypeDto? selectedCommodityType;
@@ -92,8 +111,9 @@ namespace MarketPrice.Ui.ViewModels
         public bool IsOffer => PositionType == PositionType.Offer;
         public bool IsCommodityTypeEditable => IsCommodityDetailsStep;
         public bool IsCommodityEditable => SelectedCommodityType != null;
-        public bool IsStartDateTimeEnabled => !StartPositionImmediately;
-        public string PageTitle => PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer";
+        public bool IsStartDateTimeEnabled => !IsEditMode && !StartPositionImmediately;
+        public bool IsStartPositionImmediatelyEnabled => !IsEditMode;
+        public string PageTitle => IsEditMode ? $"Edit {ActivityToEdit!.PosType}" : PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer";
         public string ContinueButtonText => CurrentStep == PositionStep.LogisticsInformation ? (PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer") : "Continue";
         
         private readonly Color _activeColor = Color.FromArgb("#0056A0");
@@ -206,6 +226,7 @@ namespace MarketPrice.Ui.ViewModels
             {
                 // Logic to load reference data for CommodityTypes and Regions
                 var commodityTypesResponse = await _referenceDataApi.GetCommodityTypesAsync();
+                var commoditiesResponse = await _referenceDataApi.GetCommoditiesAsync();
                 var regionsResponse = await _referenceDataApi.GetRegionsAsync();
 
                 if (commodityTypesResponse.IsSuccessStatusCode)
@@ -214,6 +235,14 @@ namespace MarketPrice.Ui.ViewModels
                     var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
                     if (commodityTypes != null)
                         foreach (var ct in commodityTypes) CommodityTypes.Add(ct);
+                }
+
+                if (commoditiesResponse.IsSuccessStatusCode)
+                {
+                    Commodities.Clear();
+                    var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                    if (commodities != null)
+                        foreach (var c in commodities) Commodities.Add(c);
                 }
 
                 if (regionsResponse.IsSuccessStatusCode)
@@ -283,6 +312,13 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(ShelfLifeInDaysDisplay));
         }
 
+        partial void OnIsEditModeChanged(bool value)
+        {
+            OnPropertyChanged(nameof(PageTitle));
+        }
+
+        
+
         partial void OnSelectedGradeChanged(string value)
         {
             if (!string.IsNullOrEmpty(value)) GradeError = null;
@@ -313,7 +349,9 @@ namespace MarketPrice.Ui.ViewModels
 
         partial void OnStartDateChanged(DateTime? value)
         {
-            if (StartPositionImmediately == false && value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
+            if (IsEditMode) StartDateError = null;
+
+            if (!IsEditMode && StartPositionImmediately == false && value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
 
             if (StartPositionImmediately == false && value != null && value >= DateTime.Now) StartDateError = null;
             CombineDateError();
@@ -463,7 +501,7 @@ namespace MarketPrice.Ui.ViewModels
                 isValid = false;
             }
             
-            if (!StartPositionImmediately && StartDate < DateTime.Now)
+            if (!IsEditMode && !StartPositionImmediately && StartDate < DateTime.Now)
             {
                 StartDateError = "- Start of the position cannot be in the past.\n";
                 isValid = false;
@@ -569,6 +607,59 @@ namespace MarketPrice.Ui.ViewModels
             }
 
             return isValid;
+        }
+
+        // Method to prefill data in edit mode - to be called when editing an existing position (bid or offer)
+        public async Task LoadFromActivity(Activity activity)
+        {
+
+            IsEditMode = true;
+            EditingPositionId = activity.PositionId;
+
+            await LoadReferenceDataAsync();
+
+            // Commodity details
+            SelectedCommodityType = CommodityTypes.FirstOrDefault(ct => ct.Id == activity.CommodityTypeId);
+
+            if (SelectedCommodityType != null)
+            {
+                await LoadCommoditiesByCommodityTypesAsync(SelectedCommodityType.Id);
+
+                SelectedCommodity = Commodities
+                    .FirstOrDefault(c => c.Id == activity.CommodityId);
+            }
+
+            //SelectedCommodity = Commodities.FirstOrDefault(c => c.Id == activity.CommodityId);
+            SelectedGrade = activity.Grade;
+            Quantity = decimal.Parse(activity.Quantity.Replace(",", ""));
+            Description = activity.Description;
+
+            // Pricing and timing details
+            UnitPrice = decimal.Parse(activity.Price.Replace(" FCFA", ""));
+            StartPositionImmediately = false;
+            StartDate = activity.StartDate.DateTime;
+            EndDate = activity.EndDate.DateTime;
+
+            // Logistics Details
+            SelectedOriginRegion = Regions.FirstOrDefault(r => r.Id == activity.Origin?.RegionId);
+            OriginTown = activity.Origin?.Town;
+            OriginQuarter = activity.Origin?.Quarter;
+            OriginStreet = activity.Origin?.Street;
+            
+            IsDeliverable = activity.IsDeliverable;
+
+            if (activity.IsDeliverable)
+            {
+                IsDeliverable = true;
+                DeliveryFee = decimal.Parse(activity.DeliveryFee.Replace(" FCFA", ""));
+                LeadTime = activity.LeadTime ?? "";
+                SelectedDestinationRegion = Regions.FirstOrDefault(r => r.Id == activity.Destination?.RegionId);
+                DestinationTown = activity.Destination?.Town ?? "";
+                DestinationQuarter = activity.Destination?.Quarter ?? "";
+                DestinationStreet = activity.Destination?.Street ?? "";
+            }
+
+
         }
 
         // Methods to create bids and offers

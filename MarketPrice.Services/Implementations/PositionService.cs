@@ -397,6 +397,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             return new ActivityResponseDto
             {
+                PositionId = p.PositionId,
                 CommodityId = p.CommodityId,
                 CommodityTypeId = p.Commodity?.CommodityTypeId ?? Guid.Empty,
                 CommodityName = p.Commodity?.CommodityName ?? string.Empty,
