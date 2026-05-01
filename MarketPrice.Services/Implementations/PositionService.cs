@@ -377,6 +377,11 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         var locationById = await _context.Locations.AsNoTracking().Where(l => allLocationIds.Contains(l.LocationId))
             .ToDictionaryAsync(l => l.LocationId);
 
+        var allRegionIds = locationById.Values.Select(l => l.RegionId).Distinct().ToList();
+
+        var regionNamesById = await _context.LookupData.AsNoTracking()
+            .Where(ld => allRegionIds.Contains(ld.LookupDataId)).ToDictionaryAsync(ld => ld.LookupDataId, ld => ld.LookupDataTextEnglish);
+
         var deliveryByPositionId = deliveryDetails.ToDictionary(dd => dd.PositionId);
         var bidTypeId = lookups.GetLookupId("Bid", POSITION_TYPE);
 
@@ -417,8 +422,8 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 CanDeliver = isDeliverable,
                 LeadTime = isDeliverable ? delivery?.LeadTimeInDays : null,
                 DeliveryFee = isDeliverable ? delivery?.Fee : null,
-                OriginRegion = originLocation != null ? _context.LookupData.Where(ld => ld.LookupDataId == originLocation.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault() : null,
-                DestinationRegion = destinationLocation != null ? _context.LookupData.Where(ld => ld.LookupDataId == destinationLocation.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault(): null,
+                OriginRegion = originLocation != null && regionNamesById.TryGetValue(originLocation.RegionId, out var orName) ? orName : null,
+                DestinationRegion = destinationLocation != null && regionNamesById.TryGetValue(destinationLocation.RegionId, out var drName) ? drName : null,
 
                 Origin = originLocation != null
                     ? new LocationCommand
@@ -443,12 +448,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
         var today = now.Date;
         var yesterday = today.AddDays(-1);
-        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday) % 7);
+        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
         var startOfWeek = today.AddDays(-diff);
         var startOfLastWeek = startOfWeek.AddDays(-7);
+        var endOfLastWeek = startOfWeek;
         var startOfMonth = new DateTime(today.Year, today.Month, 1);
         var startOfLastMonth = startOfMonth.AddMonths(-1);
-        var endOfThisMonth = startOfMonth.AddTicks(-1);
 
         return new ActivityGroupDto
         {
@@ -456,13 +461,13 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
 
-            ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek).ToList(),
+            ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt < yesterday).ToList(),
 
-            LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
+            LastWeek = data.Where(x => x.CreatedAt >= startOfLastWeek && x.CreatedAt < endOfLastWeek).ToList(),
 
-            ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
+            ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth && x.CreatedAt < startOfLastWeek).ToList(),
 
-            LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfThisMonth).ToList(),
+            LastMonth = data.Where(x => x.CreatedAt >= startOfLastMonth && x.CreatedAt < startOfMonth).ToList(),
 
         };
     }
