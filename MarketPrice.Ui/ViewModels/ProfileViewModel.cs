@@ -16,7 +16,7 @@ namespace MarketPrice.Ui.ViewModels
     {
         private readonly AuthenticationApiService _authenticationApi;
         private readonly ProfileApiService _profileApi;
-        private readonly SessionService _sessionApi;
+        private readonly SessionService _sessionService;
 
         private UserProfileResponseDto userProfile;
 
@@ -32,12 +32,15 @@ namespace MarketPrice.Ui.ViewModels
         {
             _authenticationApi = authenticationApiService;
             _profileApi = profileApiService;
-            _sessionApi = sessionService;
+            _sessionService = sessionService;
         }
+
+        public bool IsUserLoggedIn => _sessionService.IsLoggedIn;
+        
 
         public async Task LoadUserProfileAsync()
         {
-            var session = await _sessionApi.GetCurrentSessionAsync();
+            var session = await _sessionService.GetCurrentSessionAsync();
 
             if (session == null) return;
 
@@ -80,6 +83,18 @@ namespace MarketPrice.Ui.ViewModels
         public ObservableCollection<ProfileMenuItem> MenuItems { get; } = new();
 
         [RelayCommand]
+        private async Task NavigateToRegisterAsync()
+        {
+            await Shell.Current.GoToAsync("//Register");
+        }
+
+        [RelayCommand]
+        private async Task NavigateToLoginAsync()
+        {
+            await Shell.Current.GoToAsync("//Login");
+        }
+
+        [RelayCommand]
         private async Task NavigateToEditProfileAsync()
         {
             await Shell.Current.GoToAsync("EditProfile", new Dictionary<string, object>
@@ -105,7 +120,7 @@ namespace MarketPrice.Ui.ViewModels
 
             try
             {
-                var userSession = await _sessionApi.GetCurrentSessionAsync();
+                var userSession = await _sessionService.GetCurrentSessionAsync();
 
                 var command = new LogoutCommand { EmailAddress = userSession!.EmailAddress };
 
@@ -117,10 +132,10 @@ namespace MarketPrice.Ui.ViewModels
 
                     if (dto is { LogoutStatus: true })
                     {
-                        var isSessionEnded = await _sessionApi.EndSessionAsync();
+                        var isSessionEnded = await _sessionService.EndSessionAsync();
                         if (isSessionEnded)
                         {
-                            await Toast.Make("You have been logged out successfully.", ToastDuration.Long).Show();
+                            await Toast.Make("You have been logged out successfully.", ToastDuration.Short).Show();
                             await Shell.Current.GoToAsync("//Welcome");
                         }
                     }

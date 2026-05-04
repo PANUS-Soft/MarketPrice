@@ -13,7 +13,7 @@
         public required bool IsPremiumUser { get; set; }
         public required string PasswordHash { get; set; }
         public required string PasswordSalt { get; set; }
-        public required DateTimeOffset DateRecorded { get; set; } = DateTimeOffset.Now;
+        public required DateTimeOffset DateRecorded { get; set; } = DateTime.UtcNow;
         public string? Note { get; set; }
         public DateTimeOffset? DateUpdate { get; set; }
 

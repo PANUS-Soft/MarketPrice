@@ -56,6 +56,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Position Detail
+        //[Authorize]
         [HttpGet(ApiRoutes.POSITION_DETAIL + "/{id}")]
         public async Task<ActionResult<PositionDetailResponseDto>> GetPositionDetail(Guid id)
         {

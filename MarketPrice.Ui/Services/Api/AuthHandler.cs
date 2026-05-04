@@ -10,11 +10,19 @@ namespace MarketPrice.Ui.Services.Api
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            var publicRoutes = new[]
+            {
+                ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH),
+                ApiControllers.Home.AppendRoute(ApiRoutes.LOAD_HOME_DATA),
+                ApiControllers.Markets.AppendRoute(ApiRoutes.LOAD_MARKET_DATA),
+                ApiControllers.ReferenceData.AppendRoute(ApiRoutes.REF_COMMODITY_TYPE),
+                ApiControllers.CommodityImages,
+                ApiControllers.CommodityTypeImages
+            };
 
-            // if the request is going to the "Authentication" controller, skip adding the token
-            var authUri = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH);
-            if (request.RequestUri != null &&
-                request.RequestUri.AbsolutePath.Contains(authUri, StringComparison.OrdinalIgnoreCase))
+            // if the request is targeting ao public route (endpoint), skip adding the token
+            if (request.RequestUri != null && 
+                publicRoutes.Any(route => request.RequestUri.AbsolutePath.Contains(route, StringComparison.OrdinalIgnoreCase)))
             {
                 return await base.SendAsync(request, cancellationToken);
             }
@@ -22,6 +30,7 @@ namespace MarketPrice.Ui.Services.Api
             // 1️ Ensure session is valid (refresh if close to expiry)
             var sessionService = serviceProvider.GetRequiredService<SessionService>();
             var isValidToken = await sessionService.ValidateAndRefreshSessionAsync();
+
             if (!isValidToken)
                 throw new Exception("Session expired");
 

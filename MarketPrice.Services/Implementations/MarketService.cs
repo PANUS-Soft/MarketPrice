@@ -24,40 +24,46 @@ namespace MarketPrice.Services.Implementations
         {
             var now = DateTime.UtcNow;
 
-            // 1. Fetch flat data from the database
             // We join all tables first to get a simple, translatable list
             var flatData = await (
-                from c in _context.Commodities
-                join p in _context.Positions.AsNoTracking() on c.CommodityId equals p.CommodityId
-                join dd in _context.DeliveryDetails on p.PositionId equals dd.PositionId
-                join loc in _context.Locations on dd.OriginLocationId equals loc.LocationId
-                join ld in _context.LookupData on loc.RegionId equals ld.LookupDataId
-                join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
+    from c in _context.Commodities
+    join uom in _context.UnitOfMeasures on c.UnitOfMeasureId equals uom.UnitOfMeasureId
 
-                // Handle images separately or as a left join here
-                join ci in _context.CommodityImage on c.CommodityId equals ci.CommodityId into ciGroup
-                from ci in ciGroup.DefaultIfEmpty()
+    join p in _context.Positions.AsNoTracking()
+        on c.CommodityId equals p.CommodityId into pGroup
+    from p in pGroup.Where(pos => pos.StartDate <= now && pos.ExpiryDate > now).DefaultIfEmpty()
 
-                where p.StartDate <= now && p.ExpiryDate > now
-                && ld.LookupDataTypeId == 7000
-                select new
-                {
-                    c.CommodityId,
-                    c.CommodityTypeId,
-                    c.CommodityName,
-                    c.LotSize,
-                    c.LastBestBid,
-                    c.LastBestOffer,
-                    // We need the actual entity to track updates later
-                    CommodityEntity = c,
-                    UnitOfMeasureCode = uom.UnitOfMeasureCodeEnglish,
-                    CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty,
+    join dd in _context.DeliveryDetails
+        on (p == null ? (Guid?)null : p.PositionId) equals dd.PositionId into ddGroup
+    from dd in ddGroup.DefaultIfEmpty()
 
-                    // Position details
-                    Position = p,
-                    LocationName = ld.LookupDataTextEnglish // Using the English text column
-                }
-    ).ToListAsync();
+    join loc in _context.Locations
+        on (dd == null ? (Guid?)null : dd.OriginLocationId) equals loc.LocationId into locGroup
+    from loc in locGroup.DefaultIfEmpty()
+
+    join ld in _context.LookupData
+        on (loc == null ? -1 : loc.RegionId) equals ld.LookupDataId into ldGroup
+    from ld in ldGroup.Where(l => l.LookupDataTypeId == 7000).DefaultIfEmpty()
+
+    join ci in _context.CommodityImage on c.CommodityId equals ci.CommodityId into ciGroup
+    from ci in ciGroup.DefaultIfEmpty()
+
+    select new
+    {
+        c.CommodityId,
+        c.CommodityTypeId,
+        c.CommodityName,
+        c.LotSize,
+        c.LastBestBid,
+        c.LastBestOffer,
+        CommodityEntity = c,
+        UnitOfMeasureCode = uom.UnitOfMeasureCodeEnglish,
+        CommodityImageId = ci != null ? ci.CommodityImageId : Guid.Empty,
+
+        Position = p,
+        LocationName = ld != null ? ld.LookupDataTextEnglish : "N/A"
+    }
+).ToListAsync();
             // 2. Group the data in-memory (Client-side)
             var groupedData = flatData
                 .GroupBy(x => x.CommodityId)
@@ -72,8 +78,8 @@ namespace MarketPrice.Services.Implementations
                 var commodity = first.CommodityEntity;
 
                 var allPositions = group.Select(g => new { g.Position, g.LocationName }).ToList();
-                var bids = allPositions.Where(ap => ap.Position.PositionTypeId == BidPosition).ToList();
-                var offers = allPositions.Where(ap => ap.Position.PositionTypeId == AskPosition).ToList();
+                var bids = allPositions.Where(ap => ap.Position != null && ap.Position.PositionTypeId == BidPosition).ToList();
+                var offers = allPositions.Where(ap => ap.Position != null && ap.Position.PositionTypeId == AskPosition).ToList();
 
                 // 3. Best Positions Logic
                 var bestBidPos = bids.OrderByDescending(ap => ap.Position.UnitPrice).FirstOrDefault();
@@ -168,7 +174,7 @@ namespace MarketPrice.Services.Implementations
         }
 
         // Helper method to calculate soon to expire
-        private bool IsExpired(DateTime start, DateTime expiry, DateTime now)
+        private bool IsExpired(DateTimeOffset start, DateTimeOffset expiry, DateTime now)
         {
             var total = (expiry - start).TotalSeconds;
             if (total <= 0) return false;

@@ -30,6 +30,7 @@ builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IMarketService, MarketService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<ActivityPositionStatusUpdate>();
 builder.Services.AddScoped<IChangePasswordService,ChangePasswordService>();
 builder.Services.AddHostedService<MarketAggregationWorker>();
 builder.Services.AddSignalR();
