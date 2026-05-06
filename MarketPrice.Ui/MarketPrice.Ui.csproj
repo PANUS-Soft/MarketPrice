@@ -99,6 +99,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\Market.xaml.cs">
+	    <DependentUpon>Market.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\PlacePosition.xaml.cs">
 	    <DependentUpon>PlacePosition.xaml</DependentUpon>
 	  </Compile>

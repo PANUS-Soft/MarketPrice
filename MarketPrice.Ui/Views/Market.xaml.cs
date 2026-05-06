@@ -4,10 +4,10 @@ namespace MarketPrice.Ui.Views;
 
 public partial class Market : ContentPage
 {
-	public Market(MarketViewModel marketViewModel)
-	{
-		InitializeComponent();
-        BindingContext = marketViewModel;
+    public Market(MarketViewModel viewModel)
+    {
+        InitializeComponent();
+        BindingContext = viewModel;
     }
 
     protected override async void OnAppearing()

@@ -100,7 +100,8 @@ namespace MarketPrice.Ui.ViewModels
         {
             try
             {
-                var response = await _marketApi.GetChartDataAsync(commodityId);
+                //var response = await _marketApi.GetChartDataAsync(commodityId);
+                var response = await _marketApi.GetChartDataAsync(commodityId, "1W");
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadFromJsonAsync<MarketChartDataWrapper>();

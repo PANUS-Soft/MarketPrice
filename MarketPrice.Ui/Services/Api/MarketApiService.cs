@@ -1,32 +1,70 @@
-﻿using MarketPrice.Domain;
-using MarketPrice.Ui.Common;
-using Microsoft.Extensions.Options;
+﻿using System.Net.Http.Headers;
+using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class MarketApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingOptions) : BaseApiService(httpClient, apiSettingOptions) 
+    public class MarketApiService
     {
-        public async Task<HttpResponseMessage> LoadMarketAsync()
+        private readonly HttpClient _httpClient;
+        private readonly SessionService _sessionService;
+
+        // The absolute Base URL for the Android Emulator
+        // (If you test on a Windows Machine instead of Android later, change this to "http://localhost:5278/")
+        private readonly string _baseUrl = "http://10.0.2.2:5278/";
+
+        public MarketApiService(HttpClient httpClient, SessionService sessionService)
         {
-            var url = ApiControllers.Markets.AppendRoute(ApiRoutes.LOAD_MARKET_DATA);
-            var response = await GettingAsync(url);
-            return response;
+            _httpClient = httpClient;
+            _sessionService = sessionService;
+        }
+
+        public async Task<HttpResponseMessage> GetMarketOverviewAsync(int positionTypeId)
+        {
+            var session = await _sessionService.GetCurrentSessionAsync();
+            if (session != null)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
+            }
+
+            // Attached the base URL here!
+            return await _httpClient.GetAsync($"{_baseUrl}Markets/overview/{positionTypeId}");
         }
 
         public async Task<HttpResponseMessage> GetCommodityMarketInsightAsync(Guid commodityId)
         {
-            var url = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_MARKET_INSIGHT, commodityId.ToString());
-            var response = await GettingAsync(url);
-            return response;
+            var session = await _sessionService.GetCurrentSessionAsync();
+            if (session != null)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
+            }
+
+            // Attached the base URL here!
+            return await _httpClient.GetAsync($"{_baseUrl}Markets/insight/{commodityId}");
         }
 
-        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range = "1m")
+        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range)
         {
-            var route = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_CHART_DATA);
-            var url = route.Replace("{commodityId}", commodityId.ToString());
-            var finalUrl = $"{url}?range={range}";
+            var session = await _sessionService.GetCurrentSessionAsync();
+            if (session != null)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
+            }
 
-            return await GettingAsync(finalUrl);
+            // Attached the base URL here!
+            return await _httpClient.GetAsync($"{_baseUrl}Markets/chart?commodityId={commodityId}&range={range}");
+        }
+
+        // I added this back in case your InsightViewModel or MarketViewModel still needs it!
+        public async Task<HttpResponseMessage> LoadMarketAsync()
+        {
+            var session = await _sessionService.GetCurrentSessionAsync();
+            if (session != null)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
+            }
+
+            // Attached the base URL here!
+            return await _httpClient.GetAsync($"{_baseUrl}Markets");
         }
     }
 }

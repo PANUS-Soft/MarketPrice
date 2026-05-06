@@ -225,21 +225,77 @@ namespace MarketPrice.Services.Implementations
             };
         }
 
+        // New Method for the Insight Page Overview
+        public async Task<List<MarketCommodityDto>> GetMarketOverviewAsync(int positionTypeId)
+        {
+            var now = DateTime.UtcNow;
+            var yesterday = now.AddHours(-24);
+
+            // Using EF Core projection to let SQL Server do all the heavy lifting in one query
+            var query = _context.Commodities
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    c.CommodityId,
+                    c.CommodityName,
+                    c.LotSize,
+
+                    // SAFEGUARD: Ensure UoM code doesn't cause a drop if missing
+                    UomCode = c.UnitOfMeasure != null ? c.UnitOfMeasure.UnitOfMeasureCodeEnglish : "",
+
+                    // 1. Find the current best price
+                    CurrentBestPrice = positionTypeId == BidPosition
+                        ? _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= now && p.ExpiryDate > now).Max(p => (decimal?)p.UnitPrice) ?? 0m
+                        : _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= now && p.ExpiryDate > now).Min(p => (decimal?)p.UnitPrice) ?? 0m,
+
+                    // 2. Find the best price exactly 24 hours ago
+                    YesterdayBestPrice = positionTypeId == BidPosition
+                        ? _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= yesterday && p.ExpiryDate > yesterday).Max(p => (decimal?)p.UnitPrice) ?? 0m
+                        : _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= yesterday && p.ExpiryDate > yesterday).Min(p => (decimal?)p.UnitPrice) ?? 0m
+                });
+
+            var rawData = await query.ToListAsync();
+            var marketData = new List<MarketCommodityDto>();
+
+            // Map the raw SQL results to the DTO expected by the UI
+            foreach (var item in rawData)
+            {
+                decimal difference = 0;
+
+                // Only calculate difference if there was actually an active price yesterday AND today
+                if (item.CurrentBestPrice > 0 && item.YesterdayBestPrice > 0)
+                {
+                    difference = item.CurrentBestPrice - item.YesterdayBestPrice;
+                }
+
+                marketData.Add(new MarketCommodityDto
+                {
+                    CommodityId = item.CommodityId,
+                    CommodityName = item.CommodityName,
+                    LotSizeDisplay = $"{item.LotSize} {item.UomCode}",
+                    CurrentPrice = item.CurrentBestPrice,
+                    PriceDifference = difference
+                });
+            }
+
+            return marketData;
+        }
+
         public async Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range)
         {
             string searchRange = range.ToUpper();
             // 1. Map the ranges to their respective intervals and look back windows
-            (string interval, DateTime startDate, int minPoints) = searchRange  switch
+            (string interval, DateTime startDate, int minPoints) = searchRange switch
             {
                 "1D" => ("1m", DateTime.UtcNow.AddDays(-1), 12),  //60      
                 "1W" => ("1D", DateTime.UtcNow.AddDays(-7), 7),  //82
-                "1M" => ("1D", DateTime.UtcNow.AddMonths(-1), 30), 
-                "1Y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),  
+                "1M" => ("1D", DateTime.UtcNow.AddMonths(-1), 30),
+                "1Y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),
                 _ => ("1D", DateTime.UtcNow.AddMonths(-1), 15)
             };
 
             // 2. Base Query
-            var query =  _context.AggregatedPrices
+            var query = _context.AggregatedPrices
                 .AsNoTracking()
                 .Where(ap => ap.CommodityId == commodityId && ap.Interval == interval);
 

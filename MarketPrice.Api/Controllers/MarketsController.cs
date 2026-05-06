@@ -85,5 +85,21 @@ namespace MarketPrice.Api.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [Authorize]
+        [HttpGet("overview/{positionTypeId}")]
+        public async Task<ActionResult<List<MarketCommodityDto>>> GetMarketOverview(int positionTypeId)
+        {
+            try
+            {
+                var result = await _marketService.GetMarketOverviewAsync(positionTypeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching market overview for PositionType: {PositionTypeId}", positionTypeId);
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
+        }
     }
 }
