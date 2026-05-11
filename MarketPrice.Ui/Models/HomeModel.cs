@@ -36,6 +36,7 @@ namespace MarketPrice.Ui.Models
         [ObservableProperty] decimal bestBidPrice;
         [ObservableProperty] decimal bestBidQuantity;
         [ObservableProperty] string  bestBidLocation = string.Empty;
+        [ObservableProperty] string bestBidDisplay = "No Bid";
 
         [ObservableProperty] decimal nextBid1;
         [ObservableProperty] decimal nextBid2;
@@ -43,6 +44,7 @@ namespace MarketPrice.Ui.Models
         [ObservableProperty] decimal bestOfferPrice;
         [ObservableProperty] decimal bestOfferQuantity;
         [ObservableProperty] string bestOfferLocation = string.Empty;
+        [ObservableProperty] string bestOfferDisplay = "No Offer";
 
         [ObservableProperty] decimal nextOffer1;
         [ObservableProperty] decimal nextOffer2;

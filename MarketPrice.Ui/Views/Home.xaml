@@ -14,23 +14,22 @@
         <converters:NotZeroConverter x:Key="NotZeroConverter"/>
         <converters:TrendColorConverter x:Key="TrendBidColor" IsOffer="False"/>
         <converters:TrendColorConverter x:Key="TrendOfferColor" IsOffer="True"/>
+        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter"/>
+        <converters:StringEmptyConverter x:Key="StringEmptyConverter"/>
     </ContentPage.Resources>
 
-        <Grid RowDefinitions="Auto,Auto,*"
-          BackgroundColor="{StaticResource BgPage}">
+    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="{StaticResource BgPage}">
 
-        <!-- ── HEADER ── -->
+        <!-- ── ROW 0: HEADER ── -->
         <Grid Grid.Row="0"
-              BackgroundColor="#0A0D14"
+              BackgroundColor="{StaticResource BgHeader}"
               Padding="16,48,16,14"
               ColumnDefinitions="44,*,44">
 
             <Border Grid.Column="0"
-                    BackgroundColor="#1A1E2E"
-                    StrokeThickness="1"
-                    Stroke="{StaticResource BorderColor}"
-                    WidthRequest="38"
-                    HeightRequest="38"
+                    BackgroundColor="{StaticResource BgChip}"
+                    Stroke="Transparent" StrokeThickness="0"
+                    WidthRequest="38" HeightRequest="38"
                     VerticalOptions="Center">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="19"/>
@@ -41,46 +40,45 @@
             <Label Grid.Column="1"
                    Text="MarketPrice"
                    TextColor="{StaticResource TextPrimary}"
-                   FontSize="17"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"/>
+                   FontSize="17" FontAttributes="Bold"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
 
             <Label Grid.Column="2"
                    Text="⋮"
                    TextColor="{StaticResource TextSecondary}"
                    FontSize="22"
-                   VerticalOptions="Center"
-                   HorizontalOptions="End"/>
+                   VerticalOptions="Center" HorizontalOptions="End"/>
         </Grid>
 
-        <!-- ── SEARCH ── -->
+        <!-- ── ROW 1: SEARCH BAR (tappable placeholder) ── -->
         <Border Grid.Row="1"
                 BackgroundColor="{StaticResource SearchBg}"
                 Stroke="{StaticResource BorderColor}"
                 StrokeThickness="1"
-                Margin="16,10,16,6"
-                HeightRequest="42">
+                Margin="16,10,16,8"
+                HeightRequest="44">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="10"/>
             </Border.StrokeShape>
-            <Grid ColumnDefinitions="32,*" Padding="10,0">
-                <Label Text="🔍"
-                       FontSize="14"
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ActivateSearchCommand}"/>
+            </Border.GestureRecognizers>
+            <Grid ColumnDefinitions="32,*,32" Padding="10,0">
+                <Label Text="🔍" FontSize="13"
+                       TextColor="{StaticResource TextSecondary}"
                        VerticalOptions="Center"/>
-                <Entry Grid.Column="1"
-                       Text="{Binding SearchText}"
-                       Placeholder="Search commodities..."
-                       PlaceholderColor="{StaticResource TextMuted}"
-                       TextColor="{StaticResource TextPrimary}"
-                       BackgroundColor="Transparent"
-                       VerticalOptions="Center"
-                      />
+                <Label Grid.Column="1"
+                       Text="Search commodities..."
+                       TextColor="{StaticResource TextMuted}"
+                       FontSize="13" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ActivateSearchCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
             </Grid>
         </Border>
 
-        
-        
+        <!-- ── ROW 2: MAIN COMMODITY LIST ── -->
         <dxcv:DXCollectionView
             Grid.Row="2"
             ItemsSource="{Binding Commodities}"
@@ -90,270 +88,205 @@
                 <DataTemplate x:DataType="models:CommodityGroupDisplayModel">
                     <VerticalStackLayout Padding="0,0,0,4">
 
-                       
+                        <!-- Group label e.g. "BEANS" -->
                         <Label Text="{Binding GroupName}"
-                               TextColor="#475569"
-                               FontSize="10"
-                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="10" FontAttributes="Bold"
                                CharacterSpacing="2.5"
                                Margin="16,14,16,6"/>
 
-                        <!-- OUTER CARD -->
+                        <!-- Outer group card -->
                         <Border Margin="12,0"
                                 BackgroundColor="{StaticResource BgCard}"
-                                Stroke="{StaticResource BorderColor}"
-                                StrokeThickness="1">
+                                Stroke="Transparent" StrokeThickness="0">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="14"/>
+                                <RoundRectangle CornerRadius="12"/>
                             </Border.StrokeShape>
 
-                            <VerticalStackLayout>
+                            <VerticalStackLayout Padding="0,8,0,10">
 
-                                <!-- COLUMN HEADERS -->
-                                <Grid ColumnDefinitions="90,*,*"
-                                      Padding="12,10,12,8">
-                                    <Label Text="Type"
-                                           TextColor="#334155"
-                                           FontSize="9"
-                                           FontAttributes="Bold"
-                                           CharacterSpacing="1.5"
-                                           VerticalOptions="Center"/>
-                                    <Label Grid.Column="1"
-                                           Text="BID"
-                                           TextColor="#334155"
-                                           FontSize="9"
-                                           FontAttributes="Bold"
-                                           CharacterSpacing="1.5"
-                                           HorizontalTextAlignment="Center"/>
-                                    <Label Grid.Column="2"
-                                           Text="OFFER"
-                                           TextColor="#334155"
-                                           FontSize="9"
-                                           FontAttributes="Bold"
-                                           CharacterSpacing="1.5"
-                                           HorizontalTextAlignment="Center"/>
-                                </Grid>
-
-                                <BoxView HeightRequest="0.5"
-                                         Color="{StaticResource BorderColor}"
-                                         Margin="12,0,12,0"/>
-
-                                <!-- HORIZONTAL SCROLL — FIX: typo corrected + fixed height -->
+                                <!-- Horizontal scroll of commodity cards -->
                                 <CollectionView
                                     ItemsSource="{Binding Commodities}"
-                                    HeightRequest="210"
-                                    Margin="0,6,0,8"
+                                    MinimumHeightRequest="140"
                                     HorizontalScrollBarVisibility="Never"
                                     VerticalScrollBarVisibility="Never">
-
                                     <CollectionView.ItemsLayout>
-                                        <LinearItemsLayout Orientation="Horizontal"
-                                                           ItemSpacing="6"/>
+                                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8"/>
                                     </CollectionView.ItemsLayout>
-
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="models:CommodityDisplayModel">
 
-                                           
-                                            <Border WidthRequest="280"
-                                                    Margin="12,4,0,4"
-                                                    BackgroundColor="{StaticResource BgCardInner}"
-                                                    Stroke="{StaticResource BorderColor}"
-                                                    StrokeThickness="1">
+                                            <!-- Inner commodity card -->
+                                            <Border WidthRequest="300"
+                                                    Margin="10,4,0,4"
+                                                    BackgroundColor="{StaticResource BgCard}"
+                                                    Stroke="Transparent" StrokeThickness="0">
                                                 <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="10"/>
+                                                    <RoundRectangle CornerRadius="8"/>
                                                 </Border.StrokeShape>
 
-                                                <Grid ColumnDefinitions="90,*,*"
-                                                     
-                                                      Padding="0,10,0,10">
+                                                <Grid RowDefinitions="Auto,Auto,Auto"
+                                                      ColumnDefinitions="*,*,*">
 
-                                                    <!-- LEFT: image + name + lot size -->
-                                                    <VerticalStackLayout
-                                                        Grid.Column="0"
-                                                        
-                                                        Spacing="6"
-                                                        HorizontalOptions="Center"
-                                                        VerticalOptions="Center"
-                                                        Padding="4,0">
+                                                    <!-- ══ ROW 1: HEADERS ══ -->
+                                                    <Label Grid.Row="0" Grid.Column="0"
+                                                           Text="TYPE"
+                                                           TextColor="{StaticResource TextLabel}"
+                                                           FontSize="8" FontAttributes="Bold"
+                                                           CharacterSpacing="1.2"
+                                                           Margin="10,9,0,5"
+                                                           VerticalOptions="Center"/>
 
-                                                        <Border WidthRequest="44"
-                                                                HeightRequest="44"
-                                                                BackgroundColor="#252836"
-                                                                Stroke="{StaticResource BorderColor}"
-                                                                StrokeThickness="1"
-                                                                HorizontalOptions="Center">
+                                                    <Grid Grid.Row="0" Grid.Column="1"
+                                                          ColumnDefinitions="*,Auto"
+                                                          Margin="4,9,4,5">
+                                                        <Label Text="BID"
+                                                               TextColor="{StaticResource TextLabel}"
+                                                               FontSize="8" FontAttributes="Bold"
+                                                               CharacterSpacing="1.2"
+                                                               VerticalOptions="Center"/>
+                                                        <Label Grid.Column="1"
+                                                               Text="{Binding BestBidQuantity, StringFormat='×{0:N0}'}"
+                                                               TextColor="{StaticResource AccentGreenFaint}"
+                                                               FontSize="8" VerticalOptions="Center"/>
+                                                    </Grid>
+
+                                                    <Grid Grid.Row="0" Grid.Column="2"
+                                                          ColumnDefinitions="*,Auto"
+                                                          Margin="4,9,10,5">
+                                                        <Label Text="OFFER"
+                                                               TextColor="{StaticResource TextLabel}"
+                                                               FontSize="8" FontAttributes="Bold"
+                                                               CharacterSpacing="1.2"
+                                                               VerticalOptions="Center"/>
+                                                        <Label Grid.Column="1"
+                                                               Text="{Binding BestOfferQuantity, StringFormat='×{0:N0}'}"
+                                                               TextColor="{StaticResource AccentRedFaint}"
+                                                               FontSize="8" VerticalOptions="Center"/>
+                                                    </Grid>
+
+                                                    <BoxView Grid.Row="0" Grid.Column="0"
+                                                             Grid.ColumnSpan="3"
+                                                             HeightRequest="0.5"
+                                                             Color="{StaticResource BgChip}"
+                                                             VerticalOptions="End"/>
+
+                                                    <!-- ══ ROW 2: MAIN DATA ══ -->
+
+                                                    <!-- TYPE: image + name + lot -->
+                                                    <Grid Grid.Row="1" Grid.Column="0"
+                                                          ColumnDefinitions="Auto,*"
+                                                          Margin="8,10,4,10"
+                                                          ColumnSpacing="7">
+                                                        <Border Grid.Column="0"
+                                                                WidthRequest="36" HeightRequest="36"
+                                                                BackgroundColor="{StaticResource BgChip}"
+                                                                Stroke="Transparent" StrokeThickness="0"
+                                                                VerticalOptions="Center">
                                                             <Border.StrokeShape>
-                                                                <RoundRectangle CornerRadius="22"/>
+                                                                <RoundRectangle CornerRadius="18"/>
                                                             </Border.StrokeShape>
                                                             <Image Source="{Binding ImageUrl}"
                                                                    Aspect="AspectFill"
-                                                                   WidthRequest="44"
-                                                                   HeightRequest="44"/>
+                                                                   WidthRequest="36" HeightRequest="36"/>
                                                         </Border>
+                                                        <VerticalStackLayout Grid.Column="1"
+                                                                             VerticalOptions="Center"
+                                                                             Spacing="3">
+                                                            <Label Text="{Binding Name}"
+                                                                   TextColor="{StaticResource TextPrimary}"
+                                                                   FontSize="10" FontAttributes="Bold"
+                                                                   MaxLines="2"
+                                                                   LineBreakMode="WordWrap"/>
+                                                            <Label Text="{Binding LotSizeDisplay}"
+                                                                   TextColor="{StaticResource TextMuted}"
+                                                                   FontSize="8"/>
+                                                        </VerticalStackLayout>
+                                                    </Grid>
 
-                                                        <Label Text="{Binding Name}"
-                                                               TextColor="{StaticResource TextPrimary}"
+                                                    <!-- BID: price box + depth -->
+                                                    <VerticalStackLayout
+                                                        Grid.Row="1" Grid.Column="1"
+                                                        Margin="4,10,4,10"
+                                                        Spacing="5"
+                                                        VerticalOptions="Start">
+                                                        <Border BackgroundColor="{StaticResource AccentGreenBg}"
+                                                                Stroke="{StaticResource AccentGreenBorder}"
+                                                                StrokeThickness="1" Padding="6,6">
+                                                            <Border.StrokeShape>
+                                                                <RoundRectangle CornerRadius="6"/>
+                                                            </Border.StrokeShape>
+                                                            <Label Text="{Binding BestBidDisplay}"
+                                                                   TextColor="{StaticResource AccentGreen}"
+                                                                   FontSize="13" FontAttributes="Bold"
+                                                                   HorizontalTextAlignment="Center"/>
+                                                        </Border>
+                                                        <Label Text="{Binding NextBid1, StringFormat='{0:N0}'}"
+                                                               TextColor="{StaticResource AccentGreenDim}"
                                                                FontSize="10"
-                                                               FontAttributes="Bold"
-                                                               HorizontalTextAlignment="Center"
-                                                               MaxLines="2"
-                                                               LineBreakMode="WordWrap"/>
-
-                                                        <Label Text="{Binding LotSizeDisplay}"
-                                                               FontSize="9"
-                                                               TextColor="{StaticResource TextMuted}"
+                                                               IsVisible="{Binding NextBid1, Converter={StaticResource NotZeroConverter}}"
+                                                               HorizontalTextAlignment="Center"/>
+                                                        <Label Text="{Binding NextBid2, StringFormat='{0:N0}'}"
+                                                               TextColor="{StaticResource AccentGreenFaint}"
+                                                               FontSize="10"
+                                                               IsVisible="{Binding NextBid2, Converter={StaticResource NotZeroConverter}}"
                                                                HorizontalTextAlignment="Center"/>
                                                     </VerticalStackLayout>
 
-                                                    <!-- BID COLUMN -->
+                                                    <!-- OFFER: price box + depth -->
                                                     <VerticalStackLayout
-                                                        Grid.Column="1"
-                                                        
-                                                        Spacing="3"
-                                                        HorizontalOptions="Fill"
-                                                        VerticalOptions="Center">
-
-                                                        <Border BackgroundColor="#0D1F0D"
-                                                                Stroke="#1A3A1A"
-                                                                StrokeThickness="1"
-                                                                Padding="8,6"
-                                                                Margin="0,0,0,6">
+                                                        Grid.Row="1" Grid.Column="2"
+                                                        Margin="4,10,10,10"
+                                                        Spacing="5"
+                                                        VerticalOptions="Start">
+                                                        <Border BackgroundColor="{StaticResource AccentRedBg}"
+                                                                Stroke="{StaticResource AccentRedBorder}"
+                                                                StrokeThickness="1" Padding="6,6">
                                                             <Border.StrokeShape>
-                                                                <RoundRectangle CornerRadius="7"/>
+                                                                <RoundRectangle CornerRadius="6"/>
                                                             </Border.StrokeShape>
-                                                            <Grid ColumnDefinitions="*,18" RowDefinitions="Auto,Auto">
-                                                                <Label Grid.Row="0" Grid.Column="0"
-                                                                       Text="{Binding BestBidPrice, StringFormat='{0:N0}'}"
-                                                                       TextColor="#22C55E"
-                                                                       FontSize="14"
-                                                                       FontAttributes="Bold"/>
-
-                                                                <Label Grid.Row="1" Grid.Column="0"
-                                                                       Text="{Binding BestBidLocation}"
-                                                                       TextColor="{StaticResource AccentGreen}"
-                                                                       FontSize="8"/>
-                                                                <VerticalStackLayout Grid.Row="0" Grid.Column="1"
-                                                                                     Grid.RowSpan="2"
-                                                                                     HorizontalOptions="End"
-                                                                                     VerticalOptions="Center"
-                                                                                     Spacing="1">
-
-                                                                    <Label Grid.Column="2"
-                                                                     Text="{Binding IsBidImproved, Converter={StaticResource TrendArrowConverter}}"
-                                                                     TextColor="{Binding IsBidImproved, Converter={StaticResource TrendBidColor}}"
-                                                                     FontSize="10"
-                                                                     HorizontalTextAlignment="Center"/>
-
-                                                                    <Label Text="{Binding BestBidQuantity, StringFormat='{0:N0}'}"
-                                                                           TextColor="#334155"
-                                                                           FontSize="8"
-                                                                           HorizontalTextAlignment="Center"/>
-                                                                </VerticalStackLayout>
-                                                            </Grid>
+                                                            <Label Text="{Binding BestOfferDisplay}"
+                                                                   TextColor="{StaticResource AccentRed}"
+                                                                   FontSize="13" FontAttributes="Bold"
+                                                                   HorizontalTextAlignment="Center"/>
                                                         </Border>
-
-                                                        <Grid ColumnDefinitions="*,Auto"
-                                                              IsVisible="{Binding NextBid1, Converter={StaticResource NotZeroConverter}}"
-                                                              Padding="2,2,2,0">
-
-                                                            <Label Text="{Binding NextBid1, StringFormat='{0:N0}'}"
-                                                                   TextColor="{StaticResource AccentGreen}"
-                                                                   FontSize="11"/>
-                                                                   
-                                                            <Label Grid.Column="1"
-                                                                   Text="{Binding NextBid1Location}"
-                                                                   TextColor="{StaticResource TextMuted}"
-                                                                   FontSize="8"
-                                                                   VerticalOptions="Center"/>
-        
-                                                        </Grid>
-                                                        
-                                                        <Grid ColumnDefinitions="*,Auto"
-                                                              IsVisible="{Binding NextBid2, Converter={StaticResource NotZeroConverter}}"
-                                                              Padding="2,2,2,0">
-                                                            <Label Text="{Binding NextBid2, StringFormat='{0:N0}'}"
-                                                                   TextColor="#166534"
-                                                                   FontSize="11"/>
-                                                            <Label Grid.Column="1"
-                                                                   Text="{Binding NextBid2Location}"
-                                                                   TextColor="#14532D"
-                                                                   FontSize="8"
-                                                                   VerticalOptions="Center"/>
-                                                        </Grid>
-
+                                                        <Label Text="{Binding NextOffer1, StringFormat='{0:N0}'}"
+                                                               TextColor="{StaticResource AccentRedDim}"
+                                                               FontSize="10"
+                                                               IsVisible="{Binding NextOffer1, Converter={StaticResource NotZeroConverter}}"
+                                                               HorizontalTextAlignment="Center"/>
+                                                        <Label Text="{Binding NextOffer2, StringFormat='{0:N0}'}"
+                                                               TextColor="{StaticResource AccentRedFaint}"
+                                                               FontSize="10"
+                                                               IsVisible="{Binding NextOffer2, Converter={StaticResource NotZeroConverter}}"
+                                                               HorizontalTextAlignment="Center"/>
                                                     </VerticalStackLayout>
 
-                                                    <!-- OFFER COLUMN -->
-                                                    <VerticalStackLayout
-                                                        Grid.Column="2"
-                                                        Spacing="0"
-                                                        HorizontalOptions="Fill"
-                                                        VerticalOptions="Center">
-
-                                                        <Border BackgroundColor="#1A0D0D"
-                                                                Stroke="#3a1a1a"
-                                                                StrokeThickness="1"
-                                                                Padding="8,6"
-                                                                Margin="0,0,0,6">
-                                                                
-                                                            <Border.StrokeShape>
-                                                                <RoundRectangle CornerRadius="7"/>
-                                                            </Border.StrokeShape>
-                                                            <Grid ColumnDefinitions="*,16" RowDefinitions="Auto,Auto">
-                                                                <Label Grid.Row="0" Grid.Column="0"
-                                                                       Text="{Binding BestOfferPrice, StringFormat='{0:N0}'}"
-                                                                       TextColor="#EF4444"
-                                                                       FontSize="14"
-                                                                       FontAttributes="Bold"/>
-                                                                <Label Grid.Row="1" Grid.Column="0"
-                                                                       Text="{Binding BestOfferLocation}"
-                                                                       TextColor="#7F1D1D"
-                                                                       FontSize="8"/>
-                                                                <VerticalStackLayout Grid.Row="0" Grid.Column="1"
-                                                                                     Grid.RowSpan="2"
-                                                                                     HorizontalOptions="End"
-                                                                                     VerticalOptions="Center"
-                                                                                     Spacing="1">
-                                                                    <Label Text="{Binding IsOfferImproved, Converter={StaticResource TrendArrowConverter}}"
-                                                                           TextColor="{Binding IsOfferImproved, Converter={StaticResource TrendOfferColor}}"
-                                                                           FontSize="10"
-                                                                           HorizontalTextAlignment="Center"/>
-                                                                    <Label Text="{Binding BestOfferQuantity, StringFormat='{0:N0}'}"
-                                                                           TextColor="#334155"
-                                                                           FontSize="8"
-                                                                           HorizontalTextAlignment="Center"/>
-                                                                </VerticalStackLayout>
-                                                            </Grid>
-                                                        </Border>
-
-                                                        <Grid ColumnDefinitions="*,Auto"
-                                                              IsVisible="{Binding NextOffer1, Converter={StaticResource NotZeroConverter}}"
-                                                              Padding="2,2,2,0">
-                                                            <Label Text="{Binding NextOffer1, StringFormat='{0:N0}'}"
-                                                                   TextColor="#DC2626"
-                                                                   FontSize="11"/>
-                                                            <Label Grid.Column="1"
-                                                                   Text="{Binding NextOffer1Location}"
-                                                                   TextColor="#7F1D1D"
-                                                                   FontSize="8"
-                                                                   VerticalOptions="Center"/>
-                                                        </Grid>
-
-                                                        <Grid ColumnDefinitions="*,Auto"
-                                                              IsVisible="{Binding NextOffer2, Converter={StaticResource NotZeroConverter}}"
-                                                              Padding="2,2,2,0">
-                                                            <Label Text="{Binding NextOffer2, StringFormat='{0:N0}'}"
-                                                                   TextColor="#B91C1C"
-                                                                   FontSize="11"/>
-                                                            <Label Grid.Column="1"
-                                                                   Text="{Binding NextOffer2Location}"
-                                                                   TextColor="#7F1D1D"
-                                                                   FontSize="8"
-                                                                   VerticalOptions="Center"/>
-                                                        </Grid>
-                                                    </VerticalStackLayout>
-
+                                                    <!-- ══ ROW 3: LOCATION FOOTER ══ -->
+                                                    <BoxView Grid.Row="2" Grid.Column="0"
+                                                             Grid.ColumnSpan="3"
+                                                             HeightRequest="0.5"
+                                                             Color="{StaticResource BgChip}"/>
+                                                    <Label Grid.Row="2" Grid.Column="0"
+                                                           Text="REGION"
+                                                           TextColor="{StaticResource TextMuted}"
+                                                           FontSize="7" FontAttributes="Bold"
+                                                           CharacterSpacing="1"
+                                                           Margin="10,6,0,7"
+                                                           VerticalOptions="Center"/>
+                                                    <Label Grid.Row="2" Grid.Column="1"
+                                                           Text="{Binding BestBidLocation}"
+                                                           TextColor="{StaticResource AccentGreenFaint}"
+                                                           FontSize="8"
+                                                           Margin="4,6,4,7"
+                                                           VerticalOptions="Center"/>
+                                                    <Label Grid.Row="2" Grid.Column="2"
+                                                           Text="{Binding BestOfferLocation}"
+                                                           TextColor="{StaticResource AccentRedFaint}"
+                                                           FontSize="8"
+                                                           Margin="4,6,10,7"
+                                                           VerticalOptions="Center"/>
                                                 </Grid>
                                             </Border>
 
@@ -361,17 +294,11 @@
                                     </CollectionView.ItemTemplate>
                                 </CollectionView>
 
-                                <!-- FOOTER HINT -->
-                                <Grid ColumnDefinitions="*,Auto"
-                                      Padding="14,0,14,10">
-                                    <Label Text="← Swipe to explore →"
-                                           TextColor="#1E2235"
-                                           FontSize="9"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Commodities.Count, StringFormat='{0} types'}"
-                                           TextColor="#1E2235"
-                                           FontSize="9"/>
-                                </Grid>
+                                <Label Text="← swipe to explore →"
+                                       TextColor="{StaticResource BgChip}"
+                                       FontSize="8"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,4,0,2"/>
 
                             </VerticalStackLayout>
                         </Border>
@@ -379,6 +306,252 @@
                 </DataTemplate>
             </dxcv:DXCollectionView.ItemTemplate>
         </dxcv:DXCollectionView>
+
+        <!-- ══ SEARCH OVERLAY ══ -->
+        <Grid Grid.Row="0" Grid.RowSpan="3"
+              x:Name="SearchOverlay"
+              BackgroundColor="{StaticResource BgPage}"
+              IsVisible="{Binding IsSearchActive}"
+              RowDefinitions="Auto,Auto,*">
+
+            <!-- Overlay Row 0: Search bar + Cancel -->
+            <Grid Grid.Row="0"
+                  BackgroundColor="{StaticResource BgHeader}"
+                  Padding="16,48,12,14"
+                  ColumnDefinitions="*,Auto">
+
+                <Border Grid.Column="0"
+                        BackgroundColor="{StaticResource BgCard}"
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeThickness="1"
+                        HeightRequest="42">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="32,*,32" Padding="8,0">
+                        <Label Text="🔍"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               x:Name="SearchEntry"
+                               Text="{Binding SearchText}"
+                               Placeholder="Search commodities..."
+                               PlaceholderColor="{StaticResource TextMuted}"
+                               TextColor="{StaticResource TextPrimary}"
+                               BackgroundColor="Transparent"
+                               FontSize="13"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="2"
+                               Text="✕"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="12"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               IsVisible="{Binding SearchText, Converter={StaticResource StringNotEmptyConverter}}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ClearSearchCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Border>
+
+                <Label Grid.Column="1"
+                       Text="Cancel"
+                       TextColor="{StaticResource TabActive}"
+                       FontSize="14"
+                       Margin="12,0,4,0"
+                       VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CancelSearchCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+
+            <!-- Overlay Row 1: Empty state -->
+            <VerticalStackLayout Grid.Row="1"
+                                 IsVisible="{Binding SearchText, Converter={StaticResource StringEmptyConverter}}"
+                                 HorizontalOptions="Center"
+                                 Margin="0,60,0,0"
+                                 Spacing="8">
+                <Label Text="🔍" FontSize="36" HorizontalOptions="Center"/>
+                <Label Text="Search for a commodity"
+                       TextColor="{StaticResource TextSecondary}"
+                       FontSize="14" HorizontalOptions="Center"/>
+                <Label Text="e.g. Red Beans, Corn, Egusi"
+                       TextColor="{StaticResource TextMuted}"
+                       FontSize="12" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <!-- Overlay Row 2: Search results -->
+            <dxcv:DXCollectionView
+                Grid.Row="2"
+                ItemsSource="{Binding SearchResults}"
+                SelectionMode="None"
+                IsVisible="{Binding SearchText, Converter={StaticResource StringNotEmptyConverter}}">
+
+                <dxcv:DXCollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CommodityGroupDisplayModel">
+                        <VerticalStackLayout Padding="0,0,0,4">
+
+                            <Label Text="{Binding GroupName}"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   FontSize="10" FontAttributes="Bold"
+                                   CharacterSpacing="2.5"
+                                   Margin="16,14,16,6"/>
+
+                            <Border Margin="12,0"
+                                    BackgroundColor="{StaticResource BgCard}"
+                                    Stroke="Transparent" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <VerticalStackLayout Padding="0,8,0,10">
+                                    <CollectionView
+                                        ItemsSource="{Binding Commodities}"
+                                        MinimumHeightRequest="140"
+                                        HorizontalScrollBarVisibility="Never"
+                                        VerticalScrollBarVisibility="Never">
+                                        <CollectionView.ItemsLayout>
+                                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8"/>
+                                        </CollectionView.ItemsLayout>
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="models:CommodityDisplayModel">
+                                                <Border WidthRequest="300"
+                                                        Margin="10,4,0,4"
+                                                        BackgroundColor="{StaticResource BgCardInner}"
+                                                        Stroke="Transparent" StrokeThickness="0">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="8"/>
+                                                    </Border.StrokeShape>
+                                                    <Grid RowDefinitions="Auto,Auto,Auto"
+                                                          ColumnDefinitions="*,*,*">
+
+                                                        <Label Grid.Row="0" Grid.Column="0"
+                                                               Text="TYPE" TextColor="{StaticResource TextLabel}"
+                                                               FontSize="8" FontAttributes="Bold"
+                                                               CharacterSpacing="1.2" Margin="10,9,0,5"/>
+                                                        <Grid Grid.Row="0" Grid.Column="1"
+                                                              ColumnDefinitions="*,Auto" Margin="4,9,4,5">
+                                                            <Label Text="BID" TextColor="{StaticResource TextLabel}"
+                                                                   FontSize="8" FontAttributes="Bold" CharacterSpacing="1.2"/>
+                                                            <Label Grid.Column="1"
+                                                                   Text="{Binding BestBidQuantity, StringFormat='×{0:N0}'}"
+                                                                   TextColor="{StaticResource AccentGreenFaint}" FontSize="8"/>
+                                                        </Grid>
+                                                        <Grid Grid.Row="0" Grid.Column="2"
+                                                              ColumnDefinitions="*,Auto" Margin="4,9,10,5">
+                                                            <Label Text="OFFER" TextColor="{StaticResource TextLabel}"
+                                                                   FontSize="8" FontAttributes="Bold" CharacterSpacing="1.2"/>
+                                                            <Label Grid.Column="1"
+                                                                   Text="{Binding BestOfferQuantity, StringFormat='×{0:N0}'}"
+                                                                   TextColor="{StaticResource AccentRedFaint}" FontSize="8"/>
+                                                        </Grid>
+                                                        <BoxView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                                                                 HeightRequest="0.5" Color="{StaticResource BgChip}"
+                                                                 VerticalOptions="End"/>
+
+                                                        <Grid Grid.Row="1" Grid.Column="0"
+                                                              ColumnDefinitions="Auto,*"
+                                                              Margin="8,10,4,10" ColumnSpacing="7">
+                                                            <Border Grid.Column="0"
+                                                                    WidthRequest="36" HeightRequest="36"
+                                                                    BackgroundColor="{StaticResource BgChip}"
+                                                                    Stroke="Transparent" StrokeThickness="0"
+                                                                    VerticalOptions="Center">
+                                                                <Border.StrokeShape>
+                                                                    <RoundRectangle CornerRadius="18"/>
+                                                                </Border.StrokeShape>
+                                                                <Image Source="{Binding ImageUrl}"
+                                                                       Aspect="AspectFill"
+                                                                       WidthRequest="36" HeightRequest="36"/>
+                                                            </Border>
+                                                            <VerticalStackLayout Grid.Column="1"
+                                                                                 VerticalOptions="Center" Spacing="3">
+                                                                <Label Text="{Binding Name}"
+                                                                       TextColor="{StaticResource TextPrimary}"
+                                                                       FontSize="10" FontAttributes="Bold"
+                                                                       MaxLines="2" LineBreakMode="WordWrap"/>
+                                                                <Label Text="{Binding LotSizeDisplay}"
+                                                                       TextColor="{StaticResource TextMuted}" FontSize="8"/>
+                                                            </VerticalStackLayout>
+                                                        </Grid>
+
+                                                        <VerticalStackLayout Grid.Row="1" Grid.Column="1"
+                                                                             Margin="4,10,4,10" Spacing="5" VerticalOptions="Start">
+                                                            <Border BackgroundColor="{StaticResource AccentGreenBg}"
+                                                                    Stroke="{StaticResource AccentGreenBorder}"
+                                                                    StrokeThickness="1" Padding="6,6">
+                                                                <Border.StrokeShape>
+                                                                    <RoundRectangle CornerRadius="6"/>
+                                                                </Border.StrokeShape>
+                                                                <Label Text="{Binding BestBidDisplay}"
+                                                                       TextColor="{StaticResource AccentGreen}"
+                                                                       FontSize="13" FontAttributes="Bold"
+                                                                       HorizontalTextAlignment="Center"/>
+                                                            </Border>
+                                                            <Label Text="{Binding NextBid1, StringFormat='{0:N0}'}"
+                                                                   TextColor="{StaticResource AccentGreenDim}" FontSize="10"
+                                                                   IsVisible="{Binding NextBid1, Converter={StaticResource NotZeroConverter}}"
+                                                                   HorizontalTextAlignment="Center"/>
+                                                            <Label Text="{Binding NextBid2, StringFormat='{0:N0}'}"
+                                                                   TextColor="{StaticResource AccentGreenFaint}" FontSize="10"
+                                                                   IsVisible="{Binding NextBid2, Converter={StaticResource NotZeroConverter}}"
+                                                                   HorizontalTextAlignment="Center"/>
+                                                        </VerticalStackLayout>
+
+                                                        <VerticalStackLayout Grid.Row="1" Grid.Column="2"
+                                                                             Margin="4,10,10,10" Spacing="5" VerticalOptions="Start">
+                                                            <Border BackgroundColor="{StaticResource AccentRedBg}"
+                                                                    Stroke="{StaticResource AccentRedBorder}"
+                                                                    StrokeThickness="1" Padding="6,6">
+                                                                <Border.StrokeShape>
+                                                                    <RoundRectangle CornerRadius="6"/>
+                                                                </Border.StrokeShape>
+                                                                <Label Text="{Binding BestOfferDisplay}"
+                                                                       TextColor="{StaticResource AccentRed}"
+                                                                       FontSize="13" FontAttributes="Bold"
+                                                                       HorizontalTextAlignment="Center"/>
+                                                            </Border>
+                                                            <Label Text="{Binding NextOffer1, StringFormat='{0:N0}'}"
+                                                                   TextColor="{StaticResource AccentRedDim}" FontSize="10"
+                                                                   IsVisible="{Binding NextOffer1, Converter={StaticResource NotZeroConverter}}"
+                                                                   HorizontalTextAlignment="Center"/>
+                                                            <Label Text="{Binding NextOffer2, StringFormat='{0:N0}'}"
+                                                                   TextColor="{StaticResource AccentRedFaint}" FontSize="10"
+                                                                   IsVisible="{Binding NextOffer2, Converter={StaticResource NotZeroConverter}}"
+                                                                   HorizontalTextAlignment="Center"/>
+                                                        </VerticalStackLayout>
+
+                                                        <BoxView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                                                                 HeightRequest="0.5" Color="{StaticResource BgChip}"/>
+                                                        <Label Grid.Row="2" Grid.Column="0"
+                                                               Text="REGION" TextColor="{StaticResource TextMuted}"
+                                                               FontSize="7" FontAttributes="Bold" CharacterSpacing="1"
+                                                               Margin="10,6,0,7" VerticalOptions="Center"/>
+                                                        <Label Grid.Row="2" Grid.Column="1"
+                                                               Text="{Binding BestBidLocation}"
+                                                               TextColor="{StaticResource AccentGreenFaint}"
+                                                               FontSize="8" Margin="4,6,4,7" VerticalOptions="Center"/>
+                                                        <Label Grid.Row="2" Grid.Column="2"
+                                                               Text="{Binding BestOfferLocation}"
+                                                               TextColor="{StaticResource AccentRedFaint}"
+                                                               FontSize="8" Margin="4,6,10,7" VerticalOptions="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </dxcv:DXCollectionView.ItemTemplate>
+            </dxcv:DXCollectionView>
+
+        </Grid>
+        <!-- ══ END SEARCH OVERLAY ══ -->
 
     </Grid>
 </ContentPage>

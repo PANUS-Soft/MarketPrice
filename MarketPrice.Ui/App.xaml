@@ -13,6 +13,7 @@
             <converters:NotZeroConverter x:Key="NotZeroConverter"/>
             <converters:TrendColorConverter x:Key="TrendBidColor" IsOffer="False"/>
             <converters:TrendColorConverter x:Key="TrendOfferColor" IsOffer="True"/>
+            <converters:IsZeroConverter x:Key="IsZeroConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
