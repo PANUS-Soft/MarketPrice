@@ -3,3 +3,4 @@
 **/obj/
 *.csproj.user
 /MarketPrice.Ui/appsettings.json
+/MarketPrice.Api/appsettings.json
