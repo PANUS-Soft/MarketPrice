@@ -118,6 +118,7 @@ namespace MarketPrice.Ui.ViewModels
 
         private static Activity MapToUiModel(ActivityResponseDto dto) => new()
         {
+            ActivityResponse = dto,
             PositionId = dto.PositionId,
             CommodityId = dto.CommodityId,
             CommodityTypeId = dto.CommodityTypeId,
@@ -125,14 +126,14 @@ namespace MarketPrice.Ui.ViewModels
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
             Date = dto.CreatedAt.DateTime,
-            Description = dto.Description!,
-            OriginRegion = dto.OriginRegion!,
-            DestinationRegion = dto.DestinationRegion!,
+            Description = dto.Description,
+            OriginRegion = dto.OriginRegion,
+            DestinationRegion = dto.DestinationRegion,
             Origin = dto.Origin,
             Destination = dto.Destination,
             Grade = dto.Grade,
-            LeadTime = $"{dto.LeadTime!} Days",
-            DeliveryFee = $"{dto.DeliveryFee:N0} FCFA",
+            LeadTime = string.IsNullOrEmpty(dto.LeadTime) ? string.Empty : $"{dto.LeadTime} Days",
+            DeliveryFee = dto.DeliveryFee.HasValue ? $"{dto.DeliveryFee:N0} FCFA" : string.Empty,
             ShelfLifeInDays = dto.ShelfLifeInDays,
             IsDeliverable = dto.CanDeliver,
             Quantity = $"{dto.Quantity:N0}",
@@ -245,13 +246,13 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task EditActivityAsync(Activity selectedItem)
+        private async Task EditActivityAsync(Activity selectedActivity)
         {
-            if (selectedItem == null) return;
+            if (selectedActivity == null) return;
 
             await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
             {
-                { "ActivityToEdit", selectedItem}
+                { "ActivityToEdit", selectedActivity}
             });
 
             ActivityDetailsBottomSheetState = BottomSheetState.Hidden;

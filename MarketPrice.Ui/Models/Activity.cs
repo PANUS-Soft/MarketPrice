@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Ui.Common;
 
@@ -38,6 +39,7 @@ namespace MarketPrice.Ui.Models
         public LocationCommand? Destination { get; set; }
         public string TotalQuantity { get; set; }
         public string TotalPrice { get; set; }
+        public ActivityResponseDto ActivityResponse { get; set; }
     }
 
     public class ActivityGroup : List<Activity>

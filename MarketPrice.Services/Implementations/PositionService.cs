@@ -22,7 +22,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
     private const int REGIONS = 7000;
     private const int OPEN_POSITION = 5001;
 
-    public async Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer)
+    public async Task<PositionResponseDto> ProcessPositionAsync(CreatePositionCommand command, bool isOffer)
     {
         //verify if the command is null before process the data 
         if (command == null)
@@ -147,6 +147,100 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             Quarter = cmd.Quarter,
             Street = cmd.Street
         };
+    }
+
+    public async Task<UpdatePositionResponseDto> UpdatePositionAsync(UpdatePositionCommand command, bool isOffer)
+    {
+        // Implementation for updating a position
+        var position = await _context.Positions.FirstOrDefaultAsync(p => p.PositionId == command.PositionId && p.UserId == command.UserId);
+        
+        if (position == null)
+        {
+            return DtoManager.Failed<UpdatePositionResponseDto>("Not Found", "Position not found. There was an error in fetching the position. Invalid PositionId or UserId.");
+        }
+
+        var deliveryDetail = await _context.DeliveryDetails.FirstOrDefaultAsync(dd => dd.PositionId == position.PositionId);
+
+        if (deliveryDetail == null)
+        {
+            return DtoManager.Failed<UpdatePositionResponseDto>("Not Found", "Delivery details not found.");
+        }
+
+        var originLocation = await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.OriginLocationId);
+
+        Location? destinationLocation = null;
+
+        if (deliveryDetail.DestinationLocationId != null)
+        {
+            destinationLocation = await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.DestinationLocationId);
+        }
+
+        // Update the position properties
+        position.Grade = command.Grade;
+        position.Quantity = command.Quantity;
+        position.UnitPrice = command.UnitPrice;
+        position.Description = command.Description;
+        position.ExpiryDate = command.EndDate;
+
+        // Update the delivery details
+        // Update the origin location
+         if (originLocation != null)
+         {
+            originLocation.RegionId = command.Origin.RegionId;
+            originLocation.Town = command.Origin.Town;
+            originLocation.Quarter = command.Origin.Quarter;
+            originLocation.Street = command.Origin.Street;
+         }
+        
+         // Update the destination location if it exists and delivery is available
+         if (isOffer && command.CanDeliver)
+         {
+             deliveryDetail.IsDeliverable = true;
+             deliveryDetail.LeadTimeInDays = command.LeadTime;
+             deliveryDetail.Fee = command.DeliveryFee;
+
+             if (destinationLocation == null) 
+             {
+                int destinationLookupId = lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
+
+                destinationLocation = MapToLocationEntity(command.Destination!, command.UserId, destinationLookupId);
+
+                _context.Locations.Add(destinationLocation);
+
+                deliveryDetail.DestinationLocationId = destinationLocation.LocationId;
+             }
+             else
+             {
+                destinationLocation.RegionId = command.Destination!.RegionId;
+                destinationLocation.Town = command.Destination.Town;
+                destinationLocation.Quarter = command.Destination.Quarter;
+                destinationLocation.Street = command.Destination.Street;
+             }
+         }
+         else
+         {
+             deliveryDetail.IsDeliverable = false;
+             deliveryDetail.LeadTimeInDays = null;
+             deliveryDetail.Fee = null;
+
+             if (destinationLocation != null)
+             {
+                _context.Locations.Remove(destinationLocation);
+                deliveryDetail.DestinationLocationId = null;
+             }
+         }
+
+         position.DateUpdated = DateTime.UtcNow;
+
+         await _context.SaveChangesAsync();
+         await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
+         
+         var dto = new UpdatePositionResponseDto
+         {
+             Status = "Position updated successfully."
+         };
+         
+         return DtoManager.Succeed<UpdatePositionResponseDto>(dto);
     }
 
     public async Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command)

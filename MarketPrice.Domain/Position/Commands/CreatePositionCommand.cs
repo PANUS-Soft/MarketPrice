@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Domain.Position.Commands
 {
-    public class PositionCommand
+    public class CreatePositionCommand
     {
         public Guid UserId { get; set; }
         public Guid CommodityId { get; set; }
