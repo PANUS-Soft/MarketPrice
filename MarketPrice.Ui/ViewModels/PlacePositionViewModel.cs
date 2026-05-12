@@ -674,7 +674,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
                 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new PositionCommand
+                var command = new CreatePositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -744,7 +744,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new PositionCommand
+                var command = new CreatePositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,

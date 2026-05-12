@@ -11,10 +11,10 @@
         public required decimal Quantity { get; set; }
         public string? Grade { get; set; }
         public string? Description { get; set; }
-        public DateTime StartDate { get; set; } = DateTime.Now;
-        public required DateTime ExpiryDate { get; set; }
-        public DateTime Date { get; set; } = DateTime.Now;
-        public DateTime? DateUpdated { get; set; }
+        public DateTimeOffset StartDate { get; set; } = DateTimeOffset.Now;
+        public required DateTimeOffset ExpiryDate { get; set; }
+        public DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset? DateUpdated { get; set; }
 
         // Include navigation properties
         public User? User { get; set; }
