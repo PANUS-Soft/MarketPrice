@@ -20,17 +20,18 @@
     <Grid RowDefinitions="Auto, *">
 
         <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,15,0,0">
-            <Grid ColumnDefinitions="Auto, *, Auto" Padding="3, 5">
-                <ImageButton Grid.Column="0"
-                             Source="back.png" 
+            <HorizontalStackLayout>
+                <ImageButton Source="back.png" 
                              HeightRequest="20"
                              WidthRequest="20"
+                             Margin="10,5,0,5"
+                             Padding="5"
                              Command="{Binding GoBackCommand}"
-                             VerticalOptions="Center"
+                             VerticalOptions="Start"
                              HorizontalOptions="Start"
                              BackgroundColor="Transparent"/>
                 
-                <HorizontalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center" Margin="5, 0">
+                <HorizontalStackLayout Spacing="5">
                     <Border HeightRequest="60"
                             WidthRequest="60"
                             StrokeShape="RoundRectangle 30"
@@ -39,52 +40,38 @@
                             VerticalOptions="Center"
                             HorizontalOptions="Center">
                         <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}"
-                               TextColor="White"
-                               FontSize="24"
-                               FontFamily="RobotoSerifBold"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
+                                       TextColor="White"
+                                       FontSize="24"
+                                       FontFamily="RobotoSerifBold"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
                     </Border>
                     
-                    <VerticalStackLayout VerticalOptions="Center" 
+                    <VerticalStackLayout Grid.Column="1" 
+                                         VerticalOptions="Center" 
                                          Spacing="2">
 
                         <HorizontalStackLayout Spacing="5">
                             <Label Text="{Binding UserName}" 
-                               FontSize="16" 
-                               FontFamily="RobotoSerifBold" 
-                               TextColor="Black"/>
+                                   FontSize="16" 
+                                   FontFamily="RobotoSerifBold" 
+                                   TextColor="Black"/>
 
                             <Image Source="verified_badge.png" 
-                               HeightRequest="16" 
-                               WidthRequest="16" 
-                               VerticalOptions="Center"/>
+                                   HeightRequest="16" 
+                                   WidthRequest="16" 
+                                   VerticalOptions="Center"/>
                         </HorizontalStackLayout>
 
                         <HorizontalStackLayout Spacing="5">
                             <Label Text="{Binding AccountType}" 
-                               FontSize="13" 
-                               TextColor="Gray"
-                               FontFamily="RobotoSerifRegular"/>
+                                   FontSize="13" 
+                                   TextColor="Gray"
+                                   FontFamily="RobotoSerifRegular"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
-
-                <HorizontalStackLayout Grid.Column="2" Spacing="10" VerticalOptions="Center">
-                    <ImageButton Source="whatsapp_icon"
-                                 HeightRequest="45"
-                                 WidthRequest="45"
-                                 HorizontalOptions="Start"
-                                 Command="{Binding ChatOnWhatsAppCommand}"/>
-
-                    <ImageButton Source="call_icon"
-                                 HeightRequest="35"
-                                 WidthRequest="35"
-                                 HorizontalOptions="End"
-                                 Command="{Binding CallUserCommand}"/>
-
-                </HorizontalStackLayout>
-            </Grid>
+            </HorizontalStackLayout>
 
             <BoxView HeightRequest="1" 
                      Color="{StaticResource PrimaryBase}" 
@@ -480,7 +467,7 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!--<Border Stroke="{StaticResource PrimaryBase}" 
+                <Border Stroke="{StaticResource PrimaryBase}" 
                         StrokeThickness="3" 
                         StrokeShape="RoundRectangle 5" 
                         Padding="15" 
@@ -524,7 +511,7 @@
                                 <HorizontalStackLayout Spacing="10"
                                                        VerticalOptions="Center"
                                                        HorizontalOptions="Center">
-                                    <Image Source="whatsapp_icon"
+                                    <Image Source="whatsapp_icon.png"
                                            HeightRequest="25"
                                            WidthRequest="25"/>
 
@@ -536,7 +523,7 @@
                             </dxc:SimpleButton>
                         </Grid>
                     </VerticalStackLayout>
-                </Border>-->
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>
