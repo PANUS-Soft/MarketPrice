@@ -5,7 +5,7 @@
         public Guid CommodityId { get; set; }
         public string CommodityName { get; set; } = string.Empty;
         public string LotSizeDisplay { get; set; } = string.Empty;
-
+        public string? ImageUrl { get; set; }
         public decimal CurrentPrice { get; set; }
         public decimal PriceDifference { get; set; }
 

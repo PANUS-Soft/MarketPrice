@@ -21,7 +21,7 @@
 
     <Grid>
         <Grid 
-            RowDefinitions="Auto, Auto, Auto, *, Auto" 
+            RowDefinitions="Auto, Auto, Auto, Auto, *, Auto" 
             RowSpacing="0" 
             Padding="15,15,15,0">
 
@@ -129,6 +129,14 @@
                 HorizontalOptions="End" 
                 Spacing="10" 
                 Margin="0,15,0,20">
+                
+                
+                
+
+                <Label Text="">
+                    
+                    
+                </Label>
 
                 <!-- Bid Button -->
                 <Border 
@@ -149,6 +157,7 @@
                             <Setter Property="BackgroundColor" Value="White" />
                         </DataTrigger>
                     </Border.Triggers>
+                    
 
                     <Label 
                         Text="Bid" 
@@ -163,6 +172,8 @@
                             </DataTrigger>
                         </Label.Triggers>
                     </Label>
+                    
+                    
                 </Border>
 
                 <!-- Offer Button -->
@@ -201,9 +212,31 @@
                 </Border>
             </HorizontalStackLayout>
 
+            <Grid Grid.Row="3" ColumnDefinitions="75, Auto, *, 75" Padding="5" Margin="0, 5">
+                <Label Grid.Column="1"
+                       Text="Commodities"
+                       FontSize="13"
+                       FontFamily="RobotoSerifBold"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"
+                       TextColor="White"/>
+
+                <Label Grid.Column="2"
+                       Text="Best Value"
+                       FontFamily="RobotoSerifBold"
+                       HorizontalTextAlignment="Center"
+                       TextColor="White"/>
+
+                <Label Grid.Column="3"
+                       Text="Variation"
+                       VerticalTextAlignment="Center"
+                       FontFamily="RobotoSerifBold"
+                       TextColor="White"/>
+            </Grid>
+            
             <!-- 4. COMMODITY LIST CARDS -->
             <Grid 
-                Grid.Row="3" 
+                Grid.Row="4" 
                 Padding="0,0">
 
                 <CollectionView 
@@ -301,7 +334,12 @@
 
                                         <Border.Triggers>
                                             <DataTrigger TargetType="Border" Binding="{Binding IsPositiveTrend}" Value="True">
-                                                <Setter Property="BackgroundColor" Value="#4CAF50" />
+                                                <Setter Property="BackgroundColor"  Value="#4CAF50" />
+                                            </DataTrigger>
+
+                                            <!-- so if there's no bid and no offere the color will br grey -->
+                                            <DataTrigger TargetType="Border" Binding="{Binding FormattedDifference}"  Value="-">
+                                                <Setter Property="BackgroundColor" Value="#888888"/>
                                             </DataTrigger>
                                         </Border.Triggers>
 

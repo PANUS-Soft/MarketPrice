@@ -231,38 +231,58 @@ namespace MarketPrice.Services.Implementations
             var now = DateTime.UtcNow;
             var yesterday = now.AddHours(-24);
 
-            // Using EF Core projection to let SQL Server do all the heavy lifting in one query
-            var query = _context.Commodities
-                .AsNoTracking()
-                .Select(c => new
+            var query = await (
+                from c in _context.Commodities
+                join ci in _context.CommodityImage
+                    on c.CommodityId equals ci.CommodityId into imageGroup
+                from ci in imageGroup.DefaultIfEmpty()
+
+                select new
                 {
                     c.CommodityId,
                     c.CommodityName,
                     c.LotSize,
+                    ImageFileName = ci != null ? ci.FileName : null,
 
-                    // SAFEGUARD: Ensure UoM code doesn't cause a drop if missing
-                    UomCode = c.UnitOfMeasure != null ? c.UnitOfMeasure.UnitOfMeasureCodeEnglish : "",
+                    UomCode = c.UnitOfMeasure != null
+                        ? c.UnitOfMeasure.UnitOfMeasureCodeEnglish
+                        : "",
 
-                    // 1. Find the current best price
                     CurrentBestPrice = positionTypeId == BidPosition
-                        ? _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= now && p.ExpiryDate > now).Max(p => (decimal?)p.UnitPrice) ?? 0m
-                        : _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= now && p.ExpiryDate > now).Min(p => (decimal?)p.UnitPrice) ?? 0m,
+                        ? _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= now &&
+                                        p.ExpiryDate > now)
+                            .Max(p => (decimal?)p.UnitPrice) ?? 0m
+                        : _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= now &&
+                                        p.ExpiryDate > now)
+                            .Min(p => (decimal?)p.UnitPrice) ?? 0m,
 
-                    // 2. Find the best price exactly 24 hours ago
                     YesterdayBestPrice = positionTypeId == BidPosition
-                        ? _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= yesterday && p.ExpiryDate > yesterday).Max(p => (decimal?)p.UnitPrice) ?? 0m
-                        : _context.Positions.Where(p => p.CommodityId == c.CommodityId && p.PositionTypeId == positionTypeId && p.StartDate <= yesterday && p.ExpiryDate > yesterday).Min(p => (decimal?)p.UnitPrice) ?? 0m
-                });
+                        ? _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= yesterday &&
+                                        p.ExpiryDate > yesterday)
+                            .Max(p => (decimal?)p.UnitPrice) ?? 0m
+                        : _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= yesterday &&
+                                        p.ExpiryDate > yesterday)
+                            .Min(p => (decimal?)p.UnitPrice) ?? 0m
+                }).ToListAsync();
 
-            var rawData = await query.ToListAsync();
             var marketData = new List<MarketCommodityDto>();
 
-            // Map the raw SQL results to the DTO expected by the UI
-            foreach (var item in rawData)
+            foreach (var item in query)
             {
                 decimal difference = 0;
 
-                // Only calculate difference if there was actually an active price yesterday AND today
                 if (item.CurrentBestPrice > 0 && item.YesterdayBestPrice > 0)
                 {
                     difference = item.CurrentBestPrice - item.YesterdayBestPrice;
@@ -274,7 +294,12 @@ namespace MarketPrice.Services.Implementations
                     CommodityName = item.CommodityName,
                     LotSizeDisplay = $"{item.LotSize} {item.UomCode}",
                     CurrentPrice = item.CurrentBestPrice,
-                    PriceDifference = difference
+                    PriceDifference = difference,
+
+                    // IMPORTANT
+                    ImageUrl = item.ImageFileName != null
+                        ? $"{ApiControllers.CommodityImages}/{item.CommodityId}/image"
+                        : null
                 });
             }
 

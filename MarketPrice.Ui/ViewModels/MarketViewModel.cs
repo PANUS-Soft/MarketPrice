@@ -34,9 +34,11 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private bool isOfferHighlighted = false;
 
         // Image Preview States
-        [ObservableProperty] private ImageSource? previewImage;
+        [ObservableProperty] private ImageSource previewImage;
         [ObservableProperty] private bool isImagePreviewVisible;
         [ObservableProperty] private string selectedCommodityTypeName = string.Empty;
+        [ObservableProperty] private string selectedCommodityName;
+
 
         public MarketViewModel(ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
         {
@@ -103,6 +105,7 @@ namespace MarketPrice.Ui.ViewModels
             try
             {
                 int positionTypeId = IsBidHighlighted ? 6001 : 6002;
+
                 var response = await _marketApi.GetMarketOverviewAsync(positionTypeId);
 
                 if (!response.IsSuccessStatusCode)
@@ -116,14 +119,21 @@ namespace MarketPrice.Ui.ViewModels
                     return;
                 }
 
-                var data = await response.Content.ReadFromJsonAsync<List<MarketCommodityDto>>();
+                var marketdata = await response.Content.ReadFromJsonAsync<List<MarketCommodityDto>>();
 
                 // Safely build the new list on the background thread
                 var tempItems = new List<MarketItem>();
-                if (data != null)
+
+                if (marketdata != null)
                 {
-                    foreach (var item in data)
+                    var sortMarketData = marketdata.OrderBy(x => x.CommodityName, StringComparer.OrdinalIgnoreCase).ToList();
+
+                    foreach (var item in sortMarketData)
                     {
+                        var imageUrl = !string.IsNullOrWhiteSpace(item.ImageUrl)
+                            ? $"{_apiSettingOptions.BaseUrl.TrimEnd('/')}/{item.ImageUrl.TrimStart('/')}"
+                            : null;
+
                         tempItems.Add(new MarketItem
                         {
                             CommodityId = item.CommodityId,
@@ -131,16 +141,19 @@ namespace MarketPrice.Ui.ViewModels
                             LotSizeDisplay = item.LotSizeDisplay,
                             CurrentPrice = item.CurrentPrice,
 
-                            // If the price is 0, blank out the difference trend completely
-                            FormattedDifference = item.CurrentPrice > 0 ? item.FormattedDifference : "-",
+                            FormattedDifference = item.CurrentPrice > 0
+                                ? item.FormattedDifference
+                                : "-",
+
                             IsPositiveTrend = item.IsPositiveTrend,
 
-                            // CRITICAL FIX: If price is 0, show text instead of 0
                             DisplayPrice = item.CurrentPrice > 0
                                 ? item.CurrentPrice.ToString("N0")
                                 : (IsBidHighlighted ? "No Bids" : "No Offers"),
 
-                            ImageSource = ImageSource.FromFile("corn_placeholder.png")
+                            ImageSource = imageUrl != null
+                                ? ImageSource.FromUri(new Uri(imageUrl))
+                                : ImageSource.FromFile("corn_placeholder.png")
                         });
                     }
                 }
@@ -222,7 +235,7 @@ namespace MarketPrice.Ui.ViewModels
                 CommodityId = item.CommodityId,
                 PositionTypeId = IsBidHighlighted ? 6001 : 6002,
                 UnitPrice = item.CurrentPrice,
-                CommodityName = item.Name
+                CommodityName = item.Name,
             };
 
             await Shell.Current.GoToAsync("PositionListing", new Dictionary<string, object>
@@ -241,7 +254,7 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (item == null) return;
             PreviewImage = item.ImageSource;
-            SelectedCommodityTypeName = item.Name.ToUpper();
+            selectedCommodityTypeName = item.Name.ToUpper();
             IsImagePreviewVisible = true;
         }
 
@@ -250,7 +263,7 @@ namespace MarketPrice.Ui.ViewModels
         {
             IsImagePreviewVisible = false;
             PreviewImage = null;
-            SelectedCommodityTypeName = string.Empty;
+            selectedCommodityTypeName = string.Empty;
         }
     }
 
