@@ -674,7 +674,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
                 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new PositionCommand
+                var command = new CreatePositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -682,7 +682,7 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = (decimal)Quantity!,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!,
+                    StartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
                     Origin = new LocationCommand
                     {
@@ -693,7 +693,7 @@ namespace MarketPrice.Ui.ViewModels
                     }
                 };
 
-                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!;
+                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!;
 
                 string formattedStartDate = StartPositionImmediately ? "Now" : effectiveStartDate.ToString("g");
 
@@ -744,7 +744,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new PositionCommand
+                var command = new CreatePositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -752,7 +752,7 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = (decimal)Quantity!,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!,
+                    StartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
                     CanDeliver = IsDeliverable,
                     LeadTime = IsDeliverable ? LeadTime : null,
@@ -773,7 +773,7 @@ namespace MarketPrice.Ui.ViewModels
                     } : null,
                 };
 
-                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!;
+                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!;
 
                 string formattedStartDate = StartPositionImmediately ? "Now" : effectiveStartDate.ToString("g");
 
