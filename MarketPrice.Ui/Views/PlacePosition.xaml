@@ -168,9 +168,10 @@
                                                 TextFontSize="13"
                                                 IsEnabled="{Binding IsStartPositionImmediatelyEnabled}"
                                                 IsToggled="{Binding StartPositionImmediately}"
-                                                OnColor="{StaticResource PrimaryBase}"/>
+                                                OnColor="{StaticResource PrimaryBase}"
+                                                IsVisible="{Binding IsStartPositionImmediatelyVisible}"/>
 
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15" IsVisible="{Binding IsStartDateTimeVisible}">
                                 <dxe:DateEdit Grid.Column="0" LabelText="Start Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" IsEnabled="{Binding IsStartDateTimeEnabled}" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding StartDate}"/>
                                 <dxe:TimeEdit Grid.Column="1" LabelText="Start TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" IsEnabled="{Binding IsStartDateTimeEnabled}"  CornerRadius="10" Time="{Binding StartDate}"/>
                             </Grid>
@@ -207,16 +208,22 @@
                                 <dxe:TextEdit Grid.Column="1" LabelText="Street" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginStreet}"/>
                             </Grid>
                             <Label Text="{Binding OriginDetailError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
+
+                            <dxe:CheckEdit Label="Is Deliverable ?"
+                                           LabelFontFamily="RobotoSerifMedium"
+                                           IsVisible="{Binding IsDeliverableBoxVisible}"
+                                           CheckBoxPosition="End"
+                                           CheckedCheckBoxColor="{StaticResource PrimaryBase}"
+                                           IsChecked="{Binding IsDeliverable}"/>
+
                         </VerticalStackLayout>
                     </Border>
 
-                    <dxe:FormSwitchItem Text="Is Deliverable ?" 
-                                        TextFontFamily="RobotoSerifRegular" 
-                                        TextFontSize="13"
-                                        Margin="0,0,0,0"
-                                        IsVisible="{Binding IsOffer}"
-                                        IsToggled="{Binding IsDeliverable}"
-                                        OnColor="{StaticResource PrimaryBase}"/>
+                    <!--<Switch Margin="0,0,0,0"
+                            IsVisible="{Binding IsOffer}"
+                            IsToggled="{Binding IsDeliverable}"
+                            OnColor="{StaticResource PrimaryBase}"
+                            ThumbColor="{StaticResource PrimaryBase}"/>-->
 
                     <VerticalStackLayout IsVisible="{Binding IsDeliverable}">
                         <Label Text="Destination Location" FontFamily="RobotoSerifBold" TextColor="{StaticResource TextPrimary}" Margin="0,10,0,10"/>

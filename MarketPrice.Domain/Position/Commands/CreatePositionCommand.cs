@@ -14,7 +14,7 @@ namespace MarketPrice.Domain.Position.Commands
         public required decimal Quantity { get; set; }
         public required string Grade { get; set; }
         public string? Description { get; set; }
-        public required DateTime StartDate { get; set; }
+        public DateTime StartDate { get; set; }
         public required DateTime EndDate { get; set; }
         public bool CanDeliver { get; set; }
         public string? LeadTime { get; set; }

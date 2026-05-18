@@ -35,5 +35,19 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
+        public async Task<HttpResponseMessage> UpdateBidAsync(UpdatePositionCommand updatePositionCommand)
+        {
+            var url = ApiControllers.Positions.AppendRoute(ApiRoutes.BID_UPDATE);
+            var response = await PatchAsync(url, updatePositionCommand);
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> UpdateOfferAsync(UpdatePositionCommand updatePositionCommand)
+        {
+            var url = ApiControllers.Positions.AppendRoute(ApiRoutes.OFFER_UPDATE);
+            var response = await PatchAsync(url, updatePositionCommand);
+            return response;
+        }
+
     }
 }
