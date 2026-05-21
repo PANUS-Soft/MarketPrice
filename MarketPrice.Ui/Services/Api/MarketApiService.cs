@@ -20,7 +20,7 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
-        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range = "1m")
+        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range = "1D")
         {
             var route = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_CHART_DATA);
             var url = route.Replace("{commodityId}", commodityId.ToString());

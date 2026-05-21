@@ -46,7 +46,7 @@ namespace MarketPrice.Api.Controllers
         // Get Price Chart Data
         [Authorize]
         [HttpGet(ApiRoutes.GET_CHART_DATA)]
-        public async Task<ActionResult> GetChartData( [FromQuery] Guid commodityId, [FromQuery] string range = "1D")
+        public async Task<ActionResult> GetChartData( [FromRoute] Guid commodityId, [FromQuery] string range = "1D")
         {
             try
             {
