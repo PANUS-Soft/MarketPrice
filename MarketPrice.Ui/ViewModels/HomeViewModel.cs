@@ -22,13 +22,16 @@ namespace MarketPrice.Ui.ViewModels
     {
         // ?? Collections ????????????????????????????????????????????
         public ObservableCollection<CommodityGroupDisplayModel> Commodities { get; } = new();
-        public ObservableCollection<CommodityGroupDisplayModel> SearchResults { get; } = new();
+        public ObservableCollection<CommodityDisplayModel> SearchResults { get; } = new();
 
         // ?? Observable properties ???????????????????????????????????
         [ObservableProperty] private ImageSource? _previewImage;
         [ObservableProperty] private bool _isImagePreviewVisible;
         [ObservableProperty] private string? _selectedCommodityTypeName;
         [ObservableProperty] private bool _isSearchActive;
+        [ObservableProperty] private bool _isSearchEmpty;
+        [ObservableProperty] private bool _isSearchHintVisible = false;
+        [ObservableProperty] private bool _hasSearchResults;
         [ObservableProperty] private string _searchText = string.Empty;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
@@ -36,10 +39,10 @@ namespace MarketPrice.Ui.ViewModels
             PropertyNameCaseInsensitive = true
         };
 
-        // ?? Lifecycle ???????????????????????????????????????????????
+        // Lifecycle 
         public async Task InitializeAsync() => await LoadHomeDataAsync();
 
-        // ?? Data loading ????????????????????????????????????????????
+        // Data loading
         public async Task LoadHomeDataAsync()
         {
             System.Diagnostics.Debug.WriteLine("[HOME] LoadHomeDataAsync started");
@@ -110,6 +113,7 @@ namespace MarketPrice.Ui.ViewModels
                             IsOfferSoonToExpire = dto.IsOfferSoonToExpire,
 
                             // Best Bid
+                            HasBid = bid0 != null && bid0.Price > 0,
                             BestBidPrice = bid0?.Price ?? 0,
                             BestBidDisplay = bid0 != null && bid0.Price > 0
                                                     ? bid0.Price.ToString("N0", new CultureInfo("en-CM"))
@@ -122,6 +126,7 @@ namespace MarketPrice.Ui.ViewModels
                             NextBid2Location = bid2?.Locations.FirstOrDefault() ?? string.Empty,
 
                             // Best Offer
+                            HasOffer = offer0 != null && offer0.Price > 0,
                             BestOfferPrice = offer0?.Price ?? 0,
                             BestOfferDisplay = offer0 != null && offer0.Price > 0
                                                     ? offer0.Price.ToString("N0", new CultureInfo("en-CM"))
@@ -149,41 +154,63 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        // ?? Search ??????????????????????????????????????????????????
+        // Search
         partial void OnSearchTextChanged(string value) => ApplySearch(value);
 
         private void ApplySearch(string query)
         {
             SearchResults.Clear();
-            if (string.IsNullOrWhiteSpace(query)) return;
+           
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                IsSearchHintVisible = true;
+                IsSearchEmpty = false;
+                HasSearchResults = false;
+                return;
+            }
+
+            IsSearchHintVisible = false;
 
             var lower = query.ToLowerInvariant();
 
-            foreach (var group in Commodities)
-            {
-                var matches = group.Commodities
-                    .Where(c => c.Name.Contains(lower, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+            var matches = Commodities
+                .SelectMany(g => g.Commodities
+                       .Where(c =>
+                                c.Name.Contains(lower, StringComparison.OrdinalIgnoreCase) ||
+                                g.GroupName.Contains(lower, StringComparison.OrdinalIgnoreCase))
+                       .Select(c => c))
+                .OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-                if (!matches.Any()) continue;
+            foreach (var c in matches)
+                SearchResults.Add(c);
 
-                var resultGroup = new CommodityGroupDisplayModel
-                {
-                    CommodityTypeId = group.CommodityTypeId,
-                    GroupName = group.GroupName,
-                };
+            HasSearchResults = SearchResults.Count > 0;
+            IsSearchEmpty = !String.IsNullOrWhiteSpace(query) && SearchResults.Count == 0;
 
-                foreach (var c in matches)
-                    resultGroup.Commodities.Add(c);
-
-                SearchResults.Add(resultGroup);
-            }
         }
 
+        [RelayCommand]
+        private async Task ViewAll(Guid commodityTypeId)
+        {
+            var group = Commodities.FirstOrDefault(g => g.CommodityTypeId == commodityTypeId);
+            if (group == null) return;
+
+            await Shell.Current.GoToAsync(nameof(CommodityListing),
+                new Dictionary<string, object>()
+                {
+                    {"GroupName", group.GroupName },
+                    {"Commodities", group.Commodities.ToList()}
+                });
+        }
+ 
         [RelayCommand]
         private void ActivateSearch()
         {
             SearchText = string.Empty;
+            IsSearchEmpty = false;
+            IsSearchHintVisible = true; 
+            HasSearchResults = false;
             SearchResults.Clear();
             IsSearchActive = true;
         }
@@ -192,6 +219,9 @@ namespace MarketPrice.Ui.ViewModels
         private void CancelSearch()
         {
             SearchText = string.Empty;
+            IsSearchHintVisible = false;
+            IsSearchEmpty = false;
+            HasSearchResults = false;
             SearchResults.Clear();
             IsSearchActive = false;
         }
@@ -200,10 +230,13 @@ namespace MarketPrice.Ui.ViewModels
         private void ClearSearch()
         {
             SearchText = string.Empty;
+            IsSearchHintVisible = true;
+            IsSearchEmpty = false;
+            HasSearchResults = false;
             SearchResults.Clear();
         }
 
-        // ?? Image preview ???????????????????????????????????????????
+        // Image preview
         [RelayCommand]
         private void OpenImagePreview(CommodityDisplayModel item)
         {

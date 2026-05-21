@@ -14,6 +14,12 @@
             <converters:TrendColorConverter x:Key="TrendBidColor" IsOffer="False"/>
             <converters:TrendColorConverter x:Key="TrendOfferColor" IsOffer="True"/>
             <converters:IsZeroConverter x:Key="IsZeroConverter"/>
+            <converters:PriceStateBidBgConverter     x:Key="BidBgConverter"/>
+            <converters:PriceStateBidBorderConverter x:Key="BidBorderConverter"/>
+            <converters:PriceStateBidTextConverter   x:Key="BidTextConverter"/>
+            <converters:PriceStateOfferBgConverter     x:Key="OfferBgConverter"/>
+            <converters:PriceStateOfferBorderConverter x:Key="OfferBorderConverter"/>
+            <converters:PriceStateOfferTextConverter   x:Key="OfferTextConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

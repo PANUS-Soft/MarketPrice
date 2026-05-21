@@ -48,6 +48,9 @@ namespace MarketPrice.Ui.Models
 
         [ObservableProperty] decimal nextOffer1;
         [ObservableProperty] decimal nextOffer2;
+
+        [ObservableProperty] bool _hasBid;
+        [ObservableProperty] bool _hasOffer;
     }
 }
 

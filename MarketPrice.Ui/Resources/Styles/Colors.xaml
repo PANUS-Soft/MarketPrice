@@ -32,23 +32,23 @@
     <!-- ══ Binance-matched dark palette ══ -->
 
     <!-- Page backgrounds — layered depth -->
-    <Color x:Key="BgPage">#0B0E11</Color>
+    <Color x:Key="BgPage">#13161C</Color>
     <!-- deepest — page bg -->
-    <Color x:Key="BgCard">#1E2026</Color>
+    <Color x:Key="BgCard">#1A1F28</Color>
     <!-- floats above page -->
-    <Color x:Key="BgCardInner">#161A1F</Color>
+    <Color x:Key="BgCardInner">#1E2330</Color>
     <!-- sits inside BgCard -->
-    <Color x:Key="BgChip">#2B2F36</Color>
+    <Color x:Key="BgChip">#252B35</Color>
     <!-- chips, inputs, image bg -->
-    <Color x:Key="BgHeader">#0B0E11</Color>
+    <Color x:Key="BgHeader">#13161C</Color>
     <!-- same as page -->
-    <Color x:Key="SearchBg">#1E2026</Color>
+    <Color x:Key="SearchBg">#1A1F28</Color>
     <!-- same as card -->
 
     <!-- Borders — subtle, used sparingly -->
-    <Color x:Key="BorderColor">#2B2F36</Color>
+    <Color x:Key="BorderColor">#252B35</Color>
     <!-- ✅ fixed — visible but subtle -->
-    <Color x:Key="BorderSubtle">#1A1D24</Color>
+    <Color x:Key="BorderSubtle">#1E2330</Color>
     <Color x:Key="BorderNone">Transparent</Color>
     <Color x:Key="InnerBorderColor">#1A1E2A</Color>
     <Color x:Key="PriceBoxBorder">#2B2F36</Color>
@@ -78,7 +78,7 @@
     <Color x:Key="AccentBlue">#1890FF</Color>
 
     <!-- Tab bar — slightly lighter than page creates separator effect -->
-    <Color x:Key="TabBarBg">#1E2026</Color>
+    <Color x:Key="TabBarBg">#1A1F28</Color>
     <!-- ✅ fixed — was #0B0E11, now contrasts with page -->
     <Color x:Key="TabActive">#1890FF</Color>
     <!-- Binance gold -->

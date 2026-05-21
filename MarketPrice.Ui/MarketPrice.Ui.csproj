@@ -113,6 +113,9 @@
 		<MauiXaml Update="Views\ChangePassword.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\CommodityListing.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\EditPosition.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
@@ -127,6 +130,9 @@
 		</MauiXaml>
 		<MauiXaml Update="Views\Market.xaml">
 			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\NewPage1.xaml">
+		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Views\Onboarding.xaml">
 			<Generator>MSBuild:Compile</Generator>
