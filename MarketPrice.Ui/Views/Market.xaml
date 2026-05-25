@@ -212,26 +212,35 @@
                 </Border>
             </HorizontalStackLayout>
 
-            <Grid Grid.Row="3" ColumnDefinitions="75, Auto, *, 75" Padding="5" Margin="0, 5">
-                <Label Grid.Column="1"
+            <Grid Grid.Row="3" ColumnDefinitions="160, 100, *" Padding="10, 5" Margin="0, 5" >
+                <Label Grid.Column="0"
                        Text="Commodities"
-                       FontSize="13"
+                       FontSize="16"
+                       FontFamily="RobotoSerifBold"
+                       HorizontalTextAlignment="Start"
+                       HorizontalOptions="Start"
+                       VerticalTextAlignment="Center"
+                       TextColor="White"
+                       FontAttributes="Bold"/>
+
+                <Label Grid.Column="1"
+                       Text="Best Price"
+                       FontSize="16"
                        FontFamily="RobotoSerifBold"
                        HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center"
-                       TextColor="White"/>
+                       HorizontalOptions="Center"
+                       TextColor="White"
+                       FontAttributes="Bold"/>
 
                 <Label Grid.Column="2"
-                       Text="Best Value"
-                       FontFamily="RobotoSerifBold"
-                       HorizontalTextAlignment="Center"
-                       TextColor="White"/>
-
-                <Label Grid.Column="3"
-                       Text="Variation"
+                       Text="Variation (24H)"
+                       FontSize="16"
                        VerticalTextAlignment="Center"
                        FontFamily="RobotoSerifBold"
-                       TextColor="White"/>
+                       TextColor="White"
+                       HorizontalTextAlignment="Start"
+                       HorizontalOptions="Start"
+                       FontAttributes="Bold"/>
             </Grid>
             
             <!-- 4. COMMODITY LIST CARDS -->
@@ -255,81 +264,85 @@
                                 Padding="15,10">
 
                                 <Grid 
-                                    ColumnDefinitions="50, *, Auto, 75" 
+                                    ColumnDefinitions="160, 100, *" 
                                     ColumnSpacing="15" 
                                     VerticalOptions="Center">
 
-                                    <!-- 1. MAIN CARD GESTURE (Goes to Market Detail) -->
+                                    <!-- 1. MAIN CARD GESTURE (Goes to Market insight) -->
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer 
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToMarketDetailCommand}" 
+                                            Command="{Binding BindingContext.NavigateToMarketDetailCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                             CommandParameter="{Binding .}"/>
                                     </Grid.GestureRecognizers>
 
-                                    <!-- Commodity Image -->
-                                    <Border 
-                                        Grid.Column="0" 
-                                        HeightRequest="50" 
-                                        WidthRequest="50" 
-                                        StrokeShape="RoundRectangle 25" 
-                                        StrokeThickness="0" 
-                                        BackgroundColor="#333333">
+                                    <!-- Commodity section -->
+                                    <HorizontalStackLayout
+                                        Grid.Column="0"
+                                        Spacing="10"
+                                        VerticalOptions="Center">
+                                        
+                                        <!--commodity image-->
+                                        <Border
+                                            HeightRequest="50"
+                                            WidthRequest="50"
+                                            StrokeShape="RoundRectangle 25"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{StaticResource Background}">
 
-                                        <Image 
-                                            Source="{Binding ImageSource}" 
-                                            Aspect="AspectFill">
+                                            <Image
+                                                Source="{Binding ImageSource}"
+                                                Aspect="AspectFill">
 
-                                            <!-- Image Preview Gesture -->
-                                            <Image.GestureRecognizers>
-                                                <TapGestureRecognizer 
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=OpenImagePreviewCommand}" 
-                                                    CommandParameter="{Binding .}"/>
-                                            </Image.GestureRecognizers>
-                                        </Image>
-                                    </Border>
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding BindingContext.OpenImagePreviewCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                        </Border>
+                                        
+                                        <!-- Name and Lot Size -->
+                                        <VerticalStackLayout
+                                            VerticalOptions="Center"
+                                            Spacing="2">
 
-                                    <!-- Name & Lot Size -->
-                                    <VerticalStackLayout 
-                                        Grid.Column="1" 
-                                        VerticalOptions="Center" 
-                                        Spacing="2">
+                                            <Label
+                                                Text="{Binding Name}"
+                                                TextColor="White"
+                                                FontFamily="RobotoSerifMedium"
+                                                FontSize="14"/>
 
-                                        <Label 
-                                            Text="{Binding Name}" 
-                                            TextColor="White" 
-                                            FontFamily="RobotoSerifMedium" 
-                                            FontSize="14"/>
+                                            <Label
+                                                Text="{Binding LotSizeDisplay}"
+                                                TextColor="#CCCCCC"
+                                                FontFamily="RobotoSerifRegilar"
+                                                FontSize="12"/>
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
 
-                                        <Label 
-                                            Text="{Binding LotSizeDisplay}" 
-                                            TextColor="#CCCCCC" 
-                                            FontFamily="RobotoSerifRegular" 
-                                            FontSize="12"/>
-                                    </VerticalStackLayout>
-
-                                    <!-- 2. PRICE GESTURE (Goes to Position Listing) -->
+                                     
+                                    <!-- 2. Pricee value -->
                                     <Label 
-                                        Grid.Column="2"
+                                        Grid.Column="1"
                                         Text="{Binding DisplayPrice}" 
                                         TextColor="White"
                                         FontAttributes="Bold" 
                                         FontSize="18"
-                                        VerticalOptions="Center">
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Center"
+                                        HorizontalTextAlignment="Center"/>
 
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToPositionListingCommand}" 
-                                                CommandParameter="{Binding .}"/>
-                                        </Label.GestureRecognizers>
-                                    </Label>
+
 
                                     <!-- Difference Badge -->
                                     <Border 
-                                        Grid.Column="3" 
-                                        HeightRequest="28"
+                                        Grid.Column="2" 
+                                        HeightRequest="30"
+                                        WidthRequest="40"
                                         StrokeThickness="0" 
                                         StrokeShape="RoundRectangle 5" 
                                         VerticalOptions="Center"
+                                        HorizontalOptions="Center"
                                         BackgroundColor="#F44336">
 
                                         <Border.Triggers>
@@ -349,7 +362,9 @@
                                             FontFamily="RobotoSerifMedium" 
                                             FontSize="12" 
                                             HorizontalOptions="Center" 
-                                            VerticalOptions="Center"/>
+                                            VerticalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            VerticalTextAlignment="Center"/>
                                     </Border>
 
                                 </Grid>

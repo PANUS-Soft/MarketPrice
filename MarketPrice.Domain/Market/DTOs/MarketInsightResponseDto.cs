@@ -20,6 +20,7 @@
 
     public class MarketDepthItemDto
     {
+        public int PositionCount { get; set; }
         public decimal Price { get; set; }
         public decimal Quantity { get; set; }
     }

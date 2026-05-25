@@ -28,7 +28,7 @@
                         HorizontalOptions="Center" 
                         Padding="0" 
                         StrokeThickness="0">
-                    <Image Source="check.png" Aspect="AspectFill"/>
+                    <Image Source="{Binding CommodityImage}" Aspect="AspectFill"/>
                 </Border>
 
                 <VerticalStackLayout VerticalOptions="Center" Spacing="2">
@@ -192,8 +192,19 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="dto:MarketDepthItemDto">
                                     <Grid ColumnDefinitions="*,*">
-                                        <Label Grid.Column="0" Text="{Binding Quantity}" TextColor="#22C55E" FontSize="12" Margin="0,5"/>
-                                        <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#22C55E" FontSize="12" Margin="0,5"/>
+                                        <Label Grid.Column="0" Text="{Binding PositionCount}" TextColor="#22C55E" FontSize="12" Margin="0,5"/>
+                                        <Label Grid.Column="1" 
+                                               Text="{Binding Price, StringFormat='{0:N0}'}" 
+                                               TextColor="#22C55E" 
+                                               FontSize="12" 
+                                               Margin="0,5">
+
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToPositionListingCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -203,8 +214,20 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="dto:MarketDepthItemDto">
                                     <Grid ColumnDefinitions="*,*">
-                                        <Label Grid.Column="0" Text="{Binding Quantity}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="Center" Margin="0,5"/>
-                                        <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="End" Margin="0,5"/>
+                                        <Label Grid.Column="0" Text="{Binding PositionCount}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="Center" Margin="0,5"/>
+                                        <Label Grid.Column="1" 
+                                               Text="{Binding Price, StringFormat='{0:N0}'}" 
+                                               TextColor="#3B82F6" 
+                                               FontSize="12" 
+                                               HorizontalOptions="End" 
+                                               Margin="0,5">
+
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToPositionListingCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
