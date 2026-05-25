@@ -30,9 +30,7 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg"
-		          ForegroundFile="Resources\AppIcon\appiconfg.svg"
-		          Color="#512BD4" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Splash Screens -->
 		<MauiSplashScreen Include="Resources\Images\marketprice.svg">
@@ -40,22 +38,17 @@
 			<BaseSize>128,128</BaseSize>
 		</MauiSplashScreen>
 
-		<MauiSplashScreen Include="Resources\Splash\marketprice.svg"
-		                  Color="#FFFFFF"
-		                  BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\marketprice.svg" Color="#FFFFFF" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png"
-		           Resize="True"
-		           BaseSize="300,185" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
 		<!-- Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
 		<!-- Raw Assets -->
-		<MauiAsset Include="Resources\Raw\**"
-		           LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -92,6 +85,12 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MarketPrice.Domain\MarketPrice.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\Settings.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

@@ -99,6 +99,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<ChangePassword>();
             builder.Services.AddTransient<Activity>();
             builder.Services.AddTransient<CommodityListing>();
+            builder.Services.AddTransient<Settings>();
 
 #if DEBUG
             builder.Logging.AddDebug();

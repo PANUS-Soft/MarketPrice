@@ -73,10 +73,10 @@ namespace MarketPrice.Ui.ViewModels
         private void LoadProfileComponentAsync()
         {
             MenuItems.Clear();
-            MenuItems.Add(new ProfileMenuItem("Settings","", "settings_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("My Position", "","position_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("Change Password", "ChangePassword", "lock_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png"));
+            MenuItems.Add(new ProfileMenuItem("Settings","Settings", "settings_icon.png", "General app preferences"));
+            MenuItems.Add(new ProfileMenuItem("My Position", "","position_icon.png", "Manage your location"));
+            MenuItems.Add(new ProfileMenuItem("Change Password", "ChangePassword", "lock_icon.png", "Make your account secure"));
+            MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png", "Identity status", "NOT VERIFIED"));
         }
 
         // Menu Collection
@@ -156,10 +156,13 @@ namespace MarketPrice.Ui.ViewModels
         }
     }
 
-    public class ProfileMenuItem(string title, string? menuItemView, string iconSource)
+    public class ProfileMenuItem(string title, string? menuItemView, string iconSource, string subTitle = "", string badgeText = "")
     {
         public string Title { get; set; } = title;
         public string? MenuItemView { get; set; } = menuItemView;
         public string IconSource { get; set; } = iconSource;
+        public string SubTitle { get; set; } = subTitle;
+        public string BadgeText { get; set; } = badgeText;
+        public bool HasBadge => !string.IsNullOrEmpty(BadgeText);
     }
 }
