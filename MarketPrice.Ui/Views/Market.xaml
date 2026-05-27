@@ -1,51 +1,102 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
-             xmlns:dx="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
-             xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
-             xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
-             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
-             x:Class="MarketPrice.Ui.Views.Market"
-             Title="Market">
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
+    xmlns:dx="clr-namespace:DevExpress.Maui.Core;assembly=DevExpress.Maui.Core"
+    xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
+    xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
+    xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+    x:Class="MarketPrice.Ui.Views.Market"
+    Shell.NavBarIsVisible="False"
+    NavigationPage.HasNavigationBar="False"
+    BackgroundColor="{StaticResource Background}"
+    Title="Market">
 
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
-
-            <converters:AllTrueToVisibleConverter x:Key="AllTrueToVisibleConverter"/>
-
-            <ControlTemplate x:Key="MarketItemSkeleton">
-                <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10">
-                    <BoxView Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="#F0F0F0"/>
-                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
-                        <BoxView WidthRequest="80" HeightRequest="12" CornerRadius="4" BackgroundColor="#F0F0F0" HorizontalOptions="Start"/>
-                        <BoxView WidthRequest="50" HeightRequest="10" CornerRadius="4" BackgroundColor="#F5F5F5" HorizontalOptions="Start"/>
-                    </VerticalStackLayout>
-                </Grid>
-            </ControlTemplate>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid>
-        <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" RowSpacing="0">
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="15,10" ColumnSpacing="15">
-                <Border Grid.Row="0" StrokeShape="RoundRectangle 15" Stroke="{StaticResource PrimaryBase}" StrokeThickness="3" BackgroundColor="White">
-                    <SearchBar Placeholder="Search" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" BackgroundColor="Transparent" CancelButtonColor="{StaticResource PrimaryBase}" VerticalOptions="Center"/>
+        <Grid 
+            RowDefinitions="Auto, Auto, Auto, Auto, *, Auto" 
+            RowSpacing="0" 
+            Padding="15,15,15,0">
+
+            <!-- 1. HEADER: Search & Notification -->
+            <Grid 
+                Grid.Row="0" 
+                ColumnDefinitions="*, Auto" 
+                Padding="0,0,0,15" 
+                ColumnSpacing="15">
+
+                <Border 
+                    Grid.Column="0" 
+                    StrokeShape="RoundRectangle 20" 
+                    BackgroundColor="#2A2A2A" 
+                    StrokeThickness="0" 
+                    HeightRequest="45">
+
+                    <SearchBar 
+                        Placeholder="Search" 
+                        Text="{Binding SearchText}" 
+                        SearchCommand="{Binding SearchCommand}" 
+                        BackgroundColor="Transparent" 
+                        TextColor="White"
+                        PlaceholderColor="#888888"
+                        CancelButtonColor="White" 
+                        VerticalOptions="Center"/>
                 </Border>
-                <Image Grid.Column="1" Source="bell_icon.png" HeightRequest="24" WidthRequest="24" VerticalOptions="Center" HorizontalOptions="End"/>
+
+                <ImageButton 
+                    Grid.Column="1" 
+                    Source="bell_icon.png" 
+                    HeightRequest="24" 
+                    WidthRequest="24" 
+                    VerticalOptions="Center" 
+                    HorizontalOptions="End"/>
             </Grid>
 
-            <Grid Grid.Row="1" Padding="15,0">
-                <dxcv:DXCollectionView ItemsSource="{Binding CommodityTypesList}" SelectedItem="{Binding SelectedCommodityType, Mode=TwoWay}" SelectionMode="Single" Orientation="Horizontal" HeightRequest="50">
+            <!-- 2. CATEGORY TABS -->
+            <Grid 
+                Grid.Row="1" 
+                Padding="0,0,0,10">
+
+                <dxcv:DXCollectionView 
+                    ItemsSource="{Binding CommodityTypesList}" 
+                    SelectedItem="{Binding SelectedCommodityType, Mode=TwoWay}" 
+                    SelectionMode="Single" 
+                    Orientation="Horizontal" 
+                    HeightRequest="40">
+
                     <dxcv:DXCollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid VerticalOptions="Fill" Margin="0,0,20,0" Padding="0,5">
-                                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
-                                    <Label x:Name="commodityTypeLabel" Text="{Binding .}" FontFamily="RobotoSerifBold" VerticalTextAlignment="Center"
-                           TextColor="{StaticResource Black}" HorizontalOptions="Center"/>
+                            <Grid 
+                                VerticalOptions="Fill" 
+                                Margin="0,0,25,0" 
+                                Padding="0,5">
 
-                                    <BoxView x:Name="underline" HeightRequest="3" BackgroundColor="{StaticResource PrimaryBase}" HorizontalOptions="Fill" IsVisible="False"/>
+                                <VerticalStackLayout 
+                                    VerticalOptions="Center" 
+                                    Spacing="5">
+
+                                    <Label 
+                                        x:Name="commodityTypeLabel" 
+                                        Text="{Binding .}" 
+                                        FontFamily="RobotoSerifBold" 
+                                        FontSize="14" 
+                                        VerticalTextAlignment="Center" 
+                                        TextColor="#CCCCCC" 
+                                        HorizontalOptions="Center"/>
+
+                                    <BoxView 
+                                        x:Name="underline" 
+                                        HeightRequest="2" 
+                                        BackgroundColor="White" 
+                                        HorizontalOptions="Fill" 
+                                        IsVisible="False"/>
                                 </VerticalStackLayout>
 
                                 <VisualStateManager.VisualStateGroups>
@@ -53,7 +104,7 @@
                                         <VisualState Name="Normal"/>
                                         <VisualState Name="Selected">
                                             <VisualState.Setters>
-                                                <Setter TargetName="commodityTypeLabel" Property="Label.TextColor" Value="{StaticResource PrimaryBase}"/>
+                                                <Setter TargetName="commodityTypeLabel" Property="Label.TextColor" Value="White"/>
                                                 <Setter TargetName="underline" Property="BoxView.IsVisible" Value="True"/>
                                             </VisualState.Setters>
                                         </VisualState>
@@ -63,212 +114,367 @@
                         </DataTemplate>
                     </dxcv:DXCollectionView.ItemTemplate>
                 </dxcv:DXCollectionView>
-                <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource PriceBoxBorder}" VerticalOptions="End"/>
+
+                <BoxView 
+                    Grid.Row="1" 
+                    HeightRequest="1" 
+                    Color="#333333" 
+                    VerticalOptions="End" 
+                    Margin="-15,0,-15,0"/>
             </Grid>
 
-            <Grid Grid.Row="2" ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="15,10" ColumnSpacing="10">
+            <!-- 3. BID / OFFER TOGGLE -->
+            <HorizontalStackLayout 
+                Grid.Row="2" 
+                HorizontalOptions="End" 
+                Spacing="10" 
+                Margin="0,15,0,20">
+                
+                
+                
 
-                <BoxView Grid.Column="0" WidthRequest="40" BackgroundColor="White"/>
-                <Label Grid.Column="1" Text="Commodities" FontFamily="RobotoSerifBold" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Start"/>
-                <Label Grid.Column="2" Text="BEST BID &#10; (FCFA)" FontFamily="RobotoSerifBold" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
-                <Label Grid.Column="3" Text="BEST OFFER  (FCFA)" FontFamily="RobotoSerifBold" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
-            </Grid>
-
-            <Grid Grid.Row="3" Padding="15,0">
-                <dxcv:DXCollectionView ItemsSource="{Binding MarketItems}" SelectionMode="None">
-                    <dxcv:DXCollectionView.IsVisible>
-                        <MultiBinding Converter="{StaticResource AllTrueToVisibleConverter}">
-                            <Binding Path="IsLoading" Converter="{StaticResource InvertedBoolConverter}"/>
-                            <Binding Path="IsListEmpty" Converter="{StaticResource InvertedBoolConverter}"/>
-                        </MultiBinding>
-                    </dxcv:DXCollectionView.IsVisible>
+                <Label Text="">
                     
-                    <dxcv:DXCollectionView.ItemTemplate>
+                    
+                </Label>
+
+                <!-- Bid Button -->
+                <Border 
+                    Stroke="White" 
+                    StrokeThickness="1" 
+                    BackgroundColor="Transparent" 
+                    StrokeShape="RoundRectangle 8" 
+                    Padding="20,5">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding SetSideCommand}" 
+                            CommandParameter="Bid"/>
+                    </Border.GestureRecognizers>
+
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsBidHighlighted}" Value="True">
+                            <Setter Property="BackgroundColor" Value="White" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    
+
+                    <Label 
+                        Text="Bid" 
+                        TextColor="White" 
+                        FontFamily="RobotoSerifBold" 
+                        FontSize="14" 
+                        HorizontalOptions="Center">
+
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsBidHighlighted}" Value="True">
+                                <Setter Property="TextColor" Value="Black" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    
+                    
+                </Border>
+
+                <!-- Offer Button -->
+                <Border 
+                    Stroke="White" 
+                    StrokeThickness="1" 
+                    BackgroundColor="Transparent" 
+                    StrokeShape="RoundRectangle 8" 
+                    Padding="20,5">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding SetSideCommand}" 
+                            CommandParameter="Offer"/>
+                    </Border.GestureRecognizers>
+
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsOfferHighlighted}" Value="True">
+                            <Setter Property="BackgroundColor" Value="White" />
+                        </DataTrigger>
+                    </Border.Triggers>
+
+                    <Label 
+                        Text="Offer" 
+                        TextColor="White" 
+                        FontFamily="RobotoSerifBold" 
+                        FontSize="14" 
+                        HorizontalOptions="Center">
+
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsOfferHighlighted}" Value="True">
+                                <Setter Property="TextColor" Value="Black" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+            </HorizontalStackLayout>
+
+            <Grid Grid.Row="3" ColumnDefinitions="160, 100, *" Padding="10, 5" Margin="0, 5" >
+                <Label Grid.Column="0"
+                       Text="Commodities"
+                       FontSize="16"
+                       FontFamily="RobotoSerifBold"
+                       HorizontalTextAlignment="Start"
+                       HorizontalOptions="Start"
+                       VerticalTextAlignment="Center"
+                       TextColor="White"
+                       FontAttributes="Bold"/>
+
+                <Label Grid.Column="1"
+                       Text="Best Price"
+                       FontSize="16"
+                       FontFamily="RobotoSerifBold"
+                       HorizontalTextAlignment="Center"
+                       HorizontalOptions="Center"
+                       TextColor="White"
+                       FontAttributes="Bold"/>
+
+                <Label Grid.Column="2"
+                       Text="Variation (24H)"
+                       FontSize="16"
+                       VerticalTextAlignment="Center"
+                       FontFamily="RobotoSerifBold"
+                       TextColor="White"
+                       HorizontalTextAlignment="Start"
+                       HorizontalOptions="Start"
+                       FontAttributes="Bold"/>
+            </Grid>
+            
+            <!-- 4. COMMODITY LIST CARDS -->
+            <Grid 
+                Grid.Row="4" 
+                Padding="0,0">
+
+                <CollectionView 
+                    ItemsSource="{Binding MarketItems}" 
+                    SelectionMode="None" 
+                    IsVisible="{Binding IsListEmpty, Converter={StaticResource InvertedBoolConverter}}">
+
+                    <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10">
+                            <Border 
+                                Stroke="White" 
+                                StrokeThickness="1" 
+                                BackgroundColor="#1A1A1A" 
+                                StrokeShape="RoundRectangle 10"
+                                Margin="0,0,0,15"
+                                Padding="15,10">
 
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToMarketInsightCommand}"
-                                    CommandParameter="{Binding Filter}"/>
-                                </Grid.GestureRecognizers>
+                                <Grid 
+                                    ColumnDefinitions="160, 100, *" 
+                                    ColumnSpacing="15" 
+                                    VerticalOptions="Center">
 
-                                <Border Grid.Column="0" StrokeShape="Ellipse"
-                                        HeightRequest="40"
-                                        WidthRequest="40"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        StrokeThickness="0">
-                                    <Image Source="{Binding ImageSource}" Aspect="AspectFill">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}},Path=OpenImagePreviewCommand}"
+                                    <!-- 1. MAIN CARD GESTURE (Goes to Market insight) -->
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding BindingContext.NavigateToMarketDetailCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                             CommandParameter="{Binding .}"/>
-                                        </Image.GestureRecognizers>
-                                    </Image>
-                                </Border>
+                                    </Grid.GestureRecognizers>
 
-                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                    <Label Text="{Binding Filter.Name}" FontFamily="RobotoSerifMedium" FontSize="14" TextColor="Black"/>
-                                    <Label Text="{Binding LotSizeDisplay}" TextColor="Gray" FontSize="12"/>
-                                </VerticalStackLayout>
+                                    <!-- Commodity section -->
+                                    <HorizontalStackLayout
+                                        Grid.Column="0"
+                                        Spacing="10"
+                                        VerticalOptions="Center">
+                                        
+                                        <!--commodity image-->
+                                        <Border
+                                            HeightRequest="50"
+                                            WidthRequest="50"
+                                            StrokeShape="RoundRectangle 25"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{StaticResource Background}">
 
-                                <Button Grid.Column="2" 
-                                        Text="{Binding BestBid}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsBidUp}" 
-                                        BackgroundColor="#369F79"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                
-                                <Button Grid.Column="2" 
-                                        Text="{Binding BestBid}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsBidDown}" 
-                                        BackgroundColor="#E84235"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                
-                                <Button Grid.Column="2" 
-                                        BorderWidth="3" 
-                                        BorderColor="{StaticResource PrimaryBase}" 
-                                        BackgroundColor="White" 
-                                        Text="{Binding BestBid}" 
-                                        TextColor="{StaticResource PrimaryBase}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsBidNull}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                            <Image
+                                                Source="{Binding ImageSource}"
+                                                Aspect="AspectFill">
 
-                                <Button Grid.Column="3" 
-                                        Text="{Binding BestOffer}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsOfferUp}" 
-                                        BackgroundColor="#369F79"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                                <Image.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding BindingContext.OpenImagePreviewCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </Image.GestureRecognizers>
+                                            </Image>
+                                        </Border>
+                                        
+                                        <!-- Name and Lot Size -->
+                                        <VerticalStackLayout
+                                            VerticalOptions="Center"
+                                            Spacing="2">
 
-                                <Button Grid.Column="3" 
-                                        Text="{Binding BestOffer}" 
-                                        FontSize="12"
-                                        FontFamily="RobotoSerifRegular"
-                                        IsVisible="{Binding IsOfferDown}" 
-                                        BackgroundColor="#E84235"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
+                                            <Label
+                                                Text="{Binding Name}"
+                                                TextColor="White"
+                                                FontFamily="RobotoSerifMedium"
+                                                FontSize="14"/>
 
-                                <Button Grid.Column="3" 
-                                        BorderWidth="3" 
-                                        BorderColor="{StaticResource PrimaryBase}" 
-                                        BackgroundColor="White" 
-                                        Text="{Binding BestOffer}" 
-                                        TextColor="{StaticResource PrimaryBase}" 
-                                        FontSize="12" 
-                                        FontFamily="RobotoSerifRegular" 
-                                        IsVisible="{Binding IsOfferNull}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                        CommandParameter="{Binding .}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </dxcv:DXCollectionView.ItemTemplate>
-                </dxcv:DXCollectionView>
+                                            <Label
+                                                Text="{Binding LotSizeDisplay}"
+                                                TextColor="#CCCCCC"
+                                                FontFamily="RobotoSerifRegilar"
+                                                FontSize="12"/>
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
 
-                <VerticalStackLayout IsVisible="{Binding IsLoading}" Spacing="5" VerticalOptions="Start">
-                    <VerticalStackLayout>
-                        <BindableLayout.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>1</x:String>
-                                <x:String>2</x:String>
-                                <x:String>3</x:String>
-                                <x:String>4</x:String>
-                                <x:String>5</x:String>
-                                <x:String>6</x:String>
-                                <x:String>7</x:String>
-                                <x:String>8</x:String>
-                                <x:String>9</x:String>
-                                <x:String>10</x:String>
-                            </x:Array>
-                        </BindableLayout.ItemsSource>
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="Auto, 2*, 1.5*, 1.5*" Padding="0,10" ColumnSpacing="10" Opacity="0.5">
-                                    <BoxView Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="#E0E0E0"/>
-                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
-                                        <BoxView WidthRequest="100" HeightRequest="12" CornerRadius="4" BackgroundColor="#E0E0E0" HorizontalOptions="Start"/>
-                                        <BoxView WidthRequest="60" HeightRequest="10" CornerRadius="4" BackgroundColor="#F0F0F0" HorizontalOptions="Start"/>
-                                    </VerticalStackLayout>
-                                    <BoxView Grid.Column="2" HeightRequest="35" CornerRadius="8" BackgroundColor="#E0E0E0"/>
-                                    <BoxView Grid.Column="3" HeightRequest="35" CornerRadius="8" BackgroundColor="#E0E0E0"/>
+                                     
+                                    <!-- 2. Pricee value -->
+                                    <Label 
+                                        Grid.Column="1"
+                                        Text="{Binding DisplayPrice}" 
+                                        TextColor="White"
+                                        FontAttributes="Bold" 
+                                        FontSize="18"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Center"
+                                        HorizontalTextAlignment="Center"/>
+
+
+
+                                    <!-- Difference Badge -->
+                                    <Border 
+                                        Grid.Column="2" 
+                                        HeightRequest="30"
+                                        WidthRequest="40"
+                                        StrokeThickness="0" 
+                                        StrokeShape="RoundRectangle 5" 
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Center"
+                                        BackgroundColor="#F44336">
+
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsPositiveTrend}" Value="True">
+                                                <Setter Property="BackgroundColor"  Value="#4CAF50" />
+                                            </DataTrigger>
+
+                                            <!-- so if there's no bid and no offere the color will br grey -->
+                                            <DataTrigger TargetType="Border" Binding="{Binding FormattedDifference}"  Value="-">
+                                                <Setter Property="BackgroundColor" Value="#888888"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+
+                                        <Label 
+                                            Text="{Binding FormattedDifference}" 
+                                            TextColor="White" 
+                                            FontFamily="RobotoSerifMedium" 
+                                            FontSize="12" 
+                                            HorizontalOptions="Center" 
+                                            VerticalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            VerticalTextAlignment="Center"/>
+                                    </Border>
+
                                 </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
-                    <VerticalStackLayout.IsVisible>
-                        <MultiBinding Converter="{StaticResource AllTrueToVisibleConverter}">
-                            <Binding Path="Isloading" Converter="{StaticResource InvertedBoolConverter}"/>
-                            <Binding Path="IsListEmpty" Converter="{StaticResource InvertedBoolConverter}"/>
-                        </MultiBinding>
-                    </VerticalStackLayout.IsVisible>
-                    <Image Source="no_result_icon.png" HeightRequest="80" Opacity="0.5"/>
-                    <Label Text="No commodities found" FontSize="16" FontFamily="RobotoSerifMedium" HorizontalOptions="Center"/>
-                    <Label Text="Try adjusting your search or commodity type" FontSize="13" FontFamily="RobotoSerifRegular" HorizontalOptions="Center"/>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- EMPTY STATE -->
+                <VerticalStackLayout 
+                    IsVisible="{Binding IsListEmpty}" 
+                    VerticalOptions="Center" 
+                    HorizontalOptions="Center" 
+                    Spacing="10">
+
+                    <Image 
+                        Source="no_result_icon.png" 
+                        HeightRequest="80" 
+                        Opacity="0.3"/>
+
+                    <Label 
+                        Text="No commodities found" 
+                        FontSize="16" 
+                        FontFamily="RobotoSerifMedium" 
+                        TextColor="White" 
+                        HorizontalOptions="Center"/>
+
+                    <Label 
+                        Text="Try adjusting your search or commodity type" 
+                        FontSize="13" 
+                        FontFamily="RobotoSerifRegular" 
+                        TextColor="#888888" 
+                        HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Grid>
         </Grid>
-        <Grid IsVisible="{Binding IsImagePreviewVisible}"
-              BackgroundColor="#80000000"
-              ZIndex="100"
-              InputTransparent="False">
+
+        <!-- 5. IMAGE PREVIEW OVERLAY -->
+        <Grid 
+            IsVisible="{Binding IsImagePreviewVisible}"
+            BackgroundColor="#CC000000"
+            ZIndex="100"
+            InputTransparent="False">
+
             <Grid.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding CloseImagePreviewCommand}"/>
+                <TapGestureRecognizer 
+                    Command="{Binding CloseImagePreviewCommand}"/>
             </Grid.GestureRecognizers>
 
-            <Border StrokeShape="RoundRectangle 20"
-                    Padding="0"
-                    StrokeThickness="1"
-                    Stroke="Gray"
-                    BackgroundColor="White"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    Margin="30">
+            <Border 
+                StrokeShape="RoundRectangle 20"
+                Padding="0"
+                StrokeThickness="1"
+                Stroke="#333333"
+                BackgroundColor="#1E1E1E"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Margin="30">
 
                 <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0, 10" Radius="20" Opacity="0.6" />
+                    <Shadow 
+                        Brush="Black" 
+                        Offset="0, 10" 
+                        Radius="20" 
+                        Opacity="0.8" />
                 </Border.Shadow>
 
-                <VerticalStackLayout Spacing="0">
-                    <Grid ColumnDefinitions="*, Auto"
-                          Padding="15, 10">
-                        <Label Text="{Binding SelectedCommodityTypeName}"
-                               FontSize="15"
-                               FontFamily="RobotoSerifBold"
-                               TextColor="{StaticResource TextPrimary}"
-                               VerticalOptions="Center"/>
+                <VerticalStackLayout 
+                    Spacing="0">
 
-                        <Button Grid.Column="1"
-                                Text="✕"
-                                FontSize="20"
-                                FontAttributes="Bold"
-                                TextColor="White"
-                                BackgroundColor="{StaticResource PrimaryBase}"
-                                CornerRadius="15"
-                                HeightRequest="30"
-                                WidthRequest="30"
-                                Padding="0"
-                                Command="{Binding CloseImagePreviewCommand}"/>
+                    <Grid 
+                        ColumnDefinitions="*, Auto" 
+                        Padding="15, 10">
+
+                        <Label 
+                            Text="{Binding SelectedCommodityTypeName}"
+                            FontSize="15"
+                            FontFamily="RobotoSerifBold"
+                            TextColor="White"
+                            VerticalOptions="Center"/>
+
+                        <Button 
+                            Grid.Column="1"
+                            Text="✕"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            BackgroundColor="#444444"
+                            CornerRadius="15"
+                            HeightRequest="30"
+                            WidthRequest="30"
+                            Padding="0"
+                            Command="{Binding CloseImagePreviewCommand}"/>
                     </Grid>
-                    <BoxView HeightRequest="1" Color="Gray" />
-                    <Image Source="{Binding PreviewImage}"
-                           Aspect="AspectFit"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
-                    <BoxView HeightRequest="1" Color="#EEEEEE" />
+
+                    <BoxView 
+                        HeightRequest="1" 
+                        Color="#333333" />
+
+                    <Image 
+                        Source="{Binding PreviewImage}"
+                        Aspect="AspectFit"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" 
+                        Margin="20"/>
+
+                    <BoxView 
+                        HeightRequest="1" 
+                        Color="#333333" />
+
                 </VerticalStackLayout>
             </Border>
         </Grid>

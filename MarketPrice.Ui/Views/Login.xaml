@@ -6,34 +6,46 @@
              xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Login"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{StaticResource Background}"
+             BackgroundColor="White"
              Title="Login">
 
-    <Grid RowDefinitions="Auto, *">
-        <BoxView Grid.RowSpan ="2" VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
-        <VerticalStackLayout Grid.Row="0" >
-            <Image Source="marketprice_logo.svg"
-                   HeightRequest="100" 
-                   Aspect="AspectFit"
-                   HorizontalOptions="Center"
-                   Margin="0, 30, 0, 0"/>
-        </VerticalStackLayout>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="dxe:TextEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
 
-        <VerticalStackLayout Grid.Row="1" Spacing="0" VerticalOptions="Center" Margin="0,-120,0,0">
+            <Style TargetType="dxe:PasswordEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+    <Grid>
+        <BoxView VerticalOptions="End" HeightRequest="400" Color="{StaticResource Background}"/>
+        <VerticalStackLayout Spacing="0" VerticalOptions="Center" Margin="0,0,0,40">
+            <Image Source="Smile.png"
+                   HeightRequest="130" 
+                   Margin="0, 40, 0, 20"/>
 
             <Label Text="Login"
                    FontSize="38"
                    FontFamily="RobotoSerifBold" 
-                   TextColor="{StaticResource PrimaryBase}"
+                   TextColor="{StaticResource Background}"
                    HorizontalOptions="Center" 
-                   Margin="0, 70, 0,30"/>
+                   Margin="0, 0, 0,30"/>
 
             <dxc:DXBorder BackgroundColor="{StaticResource Background}"
                           CornerRadius="40" 
                           Padding="30" 
-                          Margin="30,0" >
+                          Margin="30,0" 
+                          BorderColor="White"
+                          BorderThickness="0.5">
                 <dxc:DXBorder.Shadow>
-                    <Shadow Brush="Black"
+                    <Shadow Brush="#121212"
                             Offset="0,10"
                             Radius="20"
                             Opacity="0.8"/>
@@ -44,32 +56,32 @@
                            FontSize="24"
                            FontFamily="RobotoSerifBold"
                            HorizontalOptions="Center"
+                           TextColor="White"
                            Margin="0,0,0,10"/>
 
                     <dxe:TextEdit
-                        LabelText="Email Address"
+                        PlaceholderText="Email Address"
                         Keyboard="Email" 
                         CornerRadius="12" 
-                        BoxMode="Outlined"
                         HeightRequest="60" 
                         Text="{Binding LoginInfo.EmailAddress, Mode=TwoWay}"
                         TextFontFamily="RobotoSerifRegular"/>
-            
+
                     <dxe:PasswordEdit 
-                        LabelText="Password"
+                        PlaceholderText="Password"
                         CornerRadius="12" 
-                        BoxMode="Outlined"
                         HeightRequest="60"
                         Text="{Binding LoginInfo.Password, Mode=TwoWay}"
                         TextFontFamily="RobotoSerifRegular"/>
 
-                    <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight"/>
+                    <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight" TextColor="White"/>
 
                     <dxe:CheckEdit Label="Remember me?"
                                    LabelFontFamily="RobotoSerifMedium"
                                    IsChecked="{Binding LoginInfo.RememberMe, Mode=TwoWay}"
-                                   CheckBoxColor="{StaticResource TextSecondary}"
-                                   CheckedCheckBoxColor="{StaticResource PrimaryBase}"/>
+                                   CheckBoxColor="White"
+                                   CheckedCheckBoxColor="White"
+                                  LabelColor="White"/>
 
                     <dxc:DXButton Content="Login"
                                   BackgroundColor= "{StaticResource PrimaryBase }"
@@ -85,11 +97,11 @@
                             <FormattedString>
                                 <Span 
                                     Text="Don't have an account? " 
-                                    TextColor="{StaticResource TextPrimary}" 
+                                    TextColor="White" 
                                     FontFamily="RobotoSerifMedium" />
                                 <Span 
                                     Text="Register" 
-                                    TextColor="{StaticResource PrimaryBase}" 
+                                    TextColor="{StaticResource PrimaryAccent}" 
                                     FontFamily="RobotoSerifBold">
                                     <Span.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
@@ -102,4 +114,5 @@
             </dxc:DXBorder>
         </VerticalStackLayout>
     </Grid>
+    </ScrollView>
 </ContentPage>

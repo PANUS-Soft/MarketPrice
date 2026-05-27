@@ -3,197 +3,295 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
+             xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              x:Class="MarketPrice.Ui.Views.PositionListing"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="#F5F5F5">
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource Background}">
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
-        <Style x:Key="SeparatorStyle" TargetType="BoxView">
-            <Setter Property="HeightRequest" Value="1" />
-            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryBase}" />
-            <Setter Property="HorizontalOptions" Value="Fill" />
-            <Setter Property="Margin" Value="0,10" />
-        </Style>
     </ContentPage.Resources>
-    <Grid RowDefinitions="Auto, *">
 
-        <Grid Grid.Row="0" RowDefinitions="*, *" Padding="15,10" ColumnSpacing="10" BackgroundColor="White">
-            <Grid Grid.Row="0"
-                  Padding="5,5"
-                  ColumnSpacing="-35"
-                  ColumnDefinitions="0.1*, *">
-                <ImageButton Grid.Column="0" 
-                             Source="back.png" 
-                             HeightRequest="15"
-                             BorderColor="Black"
-                             Command="{Binding GoBackCommand}"
-                             VerticalOptions="Center"/>
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto" Padding="15,15,15,0" BackgroundColor="#121212">
 
-                <Label Text="{Binding CommodityTypeName}"
-                       Grid.Column="1"
-                       FontSize="35"
-                       HorizontalTextAlignment="Center"
-                       HorizontalOptions="Center"
-                       FontFamily="RobotoSerifSemibold"
-                       TextColor="Black"/>
-                <!--<Border Grid.Column="1" StrokeShape="RoundRectangle 15" Stroke="{StaticResource PrimaryBase}" StrokeThickness="3" BackgroundColor="White">
-                    <SearchBar Placeholder="Search" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" BackgroundColor="Transparent" CancelButtonColor="{StaticResource PrimaryBase}" VerticalOptions="Center"/>
-                </Border>-->
-            </Grid>
-            <Grid Grid.Row="1">
-                <VerticalStackLayout Spacing="15">
+        <Grid Grid.Row="0" 
+              Margin="0,0,0,25" 
+              VerticalOptions="Center">
 
-
-
-                    <CollectionView ItemsSource="{Binding CommodityFilters}" 
-                                HeightRequest="60"
-                                SelectionMode="None"
-                                HorizontalScrollBarVisibility="Default"
-                                BackgroundColor="White">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" SnapPointsType="MandatorySingle" SnapPointsAlignment="Center"/>
-                        </CollectionView.ItemsLayout>
-
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Stroke="{Binding BorderColor}" 
-                                        StrokeThickness="1" 
-                                        StrokeShape="RoundRectangle 20"
-                                        BackgroundColor="{Binding BackgroundColor}"
-                                        Padding="20,8"
-                                        VerticalOptions="Center"
-                                        Margin="5,0">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=SelectFilterCommand}"
-                                                              CommandParameter="{Binding .}"/>
-                                    </Border.GestureRecognizers>
-
-                                    <Label Text="{Binding Title}" 
-                                       TextColor="{Binding TextColor}"
-                                       FontFamily="RobotoSerifBold"
-                                       FontSize="14"/>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                    <VerticalStackLayout Padding="5,20,20,10" Spacing="15">
-                        <Label Text="{Binding PositionTypeName}" 
-                           FontSize="16" 
-                           FontFamily="RobotoSerifBold"
-                           FontAttributes="Bold" 
-                           TextColor="Black" 
-                           HorizontalOptions="Center"/>
-                        <Label HorizontalOptions="Start"
-                               TextColor="Black">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span Text="Unit Price: "
-                                          FontSize="15"
-                                          FontFamily="RobotoSerifBold"/>
-                                    <Span Text="{Binding PriceDisplay}"
-                                          FontSize="15"
-                                          FontFamily="RobotoSerifRegular"/>
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Grid>
-
+            <ImageButton Source="back.png" 
+                         HeightRequest="24" 
+                         WidthRequest="24"
+                         HorizontalOptions="Start" 
+                         VerticalOptions="Center"
+                         Command="{Binding GoBackCommand}"/>
         </Grid>
 
-        <Grid Grid.Row="1" Padding="0,10,0,20" BackgroundColor="White">
-            <CollectionView ItemsSource="{Binding Positions}" 
-                            SelectionMode="None">
+        <Grid Grid.Row="1" 
+              ColumnDefinitions="70, *, Auto, Auto" 
+              ColumnSpacing="5" 
+              Margin="0,0,0,30">
+
+            <Border Grid.Column="0" 
+                    HeightRequest="65" 
+                    WidthRequest="65" 
+                    StrokeShape="RoundRectangle 32" 
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
+                <Image Source="{Binding CommodityImage}" 
+                       Aspect="AspectFill"/>
+            </Border>
+
+            <VerticalStackLayout Grid.Column="1" 
+                                 VerticalOptions="Center" 
+                                 Spacing="1">
+                <Label Text="{Binding CommodityTypeName}" 
+                       FontFamily="RobotoSerifBold" 
+                       FontSize="12" 
+                       TextColor="White"
+                       LineBreakMode="NoWrap"
+                       MaxLines="1"/>
+
+                <Label Text="{Binding LotSize, StringFormat='Lot size: {0}'}" 
+                       FontFamily="RobotoSerifRegular" 
+                       FontSize="11" 
+                       TextColor="#CCCCCC"
+                       LineBreakMode="NoWrap"
+                       MaxLines="1"/>
+
+                <Label Text="{Binding ShelfLife, StringFormat='Shelf life: {0}'}" 
+                       FontFamily="RobotoSerifRegular" 
+                       FontSize="11" 
+                       TextColor="#CCCCCC"
+                       LineBreakMode="NoWrap"
+                       MaxLines="1"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+                <Label Text="Bid" FontFamily="RobotoSerifBold" FontSize="11" TextColor="White" HorizontalOptions="Center"/>
+
+                <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                    <Label Text="&lt;" TextColor="White" FontSize="16" FontFamily="RobotoSerifBold" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PreviousPriceCommand}" CommandParameter="Bid"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Border Stroke="White" StrokeThickness="1" BackgroundColor="Transparent" StrokeShape="RoundRectangle 5" Padding="10,5">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectPriceCommand}" CommandParameter="Bid"/>
+                        </Border.GestureRecognizers>
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsBidHighlighted}" Value="True">
+                                <Setter Property="StrokeThickness" Value="2" />
+                                <Setter Property="BackgroundColor" Value="#333333" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding BidPrice}" TextColor="White" FontSize="12" FontFamily="RobotoSerifRegular" HorizontalOptions="Center"/>
+                    </Border>
+
+                    <Label Text="&gt;" TextColor="White" FontSize="16" FontFamily="RobotoSerifBold" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NextPriceCommand}" CommandParameter="Bid"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <Label Text="{Binding BidCount}" TextColor="#CCCCCC" FontSize="10" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Column="3" VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+                <Label Text="Offer" FontFamily="RobotoSerifBold" FontSize="11" TextColor="White" HorizontalOptions="Center"/>
+
+                <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                    <Label Text="&lt;" TextColor="White" FontSize="16" FontFamily="RobotoSerifBold" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PreviousPriceCommand}" CommandParameter="Offer"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Border Stroke="White" StrokeThickness="1" BackgroundColor="Transparent" StrokeShape="RoundRectangle 5" Padding="10,5">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectPriceCommand}" CommandParameter="Offer"/>
+                        </Border.GestureRecognizers>
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsOfferHighlighted}" Value="True">
+                                <Setter Property="StrokeThickness" Value="2" />
+                                <Setter Property="BackgroundColor" Value="#333333" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding OfferPrice}" TextColor="White" FontSize="12" FontFamily="RobotoSerifRegular" HorizontalOptions="Center"/>
+                    </Border>
+
+                    <Label Text="&gt;" TextColor="White" FontSize="16" FontFamily="RobotoSerifBold" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NextPriceCommand}" CommandParameter="Offer"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <Label Text="{Binding OfferCount}" TextColor="#CCCCCC" FontSize="10" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <Grid Grid.Row="2" 
+              ColumnDefinitions="*, 130" 
+              Padding="0,0,0,15"
+              VerticalOptions="End">
+
+            <Label Grid.Column="0" 
+                   Text="Position" 
+                   FontFamily="RobotoSerifBold" 
+                   FontSize="18" 
+                   TextColor="White"
+                   VerticalOptions="Center"/>
+
+            <dxe:ComboBoxEdit Grid.Column="1"
+                              ItemsSource="{Binding Locations}"
+                              DisplayMember="NameInEnglish" 
+                              SelectedItem="{Binding SelectedLocation}"
+                              BoxMode="Outlined"
+                              BackgroundColor="Transparent"
+                              TextColor="White"
+                              BorderColor="White"
+                              IconColor="White"
+                              FocusedBorderColor="White"
+                              CornerRadius="5"
+                              HeightRequest="38"
+                              VerticalOptions="Center"/>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="3" Padding="0,5,0,0" Spacing="10" IsVisible="{Binding IsBusy}">
+            <Border Stroke="White" StrokeThickness="0.5" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8" Padding="15,10">
+                <Grid ColumnDefinitions="50, *" ColumnSpacing="15" VerticalOptions="Center">
+                    <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" StrokeShape="RoundRectangle 25" BackgroundColor="#222222" StrokeThickness="0"/>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="8">
+                        <BoxView HeightRequest="12" WidthRequest="100" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
+                        <BoxView HeightRequest="12" WidthRequest="180" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border Stroke="White" StrokeThickness="0.5" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8" Padding="15,10">
+                <Grid ColumnDefinitions="50, *" ColumnSpacing="15" VerticalOptions="Center">
+                    <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" StrokeShape="RoundRectangle 25" BackgroundColor="#222222" StrokeThickness="0"/>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="8">
+                        <BoxView HeightRequest="12" WidthRequest="100" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
+                        <BoxView HeightRequest="12" WidthRequest="180" Color="#222222" CornerRadius="4" HorizontalOptions="Start"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="3" Padding="0,5,0,0">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsBusy}" Value="True">
+                    <Setter Property="IsVisible" Value="False"/>
+                </DataTrigger>
+            </Grid.Triggers>
+
+            <CollectionView ItemsSource="{Binding Positions}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="20,0,20,15">
-                            <Border Stroke="{StaticResource PrimaryBase}" 
-                                    StrokeThickness="3" 
-                                    StrokeShape="RoundRectangle 15" 
-                                    Padding="15"
-                                    BackgroundColor="White">
+                        <Border Stroke="White" 
+                                StrokeThickness="0.5" 
+                                BackgroundColor="Transparent" 
+                                StrokeShape="RoundRectangle 8"
+                                Margin="0,0,0,10"
+                                Padding="15,10">
 
-                                <Border.Shadow>
-                                    <Shadow Brush="{StaticResource PrimaryBase}" Opacity="0.3" Radius="25" />
-                                </Border.Shadow>
+                            <Grid ColumnDefinitions="50, *, Auto, Auto" ColumnSpacing="12" VerticalOptions="Center">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=GoToPositionDetailCommand}" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
 
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer 
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=GoToPositionDetailCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
+                                <Border Grid.Column="0" HeightRequest="50" WidthRequest="50" Stroke="White" StrokeThickness="1" StrokeShape="RoundRectangle 25" BackgroundColor="#1E1E1E" VerticalOptions="Center">
+                                    <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}" TextColor="White" FontSize="18" FontFamily="RobotoSerifSemibold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
 
-                                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
-                                    <Border Grid.Column="0"
-                                            HeightRequest="60"
-                                            WidthRequest="60"
-                                            Stroke="{StaticResource PrimaryBase}"
-                                            StrokeThickness="3"
-                                            StrokeShape="RoundRectangle 30"
-                                            BackgroundColor="White"
-                                            VerticalOptions="Center"
-                                            HorizontalOptions="Center">
-                                        <Label Text="{Binding UserName, Converter={StaticResource NameToInitialsConverter}}" 
-                                               TextColor="#333" 
-                                               FontSize="23"
-                                               FontFamily="RobotoSerifSemibold"
-                                               HorizontalOptions="Center" 
-                                               VerticalOptions="Center"/>
-                                    </Border>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
 
-                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
-                                        <Label>
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="User Name : " FontAttributes="Bold" FontFamily="RobotoSerifMedium" TextColor="Black" FontSize="13"/>
-                                                    <Span Text="{Binding UserName}" FontFamily="RobotoSerifRegular" TextColor="#333" FontSize="13"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                        <Label>
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="Quantity : " FontAttributes="Bold" FontFamily="RobotoSerifMedium" TextColor="Black" FontSize="13"/>
-                                                    <Span Text="{Binding Quantity, StringFormat='{0:0.##}'}" FontFamily="RobotoSerifRegular" TextColor="#333" FontSize="13"/>
-                                                    <Span Text=" " TextColor="#333" FontSize="13"/>
-                                                    <Span Text="{Binding UnitOfMeasure}" FontFamily="RobotoSerifRegular" TextColor="#333" FontSize="13"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                        <Label>
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="Commodity : " FontAttributes="Bold" FontFamily="RobotoSerifMedium" TextColor="Black" FontSize="13"/>
-                                                    <Span Text="{Binding CommodityName}" FontFamily="RobotoSerifRegular" TextColor="#333" FontSize="13"/>
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
+                                   <!--<Label Text="{Binding UserName, StringFormat='User: {0}'}" FontFamily="RobotoSerifRegular" FontSize="14" TextColor="White"/>-->
+
+                                    <HorizontalStackLayout Spacing="4">
+                                        <Label Text="Origin:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                        <Label Text="{Binding OriginTown}" FontFamily="RobotoSerifBold" FontSize="13" TextColor="White"/>
+                                    </HorizontalStackLayout>
+
+                                    <VerticalStackLayout Spacing="3" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=IsBidHighlighted}">
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Quantity:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="{Binding Quantity, StringFormat='{0:0.##}'}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                            <Label Text="{Binding UnitOfMeasure}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                        </HorizontalStackLayout>
+
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Total Price:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="{Binding TotalPrice, StringFormat='{0:N0} FCFA'}" FontFamily="RobotoSerifBold" FontSize="13" TextColor="#4CAF50"/>
+                                        </HorizontalStackLayout>
                                     </VerticalStackLayout>
 
-                                    <Label Grid.Column="2" 
-                                           Text="›" 
-                                           FontSize="45" 
-                                           TextColor="Black" 
-                                           VerticalOptions="Center">
-                                        <Label.Shadow>
-                                            <Shadow Brush="Black" Opacity="0.3" Radius="5" />
-                                        </Label.Shadow>
+                                    <VerticalStackLayout Spacing="3" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type viewModels:PositionListingViewModel}}, Path=IsOfferHighlighted}">
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Stock:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="{Binding Quantity, StringFormat='{0:0.##}'}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                            <Label Text="{Binding UnitOfMeasure}" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="White"/>
+                                        </HorizontalStackLayout>
+
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="Deliverable:" FontFamily="RobotoSerifRegular" FontSize="13" TextColor="#CCCCCC"/>
+                                            <Label Text="No" FontFamily="RobotoSerifBold" FontSize="13" TextColor="#F44336">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsDeliverable}" Value="True">
+                                                        <Setter Property="Text" Value="Yes" />
+                                                        <Setter Property="TextColor" Value="#4CAF50" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="2" 
+                                        IsVisible="{Binding IsExpiringSoon}" 
+                                        Stroke="#FF9800" 
+                                        StrokeThickness="1" 
+                                        BackgroundColor="#33FF9800" 
+                                        StrokeShape="RoundRectangle 4" 
+                                        Padding="6,3" 
+                                        VerticalOptions="Center">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsCriticalExpiry}" Value="True">
+                                            <Setter Property="Stroke" Value="#F44336" />
+                                            <Setter Property="BackgroundColor" Value="#33F44336" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+
+                                    <Label Text="{Binding ExpiryText, TargetNullValue='Expiring...', FallbackValue='Expiring...'}" 
+                                           TextColor="#FF9800" 
+                                           FontSize="10" 
+                                           FontFamily="RobotoSerifBold">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsCriticalExpiry}" Value="True">
+                                                <Setter Property="TextColor" Value="#F44336" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
                                     </Label>
-                                </Grid>
-                            </Border>
-                        </Grid>
+                                </Border>
+
+                                <Label Grid.Column="3" Text="›" FontFamily="RobotoSerifBold" FontSize="30" TextColor="White" VerticalOptions="Center" HorizontalOptions="End"/>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <VerticalStackLayout IsVisible="{Binding IsListEmpty}" Margin="0,0,0,100" VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
-                <Image Source="no_result_icon.png" HeightRequest="150" Opacity="0.7"/>
-                <Label Text="Ooops" FontSize="15" FontFamily="RobotoSerifRegular" VerticalOptions="Center" HorizontalTextAlignment="Center" HorizontalOptions="Center" TextColor="#555"/>
-                <Label Text="No position(s) found at this price for this commodity" FontSize="13" FontFamily="RobotoSerifRegular" VerticalOptions="Center" HorizontalTextAlignment="Center" HorizontalOptions="Center" TextColor="#555"/>
+            <VerticalStackLayout IsVisible="{Binding IsListEmpty}" VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                <Image Source="no_result_icon.png" HeightRequest="100" Opacity="0.5"/>
+                <Label Text="No positions found" FontSize="15" FontFamily="RobotoSerifRegular" HorizontalOptions="Center" TextColor="white"/>
             </VerticalStackLayout>
         </Grid>
+
     </Grid>
 </ContentPage>

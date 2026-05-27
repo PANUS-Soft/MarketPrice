@@ -7,15 +7,26 @@
              x:Class="MarketPrice.Ui.Views.EditProfile"
              x:DataType="viewModels:EditProfileViewModel"
              Shell.TabBarIsVisible="False"
-             Title="Edit Profile">
+             NavigationPage.HasNavigationBar="False"
+             Title="Edit Profile"
+             BackgroundColor="{StaticResource Background}">
 
-    <Grid RowDefinitions="Auto, *, Auto" Padding="20" BackgroundColor="White">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="dxe:TextEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="20" BackgroundColor="Transparent">
 
         <Grid Grid.Row="0" Margin="0,0,0,20">
             <Label Text="Edit Profile" 
                    FontSize="20" 
                    FontFamily="RobotoSerifBold" 
-                   TextColor="Black" 
+                   TextColor="White" 
                    HorizontalOptions="Center"
                    VerticalOptions="Center"/>
 
@@ -31,9 +42,8 @@
             <VerticalStackLayout Spacing="15">
 
                 <Grid>
-                    <dxe:TextEdit LabelText="First Name"
+                    <dxe:TextEdit PlaceholderText="First Name"
                                   Text="{Binding FirstName}"
-                                  BoxMode="Outlined"
                                   CornerRadius="5"
                                   FocusedBorderColor="{StaticResource PrimaryBase}"
                                   TextFontFamily="RobotoSerifRegular"
@@ -48,9 +58,8 @@
                 </Grid>
 
                 <Grid>
-                    <dxe:TextEdit LabelText="Family Name"
+                    <dxe:TextEdit PlaceholderText="Family Name"
                                   Text="{Binding FamilyName}"
-                                  BoxMode="Outlined"
                                   CornerRadius="5"
                                   FocusedBorderColor="{StaticResource PrimaryBase}"
                                   TextFontFamily="RobotoSerifRegular"
@@ -62,9 +71,8 @@
                 </Grid>
 
                 <Grid>
-                    <dxe:TextEdit LabelText="Other Name"
+                    <dxe:TextEdit PlaceholderText="Other Name"
                                   Text="{Binding OtherName}"
-                                  BoxMode="Outlined"
                                   CornerRadius="5"
                                   FocusedBorderColor="{StaticResource PrimaryBase}"
                                   TextFontFamily="RobotoSerifRegular"
@@ -76,9 +84,8 @@
                 </Grid>
 
                 <Grid>
-                    <dxe:TextEdit LabelText="Email"
+                    <dxe:TextEdit PlaceholderText="Email"
                                   Text="{Binding EmailAddress}"
-                                  BoxMode="Outlined"
                                   CornerRadius="5"
                                   FocusedBorderColor="{StaticResource PrimaryBase}"
                                   TextFontFamily="RobotoSerifRegular"
@@ -91,7 +98,7 @@
                 </Grid>
 
                 <Grid>
-                    <dxe:TextEdit LabelText="Phone Number"
+                    <dxe:TextEdit PlaceholderText="Phone Number"
                                   Text="{Binding PhoneNumber}"
                                   BoxMode="Outlined"
                                   CornerRadius="5"

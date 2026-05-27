@@ -1,18 +1,15 @@
-﻿using CommunityToolkit.Maui.Converters;
+﻿using System.Collections.ObjectModel;
+using System.Net.Http.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MarketPrice.Ui.Common;
-using MarketPrice.Ui.Models;
-using MarketPrice.Ui.Views;
-using MarketPrice.Domain.Market.DTOs;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Net.Http.Json;
-using MarketPrice.Domain.Position.Commands;
+using Microsoft.Maui.Controls;
 using MarketPrice.Domain.Reference.DTOs;
+using MarketPrice.Domain.Market.DTOs;
 using MarketPrice.Ui.Services.Api;
-using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.Common;
 using Microsoft.Extensions.Options;
+using MarketPrice.Domain.Position.Commands;
+using MarketPrice.Ui.Models;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -22,20 +19,46 @@ namespace MarketPrice.Ui.ViewModels
         private readonly MarketApiService _marketApi;
         private readonly ApiSettings _apiSettingOptions;
 
-        public readonly List<MarketItem> _allMarketItems = new();
+        private readonly List<MarketItem> _allMarketItems = new();
+
         public ObservableCollection<string> CommodityTypesList { get; } = new();
+
         public ObservableCollection<MarketItem> MarketItems { get; } = new();
 
-        [ObservableProperty] private ImageSource previewImage;
-        [ObservableProperty] private bool isImagePreviewVisible;
-        [ObservableProperty] private string? selectedCommodityTypeName;
+        [ObservableProperty]
+        private string searchText = string.Empty;
 
-        [ObservableProperty] private string selectedCommodityType = "ALL";
-        [ObservableProperty] private string searchText = string.Empty;
-        [ObservableProperty] private bool isListEmpty;
-        [ObservableProperty] private bool isLoading;
+        [ObservableProperty]
+        private string selectedCommodityType = "ALL";
 
-        public MarketViewModel(ReferenceDataApiService referenceDataApi, MarketApiService marketApi, IOptions<ApiSettings> apiSettingOptions)
+        [ObservableProperty]
+        private bool isListEmpty;
+
+        [ObservableProperty]
+        private bool isLoading;
+
+        [ObservableProperty]
+        private bool isBidHighlighted = true;
+
+        [ObservableProperty]
+        private bool isOfferHighlighted = false;
+
+        [ObservableProperty]
+        private ImageSource previewImage;
+
+        [ObservableProperty]
+        private bool isImagePreviewVisible;
+
+        [ObservableProperty]
+        private string selectedCommodityTypeName = string.Empty;
+
+        [ObservableProperty]
+        private string selectedCommodityName;
+
+        public MarketViewModel(
+            ReferenceDataApiService referenceDataApi,
+            MarketApiService marketApi,
+            IOptions<ApiSettings> apiSettingOptions)
         {
             _referenceDataApi = referenceDataApi;
             _marketApi = marketApi;
@@ -44,17 +67,16 @@ namespace MarketPrice.Ui.ViewModels
             _ = InitializeAsync();
         }
 
-        public MarketViewModel()
-        {
-        }
+        public MarketViewModel() { }
 
         public async Task InitializeAsync()
         {
             IsLoading = true;
+
             try
             {
                 await LoadCommodityTypesAsync();
-                await LoadMarketAsync();
+                await LoadMarketDataAsync();
             }
             finally
             {
@@ -62,151 +84,239 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        [RelayCommand]
-        private void Search() => ApplyFilters();
-
         public async Task LoadCommodityTypesAsync()
         {
-            var commodityTypesResponse = await _referenceDataApi.GetCommodityTypesAsync();
+            var response = await _referenceDataApi.GetCommodityTypesAsync();
 
-            if (!commodityTypesResponse.IsSuccessStatusCode) return;
+            if (!response.IsSuccessStatusCode)
+                return;
 
-            var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
+            var types = await response.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
 
-            if (commodityTypes == null) return;
+            if (types == null)
+                return;
 
             CommodityTypesList.Clear();
+
             CommodityTypesList.Add("ALL");
 
-            foreach (var type in commodityTypes.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase)) CommodityTypesList.Add(type.Name!.ToUpper());
+            foreach (var t in types.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                CommodityTypesList.Add(t.Name!.ToUpper());
+            }
 
             SelectedCommodityType = "ALL";
         }
 
-        public async Task LoadMarketAsync()
+        [RelayCommand]
+        private async Task SetSideAsync(string side)
         {
-            var marketInsightResponse = await _marketApi.LoadMarketAsync();
+            if (IsLoading)
+                return;
 
-            if (!marketInsightResponse.IsSuccessStatusCode) return;
-            
-            var marketInsights = await marketInsightResponse.Content.ReadFromJsonAsync<List<MarketResponseDto>>();
-            
-            if (marketInsights == null) return;
-            
-            _allMarketItems.Clear();
+            if (side == "Bid" && IsBidHighlighted)
+                return;
 
-            foreach (var insight in marketInsights)
+            if (side == "Offer" && IsOfferHighlighted)
+                return;
+
+            IsBidHighlighted = side == "Bid";
+            IsOfferHighlighted = side == "Offer";
+
+            await LoadMarketDataAsync();
+        }
+
+        public async Task LoadMarketDataAsync()
+        {
+            IsLoading = true;
+
+            try
             {
-                _allMarketItems.Add(new MarketItem
+                int positionTypeId = IsBidHighlighted ? 6001 : 6002;
+
+                var response = await _marketApi.GetMarketOverviewAsync(positionTypeId);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    Filter = new MarketItemFilter
+                    MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        CommodityTypeId = insight.CommodityTypeId,
-                        CommodityId = insight.CommodityId,
-                        Name = insight.CommodityName!
-                    },
-                    ImageSource = ImageSource.FromUri(new Uri($"{_apiSettingOptions.BaseUrl}{insight.ImageUrl}")),
-                    BestBid = insight.BestBid != 0 ? insight.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Bids",
-                    LotSize = insight.LotSize,
-                    UnitOfMeasure = insight.UnitOfMeasure,
-                    LotSizeDisplay = $"{insight.LotSize} {insight.UnitOfMeasure}",
-                    BestOffer = insight.BestOffer != 0 ? insight.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")) : "No Offers",
-                    IsBidUp = insight.IsBidImproved,
-                    IsBidDown = !insight.IsBidImproved,
-                    IsBidNull = insight.BestBid == 0,
-                    IsOfferUp = insight.IsOfferImproved,
-                    IsOfferDown = !insight.IsOfferImproved,
-                    IsOfferNull = insight.BestOffer == 0
+                        IsListEmpty = true;
+                        MarketItems.Clear();
+                    });
+
+                    return;
+                }
+
+                var marketdata =
+                    await response.Content.ReadFromJsonAsync<List<MarketCommodityDto>>();
+
+                var tempItems = new List<MarketItem>();
+
+                if (marketdata != null)
+                {
+                    var sortedMarketData = marketdata
+                        .OrderBy(x => x.CommodityName, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    foreach (var item in sortedMarketData)
+                    {
+                        var imageUrl =
+                            !string.IsNullOrWhiteSpace(item.ImageUrl)
+                            ? $"{_apiSettingOptions.BaseUrl.TrimEnd('/')}/{item.ImageUrl.TrimStart('/')}"
+                            : null;
+
+                        tempItems.Add(new MarketItem
+                        {
+                            CommodityId = item.CommodityId,
+
+                            Name = item.CommodityName,
+
+                            LotSizeDisplay = item.LotSizeDisplay,
+
+                            ShelfLife = "---",
+
+                            CurrentPrice = item.CurrentPrice,
+
+                            FormattedDifference =
+                                item.CurrentPrice > 0
+                                ? item.FormattedDifference
+                                : "-",
+
+                            IsPositiveTrend = item.IsPositiveTrend,
+
+                            DisplayPrice =
+                                item.CurrentPrice > 0
+                                ? item.CurrentPrice.ToString("N0")
+                                : (IsBidHighlighted ? "No Bids" : "No Offers"),
+
+                            ImageSource =
+                                imageUrl != null
+                                ? ImageSource.FromUri(new Uri(imageUrl))
+                                : ImageSource.FromFile("corn_placeholder.png")
+                        });
+                    }
+                }
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _allMarketItems.Clear();
+
+                    _allMarketItems.AddRange(tempItems);
+
+                    ApplyFilters();
                 });
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching market data: {ex.Message}");
+            }
+            finally
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    IsLoading = false;
+                });
+            }
+        }
 
+        [RelayCommand]
+        private void Search()
+        {
             ApplyFilters();
         }
 
-        partial void OnSelectedCommodityTypeChanged(string value) => ApplyFilters();
-        partial void OnSearchTextChanged(string value) => ApplyFilters();
+        partial void OnSearchTextChanged(string value)
+        {
+            ApplyFilters();
+        }
+
+        partial void OnSelectedCommodityTypeChanged(string value)
+        {
+            ApplyFilters();
+        }
 
         private void ApplyFilters()
         {
             IEnumerable<MarketItem> filtered = _allMarketItems;
 
-            if (!string.IsNullOrEmpty(SelectedCommodityType) && SelectedCommodityType != "ALL")
+            if (!string.IsNullOrEmpty(SelectedCommodityType)
+                && SelectedCommodityType != "ALL")
             {
-                filtered = filtered.Where(item => item.Filter.Name != null && item.Filter.Name.Contains(SelectedCommodityType, StringComparison.OrdinalIgnoreCase));
+                filtered = filtered.Where(i =>
+                    i.Name.Contains(
+                        SelectedCommodityType,
+                        StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
-                filtered = filtered.Where(item => item.Filter.Name != null && item.Filter.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+                filtered = filtered.Where(i =>
+                    i.Name.Contains(
+                        SearchText,
+                        StringComparison.OrdinalIgnoreCase));
             }
-
-            filtered = filtered.OrderBy(item => item.Filter.Name, StringComparer.OrdinalIgnoreCase);
 
             MarketItems.Clear();
 
-            foreach (var item in filtered) MarketItems.Add(item);
-
-            IsListEmpty = !IsLoading && MarketItems.Count == 0;
-        }
-
-        [RelayCommand]
-        private async Task NavigateToMarketInsightAsync(MarketItemFilter? selectedItem)
-        {
-            if (selectedItem == null) return;
-
-            await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
+            foreach (var item in filtered.OrderBy(i => i.Name))
             {
-                {"SelectedMarketItemFilter", selectedItem }
-            });
+                MarketItems.Add(item);
+            }
+
+            IsListEmpty = MarketItems.Count == 0;
         }
 
         [RelayCommand]
-        private async Task NavigateToBidPositionListing(MarketItem item)
+        private async Task NavigateToMarketDetailAsync(MarketItem item)
         {
-            if (item.BestBid == "No Bids") return;
+            if (item == null)
+                return;
+
+            await Shell.Current.GoToAsync(
+                "MarketInsight",
+                new Dictionary<string, object>
+                {
+                    { "SelectedMarketItem", item }
+                });
+        }
+
+        [RelayCommand]
+        private async Task NavigateToPositionListingAsync(MarketItem item)
+        {
+            if (item == null)
+                return;
 
             var args = new PositionListingCommand
             {
-                CommodityTypeId = item.Filter.CommodityTypeId,
-                CommodityId = item.Filter.CommodityId,
-                PositionTypeId = 6001,
-                UnitPrice = decimal.Parse(item.BestBid!),
-                CommodityName = item.Filter.Name
+                CommodityId = item.CommodityId,
+                PositionTypeId = IsBidHighlighted ? 6001 : 6002,
+                UnitPrice = item.CurrentPrice,
+                CommodityName = item.Name,
             };
 
-            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
-            {
-                { "Args", args }
-            });
-        }
-        
-        [RelayCommand]
-        private async Task NavigateToOfferPositionListing(MarketItem item)
-        {
-            if (item.BestOffer == "No Offers") return;
-
-            var args = new PositionListingCommand
-            {
-                CommodityTypeId = item.Filter.CommodityTypeId,
-                CommodityId = item.Filter.CommodityId,
-                PositionTypeId = 6002,
-                UnitPrice = decimal.Parse(item.BestOffer!),
-                CommodityName = item.Filter.Name
-            };
-
-            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
-            {
-                { "Args", args }
-            });
+            await Shell.Current.GoToAsync(
+                "PositionListing",
+                new Dictionary<string, object>
+                {
+                    { "Args", args },
+                    { "PassedImage", item.ImageSource },
+                    { "PassedCommodityName", item.Name },
+                    { "PassedLotSize", item.LotSizeDisplay },
+                    { "PassedBid", IsBidHighlighted ? item.CurrentPrice.ToString("N0") : "-" },
+                    { "PassedOffer", IsOfferHighlighted ? item.CurrentPrice.ToString("N0") : "-" }
+                });
         }
 
         [RelayCommand]
         private void OpenImagePreview(MarketItem item)
         {
-            if (item == null) return;
+            if (item == null)
+                return;
 
             PreviewImage = item.ImageSource;
-            SelectedCommodityTypeName = item.Filter.Name.ToUpper();
+
+            SelectedCommodityTypeName = item.Name.ToUpper();
+
             IsImagePreviewVisible = true;
         }
 
@@ -214,10 +324,10 @@ namespace MarketPrice.Ui.ViewModels
         private void CloseImagePreview()
         {
             IsImagePreviewVisible = false;
+
             PreviewImage = null;
+
             SelectedCommodityTypeName = string.Empty;
         }
-
-       
     }
 }

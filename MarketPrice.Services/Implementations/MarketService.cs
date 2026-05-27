@@ -225,21 +225,102 @@ namespace MarketPrice.Services.Implementations
             };
         }
 
+        // New Method for the Insight Page Overview
+        public async Task<List<MarketCommodityDto>> GetMarketOverviewAsync(int positionTypeId)
+        {
+            var now = DateTime.UtcNow;
+            var yesterday = now.AddHours(-24);
+
+            var query = await (
+                from c in _context.Commodities
+                join ci in _context.CommodityImage
+                    on c.CommodityId equals ci.CommodityId into imageGroup
+                from ci in imageGroup.DefaultIfEmpty()
+
+                select new
+                {
+                    c.CommodityId,
+                    c.CommodityName,
+                    c.LotSize,
+                    ImageFileName = ci != null ? ci.FileName : null,
+
+                    UomCode = c.UnitOfMeasure != null
+                        ? c.UnitOfMeasure.UnitOfMeasureCodeEnglish
+                        : "",
+
+                    CurrentBestPrice = positionTypeId == BidPosition
+                        ? _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= now &&
+                                        p.ExpiryDate > now)
+                            .Max(p => (decimal?)p.UnitPrice) ?? 0m
+                        : _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= now &&
+                                        p.ExpiryDate > now)
+                            .Min(p => (decimal?)p.UnitPrice) ?? 0m,
+
+                    YesterdayBestPrice = positionTypeId == BidPosition
+                        ? _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= yesterday &&
+                                        p.ExpiryDate > yesterday)
+                            .Max(p => (decimal?)p.UnitPrice) ?? 0m
+                        : _context.Positions
+                            .Where(p => p.CommodityId == c.CommodityId &&
+                                        p.PositionTypeId == positionTypeId &&
+                                        p.StartDate <= yesterday &&
+                                        p.ExpiryDate > yesterday)
+                            .Min(p => (decimal?)p.UnitPrice) ?? 0m
+                }).ToListAsync();
+
+            var marketData = new List<MarketCommodityDto>();
+
+            foreach (var item in query)
+            {
+                decimal difference = 0;
+
+                if (item.CurrentBestPrice > 0 && item.YesterdayBestPrice > 0)
+                {
+                    difference = item.CurrentBestPrice - item.YesterdayBestPrice;
+                }
+
+                marketData.Add(new MarketCommodityDto
+                {
+                    CommodityId = item.CommodityId,
+                    CommodityName = item.CommodityName,
+                    LotSizeDisplay = $"{item.LotSize} {item.UomCode}",
+                    CurrentPrice = item.CurrentBestPrice,
+                    PriceDifference = difference,
+
+                    // IMPORTANT
+                    ImageUrl = item.ImageFileName != null
+                        ? $"{ApiControllers.CommodityImages}/{item.CommodityId}/image"
+                        : null
+                });
+            }
+
+            return marketData;
+        }
+
         public async Task<List<MarketInsightChartResponseDto>> GetPriceChartAsync(Guid commodityId, string range)
         {
             string searchRange = range.ToUpper();
             // 1. Map the ranges to their respective intervals and look back windows
-            (string interval, DateTime startDate, int minPoints) = searchRange  switch
+            (string interval, DateTime startDate, int minPoints) = searchRange switch
             {
                 "1D" => ("1m", DateTime.UtcNow.AddDays(-1), 12),  //60      
                 "1W" => ("1D", DateTime.UtcNow.AddDays(-7), 7),  //82
-                "1M" => ("1D", DateTime.UtcNow.AddMonths(-1), 30), 
-                "1Y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),  
+                "1M" => ("1D", DateTime.UtcNow.AddMonths(-1), 30),
+                "1Y" => ("1W", DateTime.UtcNow.AddYears(-1), 52),
                 _ => ("1D", DateTime.UtcNow.AddMonths(-1), 15)
             };
 
             // 2. Base Query
-            var query =  _context.AggregatedPrices
+            var query = _context.AggregatedPrices
                 .AsNoTracking()
                 .Where(ap => ap.CommodityId == commodityId && ap.Interval == interval);
 

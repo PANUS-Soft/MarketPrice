@@ -2,16 +2,41 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dxdf="clr-namespace:DevExpress.Maui.DataForm;assembly=DevExpress.Maui.Editors"
+             xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Register"
              Title="Register"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="dxe:TextEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="CornerRadius" Value="8" />
+            </Style>
+
+            <Style TargetType="dxe:PasswordEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="CornerRadius" Value="8" />
+            </Style>
+
+            <Style TargetType="dxe:ComboBoxEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+                <Setter Property="CornerRadius" Value="8" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="6*,4*">
         <VerticalStackLayout
             Padding="15,25"
             Grid.Row="0"
-            BackgroundColor="{StaticResource Background}">
+            BackgroundColor="{StaticResource White}">
 
             <Grid 
                 ColumnDefinitions="40,*,40"
@@ -36,7 +61,7 @@
                 <Label
                     Grid.Column="1"
                     Text="Register"
-                    TextColor="{StaticResource PrimaryBase}"
+                    TextColor="{StaticResource Background}"
                     FontFamily="RobotoSerifBold"
                     HorizontalTextAlignment="Center"
                     HorizontalOptions="Center"
@@ -46,7 +71,7 @@
 
             <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto" IsVisible="{Binding IsPersonalStep}">
                 <Border 
-                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    BackgroundColor="{StaticResource Background}"
                     Stroke="Transparent"
                     Grid.Column="0"
                     Grid.Row="0"
@@ -69,7 +94,7 @@
                     LineBreakMode="WordWrap"
                     MaxLines="2"
                     HorizontalTextAlignment="Center" 
-                    TextColor="{StaticResource PrimaryAccent}" 
+                    TextColor="{StaticResource Background}" 
                     FontFamily="RobotoSerifMedium" />
 
                 <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
@@ -128,7 +153,7 @@
             </Grid>
             <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto" IsVisible="{Binding IsContactStep}">
                 <Border 
-                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    BackgroundColor="{StaticResource Background}"
                     Stroke="Transparent"
                     Grid.Column="0"
                     Grid.Row="0"
@@ -145,13 +170,13 @@
                     LineBreakMode="WordWrap"
                     MaxLines="2"
                     HorizontalTextAlignment="Center" 
-                    TextColor="{StaticResource TextPrimary}" 
+                    TextColor="{StaticResource Background}" 
                     FontFamily="RobotoSerifMedium" />
 
-                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource PrimaryAccent}" VerticalOptions="Center"/>
+                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Background}" VerticalOptions="Center"/>
 
                 <Border 
-                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    BackgroundColor="{StaticResource Background}"
                     Stroke="Transparent"
                     Grid.Column="2"
                     Grid.Row="0"
@@ -172,7 +197,7 @@
                     Grid.Row="1"
                     FontSize="10"
                     HorizontalTextAlignment="Center" 
-                    TextColor="{StaticResource PrimaryAccent}" 
+                    TextColor="Black" 
                     FontFamily="RobotoSerifMedium" />
 
                 <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Separator}" VerticalOptions="Center"/>
@@ -204,7 +229,7 @@
             </Grid>
             <Grid ColumnDefinitions="1*,1.5*,1*,1.5*,1*" ColumnSpacing="-10" RowDefinitions="Auto, Auto" IsVisible="{Binding IsSecurityStep}">
                 <Border 
-                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    BackgroundColor="{StaticResource Background}"
                     Stroke="Transparent"
                     Grid.Column="0"
                     Grid.Row="0"
@@ -224,10 +249,10 @@
                     TextColor="{StaticResource TextPrimary}" 
                     FontFamily="RobotoSerifMedium" />
 
-                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource PrimaryAccent}" VerticalOptions="Center"/>
+                <BoxView Grid.Column="1" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Background}" VerticalOptions="Center"/>
 
                 <Border 
-                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    BackgroundColor="{StaticResource Background}"
                     Stroke="Transparent"
                     Grid.Column="2"
                     Grid.Row="0"
@@ -245,10 +270,10 @@
                     TextColor="{StaticResource TextPrimary}" 
                     FontFamily="RobotoSerifMedium" />
 
-                <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource PrimaryAccent}" VerticalOptions="Center"/>
+                <BoxView Grid.Column="3" Grid.Row="0" HeightRequest="5" BackgroundColor="{StaticResource Background}" VerticalOptions="Center"/>
 
                 <Border 
-                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    BackgroundColor="{StaticResource Background}"
                     Stroke="Transparent"
                     Grid.Column="4"
                     Grid.Row="0"
@@ -269,7 +294,7 @@
                     Grid.Column="4"
                     Grid.Row="1"
                     HorizontalTextAlignment="Center" 
-                    TextColor="{StaticResource PrimaryAccent}" 
+                    TextColor="{StaticResource Background}" 
                     FontFamily="RobotoSerifMedium" />
             </Grid>
         </VerticalStackLayout>
@@ -277,17 +302,18 @@
 
         <VerticalStackLayout
             Grid.Row="1"
-            BackgroundColor="{StaticResource PrimaryBase}">
+            BackgroundColor="{StaticResource Background}">
         </VerticalStackLayout>
 
         <Border
             StrokeShape="RoundRectangle 35"
-            Stroke="Transparent"
-            BackgroundColor="White"
+            Stroke="White"
+            StrokeThickness="0.5"
+            BackgroundColor="{StaticResource Background}"
             Margin="25,250,25,-300"
             Padding="25">
             <Border.Shadow>
-                <Shadow Brush="Black" Opacity="0.8" Radius="15" />
+                <Shadow Brush="#121212" Opacity="0.8" Radius="15" />
             </Border.Shadow>
 
             <ScrollView>
@@ -295,7 +321,7 @@
                     <Label
                         Text="{Binding CurrentStepDisplay, StringFormat='Please fill in your {0}'}"
                         FontFamily="RobotoSerifMedium"
-                        TextColor="{StaticResource TextPrimary}"
+                        TextColor="{StaticResource White}"
                         HorizontalTextAlignment="Center" />
 
                     <dxdf:DataFormView
@@ -305,29 +331,35 @@
                         EditorLabelPosition="Top"
                         EditorLabelFontFamily="RobotoSerifBold"
                         EditorLabelHorizontalAlignment="Start"
+                        EditorLabelColor="White"
                         IsGroupHeaderVisible="False"
                         IsAutoGenerationEnabled="True"
                         ValidationMode="Manually"
-                        BackgroundColor="White">
+                        BackgroundColor="Transparent">
                         <dxdf:DataFormView.Items>
                             <dxdf:DataFormTextItem
                                 FieldName="FirstName"
                                 LabelText="First Name"
                                 Placeholder="Enter your first name"
                                 BottomTextFontFamily="RobotoSerifRegular"
+                                HelpTextColor="White"
                                 HelpText="*Required"/>
                             <dxdf:DataFormTextItem
                                 FieldName="FamilyName"
                                 LabelText="Family Name"
                                 Placeholder="Enter your family name"
                                 BottomTextFontFamily="RobotoSerifRegular"
-                                HelpText="*Required"/>
+                                HelpText="*Required"
+                                HelpTextColor="White"/>
                             <dxdf:DataFormTextItem
                                 FieldName="OtherName"
                                 LabelText="Other Name"
                                 Placeholder="Enter your other name"
                                 BottomTextFontFamily="RobotoSerifRegular"
-                                HelpText="*Optional"/>
+                                HelpText="*Optional"
+                                HelpTextColor="White"/>
+
+                           
                         </dxdf:DataFormView.Items>
                     </dxdf:DataFormView>
 
@@ -338,29 +370,33 @@
                         EditorLabelPosition="Top"
                         EditorLabelFontFamily="RobotoSerifBold"
                         EditorLabelHorizontalAlignment="Start"
+                        EditorLabelColor="White"
                         IsGroupHeaderVisible="False"
                         IsAutoGenerationEnabled="True"
                         ValidationMode="Manually"
-                        BackgroundColor="White">
+                        BackgroundColor="#121212">
                         <dxdf:DataFormTextItem
                             FieldName="EmailAddress"
                             LabelText="Email Address"
                             Placeholder="Enter your email address"
                             BottomTextFontFamily="RobotoSerifRegular"
-                            HelpText="*Required"/>
+                            HelpText="*Required"
+                            HelpTextColor="White"/>
                         <dxdf:DataFormMaskedItem
                             Keyboard="Telephone"
                             FieldName="PhoneNumber"
                             LabelText="Phone Number"
                             Prefix="+237"
                             BottomTextFontFamily="RobotoSerifRegular"
-                            HelpText="*Required"/>
+                            HelpText="*Required"
+                            HelpTextColor="White"/>
                         <dxdf:DataFormComboBoxItem
                             FieldName="AccountType"
                             LabelText="Account Type"
                             Placeholder="Select an account type"
                             BottomTextFontFamily="RobotoSerifRegular"
-                            HelpText="*Required"/>
+                            HelpText="*Required"
+                            HelpTextColor="White"/>
                     </dxdf:DataFormView>
 
                     <dxdf:DataFormView
@@ -370,23 +406,26 @@
                         EditorLabelPosition="Top"
                         EditorLabelFontFamily="RobotoSerifBold"
                         EditorLabelHorizontalAlignment="Start"
+                        EditorLabelColor="White"
                         IsGroupHeaderVisible="False"
                         IsAutoGenerationEnabled="False"
                         ValidationMode="Manually"
-                        BackgroundColor="White">
+                        BackgroundColor="#121212">
                         <dxdf:DataFormView.Items>
                             <dxdf:DataFormPasswordItem
                                 FieldName="Password"
                                 Placeholder="Enter your password"
                                 LabelText="Password"
                                 BottomTextFontFamily="RobotoSerifRegular"
-                                HelpText="*Required"/>
+                                HelpText="*Required"
+                                HelpTextColor="White"/>
                             <dxdf:DataFormPasswordItem
                                 FieldName="ConfirmPassword"
                                 Placeholder="Confirm your password"
                                 LabelText="Confirm Password"
                                 BottomTextFontFamily="RobotoSerifRegular"
-                                HelpText="*Required"/>
+                                HelpText="*Required"
+                                HelpTextColor="White"/>
                         </dxdf:DataFormView.Items>
                     </dxdf:DataFormView>
                     <HorizontalStackLayout
@@ -406,7 +445,7 @@
                                     <Span
                                         Text="Accepts terms and conditions"
                                         FontFamily="RobotoSerifMedium"
-                                        TextColor="{StaticResource TextPrimary}" />
+                                        TextColor="White" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
@@ -425,13 +464,15 @@
                                 <Span
                                     Text="By creating an account, you agree to MarketPrice's "
                                     FontFamily="RobotoSerifRegular"
-                                    FontSize="11"/>
+                                    FontSize="11"
+                                    TextColor="White"/>
 
                                 <Span
                                     Text="Terms of Services"
                                     FontFamily="RobotoSerifSemibold"
                                     TextDecorations="Underline"
-                                    FontSize="11">
+                                    FontSize="11"
+                                    TextColor="White">
                                     <Span.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding ShowTermsOfServiceCommand}"/>
                                     </Span.GestureRecognizers>
@@ -440,13 +481,15 @@
                                 <Span
                                     Text=" and "
                                     FontFamily="RobotoSerifRegular"
-                                    FontSize="11"/>
+                                    FontSize="11"
+                                    TextColor="White"/>
 
                                 <Span
                                     Text="Privacy Policy"
                                     FontFamily="RobotoSerifSemibold"
                                     TextDecorations="Underline"
-                                    FontSize="11">
+                                    FontSize="11"
+                                    TextColor="White">
                                     <Span.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding ShowPrivacyPolicyCommand}" />
                                     </Span.GestureRecognizers>
@@ -472,7 +515,7 @@
                             <FormattedString>
                                 <Span 
                                     Text="Already have an account? " 
-                                    TextColor="{StaticResource TextPrimary}" 
+                                    TextColor="white" 
                                     FontFamily="RobotoSerifMedium" />
                                 <Span 
                                     Text="Login" 

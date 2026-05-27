@@ -6,11 +6,33 @@
              xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.PlacePosition"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="#F2F4F7"
+             BackgroundColor="{StaticResource Background}"
              Title="PlacePosition">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+
+            <Style TargetType="dxe:TextEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+            <Style TargetType="dxe:ComboBoxEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+            <Style TargetType="dxe:DateEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+            <Style TargetType="dxe:TimeEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+            <Style TargetType="dxe:MultilineEdit">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+
             <Style x:Key="GradeButtonStyle" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="White"/>
                 <Setter Property="TextColor" Value="Black"/>
@@ -25,9 +47,9 @@
 
     <Grid RowDefinitions="Auto, Auto, *, Auto">
 
-        <Border Grid.Row="0" Background="White" Padding="15,10" StrokeThickness="0">
+        <Border Grid.Row="0" Background="#121212" Padding="15,10" StrokeThickness="0">
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,2" Opacity="0.05" Radius="5"/>
+                <Shadow Brush="#121212" Offset="0,2" Opacity="0.05" Radius="5"/>
             </Border.Shadow>
 
             <Grid ColumnDefinitions="45,*">
@@ -41,12 +63,14 @@
 
                     <dxe:ComboBoxEdit
                         LabelText="Commodity Type"
+                        LabelColor="White"
+                        BorderColor="White"
                         ItemsSource="{Binding CommodityTypes}"
                         DisplayMember="Name"
                         SelectedItem="{Binding SelectedCommodityType}"
                         DropDownItemFontFamily="RobotoSerifRegular"
                         TextFontFamily="RobotoSerifRegular"
-                        BoxMode="Outlined" 
+                        BoxMode="Filled" 
                         CornerRadius="10"
                         BackgroundColor="White"
                         FocusedBorderColor="{StaticResource PrimaryBase}"
@@ -64,13 +88,13 @@
         </Border>
 
         <VerticalStackLayout Grid.Row="1" Padding="20,15,20,15" Spacing="8">
-            <Label Text="{Binding PageTitle}" HorizontalOptions="Center" FontSize="18" FontFamily="RobotoSerifBold" TextColor="{StaticResource PrimaryBase}"/>
+            <Label Text="{Binding PageTitle}" HorizontalOptions="Center" FontSize="18" FontFamily="RobotoSerifBold" TextColor="White"/>
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" HeightRequest="4">
                 <BoxView Grid.Column="0" Color="{Binding Step1Color}" CornerRadius="2"/>
                 <BoxView Grid.Column="1" Color="{Binding Step2Color}" CornerRadius="2"/>
                 <BoxView Grid.Column="2" Color="{Binding Step3Color}" CornerRadius="2"/>
             </Grid>
-            <Label Text="{Binding CurrentStepDisplay}" FontSize="14" HorizontalOptions="Center" FontFamily="RobotoSerifSemibold" TextColor="{StaticResource PrimaryBase}"/>
+            <Label Text="{Binding CurrentStepDisplay}" FontSize="14" HorizontalOptions="Center" FontFamily="RobotoSerifSemibold" TextColor="White"/>
         </VerticalStackLayout>
 
         <ScrollView Grid.Row="2" Padding="20,0">
@@ -78,63 +102,63 @@
 
                 <VerticalStackLayout Spacing="15" IsVisible="{Binding IsCommodityDetailsStep}">
 
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
+                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="#121212">
                         <VerticalStackLayout Spacing="12">
                             <dxe:ComboBoxEdit 
                                     LabelText="Commodity"
                                     ItemsSource="{Binding Commodities}"
                                     DisplayMember="Name"
                                     SelectedItem="{Binding SelectedCommodity}"
-                                    BoxMode="Outlined" 
+                                    BoxMode="Filled" 
                                     IsEnabled="{Binding IsCommodityEditable}"
                                     CornerRadius="10"
                                     TextFontFamily="RobotoSerifRegular"
-                                    FocusedBorderColor="{StaticResource PrimaryBase}"/>
+                                    FocusedBorderColor="White"/>
                             <Label Text="{Binding CommodityError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
-                            <Label Text="Grade" FontSize="13" FontFamily="RobotoSerifRegular" TextColor="{StaticResource TextPrimary}"/>
+                            <Label Text="Grade" FontSize="13" FontFamily="RobotoSerifRegular" TextColor="White"/>
                             <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10" HeightRequest="40">
                                 <Button Grid.Column="0" 
-                                        Text="High" 
+                                        Text="A" 
                                         Style="{StaticResource GradeButtonStyle}"
                                         Command="{Binding SelectGradeCommand}"
-                                        CommandParameter="High">
+                                        CommandParameter="A">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
                                                      Binding="{Binding SelectedGrade}"
-                                                     Value="High">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
+                                                     Value="A">
+                                            <Setter Property="BackgroundColor" Value="#121212" />
                                             <Setter Property="TextColor" Value="White"/>
-                                            <Setter Property="BorderWidth" Value="0"/>
+                                            <Setter Property="BorderWidth" Value="0.5"/>
                                         </DataTrigger>
                                     </Button.Triggers>
                                 </Button>
                                 <Button Grid.Column="1" 
-                                        Text="Medium" 
+                                        Text="B" 
                                         Style="{StaticResource GradeButtonStyle}"
                                         Command="{Binding SelectGradeCommand}"
-                                        CommandParameter="Medium">
+                                        CommandParameter="B">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
                                                      Binding="{Binding SelectedGrade}"
-                                                     Value="Medium">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
+                                                     Value="B">
+                                            <Setter Property="BackgroundColor" Value="#121212" />
                                             <Setter Property="TextColor" Value="White"/>
-                                            <Setter Property="BorderWidth" Value="0"/>
+                                            <Setter Property="BorderWidth" Value="0.5"/>
                                         </DataTrigger>
                                     </Button.Triggers>
                                 </Button>
                                 <Button Grid.Column="2" 
-                                        Text="Low" 
+                                        Text="C" 
                                         Style="{StaticResource GradeButtonStyle}"
                                         Command="{Binding SelectGradeCommand}"
-                                        CommandParameter="Low">
+                                        CommandParameter="C">
                                     <Button.Triggers>
                                         <DataTrigger TargetType="Button"
                                                      Binding="{Binding SelectedGrade}"
-                                                     Value="Low">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryAccent}" />
+                                                     Value="C">
+                                            <Setter Property="BackgroundColor" Value="#121212" />
                                             <Setter Property="TextColor" Value="White"/>
-                                            <Setter Property="BorderWidth" Value="0"/>
+                                            <Setter Property="BorderWidth" Value="0.5"/>
                                         </DataTrigger>
                                     </Button.Triggers>
                                 </Button>
@@ -142,11 +166,11 @@
                             <Label Text="{Binding GradeError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                                <dxe:TextEdit Grid.Column="0" LabelText="Quantity" TextFontFamily="RobotoSerifRegular" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding Quantity}" />
-                                <dxe:TextEdit Grid.Column="1" LabelText="Total Quantity" TextFontFamily="RobotoSerifRegular" IsReadOnly="True" Text="{Binding TotalQuantityDisplay}" BoxMode="Outlined" CornerRadius="10" BackgroundColor="#F8F9FA"/>
+                                <dxe:TextEdit Grid.Column="0" PlaceholderText="Quantity" TextFontFamily="RobotoSerifRegular" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding Quantity}" />
+                                <dxe:TextEdit Grid.Column="1" PlaceholderText="Total Quantity" TextFontFamily="RobotoSerifRegular" IsReadOnly="True" Text="{Binding TotalQuantityDisplay}" BoxMode="Outlined" CornerRadius="10" BackgroundColor="#F8F9FA"/>
                             </Grid>
                             <Label Text="{Binding QuantityError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
-                            <dxe:MultilineEdit LabelText="Description (Optional)" TextFontFamily="RobotoSerifRegular" HeightRequest="120" BoxMode="Outlined" CornerRadius="10" Text="{Binding Description}"/>
+                            <dxe:MultilineEdit PlaceholderText="Description (Optional)" TextFontFamily="RobotoSerifRegular" HeightRequest="120" BoxMode="Outlined" CornerRadius="10" Text="{Binding Description}"/>
                         </VerticalStackLayout>
                     </Border>
 
@@ -154,42 +178,42 @@
 
                 <VerticalStackLayout Spacing="15" IsVisible="{Binding IsPricingAndTimingStep}">
 
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="5">
-                            <dxe:TextEdit LabelText="Unit Price / Lot Size" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding UnitPrice}"/>
+                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="#121212">
+                        <VerticalStackLayout Spacing="20">
+                            <dxe:TextEdit PlaceholderText="Unit Price" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding UnitPrice}"/>
                             <Label Text="{Binding UnitPriceError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
-                            <Label Text="{Binding TotalValueDisplay}" FontFamily="RobotoSerifSemibold" HorizontalOptions="End" FontSize="16" TextColor="{StaticResource TextPrimary}" Margin="0"/>
-
-                            <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifBold" TextColor="{StaticResource TextPrimary}" Margin="0, 55, 0, 0"/>
-                            
-                            <dxe:FormSwitchItem Text="Start position immediately ?"
-                                                TextFontFamily="RobotoSerifRegular"
-                                                TextFontSize="13"
-                                                IsToggled="{Binding StartPositionImmediately}"
-                                                OnColor="{StaticResource PrimaryBase}"/>
-
+                            <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifRegular" TextColor="White"/>
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                                <dxe:DateEdit Grid.Column="0" LabelText="Start Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" IsEnabled="{Binding IsStartDateTimeEnabled}" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding StartDate}"/>
-                                <dxe:TimeEdit Grid.Column="1" LabelText="Start TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" IsEnabled="{Binding IsStartDateTimeEnabled}"  CornerRadius="10" Time="{Binding StartDate}"/>
+                                <dxe:DateEdit Grid.Column="0" PlaceholderText="Start Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding StartDate}"/>
+                                <dxe:TimeEdit Grid.Column="1" PlaceholderText="Start TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Time="{Binding StartDate}"/>
                             </Grid>
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                                <dxe:DateEdit  Grid.Column="0" LabelText="End Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding EndDate}"/>
-                                <dxe:TimeEdit Grid.Column="1" LabelText="End TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Time="{Binding EndDate}"/>
+                                <dxe:DateEdit  Grid.Column="0" PlaceholderText="End Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding EndDate}"/>
+                                <dxe:TimeEdit Grid.Column="1" PlaceholderText="End TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Time="{Binding EndDate}"/>
                             </Grid>
 
                             <Label Text="{Binding DateError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
+                            <dxe:FormSwitchItem Text="Is Deliverable ?" 
+                                                TextColor="White"
+                                                TextFontFamily="RobotoSerifRegular" 
+                                                Margin="0,10,0,0"
+                                                IsVisible="{Binding IsOffer}"
+                                                IsToggled="{Binding IsDeliverable}"
+                                                OnColor="{StaticResource PrimaryBase}"/>
+
+                            <Label Text="{Binding TotalValueDisplay}" FontFamily="RobotoSerifBold" HorizontalOptions="End" FontSize="16" TextColor="White" Margin="0,10,0,0"/>
                         </VerticalStackLayout>
                     </Border>
 
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Spacing="15" IsVisible="{Binding IsLogisticsInformationStep}">
-                    <Label Text="Origin Location" FontFamily="RobotoSerifBold" TextColor="{StaticResource TextPrimary}" Margin="0,10,0,0"/>
-                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                        <VerticalStackLayout Spacing="3">
+                    <Label Text="Origin Location" FontFamily="RobotoSerifBold" TextColor="White" Margin="0,10,0,0"/>
+                    <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="#121212">
+                        <VerticalStackLayout Spacing="10">
                             <dxe:ComboBoxEdit
                                 LabelText="Region"
                                 ItemsSource="{Binding Regions}"
@@ -199,11 +223,11 @@
                                 TextFontFamily="RobotoSerifRegular"
                                 BoxMode="Outlined" 
                                 CornerRadius="10"
-                                FocusedBorderColor="{StaticResource PrimaryBase}"/>
-                            <dxe:TextEdit LabelText="Town" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginTown}"/>
+                                FocusedBorderColor="White"/>
+                            <dxe:TextEdit PlaceholderText="Town" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginTown}"/>
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                <dxe:TextEdit Grid.Column="0" LabelText="Quarter" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginQuarter}"/>
-                                <dxe:TextEdit Grid.Column="1" LabelText="Street" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginStreet}"/>
+                                <dxe:TextEdit Grid.Column="0" PlaceholderText="Quarter" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginQuarter}"/>
+                                <dxe:TextEdit Grid.Column="1" PlaceholderText="Street" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginStreet}"/>
                             </Grid>
                             <Label Text="{Binding OriginDetailError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
                         </VerticalStackLayout>
@@ -218,9 +242,9 @@
                                         OnColor="{StaticResource PrimaryBase}"/>
 
                     <VerticalStackLayout IsVisible="{Binding IsDeliverable}">
-                        <Label Text="Destination Location" FontFamily="RobotoSerifBold" TextColor="{StaticResource TextPrimary}" Margin="0,10,0,10"/>
-                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="White">
-                            <VerticalStackLayout Spacing="3">
+                        <Label Text="Destination Location" FontFamily="RobotoSerifBold" TextColor="White" Margin="0,10,0,10"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" BackgroundColor="#121212">
+                            <VerticalStackLayout Spacing="10">
                                 <dxe:ComboBoxEdit
                                     LabelText="Region"
                                     ItemsSource="{Binding Regions}"
@@ -231,22 +255,22 @@
                                     BoxMode="Outlined" 
                                     CornerRadius="10"
                                     FocusedBorderColor="{StaticResource PrimaryBase}"/>
-                                <dxe:TextEdit LabelText="Town" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding DestinationTown}"/>
+                                <dxe:TextEdit PlaceholderText="Town" TextFontFamily="RobotoSerifRegular"  CornerRadius="10" Text="{Binding DestinationTown}"/>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                    <dxe:TextEdit Grid.Column="0" LabelText="Quarter" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding DestinationQuarter}"/>
-                                    <dxe:TextEdit Grid.Column="1" LabelText="Street" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding DestinationStreet}"/>
+                                    <dxe:TextEdit Grid.Column="0" PlaceholderText="Quarter" TextFontFamily="RobotoSerifRegular"  CornerRadius="10" Text="{Binding DestinationQuarter}"/>
+                                    <dxe:TextEdit Grid.Column="1" PlaceholderText="Street" TextFontFamily="RobotoSerifRegular"  CornerRadius="10" Text="{Binding DestinationStreet}"/>
                                 </Grid>
                                 <Label Text="{Binding DestinationDetailError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
 
                             </VerticalStackLayout>
                         </Border>
 
-                        <Label Text="Delivery Details" FontFamily="RobotoSerifBold" TextColor="{StaticResource TextPrimary}" Margin="0,10,0,10"/>
-                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" Margin="0,0,0,10" Background="White">
-                            <VerticalStackLayout>
-                                <dxe:TextEdit LabelText="Delivery Fee" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding DeliveryFee}"/>
+                        <Label Text="Delivery Details" FontFamily="RobotoSerifBold" TextColor="White" Margin="0,10,0,10"/>
+                        <Border StrokeShape="RoundRectangle 12" Stroke="#E9ECEF" Padding="15" Background="#121212">
+                            <VerticalStackLayout Spacing="10">
+                                <dxe:TextEdit PlaceholderText="Delivery Fee" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding DeliveryFee}"/>
                                 <Label Text="{Binding DeliveryFeeError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
-                                <dxe:TextEdit LabelText="Lead Time" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="In Days"  BoxMode="Outlined" CornerRadius="10" Text="{Binding LeadTime}"/>
+                                <dxe:TextEdit PlaceholderText="Lead Time" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="In Days"  BoxMode="Outlined" CornerRadius="10" Text="{Binding LeadTime}"/>
                                 <Label Text="{Binding LeadTimeError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
                             </VerticalStackLayout>
                         </Border>
@@ -257,9 +281,9 @@
 
         </ScrollView>
 
-        <Border Grid.Row="3" BackgroundColor="White" Padding="20,15" StrokeThickness="0">
+        <Border Grid.Row="3" BackgroundColor="#121212" Padding="20,15" StrokeThickness="0">
             <Grid ColumnDefinitions="*,*">
-                <Button Grid.Column="0" IsVisible="{Binding IsBackTextVisible}"  Command="{Binding BackCommand}" FontFamily="RobotoSerifBold" Text="Back" BackgroundColor="Transparent" TextColor="#0056A0" FontAttributes="Bold" HorizontalOptions="Start"/>
+                <Button Grid.Column="0" IsVisible="{Binding IsBackTextVisible}"  Command="{Binding BackCommand}" FontFamily="RobotoSerifBold" Text="Back" BackgroundColor="Transparent" TextColor="White" FontAttributes="Bold" HorizontalOptions="Start"/>
                 <Button Grid.Column="1" Command="{Binding ContinueCommand}" Text="{Binding ContinueButtonText}" FontFamily="RobotoSerifBold" BackgroundColor="#0056A0" TextColor="White" CornerRadius="5" HeightRequest="50" Padding="30,0" HorizontalOptions="End"/>
             </Grid>
         </Border>

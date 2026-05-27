@@ -99,6 +99,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\Market.xaml.cs">
+	    <DependentUpon>Market.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\PlacePosition.xaml.cs">
 	    <DependentUpon>PlacePosition.xaml</DependentUpon>
 	  </Compile>
@@ -148,6 +151,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\SplashScreen.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Verification.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Welcome.xaml">
