@@ -87,6 +87,19 @@ public partial class AccountViewModel : ObservableObject, IQueryAttributable
     }
 
     [RelayCommand]
+    private async Task GoToChangePhoneNumberAsync()
+    {
+        await Shell.Current.GoToAsync("ChangePhoneNumberIntro");
+    }
+
+    [RelayCommand]
+    private async Task GoToChangeEmailAddressAsync()
+    {
+        await Shell.Current.GoToAsync("ChangeEmailAddress");
+    }
+
+
+    [RelayCommand]
     private async Task LogoutAsync()
     {
         bool confirmLogout = await Shell.Current.DisplayAlert("Logout", "Are you sure you want to log out?", "Yes", "No");

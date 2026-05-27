@@ -17,6 +17,9 @@ namespace MarketPrice.Ui
             Routing.RegisterRoute(nameof(CommodityListing), typeof(CommodityListing));
             Routing.RegisterRoute(nameof(Settings), typeof(Settings));
             Routing.RegisterRoute(nameof(Account), typeof(Account));
+            Routing.RegisterRoute(nameof(ChangePhoneNumberIntro), typeof(ChangePhoneNumberIntro));
+            Routing.RegisterRoute(nameof(ChangePhoneNumberInput), typeof(ChangePhoneNumberInput));
+            Routing.RegisterRoute(nameof(ChangeEmailAddress), typeof(ChangeEmailAddress));
         }
     }
 }

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MarketPrice.Ui.Views.ChangePhoneNumberInput"
+    BackgroundColor="#13131F"
+    Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER -->
+        <Grid Padding="20,50,20,20">
+
+            <ImageButton
+                Source="back_icon.png"
+                BackgroundColor="Transparent"
+                HeightRequest="22"
+                WidthRequest="22"
+                HorizontalOptions="Start"
+                Command="{Binding GoBackCommand}"/>
+        </Grid>
+
+        <!-- CONTENT -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            Padding="25"
+            Spacing="28">
+
+            <Label
+                Text="New Phone Number"
+                FontFamily="RobotoSerifLight"
+                FontSize="28"
+                FontAttributes="Bold"
+                TextColor="White"/>
+
+            <Label
+                Text="Enter your new number to continue."
+                FontSize="15"
+                TextColor="#AAAAAA"/>
+
+            
+
+            <!-- PHONE INPUT -->
+            <Border
+                BackgroundColor="#1E1E2E"
+                StrokeThickness="2"
+                Stroke="{StaticResource PrimaryBase}"
+                StrokeShape="RoundRectangle 18"
+                Padding="18,6">
+
+                <Grid ColumnDefinitions="Auto,*">
+
+                    <Label
+                        Text="+237"
+                        FontSize="18"
+                        TextColor="White"
+                        VerticalOptions="Center"/>
+
+                    <Entry
+                        Grid.Column="1"
+                        Text="{Binding NewPhoneNumber}"
+                        Keyboard="Telephone"
+                        PlaceholderColor="#777777"
+                        TextColor="White"
+                        FontSize="18"
+                        Margin="15,0,0,0"/>
+
+                </Grid>
+
+            </Border>
+
+        </VerticalStackLayout>
+
+        <!-- FLOATING BUTTON -->
+        <Button
+            Grid.RowSpan="2"
+            Text="➜"
+            WidthRequest="65"
+            HeightRequest="65"
+            CornerRadius="32"
+            FontSize="24"
+            BackgroundColor="{StaticResource PrimaryBase}"
+            TextColor="White"
+            HorizontalOptions="End"
+            VerticalOptions="End"
+            Margin="0,0,25,35"
+            Command="{Binding ContinueCommand}"/>
+
+    </Grid>
+
+</ContentPage>

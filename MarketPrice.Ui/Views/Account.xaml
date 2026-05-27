@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
     xmlns:dx="http://schemas.devexpress.com/maui"
+    xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
 
     x:Class="MarketPrice.Ui.Views.Account"
     BackgroundColor="#0F172A"
@@ -161,6 +162,11 @@
                                 HeightRequest="50"
                                 WidthRequest="50"
                                 StrokeShape="RoundRectangle 12">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:AccountViewModel}}, Path=GoToChangePhoneNumberCommand}"
+                                                          CommandParameter="{Binding .}"/>
+
+                                </Border.GestureRecognizers>
 
                                 <Image
                                     Source="call_icon.png"
@@ -198,6 +204,11 @@
                                 HeightRequest="50"
                                 WidthRequest="50"
                                 StrokeShape="RoundRectangle 12">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:AccountViewModel}}, Path=GoToChangeEmailAddressCommand}"
+                                                          CommandParameter="{Binding .}"/>
+
+                                </Border.GestureRecognizers>
 
                                 <Image
                                     Source="email_icon.png"
@@ -235,7 +246,6 @@
                                 HeightRequest="50"
                                 WidthRequest="50"
                                 StrokeShape="RoundRectangle 12">
-
                                 <Image
                                     Source="account_type_icon.png"
                                     HeightRequest="22"
@@ -244,17 +254,18 @@
                                     VerticalOptions="Center"/>
                             </Border>
 
-                            <VerticalStackLayout Grid.Column="1">
-                                <Label
-                                    Text="Account Type"
-                                    FontFamily="RobotoSerifLight"
-                                    FontSize="15"
-                                    TextColor="White"/>
 
+                            <VerticalStackLayout Grid.Column="1">
                                 <Label
                                     Text="{Binding AccountType}"
                                     FontFamily="RobotoSerifMedium"
                                     FontSize="20"
+                                    TextColor="White"/>
+
+                                <Label
+                                    Text="Tap here to change your account type."
+                                    FontFamily="RobotoSerifLight"
+                                    FontSize="11"
                                     TextColor="#777777"/>
                             </VerticalStackLayout>
 
