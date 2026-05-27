@@ -15,7 +15,7 @@ namespace MarketPrice.Ui.Services.Session
 
         public async Task<bool> EnsureUserAccessAsync()
         {
-            bool hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", true);
+            bool hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);
 
             if (!hasCompletedOnboarding)
             {

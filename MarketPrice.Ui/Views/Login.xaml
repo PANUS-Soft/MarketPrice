@@ -6,7 +6,7 @@
              xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Login"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{StaticResource Background}"
+             BackgroundColor="{StaticResource BgPage}"
              Title="Login">
 
     <Grid RowDefinitions="Auto, *">
@@ -28,7 +28,7 @@
                    HorizontalOptions="Center" 
                    Margin="0, 70, 0,30"/>
 
-            <dxc:DXBorder BackgroundColor="{StaticResource Background}"
+            <dxc:DXBorder BackgroundColor="{StaticResource BgPage}"
                           CornerRadius="40" 
                           Padding="30" 
                           Margin="30,0" >
@@ -41,6 +41,7 @@
 
                 <VerticalStackLayout Spacing="20">
                     <Label Text="Welcome back!"
+                           TextColor="{StaticResource PrimaryBase}"
                            FontSize="24"
                            FontFamily="RobotoSerifBold"
                            HorizontalOptions="Center"
@@ -48,6 +49,7 @@
 
                     <dxe:TextEdit
                         LabelText="Email Address"
+                        TextColor="{StaticResource TextSecondary}"
                         Keyboard="Email" 
                         CornerRadius="12" 
                         BoxMode="Outlined"
@@ -57,6 +59,7 @@
             
                     <dxe:PasswordEdit 
                         LabelText="Password"
+                        TextColor="{StaticResource TextSecondary}"
                         CornerRadius="12" 
                         BoxMode="Outlined"
                         HeightRequest="60"
@@ -66,6 +69,7 @@
                     <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight"/>
 
                     <dxe:CheckEdit Label="Remember me?"
+                                   LabelColor="{StaticResource TextMuted}"
                                    LabelFontFamily="RobotoSerifMedium"
                                    IsChecked="{Binding LoginInfo.RememberMe, Mode=TwoWay}"
                                    CheckBoxColor="{StaticResource TextSecondary}"
@@ -85,7 +89,7 @@
                             <FormattedString>
                                 <Span 
                                     Text="Don't have an account? " 
-                                    TextColor="{StaticResource TextPrimary}" 
+                                    TextColor="{StaticResource TextMutedLegacy}" 
                                     FontFamily="RobotoSerifMedium" />
                                 <Span 
                                     Text="Register" 
