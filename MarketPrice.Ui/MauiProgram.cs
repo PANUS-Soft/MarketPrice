@@ -84,6 +84,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<ActivityViewModel>();
             builder.Services.AddTransient<CommodityListingViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<AccountViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -100,6 +101,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<Activity>();
             builder.Services.AddTransient<CommodityListing>();
             builder.Services.AddTransient<Settings>();
+            builder.Services.AddTransient<Account>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Session;
 using System.Collections.ObjectModel;
+using MarketPrice.Domain.Profile.DTOs;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -12,6 +13,7 @@ namespace MarketPrice.Ui.ViewModels
 
         [ObservableProperty] private string fullName;
         [ObservableProperty] private string phoneNumber;
+        private UserProfileResponseDto? userProfile;
 
         public ObservableCollection<SettingsMenuItem> SettingsItems { get; } = new();
 
@@ -95,16 +97,26 @@ namespace MarketPrice.Ui.ViewModels
             if (item == null || string.IsNullOrEmpty(item.Route))
                 return;
 
-            await Shell.Current.GoToAsync(item.Route);
+            await Shell.Current.GoToAsync(item.Route, new Dictionary<string, object>
+            {
+                {"UserProfile", userProfile}
+            });
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            if (query.ContainsKey("FullName"))
-                FullName = query["FullName"]?.ToString();
+            if (query.ContainsKey("UserProfile"))
+            {
+                userProfile = query["UserProfile"] as UserProfileResponseDto;
+            }
 
-            if (query.ContainsKey("PhoneNumber"))
-                PhoneNumber = query["PhoneNumber"]?.ToString();
+            FullName = userProfile.OtherName == ""
+                ? $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()}"
+                : $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()} {userProfile.OtherName.ToUpper()}";
+
+            long number = long.Parse(userProfile.PhoneNumber);
+
+            PhoneNumber = $"{number:+### ### ## ## ##}";
         }
     }
 }

@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
+    xmlns:dx="http://schemas.devexpress.com/maui"
+
+    x:Class="MarketPrice.Ui.Views.Account"
+    BackgroundColor="#0F172A"
+    Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER -->
+        <Grid
+            Padding="15"
+            ColumnDefinitions="Auto,*, Auto">
+
+            <ImageButton
+                Source="white_back_icon.png"
+                BackgroundColor="Transparent"
+                HeightRequest="22"
+                WidthRequest="22"
+                Command="{Binding GoBackCommand}"/>
+
+            <Label
+                Grid.Column="1"
+                Text="Account"
+                FontFamily="RobotoSerifRegular"
+                FontSize="25"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center"
+                Margin="20,0,0,0"/>
+
+            <ImageButton
+                Grid.Column="2"
+                Source="save_icon"
+                BackgroundColor="Transparent"
+                HeightRequest="22"
+                WidthRequest="22"
+                Command="{Binding SaveCommand}"/>
+        </Grid>
+
+        <!-- CONTENT -->
+        <ScrollView Grid.Row="1">
+
+            <VerticalStackLayout
+                Padding="20,0,20,40"
+                Spacing="35">
+
+                <!-- NAME CARD -->
+                <Border
+                    BackgroundColor="#172033"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20">
+
+                    <VerticalStackLayout>
+
+                        <Label
+                            Text="Your name"
+                            FontFamily="RobotoSerifLight"
+                            TextColor="{StaticResource PrimaryAccent}"
+                            FontSize="15"
+                            Margin="20,18,20,10"/>
+
+                        <dxe:TextEdit LabelText="First Name"
+                                      Text="{Binding FirstName}"
+                                      BoxMode="Outlined"
+                                      Margin="20, 5"
+                                      TextColor="#AAAAAA"
+                                      CornerRadius="5"
+                                      FocusedBorderColor="{StaticResource PrimaryBase}"
+                                      TextFontFamily="RobotoSerifRegular"
+                                      ClearIconVisibility="Never"/>                        
+                        
+                        <dxe:TextEdit LabelText="Family Name"
+                                      Text="{Binding FamilyName}"
+                                      BoxMode="Outlined"
+                                      Margin="20, 5"
+                                      TextColor="#AAAAAA"
+                                      CornerRadius="5"
+                                      FocusedBorderColor="{StaticResource PrimaryBase}"
+                                      TextFontFamily="RobotoSerifRegular"
+                                      ClearIconVisibility="Never"/>                        
+                        
+                        <dxe:TextEdit LabelText="Other Name"
+                                      Text="{Binding OtherName}"
+                                      BoxMode="Outlined"
+                                      Margin="20, 5, 20, 20"
+                                      TextColor="#AAAAAA"
+                                      CornerRadius="5"
+                                      FocusedBorderColor="{StaticResource PrimaryBase}"
+                                      TextFontFamily="RobotoSerifRegular"
+                                      ClearIconVisibility="Never"/>
+                    </VerticalStackLayout>
+
+                </Border>
+
+                <!-- BIO -->
+                <VerticalStackLayout Spacing="5">
+
+                    <Border
+                        BackgroundColor="#172033"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18">
+
+                        <VerticalStackLayout Spacing="0">
+
+                            <dxe:MultilineEdit LabelText="Bio"
+                                               Margin="20, 20"
+                                               BackgroundColor="Transparent"
+                                               FocusedBorderColor="{StaticResource PrimaryBase}"
+                                               TextFontFamily="RobotoSerifRegular"
+                                               TextColor="#AAAAAA"/>
+
+                            <Label
+                                Text="255 Words"
+                                FontFamily="RobotoSerifLight"
+                                FontSize="12"
+                                Padding="15, 3"
+                                HorizontalOptions="End"
+                                VerticalOptions="End"
+                                TextColor="#777777"/>
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <Label
+                        Text="A few words about you."
+                        FontFamily="RobotoSerifLight"
+                        FontSize="13"
+                        TextColor="#777777"
+                        Margin="10,0"/>
+                </VerticalStackLayout>
+
+                <!-- INFO SECTION -->
+                <Border
+                    BackgroundColor="#172033"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20">
+
+                    <VerticalStackLayout Padding="20,18">
+
+                        <Label
+                            Text="Your Info"
+                            TextColor="{StaticResource PrimaryAccent}"
+                            FontFamily="RobotoSerifLight"
+                            FontSize="15"
+                            Margin="0,0,0,20"/>
+
+                        <!-- PHONE NUMBER -->
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            ColumnSpacing="16">
+
+                            <Border
+                                BackgroundColor="#22C55E"
+                                StrokeThickness="0"
+                                HeightRequest="50"
+                                WidthRequest="50"
+                                StrokeShape="RoundRectangle 12">
+
+                                <Image
+                                    Source="call_icon.png"
+                                    HeightRequest="22"
+                                    WidthRequest="22"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label
+                                    Text="{Binding PhoneNumber}"
+                                    FontFamily="RobotoSerifMedium"
+                                    FontSize="20"
+                                    TextColor="White"/>
+
+                                <Label
+                                    Text="Tap here to change your phone number."
+                                    FontFamily="RobotoSerifLight"
+                                    FontSize="11"
+                                    TextColor="#777777"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+
+                        <!-- EMAIL ADDRESS -->
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            ColumnSpacing="16"
+                            Margin="0,26,0,0">
+
+                            <Border
+                                BackgroundColor="#38BDF8"
+                                StrokeThickness="0"
+                                HeightRequest="50"
+                                WidthRequest="50"
+                                StrokeShape="RoundRectangle 12">
+
+                                <Image
+                                    Source="email_icon.png"
+                                    HeightRequest="22"
+                                    WidthRequest="22"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label
+                                    Text="{Binding EmailAddress}"
+                                    FontFamily="RobotoSerifMedium"
+                                    FontSize="20"
+                                    TextColor="White"/>
+
+                                <Label
+                                    Text="Tap here to change your email."
+                                    FontFamily="RobotoSerifLight"
+                                    FontSize="11"
+                                    TextColor="#777777"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+
+                        <!-- ACCOUNT TYPE -->
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            ColumnSpacing="16"
+                            Margin="0,26,0,0">
+
+                            <Border
+                                BackgroundColor="#FAA055"
+                                StrokeThickness="0"
+                                HeightRequest="50"
+                                WidthRequest="50"
+                                StrokeShape="RoundRectangle 12">
+
+                                <Image
+                                    Source="account_type_icon.png"
+                                    HeightRequest="22"
+                                    WidthRequest="22"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label
+                                    Text="Account Type"
+                                    FontFamily="RobotoSerifLight"
+                                    FontSize="15"
+                                    TextColor="White"/>
+
+                                <Label
+                                    Text="{Binding AccountType}"
+                                    FontFamily="RobotoSerifMedium"
+                                    FontSize="20"
+                                    TextColor="#777777"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+
+                    </VerticalStackLayout>
+
+                </Border>
+
+                <!-- LOGOUT BUTTON -->
+                <Border
+                    BackgroundColor="#172033"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 14">
+                    <dx:SimpleButton
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="Transparent"
+                        CornerRadius="14"
+                        HeightRequest="54">
+                        <HorizontalStackLayout
+                            Spacing="10"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                            <Image
+                                Source="red_logout_icon.png"
+                                    
+                                HeightRequest="22"
+                                WidthRequest="22"/>
+                            <Label
+                                Text="Logout"
+                                TextColor="{StaticResource Danger}"
+                                FontSize="16"
+                                FontFamily="RobotoSerifRegular"/>
+                        </HorizontalStackLayout>
+                    </dx:SimpleButton>
+                </Border>
+
+            </VerticalStackLayout>
+
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

@@ -110,53 +110,8 @@ namespace MarketPrice.Ui.ViewModels
             if (item.MenuItemView == "") return;
             await Shell.Current.GoToAsync(item.MenuItemView, new Dictionary<string, object>
             {
-                {"FullName", FullName},
-                {"PhoneNumber", PhoneNumber}
+                {"UserProfile", userProfile}
             });
-        }
-
-        [RelayCommand]
-        private async Task LogoutAsync()
-        {
-            bool confirmLogout = await Shell.Current.DisplayAlert("Logout", "Are you sure you want to log out?", "Yes", "No");
-
-            if (!confirmLogout) return;
-
-            try
-            {
-                var userSession = await _sessionService.GetCurrentSessionAsync();
-
-                var command = new LogoutCommand { EmailAddress = userSession!.EmailAddress };
-
-                var response = await _authenticationApi.LogoutUserAsync(command);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var dto = await response.Content.ReadFromJsonAsync<LogoutResponseDto>();
-
-                    if (dto is { LogoutStatus: true })
-                    {
-                        var isSessionEnded = await _sessionService.EndSessionAsync();
-                        if (isSessionEnded)
-                        {
-                            await Toast.Make("You have been logged out successfully.", ToastDuration.Short).Show();
-                            await Shell.Current.GoToAsync("//Welcome");
-                        }
-                    }
-                    else
-                    {
-                        await Shell.Current.DisplayAlert("Error", "Failed to log out. Please try again.", "OK");
-                    }
-                }
-                else
-                {
-                    await Shell.Current.DisplayAlert("Error", "Failed to log out. Please try again.", "OK");
-                }
-            }
-            catch (Exception e)
-            {
-                await Shell.Current.DisplayAlert("Error", $"There was an error when trying to log you out ... {e.Message}", "OK");
-            }
         }
     }
 

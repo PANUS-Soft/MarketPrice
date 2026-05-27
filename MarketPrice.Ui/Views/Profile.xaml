@@ -360,39 +360,8 @@
                             </DataTemplate>
                         </dxcv:DXCollectionView.ItemTemplate>
                     </dxcv:DXCollectionView>-->
-
-                    <Border
-                        BackgroundColor="#1E1E2E"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 14">
-                        <dx:SimpleButton
-                            Command="{Binding LogoutCommand}"
-                            BackgroundColor="Transparent"
-                            CornerRadius="14"
-                            HeightRequest="54">
-                            <HorizontalStackLayout
-                                Spacing="10"
-                                VerticalOptions="Center"
-                                HorizontalOptions="Center">
-                                <Image
-                                    Source="red_logout_icon.png"
-                                    
-                                    HeightRequest="22"
-                                    WidthRequest="22"/>
-                                <Label
-                                    Text="Logout"
-                                    TextColor="{StaticResource Danger}"
-                                    FontSize="16"
-                                    FontFamily="RobotoSerifRegular"/>
-                            </HorizontalStackLayout>
-                        </dx:SimpleButton>
-                    </Border>
-
-
                 </VerticalStackLayout>
             </ScrollView>
-
-
 
         </Grid>
     </Grid>
