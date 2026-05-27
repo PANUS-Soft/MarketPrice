@@ -26,20 +26,20 @@ public partial class Register : ContentPage
             return Task.FromResult(false);
 
         if (viewModel.IsPersonalStep)
-            PersonalInfoForm.Commit();
+            PersonalInfoForm?.Commit();
         else if (viewModel.IsContactStep)
-            ContactInfoForm.Commit();
+            ContactInfoForm?.Commit();
         else if (viewModel.IsSecurityStep)
-            SecurityDetailForm.Commit();
+            SecurityDetailForm?.Commit();
 
         bool isValid = false;
 
         if (viewModel.IsPersonalStep)
-            isValid = PersonalInfoForm.Validate();
+            isValid = PersonalInfoForm?.Validate() ?? false;
         else if (viewModel.IsContactStep)
-            isValid = ContactInfoForm.Validate();
+            isValid = ContactInfoForm?.Validate() ?? false;
         else if (viewModel.IsSecurityStep)
-            isValid = SecurityDetailForm.Validate();
+            isValid = SecurityDetailForm?.Validate() ?? false;
 
         return Task.FromResult(isValid);
     }

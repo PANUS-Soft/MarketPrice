@@ -1,14 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MarketPrice.Ui.Common;
-using MarketPrice.Ui.Models;
-using MarketPrice.Ui.Views;
-using MarketPrice.Ui.Services.Api;
 using MarketPrice.Domain.Market.DTOs;
-using System.Collections.ObjectModel;
-using System.Net.Http.Json;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Reference.DTOs;
+using MarketPrice.Ui.Common;
+using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Views;
+using System.Collections.ObjectModel;
+using System.Net.Http.Json;
+using System.Windows.Input;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -24,12 +25,66 @@ namespace MarketPrice.Ui.ViewModels
         public ObservableCollection<MarketItemFilter> Commodities { get; } = new();
 
         [ObservableProperty] private MarketInsightResponseDto? dto;
-        public ObservableCollection<MarketInsightChartResponseDto>? PriceHistory { get; } = new();
+        public ObservableCollection<MarketInsightChartResponseDto> PriceHistory { get; } = new();
+
+        // Properties defined to make the graph functionality dynamic
+        
+        private string _selectedRange = "1D";
+        public string SelectedRange
+        {
+            get => _selectedRange;
+            set
+            {
+                if (_selectedRange != value)
+                {
+                    _selectedRange = value;
+                    OnPropertyChanged();
+
+                    UpdateAxisFormat();
+                }
+            }
+        }
+
+        private string _axisFormat = "HH:mm";
+        public string AxisFormat
+        {
+            get => _axisFormat;
+            set
+            {
+                _axisFormat = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Guid CurrentCommodityId { get; set; }
+
+        private bool _autoRefreshStarted;
+
+        public ICommand ChangeRangeCommand { get; }
+
 
         public MarketInsightViewModel(ReferenceDataApiService referenceDataApiService, MarketApiService marketApiService)
         {
             _referenceDataApi = referenceDataApiService;
             _marketApi = marketApiService;
+
+            ChangeRangeCommand = new Command<string>(async (range) =>
+            {
+                SelectedRange = range;
+
+                await LoadChartDataAsync(CurrentCommodityId);
+            });
         }
 
         public async Task InitializeAsync()
@@ -65,7 +120,9 @@ namespace MarketPrice.Ui.ViewModels
 
         private async Task LoadMarketInsightAsync(Guid commodityId)
         {
+            CurrentCommodityId = commodityId;
             await Task.WhenAll(GetCommodityMarketInsightAsync(commodityId), LoadChartDataAsync(commodityId));
+            StartAutoRefresh();
         }
 
         public string CommodityName => Dto?.CommodityName.ToUpper() ?? "---";
@@ -105,19 +162,21 @@ namespace MarketPrice.Ui.ViewModels
         {
             try
             {
-                var response = await _marketApi.GetChartDataAsync(commodityId);
+                IsLoading = true;
+                var response = await _marketApi.GetChartDataAsync(commodityId, SelectedRange);
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadFromJsonAsync<MarketChartDataWrapper>();
 
-                    if (result?.Data != null)
+                    if (result?.Data == null || !result.Data.Any())
                     {
-                        PriceHistory?.Clear();
-                        foreach (var point in result.Data)
-                        {
-                            PriceHistory?.Add(point);
-                        }
-                        OnPropertyChanged(nameof(PriceHistory));
+                        PriceHistory.Clear();
+                        return;
+                    }
+                    PriceHistory.Clear();
+                    foreach (var point in result.Data.OrderBy(x => x.Timestamp))
+                    {
+                        PriceHistory.Add(point);
                     }
                 }
             }
@@ -125,8 +184,41 @@ namespace MarketPrice.Ui.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
             }
+            finally
+                {
+                    IsLoading = false;
+            }
         }
 
+        // Method used to update the TimeAxis format based on the selected range. This is to ensure that the graph remains readable and appropriately formatted for different time ranges.
+
+        private void UpdateAxisFormat()
+        {
+            AxisFormat = SelectedRange switch
+            {
+                "1D" => "HH:mm",
+                "1W" => "ddd",
+                "1M" => "dd MMM",
+                "1Y" => "MMM yyyy",
+                _ => "dd/MM"
+            };
+        }
+
+
+        // Method used to start the auto-refresh timer for updating the chart data every 30 seconds.
+        private void StartAutoRefresh()
+        {
+            if (_autoRefreshStarted)
+                return;
+            _autoRefreshStarted = true;
+
+            Application.Current.Dispatcher.StartTimer(TimeSpan.FromSeconds(30), () =>
+            {
+                _ = LoadChartDataAsync(CurrentCommodityId);
+
+                return true;
+            });
+        }
         private async Task LoadCommoditiesFilterAsync()
         {
             try

@@ -30,8 +30,8 @@ namespace MarketPrice.Ui.ViewModels
             if (session == null)
                 return;
 
-            FullName = $"{session.FirstName} {session.FamilyName}";
-            PhoneNumber = session.PhoneNumber;
+            FullName = "Ange";
+            PhoneNumber ="699538939";
         }
 
         private void LoadSettings()
