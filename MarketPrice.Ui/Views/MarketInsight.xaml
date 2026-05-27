@@ -69,31 +69,50 @@
                         </Border>
                     </Grid>
 
-                    <dxc:ChartView Grid.Row="1" HeightRequest="280">
+                     <!-- UI controls to change the time range for the graph-->
+                <Grid RowDefinitions="Auto, Auto, *">
+                    <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="10">
+                        <Button Text="1D" Command="{Binding ChangeRangeCommand}" CommandParameter="1D"/>
+                        <Button Text="1W" Command="{Binding ChangeRangeCommand}" CommandParameter="1W"/>
+                        <Button Text="1M" Command="{Binding ChangeRangeCommand}" CommandParameter="1M"/>
+                        <Button Text="1Y" Command="{Binding ChangeRangeCommand}" CommandParameter="1Y"/>
+                    </HorizontalStackLayout>
+                    
+                    <!-- Loading-->
+                    <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center"/>
+                    
+                    <!-- Chart-->
+                    <dxc:ChartView Grid.Row="2" HeightRequest="280">
+
+                        <!--Enable Zooming on graph -->
+                        
                         <dxc:ChartView.Hint>
                             <dxc:Hint ShowMode="OnTap"/>
                         </dxc:ChartView.Hint>
 
                         <dxc:ChartView.Series>
-                            <dxc:LineSeries MarkersVisible="True" DisplayName="Bid">
+                            
+                            <!--Bid-->
+                            <dxc:LineSeries MarkersVisible="False" DisplayName="Bid">
                                 <dxc:LineSeries.Data>
                                     <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
                                         <dxc:ValueDataMember Type="Value" Member="AvgBid"/>
                                     </dxc:SeriesDataAdapter>
                                 </dxc:LineSeries.Data>
                                 <dxc:LineSeries.Style>
-                                    <dxc:LineSeriesStyle Stroke="#4A90E2" StrokeThickness="2"/>
+                                    <dxc:LineSeriesStyle Stroke="#22C55E" StrokeThickness="2"/>
                                 </dxc:LineSeries.Style>
                             </dxc:LineSeries>
 
-                            <dxc:LineSeries MarkersVisible="True" DisplayName="Offer">
+                            <!--Offer-->
+                                <dxc:LineSeries MarkersVisible="False" DisplayName="Offer">
                                 <dxc:LineSeries.Data>
                                     <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
                                         <dxc:ValueDataMember Type="Value" Member="AvgOffer"/>
                                     </dxc:SeriesDataAdapter>
                                 </dxc:LineSeries.Data>
                                 <dxc:LineSeries.Style>
-                                    <dxc:LineSeriesStyle Stroke="#4A90E2" StrokeThickness="2"/>
+                                    <dxc:LineSeriesStyle Stroke="#EF4444" StrokeThickness="2"/>
                                 </dxc:LineSeries.Style>
                             </dxc:LineSeries>
                         </dxc:ChartView.Series>
@@ -111,21 +130,24 @@
                                 </dxc:LineSeries.Style>
                             </dxc:LineSeries>
                         </dxc:ChartView.Series>-->
-
+                        
+                        <!-- X Axis -->
                         <dxc:ChartView.AxisX>
                             <dxc:DateTimeAxisX Visible="True">
                                 <dxc:DateTimeAxisX.Label>
-                                    <dxc:AxisLabel TextFormat="yyyy-MM-dd"/>
+                                    <dxc:AxisLabel TextFormat="{Binding AxisFormat}"/>
                                 </dxc:DateTimeAxisX.Label>
                             </dxc:DateTimeAxisX>
                         </dxc:ChartView.AxisX>
-
+                        
+                        <!-- Y Axis -->
                         <dxc:ChartView.AxisY>
-                            <dxc:NumericAxisY AlwaysShowZeroLevel="True">
+                            <dxc:NumericAxisY AlwaysShowZeroLevel="False">
                             </dxc:NumericAxisY>
                         </dxc:ChartView.AxisY>
 
                     </dxc:ChartView>
+                </Grid>
 
                     <VerticalStackLayout Grid.Row="2" Spacing="8">
                         <Label Text="Market Depth" FontSize="16" FontFamily="RobotoSerifMedium"/>

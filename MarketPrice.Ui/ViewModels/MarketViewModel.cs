@@ -124,14 +124,14 @@ namespace MarketPrice.Ui.ViewModels
                     UnitOfMeasure = insight.UnitOfMeasure,
                     LotSizeDisplay = $"{insight.LotSize} {insight.UnitOfMeasure}",
 
-                    BestBid = hasBid ? bid0!.Price.ToString("No", culture) : "No Bids",
+                    BestBid = hasBid ? bid0!.Price.ToString("N0", culture) : "No Bids",
                     BestBidRaw = bid0?.Price ?? 0,
                     BestBidQuantity = bid0?.TotalActivePosforPrice ?? 0,
                     BestBidLocation = bid0?.Locations.FirstOrDefault() ?? string.Empty,
                     NextBid1 = bid1?.Price ?? 0,
                     NextBid2 = bid2?.Price ?? 0,
 
-                    BestOffer = hasOffer ? offer0!.Price.ToString("No", culture) : "No Offers",
+                    BestOffer = hasOffer ? offer0!.Price.ToString("N0", culture) : "No Offers",
                     BestOfferRaw = offer0?.Price ?? 0,
                     BestOfferQuantity = offer0?.TotalActivePosforPrice ?? 0,
                     BestOfferLocation = offer0?.Locations.FirstOrDefault() ?? string.Empty,
