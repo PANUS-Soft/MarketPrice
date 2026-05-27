@@ -83,7 +83,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<ChangePasswordViewModel>();
             builder.Services.AddTransient<ActivityViewModel>();
             builder.Services.AddTransient<CommodityListingViewModel>();
-           
+            builder.Services.AddTransient<SettingsViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();

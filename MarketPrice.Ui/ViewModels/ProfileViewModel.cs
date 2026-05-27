@@ -108,7 +108,11 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (item == null) return;
             if (item.MenuItemView == "") return;
-            await Shell.Current.GoToAsync(item.MenuItemView);
+            await Shell.Current.GoToAsync(item.MenuItemView, new Dictionary<string, object>
+            {
+                {"FullName", FullName},
+                {"PhoneNumber", PhoneNumber}
+            });
         }
 
         [RelayCommand]
