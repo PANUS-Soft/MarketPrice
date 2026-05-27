@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace MarketPrice.Ui.ViewModels
 {
-    public partial class SettingsViewModel : ObservableObject
+    public partial class SettingsViewModel : ObservableObject, IQueryAttributable
     {
         private readonly SessionService _sessionService;
 
@@ -29,9 +29,6 @@ namespace MarketPrice.Ui.ViewModels
 
             if (session == null)
                 return;
-
-            FullName = "Ange";
-            PhoneNumber ="699538939";
         }
 
         private void LoadSettings()
@@ -39,33 +36,39 @@ namespace MarketPrice.Ui.ViewModels
             SettingsItems.Clear();
 
             SettingsItems.Add(new SettingsMenuItem(
+                "Account",
+                "Account",
+                "account_icon",
+                "Name, Number, Email"));
+            
+            SettingsItems.Add(new SettingsMenuItem(
                 "Notifications",
                 "Notifications",
-                "notification_icon.png",
+                "notification_icon",
                 "Manage alerts and updates"));
 
             SettingsItems.Add(new SettingsMenuItem(
                 "Privacy",
                 "Privacy",
-                "privacy_icon.png",
+                "privacy_and_security_icon",
                 "Control account privacy"));
 
             SettingsItems.Add(new SettingsMenuItem(
                 "Appearance",
                 "Appearance",
-                "theme_icon.png",
+                "theme_icon",
                 "Dark mode and themes"));
 
             SettingsItems.Add(new SettingsMenuItem(
                 "Language",
                 "Language",
-                "language_icon.png",
+                "language_icon",
                 "Choose your preferred language"));
 
             SettingsItems.Add(new SettingsMenuItem(
                 "Help & Support",
                 "Support",
-                "support_icon.png",
+                "support_icon",
                 "Need assistance?"));
         }
 
@@ -93,6 +96,15 @@ namespace MarketPrice.Ui.ViewModels
                 return;
 
             await Shell.Current.GoToAsync(item.Route);
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (query.ContainsKey("FullName"))
+                FullName = query["FullName"]?.ToString();
+
+            if (query.ContainsKey("PhoneNumber"))
+                PhoneNumber = query["PhoneNumber"]?.ToString();
         }
     }
 }
