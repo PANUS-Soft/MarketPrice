@@ -4,9 +4,9 @@ namespace MarketPrice.Ui.Views;
 
 public partial class Activity : ContentPage
 {
-	public Activity()
+	public Activity(ActivityViewModel activityViewModel)
 	{
 		InitializeComponent();
-		BindingContext = new ActivityViewModel();
+		BindingContext = activityViewModel;
 	}
 }

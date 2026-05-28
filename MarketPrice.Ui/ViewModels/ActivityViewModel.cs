@@ -1,78 +1,177 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Reference.DTOs;
 using MarketPrice.Ui.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+using DevExpress.Maui.Controls;
+using MarketPrice.Domain.Activity.DTOs;
+using MarketPrice.Ui.Common;
+using MarketPrice.Ui.Services.Api;
+using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.Views;
+using Activity = MarketPrice.Ui.Models.Activity;
 
 namespace MarketPrice.Ui.ViewModels
 {
     public partial class ActivityViewModel : ObservableObject
     {
-        private List<Activity> _allActivities = new();
+        private readonly ActivityApiService _activityApiService;
+        private readonly SessionService _sessionService;
+        private readonly ReferenceDataApiService _referenceDataApi;
 
-        // 1. Loading States
-        [ObservableProperty]
-        private bool isLoading;
+        private List<ActivityResponseDto> _allActivities = new();
 
-        [ObservableProperty]
-        private string searchText;
+        public ObservableCollection<string> CommodityTypesList { get; } =
+            new(); // The list of commodity types that will serve for filtering
 
-        [ObservableProperty]
-        private string selectedPositionType = "All";
-
-        [ObservableProperty]
-        private string selectedCommodityType = "All";
+        [ObservableProperty] private string searchText;
+        [ObservableProperty] private string selectedPositionType = "All";
+        [ObservableProperty] private string selectedCommodityType = "ALL";
+        [ObservableProperty] private Activity selectedItem;
+        [ObservableProperty] private bool isLoading;
+        [ObservableProperty] private BottomSheetState _activityDetailsBottomSheetState = BottomSheetState.Hidden;
+        [ObservableProperty] private Activity selectedActivityDetails;
 
         public ObservableCollection<string> PositionTypes { get; } = new() { "All", "Bids", "Offers" };
-        public ObservableCollection<string> CommodityTypes { get; } = new() { "All", "Beans", "Egusi", "P. Oil", "Onion", "Ginger" };
+
         public ObservableCollection<ActivityGroup> GroupedActivities { get; } = new();
 
-        // 2. A simple dummy list to generate 5 skeleton cards
-        public ObservableCollection<int> SkeletonItems { get; } = new() { 1, 2, 3, 4, 5 };
-
-        public ActivityViewModel()
+        public ActivityViewModel(ActivityApiService activityApiService, SessionService sessionService, ReferenceDataApiService referenceDataApiService)
         {
-            // Fire and forget the loading task
-            _ = LoadDataAsync();
+            _referenceDataApi = referenceDataApiService;
+            _sessionService = sessionService;
+            _activityApiService = activityApiService;
+
+            _ = InitializeAsync();
         }
 
-        private async Task LoadDataAsync()
+        private async Task InitializeAsync()
         {
-            // Turn on the loading skeleton
-            IsLoading = true;
+            await LoadCommodityTypesAsync();
+            await LoadUserActivityAsync();
+        }
 
-            // Simulate a 2-second network/database delay
-            await Task.Delay(2000);
+        private async Task LoadCommodityTypesAsync()
+        {
+            var response = await _referenceDataApi.GetCommodityTypesAsync();
 
-            _allActivities = new List<Activity>
+            if (!response.IsSuccessStatusCode) return;
+
+            var commodityTypes = await response.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
+
+            if (commodityTypes == null) return;
+
+            CommodityTypesList.Clear();
+            CommodityTypesList.Add("ALL");
+
+            foreach (var type in commodityTypes.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase))
+                CommodityTypesList.Add(type.Name!.ToUpper());
+
+            SelectedCommodityType = "ALL";
+        }
+
+        private async Task LoadUserActivityAsync()
+        {
+            try
             {
-                new() { CommodityName = "White Beans", Quantity = "10 bags", Price = "250,000 FCFA", State = "Pending", ImageUrl = "corn_placeholder.png", Date = DateTime.Now, PositionType = "Bid" },
-                new() { CommodityName = "Red Beans", Quantity = "5 bags", Price = "125,000 FCFA", State = "Completed", ImageUrl = "corn_placeholder.png", Date = DateTime.Now, PositionType = "Offer" },
-                new() { CommodityName = "Egusi", Quantity = "20 bags", Price = "500,000 FCFA", State = "Completed", ImageUrl = "corn_placeholder.png", Date = DateTime.Now.AddDays(-1), PositionType = "Bid" },
-                new() { CommodityName = "White Beans", Quantity = "2 bags", Price = "50,000 FCFA", State = "Cancelled", ImageUrl = "corn_placeholder.png", Date = DateTime.Now.AddDays(-1), PositionType = "Offer" },
-                new() { CommodityName = "P. Oil", Quantity = "50 Liters", Price = "40,000 FCFA", State = "Completed", ImageUrl = "corn_placeholder.png", Date = DateTime.Now.AddDays(-5), PositionType = "Bid" },
-                new() { CommodityName = "Egusi", Quantity = "10 bags", Price = "250,000 FCFA", State = "Pending", ImageUrl = "corn_placeholder.png", Date = DateTime.Now.AddDays(-6), PositionType = "Offer" }
-            };
+                IsLoading = true;
 
-            ApplyFilters();
+                var userSession = await _sessionService.GetCurrentSessionAsync();
 
-            // Turn off the skeleton and show the real data
-            IsLoading = false;
+                if (userSession == null) return;
+
+                var response = await _activityApiService.GetUserActivityAsync(userSession.UserId);
+
+                if (!response.IsSuccessStatusCode) return;
+
+                var dto = await response.Content.ReadFromJsonAsync<ActivityGroupDto>();
+
+                if (dto == null) return;
+
+                _allActivities = new List<ActivityResponseDto>();
+
+                if (dto.Today != null) _allActivities.AddRange(dto.Today);
+                if (dto.Yesterday != null) _allActivities.AddRange(dto.Yesterday);
+                if (dto.ThisWeek != null) _allActivities.AddRange(dto.ThisWeek);
+                if (dto.LastWeek != null) _allActivities.AddRange(dto.LastWeek);
+                if (dto.ThisMonth != null) _allActivities.AddRange(dto.ThisMonth);
+                if (dto.LastMonth != null) _allActivities.AddRange(dto.LastMonth);
+
+                ApplyFilters();
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error ⚠️",
+                    $"[ActivityViewModel] failed to load activity: {e.Message}",
+                    "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
+
+        private static Activity MapToUiModel(ActivityResponseDto dto) => new()
+        {
+            ActivityResponse = dto,
+            PositionId = dto.PositionId,
+            CommodityId = dto.CommodityId,
+            CommodityTypeId = dto.CommodityTypeId,
+            CommodityName = dto.CommodityName,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate,
+            Date = dto.CreatedAt.DateTime,
+            Description = dto.Description,
+            OriginRegion = dto.OriginRegion,
+            DestinationRegion = dto.DestinationRegion,
+            Origin = dto.Origin,
+            Destination = dto.Destination,
+            Grade = dto.Grade,
+            LeadTime = string.IsNullOrEmpty(dto.LeadTime) ? string.Empty : $"{dto.LeadTime} Days",
+            DeliveryFee = dto.DeliveryFee.HasValue ? $"{dto.DeliveryFee:N0} FCFA" : string.Empty,
+            ShelfLifeInDays = dto.ShelfLifeInDays,
+            IsDeliverable = dto.CanDeliver,
+            Quantity = $"{dto.Quantity:N0}",
+            TotalQuantity = $"{(dto.Quantity * dto.LotSize):N0} {dto.UnitOfMeasure}",
+            Price = $"{dto.UnitPrice:N0} FCFA",
+            TotalPrice = $"{(dto.Quantity * dto.UnitPrice):N0} FCFA",
+            State = dto.State,
+            StateColor = dto.State == "Open" ? Color.FromArgb("#2ECC71") : dto.State == "Close" ? Color.FromArgb("#E74C3C") : Color.FromArgb("#F39C12"),
+            PosType = dto.PositionType,
+            PositionType = dto.PositionType == "Bid" ? PositionType.Bid : PositionType.Offer,
+            LotSize = $"{dto.LotSize} {dto.UnitOfMeasure}",
+            UnitOfMeasure = dto.UnitOfMeasure,
+        };
 
         partial void OnSearchTextChanged(string value) => ApplyFilters();
+        partial void OnSelectedItemChanged(Activity value)
+        {
+            if (value == null) return;
+
+            SelectedActivityDetails = value;            
+            ActivityDetailsBottomSheetState = BottomSheetState.HalfExpanded;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                SelectedItem = null;
+            });
+        }
+
+
         partial void OnSelectedPositionTypeChanged(string value) => ApplyFilters();
 
-        private string _lastCommodityType = "All";
+        private string _lastCommodityType = "ALL";
 
         partial void OnSelectedCommodityTypeChanged(string value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                MainThread.BeginInvokeOnMainThread(() => SelectedCommodityType = _lastCommodityType);
+                MainThread.BeginInvokeOnMainThread(() => { SelectedCommodityType = _lastCommodityType; });
                 return;
             }
             _lastCommodityType = value;
@@ -82,38 +181,100 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private void ApplyFilters()
         {
-            if (_allActivities == null || !_allActivities.Any()) return;
+            if (!_allActivities.Any())
+            {
+                GroupedActivities.Clear();
+                return;
+            }
 
-            var filteredData = _allActivities.AsEnumerable();
+            IEnumerable<ActivityResponseDto> filteredActivities = _allActivities;
 
             if (!string.IsNullOrWhiteSpace(SearchText))
-                filteredData = filteredData.Where(x => x.CommodityName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+                filteredActivities = filteredActivities.Where(x =>
+                    x.CommodityName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
             if (!string.IsNullOrWhiteSpace(SelectedPositionType) && SelectedPositionType != "All")
             {
-                string targetType = SelectedPositionType == "Bids" ? "Bid" : "Offer";
-                filteredData = filteredData.Where(x => x.PositionType.Equals(targetType, StringComparison.OrdinalIgnoreCase));
+                var target = SelectedPositionType == "Bids" ? "Bid" : "Offer";
+                filteredActivities =
+                    filteredActivities.Where(x => x.PositionType.Equals(target, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (!string.IsNullOrWhiteSpace(SelectedCommodityType) && SelectedCommodityType != "All")
-                filteredData = filteredData.Where(x => x.CommodityName.Contains(SelectedCommodityType, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(SelectedCommodityType) && SelectedCommodityType != "ALL")
+                filteredActivities = filteredActivities.Where(x =>
+                    x.CommodityName.Contains(SelectedCommodityType, StringComparison.OrdinalIgnoreCase));
 
-            var today = filteredData.Where(x => x.Date.Date == DateTime.Now.Date).ToList();
-            var yesterday = filteredData.Where(x => x.Date.Date == DateTime.Now.AddDays(-1).Date).ToList();
-            var lastWeek = filteredData.Where(x => x.Date.Date < DateTime.Now.AddDays(-1).Date).ToList();
+            var uiItems = filteredActivities.Select(MapToUiModel).ToList();
 
-            GroupedActivities.Clear();
-            if (today.Any()) GroupedActivities.Add(new ActivityGroup("Today", today));
-            if (yesterday.Any()) GroupedActivities.Add(new ActivityGroup("Yesterday", yesterday));
-            if (lastWeek.Any()) GroupedActivities.Add(new ActivityGroup("Last week", lastWeek));
+            var now = DateTime.Now.Date;
+            var startOfThisWeek = now.AddDays(-(int)now.DayOfWeek == 0 ? 6 : (int)now.DayOfWeek - 1);
+            var startOfLastWeek = startOfThisWeek.AddDays(-7);
+            var startOfThisMonth = new DateTime(now.Year, now.Month, 1);
+            var startOfLastMonth = startOfThisMonth.AddMonths(-1);
+
+            var today = uiItems.Where(x => x.Date.Date == now).ToList();
+            var yesterday = uiItems.Where(x => x.Date.Date == now.AddDays(-1)).ToList();
+            var thisWeek = uiItems.Where(x => x.Date.Date >= startOfThisWeek && x.Date.Date < now.AddDays(-1)).ToList();
+            var lastWeek = uiItems.Where(x => x.Date.Date >= startOfLastWeek && x.Date.Date < startOfThisWeek).ToList();
+            var thisMonth = uiItems.Where(x => x.Date.Date >= startOfThisMonth && x.Date.Date < startOfLastWeek).ToList();
+            var lastMonth = uiItems.Where(x => x.Date.Date >= startOfLastMonth && x.Date.Date < startOfThisMonth).ToList();
+            var older = uiItems.Where(x => x.Date.Date < startOfLastMonth).ToList();
+
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                GroupedActivities.Clear();
+                if (today.Any()) GroupedActivities.Add(new ActivityGroup("Today", today));
+                if (yesterday.Any()) GroupedActivities.Add(new ActivityGroup("Yesterday", yesterday));
+                if (thisWeek.Any()) GroupedActivities.Add(new ActivityGroup("This Week", thisWeek));
+                if (lastWeek.Any()) GroupedActivities.Add(new ActivityGroup("Last Week", lastWeek));
+                if (thisMonth.Any()) GroupedActivities.Add(new ActivityGroup("This Month", thisMonth));
+                if (lastMonth.Any()) GroupedActivities.Add(new ActivityGroup("Last Month", lastMonth));
+                if (older.Any()) GroupedActivities.Add(new ActivityGroup("Older", older));
+            });
         }
 
         [RelayCommand]
-        private async Task GoToDetailsAsync(MarketPrice.Ui.Models.Activity selectedItem)
+        private void GoToDetailsAsync(Activity selectedItem)
         {
             if (selectedItem == null) return;
-            // var navigationParameter = new Dictionary<string, object> { { "ActivityDetail", selectedItem } };
-            // await Shell.Current.GoToAsync(nameof(Views.PositionDetail), navigationParameter);
+
+            // Here you can implement the logic to open a detailed view of the selected activity.
+            SelectedItem = selectedItem;
+            ActivityDetailsBottomSheetState = BottomSheetState.HalfExpanded;
+        }
+
+        [RelayCommand]
+        private async Task EditActivityAsync(Activity selectedActivity)
+        {
+            if (selectedActivity == null) return;
+
+            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
+            {
+                { "ActivityToEdit", selectedActivity}
+            });
+
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+        }
+
+        [RelayCommand]
+        private async Task DeleteActivityAsync(Activity selectedItem)
+        {
+            if (selectedItem == null) return;
+
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+
+            var confirm = await Shell.Current.DisplayAlert("Confirm Deletion",
+                $"Are you sure you want to delete the activity for {selectedItem.CommodityName}?",
+                "Yes", "No");
+            if (confirm)
+            {
+                await Shell.Current.DisplayAlert("Infos ⚠️", "The activity was successfully deleted.", "OK");
+            }
+            else
+            {
+                return;
+            }
         }
     }
 }

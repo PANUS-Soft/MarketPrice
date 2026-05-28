@@ -18,6 +18,12 @@ public partial class PlacePosition : ContentPage
         if (BindingContext is PlacePositionViewModel placePositionViewModel)
         {
             await placePositionViewModel.LoadReferenceDataAsync();
+
+            if (placePositionViewModel.ActivityToEdit != null)
+            {
+                // If we're editing an existing activity, load its details
+                await placePositionViewModel.LoadFromActivity(placePositionViewModel.ActivityToEdit);
+            }
         }
     }
 }

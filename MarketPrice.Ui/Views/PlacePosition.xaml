@@ -183,10 +183,21 @@
                             <dxe:TextEdit PlaceholderText="Unit Price" TextFontFamily="RobotoSerifRegular" TextFontSize="13" Prefix="FCFA" Keyboard="Numeric" BoxMode="Outlined" CornerRadius="10" Text="{Binding UnitPrice}"/>
                             <Label Text="{Binding UnitPriceError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
 
-                            <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifRegular" TextColor="White"/>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                                <dxe:DateEdit Grid.Column="0" PlaceholderText="Start Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding StartDate}"/>
-                                <dxe:TimeEdit Grid.Column="1" PlaceholderText="Start TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Time="{Binding StartDate}"/>
+                            <Label Text="{Binding TotalValueDisplay}" FontFamily="RobotoSerifSemibold" HorizontalOptions="End" FontSize="16" TextColor="{StaticResource TextPrimary}" Margin="0"/>
+
+                            <Label Text="Position Timeline" FontSize="15" FontFamily="RobotoSerifBold" TextColor="{StaticResource TextPrimary}" Margin="0, 55, 0, 0"/>
+                            
+                            <dxe:FormSwitchItem Text="Start position immediately ?"
+                                                TextFontFamily="RobotoSerifRegular"
+                                                TextFontSize="13"
+                                                IsEnabled="{Binding IsStartPositionImmediatelyEnabled}"
+                                                IsToggled="{Binding StartPositionImmediately}"
+                                                OnColor="{StaticResource PrimaryBase}"
+                                                IsVisible="{Binding IsStartPositionImmediatelyVisible}"/>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15" IsVisible="{Binding IsStartDateTimeVisible}">
+                                <dxe:DateEdit Grid.Column="0" LabelText="Start Date" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" IsEnabled="{Binding IsStartDateTimeEnabled}" CornerRadius="8" DisplayFormat="dd/MM/yyyy" Date="{Binding StartDate}"/>
+                                <dxe:TimeEdit Grid.Column="1" LabelText="Start TIme" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" IsEnabled="{Binding IsStartDateTimeEnabled}"  CornerRadius="10" Time="{Binding StartDate}"/>
                             </Grid>
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
@@ -230,16 +241,22 @@
                                 <dxe:TextEdit Grid.Column="1" PlaceholderText="Street" TextFontFamily="RobotoSerifRegular" BoxMode="Outlined" CornerRadius="10" Text="{Binding OriginStreet}"/>
                             </Grid>
                             <Label Text="{Binding OriginDetailError}" FontFamily="RobotoSerifRegular" TextColor="Red" FontSize="10"/>
+
+                            <dxe:CheckEdit Label="Is Deliverable ?"
+                                           LabelFontFamily="RobotoSerifMedium"
+                                           IsVisible="{Binding IsDeliverableBoxVisible}"
+                                           CheckBoxPosition="End"
+                                           CheckedCheckBoxColor="{StaticResource PrimaryBase}"
+                                           IsChecked="{Binding IsDeliverable}"/>
+
                         </VerticalStackLayout>
                     </Border>
 
-                    <dxe:FormSwitchItem Text="Is Deliverable ?" 
-                                        TextFontFamily="RobotoSerifRegular" 
-                                        TextFontSize="13"
-                                        Margin="0,0,0,0"
-                                        IsVisible="{Binding IsOffer}"
-                                        IsToggled="{Binding IsDeliverable}"
-                                        OnColor="{StaticResource PrimaryBase}"/>
+                    <!--<Switch Margin="0,0,0,0"
+                            IsVisible="{Binding IsOffer}"
+                            IsToggled="{Binding IsDeliverable}"
+                            OnColor="{StaticResource PrimaryBase}"
+                            ThumbColor="{StaticResource PrimaryBase}"/>-->
 
                     <VerticalStackLayout IsVisible="{Binding IsDeliverable}">
                         <Label Text="Destination Location" FontFamily="RobotoSerifBold" TextColor="White" Margin="0,10,0,10"/>
