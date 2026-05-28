@@ -8,140 +8,319 @@
     xmlns:dx="http://schemas.devexpress.com/maui"
     xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
     x:Class="MarketPrice.Ui.Views.Profile"
-    Shell.NavBarIsVisible="False"
-    BackgroundColor="{StaticResource Background}"
-    Title="Profile">
+    Title="Profile"
+    BackgroundColor="#13131F">
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
+        <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
 
-    <Grid Padding="20" RowDefinitions="Auto, *">
+    <Grid VerticalOptions="FillAndExpand">
 
-        <Grid
-            Grid.Row="0"
-            ColumnDefinitions="Auto, *, Auto" 
-            Margin="0,0,0,20">
+        <StackLayout IsVisible="{Binding IsUserLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
+                     VerticalOptions="CenterAndExpand"
+                     Spacing="3"
+                     HorizontalOptions="Center">
 
-            <Label 
-                Grid.Column="1" 
-                Text="Profile" 
-                FontFamily="RobotoSerifBold" 
-                FontSize="20" 
-                HorizontalOptions="Center" 
-                TextColor="White"/>
+            <Image Source="no_profile.png"
+                   HeightRequest="250"/>
 
-        </Grid>
+            <Label Text="No profile. You are here as a guest."
+                   FontFamily="RobotoSerifRegular"
+                   FontSize="18"
+                   HorizontalTextAlignment="Center"
+                   HorizontalOptions="Center"/>
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout>
+            <Label Text="Register or log in to manage your profile."
+                   FontSize="15"
+                   FontFamily="RobotoSerifRegular"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <Grid ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10">
+                <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Register" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="10" Command="{Binding NavigateToRegisterCommand}"/>
+                <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Log in" BackgroundColor="White" BorderColor="{StaticResource PrimaryBase}" BorderWidth="3" TextColor="{StaticResource PrimaryBase}" CornerRadius="10" Command="{Binding NavigateToLoginCommand}"/>
+            </Grid>
+        </StackLayout>
+
+        <Grid IsVisible="{Binding IsUserLoggedIn}" Padding="20" RowDefinitions="Auto, *">
+
+            <Grid Grid.Row="0" RowDefinitions="Auto, *">
                 <VerticalStackLayout 
+                    Grid.Row="0"
                     HorizontalOptions="Center" 
                     Spacing="12" 
                     Margin="0,10,0,20">
 
                     <Border 
-                        Stroke="White"
-                        StrokeThickness="3"
-                        StrokeShape="RoundRectangle 50"
-                        HeightRequest="100"
-                        WidthRequest="100"
-                        BackgroundColor="White"
-                        HorizontalOptions="Center">
+                            StrokeThickness="3"
+                            StrokeShape="RoundRectangle 50"
+                            HeightRequest="100"
+                            WidthRequest="100"
+                            BackgroundColor="{StaticResource PrimaryBase}"
+                            HorizontalOptions="Center">
+
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="Red" Offset="0"/>
+                                <GradientStop Color="#6B5BFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
 
                         <Label 
-                            Text="{Binding FullName, Converter={StaticResource NameToInitialsConverter}}" 
-                            FontSize="30" 
-                            FontFamily="RobotoSerifBold" 
-                            TextColor="Black"
-                            HorizontalOptions="Center" 
-                            VerticalOptions="Center"/>
+                                Text="{Binding FullName, Converter={StaticResource NameToInitialsConverter}}" 
+                                FontSize="30" 
+                                FontFamily="RobotoSerifRegular" 
+                                TextColor="White"
+                                HorizontalOptions="Center" 
+                                VerticalOptions="Center"/>
 
                     </Border>
 
                     <Label 
-                        Text="{Binding FullName}" 
-                        FontSize="22" 
-                        FontFamily="RobotoSerifBold" 
-                        TextColor="White"
-                        HorizontalTextAlignment="Center"
-                        HorizontalOptions="Center"/>
+                            Text="{Binding FullName}" 
+                            FontSize="22" 
+                            FontFamily="RobotoSerifRegular" 
+                            TextColor="White"
+                            HorizontalTextAlignment="Center"
+                            HorizontalOptions="Center"/>
+
+                    <Label 
+                            Text="{Binding PhoneNumber}" 
+                            FontSize="15" 
+                            FontFamily="RobotoSerifRegular" 
+                            TextColor="#AAAAAA"
+                            HorizontalTextAlignment="Center"
+                            HorizontalOptions="Center"/>
 
                     <dxc:DXButton 
-                        Content="Edit Profile"
-                        Command="{Binding NavigateToEditProfileCommand}"
-                        BackgroundColor="{StaticResource PrimaryBase}"
-                        TextColor="White"
-                        CornerRadius="5"
-                        HeightRequest="40"
-                        Padding="30,0"
-                        FontFamily="RobotoSerifMedium"
-                        FontSize="14"
-                        HorizontalOptions="Center"
-                        Margin="0,5,0,0"/>
-                </VerticalStackLayout>
+                            Content="Edit Profile"
+                            Icon="edit.png"
+                            Command="{Binding NavigateToEditProfileCommand}"
+                            BackgroundColor="{StaticResource PrimaryBase}"
+                            TextColor="White"
+                            CornerRadius="25"
+                            HeightRequest="40"
+                            Padding="30,0"
+                            FontFamily="RobotoSerifMedium"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            Margin="0,5,0,0"/>
 
+                </VerticalStackLayout>
                 <BoxView 
+                    Grid.Row="1"
                     HeightRequest="3" 
                     Color="White" 
                     Margin="0,10"/>
 
-                <VerticalStackLayout 
+
+            </Grid>
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Spacing="15">
+                    <VerticalStackLayout 
                     Spacing="15" 
                     Padding="0,15">
 
-                    <Grid ColumnDefinitions="140, *">
-                        <Label 
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                            <Border
+                            Grid.Column="0"
+                            BackgroundColor="#1E1E2E"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14"
+                            Padding="0,18">
+                                <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                    <Label
+                                    Text="367"
+                                    FontFamily="RobotoSerifBold"
+                                    FontSize="20"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"/>
+                                    <Label
+                                    Text="FOLLOWERS"
+                                    FontFamily="RobotoSerifRegular"
+                                    FontSize="11"
+                                    TextColor="#777777"
+                                    HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border
+                            Grid.Column="1"
+                            BackgroundColor="#1E1E2E"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14"
+                            Padding="0,18">
+                                <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                    <Label
+                                    Text="150"
+                                    FontFamily="RobotoSerifBold"
+                                    FontSize="20"
+                                    TextColor="#4A9EFF"
+                                    HorizontalTextAlignment="Center"/>
+                                    <Label
+                                    Text="FOLLOWING"
+                                    FontFamily="RobotoSerifRegular"
+                                    FontSize="11"
+                                    TextColor="#777777"
+                                    HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                        <!--<Grid ColumnDefinitions="140, *">
+                            <Label 
                             Grid.Column="0" 
                             Text="Email:" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="White" 
                             FontSize="15"/>
-                        <Label 
+                            <Label 
                             Grid.Column="1" 
                             Text="{Binding EmailAddress}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="White" 
                             FontSize="15"/>
-                    </Grid>
+                        </Grid>
 
-                    <Grid ColumnDefinitions="140, *">
-                        <Label 
+                        <Grid ColumnDefinitions="140, *">
+                            <Label 
                             Grid.Column="0" 
                             Text="Phone Number:" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="White" 
                             FontSize="15"/>
-                        <Label 
+                            <Label 
                             Grid.Column="1" 
                             Text="{Binding PhoneNumber}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="White" 
                             FontSize="15"/>
-                    </Grid>
+                        </Grid>
 
-                    <Grid ColumnDefinitions="140, *">
-                        <Label 
+                        <Grid ColumnDefinitions="140, *">
+                            <Label 
                             Grid.Column="0" 
                             Text="Account Type:" 
                             FontFamily="RobotoSerifBold" 
                             TextColor="White" 
                             FontSize="15"/>
-                        <Label 
+                            <Label 
                             Grid.Column="1" 
                             Text="{Binding AccountType}" 
                             FontFamily="RobotoSerifRegular" 
                             TextColor="White" 
                             FontSize="15"/>
-                    </Grid>
-                </VerticalStackLayout>
+                        </Grid>-->
+                    </VerticalStackLayout>
 
-                <BoxView 
+                    <!--<BoxView 
                     HeightRequest="3" 
-                    Color="White" 
-                    Margin="0,10"/>
+                    Color="{StaticResource PrimaryBase}" 
+                    Margin="0,10"/>-->
 
-                <dxcv:DXCollectionView 
+                    <!-- ── Security & Preferences ── -->
+                    <Border
+                        BackgroundColor="#1E1E2E"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="16,14">
+                        <VerticalStackLayout>
+
+                            <Label
+                                Text="SECURITY &amp; PREFERENCES"
+                                FontFamily="RobotoSerifBold"
+                                FontSize="11"
+                                TextColor="#777777"
+                                Margin="0,0,0,10"/>
+
+                            <dxcv:DXCollectionView
+                                ItemsSource="{Binding MenuItems}"
+                                SelectionMode="Single"
+                                ItemSpacing="0"
+                                IsScrollBarVisible="False"
+                                HeightRequest="284">
+
+                                <dxcv:DXCollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid
+                                            ColumnDefinitions="46, *, Auto"
+                                            Padding="0,10"
+                                            ColumnSpacing="5"
+                                            BackgroundColor="Transparent">
+
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ProfileViewModel}}, Path=NavigateToItemCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Grid.GestureRecognizers>
+
+                                            <!-- Icon container -->
+                                            <Border
+                                                Grid.Column="0"
+                                                BackgroundColor="#AAAAAA"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 10"
+                                                HeightRequest="38"
+                                                WidthRequest="38"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Center">
+                                                <Image
+                                                    Source="{Binding IconSource}"
+                                                    HeightRequest="20"
+                                                    WidthRequest="20"
+                                                    VerticalOptions="Center"
+                                                    HorizontalOptions="Center"/>
+                                            </Border>
+
+                                            <!-- Title + Subtitle -->
+                                            <VerticalStackLayout
+                                                Grid.Column="1"
+                                                VerticalOptions="Center"
+                                                Spacing="0">
+                                                <Label
+                                                    Text="{Binding Title}"
+                                                    FontFamily="RobotoSerifRegular"
+                                                    FontSize="13"
+                                                    TextColor="White"/>
+                                                <Label
+                                                    Text="{Binding SubTitle}"
+                                                    FontFamily="RobotoSerifLight"
+                                                    FontSize="10"
+                                                    TextColor="White"/>
+                                            </VerticalStackLayout>
+
+                                            <!-- Badge + chevron -->
+                                            <HorizontalStackLayout
+                                                Grid.Column="2"
+                                                VerticalOptions="Center"
+                                                Spacing="8">
+                                                <!--<Border
+                                                    IsVisible="{Binding HasBadge}"
+                                                    BackgroundColor="#1A3B1A"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 10"
+                                                    Padding="10,4">
+                                                    <Label
+                                                        Text="{Binding BadgeText}"
+                                                        FontFamily="RobotoSerifBold"
+                                                        FontSize="11"
+                                                        TextColor="#4CAF50"/>
+                                                </Border>-->
+                                                <Label
+                                                    Text="›"
+                                                    FontSize="24"
+                                                    TextColor="#AAAAAA"
+                                                    VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </dxcv:DXCollectionView.ItemTemplate>
+                            </dxcv:DXCollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--<dxcv:DXCollectionView 
                     ItemsSource="{Binding MenuItems}" 
                     SelectionMode="Single"
                     ItemSpacing="0"
@@ -149,20 +328,20 @@
                     HeightRequest="230"
                     Margin="0,5,0,0">
 
-                    <dxcv:DXCollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid 
+                        <dxcv:DXCollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid 
                                 ColumnDefinitions="35, *" 
                                 Padding="0,15" 
                                 BackgroundColor="Transparent">
 
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer 
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer 
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ProfileViewModel}}, Path=NavigateToItemCommand}"
                                         CommandParameter="{Binding .}"/>
-                                </Grid.GestureRecognizers>
+                                    </Grid.GestureRecognizers>
 
-                                <Image 
+                                    <Image 
                                     Grid.Column="0" 
                                     Source="{Binding IconSource}" 
                                     HeightRequest="20" 
@@ -170,45 +349,20 @@
                                     VerticalOptions="Center" 
                                     HorizontalOptions="Start"/>
 
-                                <Label 
+                                    <Label 
                                     Grid.Column="1" 
                                     Text="{Binding Title}" 
                                     FontFamily="RobotoSerifMedium" 
                                     FontSize="16" 
                                     TextColor="White" 
                                     VerticalOptions="Center"/>
-                            </Grid>
-                        </DataTemplate>
-                    </dxcv:DXCollectionView.ItemTemplate>
-                </dxcv:DXCollectionView>
+                                </Grid>
+                            </DataTemplate>
+                        </dxcv:DXCollectionView.ItemTemplate>
+                    </dxcv:DXCollectionView>-->
+                </VerticalStackLayout>
+            </ScrollView>
 
-                <BoxView 
-                    HeightRequest="3" 
-                    Color="White" 
-                    Margin="0,5,0,15"/>
-
-                <dx:SimpleButton
-                    Command="{Binding LogoutCommand}"
-                    BackgroundColor="{StaticResource Danger}"
-                    CornerRadius="5"
-                    HeightRequest="45"
-                    WidthRequest="150"
-                    Padding="15,0">
-                    <HorizontalStackLayout Spacing="10"
-                                           VerticalOptions="Center"
-                                           HorizontalOptions="Center">
-                        <Image Source="logout_icon.png"
-                               HeightRequest="25"
-                               WidthRequest="25"/>
-
-                        <Label Text="Logout"
-                               TextColor="White"
-                               FontSize="15"
-                               FontFamily="RobotoSerifBold"/>
-                    </HorizontalStackLayout>
-                </dx:SimpleButton>
-
-            </VerticalStackLayout>
-        </ScrollView>
+        </Grid>
     </Grid>
 </ContentPage>

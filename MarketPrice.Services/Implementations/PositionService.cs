@@ -247,6 +247,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
     {
         try
         {
+            var now = DateTime.UtcNow;
             if (command.UnitPrice <= 0)
             {
                 return DtoManager.Failed<PositionListingResponseDto>(
@@ -286,7 +287,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 p.Commodity.CommodityTypeId == command.CommodityTypeId &&
                 p.PositionTypeId == command.PositionTypeId &&
                 p.UnitPrice == command.UnitPrice &&
-                p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow);
+                p.StartDate <= now && p.ExpiryDate > now);
 
             // OPTIONAL FILTER: If a specific CommodityId is passed, filter further.
             // If it is null/empty, it includes EVERYTHING under the CommodityType.
@@ -367,13 +368,10 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             var ls = _context.Commodities
                 .Where(c => c.CommodityTypeId == command.CommodityTypeId)
-                .Select(c => c.LotSize)
+                .Select(c => new { c.LotSize, c.UnitOfMeasure.UnitOfMeasureCodeEnglish})
                 .FirstOrDefault();
 
-            var uom = _context.Commodities
-                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
-                .Select(c => c.UnitOfMeasure.UnitOfMeasureCodeEnglish)
-                .FirstOrDefault();
+            
 
             var shelfLife = _context.Commodities
                 .Where(c => c.CommodityTypeId == command.CommodityTypeId)

@@ -1,7 +1,7 @@
 ﻿<?xml version = "1.0" encoding = "UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:MarketPrice.Ui"
+             xmlns:converters="clr-namespace:MarketPrice.Ui.Converters;assembly=MarketPrice.Ui"
              x:Class="MarketPrice.Ui.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -9,6 +9,17 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <converters:NotZeroConverter x:Key="NotZeroConverter"/>
+            <converters:TrendColorConverter x:Key="TrendBidColor" IsOffer="False"/>
+            <converters:TrendColorConverter x:Key="TrendOfferColor" IsOffer="True"/>
+            <converters:IsZeroConverter x:Key="IsZeroConverter"/>
+            <converters:PriceStateBidBgConverter     x:Key="BidBgConverter"/>
+            <converters:PriceStateBidBorderConverter x:Key="BidBorderConverter"/>
+            <converters:PriceStateBidTextConverter   x:Key="BidTextConverter"/>
+            <converters:PriceStateOfferBgConverter     x:Key="OfferBgConverter"/>
+            <converters:PriceStateOfferBorderConverter x:Key="OfferBorderConverter"/>
+            <converters:PriceStateOfferTextConverter   x:Key="OfferTextConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

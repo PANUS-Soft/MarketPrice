@@ -54,14 +54,11 @@ namespace MarketPrice.Ui.Services.Api
             return await _httpClient.GetAsync($"{_baseUrl}Markets/chart?commodityId={commodityId}&range={range}");
         }
 
-        // I added this back in case your InsightViewModel or MarketViewModel still needs it!
-        public async Task<HttpResponseMessage> LoadMarketAsync()
+        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range = "1D")
         {
-            var session = await _sessionService.GetCurrentSessionAsync();
-            if (session != null)
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
-            }
+            var route = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_CHART_DATA);
+            var url = route.Replace("{commodityId}", commodityId.ToString());
+            var finalUrl = $"{url}?range={range}";
 
             // Attached the base URL here!
             return await _httpClient.GetAsync($"{_baseUrl}Markets");

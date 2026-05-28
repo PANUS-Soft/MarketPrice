@@ -23,7 +23,7 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.REF_COMMODITY_TYPE)]
         public async Task<ActionResult<CommodityTypeDto>> GetCommodityTypes()
         {

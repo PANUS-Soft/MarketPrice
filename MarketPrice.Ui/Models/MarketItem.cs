@@ -47,6 +47,9 @@
         public bool IsBidNull { get; set; }
 
         public bool IsOfferNull { get; set; }
+
+        public bool IsBidSoonToExpire { get; set; }
+        public bool IsOfferSoonToExpire { get; set; }
     }
 
     public class MarketItemFilter

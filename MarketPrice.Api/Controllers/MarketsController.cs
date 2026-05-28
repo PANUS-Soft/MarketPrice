@@ -20,7 +20,7 @@ namespace MarketPrice.Api.Controllers
         private readonly ILogger<MarketsController> _logger = logger;
 
         // Load Market Data
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {
@@ -37,7 +37,7 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Market Insight
-        // [Authorize]
+        [Authorize]
         [HttpGet(ApiRoutes.GET_MARKET_INSIGHT + "/{commodityId}")]
         public async Task<ActionResult<MarketInsightResponseDto>> GetMarketDetails(Guid commodityId)
         {
@@ -45,9 +45,9 @@ namespace MarketPrice.Api.Controllers
         }
 
         // Get Price Chart Data
-        // [Authorize]
+        [Authorize]
         [HttpGet(ApiRoutes.GET_CHART_DATA)]
-        public async Task<ActionResult> GetChartData( [FromQuery] Guid commodityId, [FromQuery] string range = "1D")
+        public async Task<ActionResult> GetChartData( [FromRoute] Guid commodityId, [FromQuery] string range = "1D")
         {
             try
             {

@@ -16,7 +16,7 @@ namespace MarketPrice.Ui.ViewModels
     {
         private readonly AuthenticationApiService _authenticationApi;
         private readonly ProfileApiService _profileApi;
-        private readonly SessionService _sessionApi;
+        private readonly SessionService _sessionService;
 
         private UserProfileResponseDto userProfile;
 
@@ -32,12 +32,15 @@ namespace MarketPrice.Ui.ViewModels
         {
             _authenticationApi = authenticationApiService;
             _profileApi = profileApiService;
-            _sessionApi = sessionService;
+            _sessionService = sessionService;
         }
+
+        public bool IsUserLoggedIn => _sessionService.IsLoggedIn;
+        
 
         public async Task LoadUserProfileAsync()
         {
-            var session = await _sessionApi.GetCurrentSessionAsync();
+            var session = await _sessionService.GetCurrentSessionAsync();
 
             if (session == null) return;
 
@@ -70,14 +73,26 @@ namespace MarketPrice.Ui.ViewModels
         private void LoadProfileComponentAsync()
         {
             MenuItems.Clear();
-            MenuItems.Add(new ProfileMenuItem("Settings","", "settings_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("My Position", "","position_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("Change Password", "ChangePassword", "lock_icon.png"));
-            MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png"));
+            MenuItems.Add(new ProfileMenuItem("Settings","Settings", "settings_icon.png", "General app preferences"));
+            MenuItems.Add(new ProfileMenuItem("My Position", "","position_icon.png", "Manage your location"));
+            MenuItems.Add(new ProfileMenuItem("Change Password", "ChangePassword", "lock_icon.png", "Make your account secure"));
+            MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png", "Identity status", "NOT VERIFIED"));
         }
 
         // Menu Collection
         public ObservableCollection<ProfileMenuItem> MenuItems { get; } = new();
+
+        [RelayCommand]
+        private async Task NavigateToRegisterAsync()
+        {
+            await Shell.Current.GoToAsync("//Register");
+        }
+
+        [RelayCommand]
+        private async Task NavigateToLoginAsync()
+        {
+            await Shell.Current.GoToAsync("//Login");
+        }
 
         [RelayCommand]
         private async Task NavigateToEditProfileAsync()
@@ -93,58 +108,20 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (item == null) return;
             if (item.MenuItemView == "") return;
-            await Shell.Current.GoToAsync(item.MenuItemView);
-        }
-
-        [RelayCommand]
-        private async Task LogoutAsync()
-        {
-            bool confirmLogout = await Shell.Current.DisplayAlert("Logout", "Are you sure you want to log out?", "Yes", "No");
-
-            if (!confirmLogout) return;
-
-            try
+            await Shell.Current.GoToAsync(item.MenuItemView, new Dictionary<string, object>
             {
-                var userSession = await _sessionApi.GetCurrentSessionAsync();
-
-                var command = new LogoutCommand { EmailAddress = userSession!.EmailAddress };
-
-                var response = await _authenticationApi.LogoutUserAsync(command);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var dto = await response.Content.ReadFromJsonAsync<LogoutResponseDto>();
-
-                    if (dto is { LogoutStatus: true })
-                    {
-                        var isSessionEnded = await _sessionApi.EndSessionAsync();
-                        if (isSessionEnded)
-                        {
-                            await Toast.Make("You have been logged out successfully.", ToastDuration.Long).Show();
-                            await Shell.Current.GoToAsync("//Welcome");
-                        }
-                    }
-                    else
-                    {
-                        await Shell.Current.DisplayAlert("Error", "Failed to log out. Please try again.", "OK");
-                    }
-                }
-                else
-                {
-                    await Shell.Current.DisplayAlert("Error", "Failed to log out. Please try again.", "OK");
-                }
-            }
-            catch (Exception e)
-            {
-                await Shell.Current.DisplayAlert("Error", $"There was an error when trying to log you out ... {e.Message}", "OK");
-            }
+                {"UserProfile", userProfile}
+            });
         }
     }
 
-    public class ProfileMenuItem(string title, string? menuItemView, string iconSource)
+    public class ProfileMenuItem(string title, string? menuItemView, string iconSource, string subTitle = "", string badgeText = "")
     {
         public string Title { get; set; } = title;
         public string? MenuItemView { get; set; } = menuItemView;
         public string IconSource { get; set; } = iconSource;
+        public string SubTitle { get; set; } = subTitle;
+        public string BadgeText { get; set; } = badgeText;
+        public bool HasBadge => !string.IsNullOrEmpty(BadgeText);
     }
 }

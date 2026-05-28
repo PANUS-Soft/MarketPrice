@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+    xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
+    xmlns:models="clr-namespace:MarketPrice.Ui.Models"
+    xmlns:dx="http://schemas.devexpress.com/maui"
+    xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
+    x:Class="MarketPrice.Ui.Views.Settings"
+    BackgroundColor="#13131F"
+    Shell.TabBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, Auto">
+
+        <!-- TOP HEADER -->
+        <Grid
+            Padding="20, 0"
+            RowDefinitions="Auto, *">
+
+            <Grid Grid.Row="0">
+                <!-- Back Button -->
+                <ImageButton
+                    Source="white_back_icon.png"
+                    HeightRequest="22"
+                    WidthRequest="22"
+                    HorizontalOptions="Start"
+                    Command="{Binding GoBackCommand}"/>
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <VerticalStackLayout 
+                    Grid.Column="1"
+                    HorizontalOptions="Center" 
+                    Spacing="12" 
+                    Margin="0,0,0,20">
+
+                    <Border 
+                            StrokeThickness="3"
+                            StrokeShape="RoundRectangle 50"
+                            HeightRequest="100"
+                            WidthRequest="100"
+                            BackgroundColor="{StaticResource PrimaryBase}"
+                            HorizontalOptions="Center">
+
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="Red" Offset="0"/>
+                                <GradientStop Color="#6B5BFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+
+                        <Label 
+                                Text="{Binding FullName, Converter={StaticResource NameToInitialsConverter}}" 
+                                FontSize="30" 
+                                FontFamily="RobotoSerifRegular" 
+                                TextColor="White"
+                                HorizontalOptions="Center" 
+                                VerticalOptions="Center"/>
+
+                    </Border>
+
+                    <Label 
+                            Text="{Binding FullName}" 
+                            FontSize="22" 
+                            FontFamily="RobotoSerifRegular" 
+                            TextColor="White"
+                            HorizontalTextAlignment="Center"
+                            HorizontalOptions="Center"/>
+
+                    <Label 
+                            Text="{Binding PhoneNumber}" 
+                            FontSize="15" 
+                            FontFamily="RobotoSerifRegular" 
+                            TextColor="#AAAAAA"
+                            HorizontalTextAlignment="Center"
+                            HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+            </Grid>
+        </Grid>
+
+        <!-- CONTENT -->
+        <VerticalStackLayout Grid.Row="1" Padding="20,10">
+
+            <Label
+                Text="Settings"
+                FontSize="20"
+
+                FontFamily="RobotoSerifSemibold"
+                HorizontalOptions="Center"
+                TextColor="#777777"
+                Margin="10,0,0,10"/>
+
+            <Border
+                BackgroundColor="#1E1E2E"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 15"
+                Padding="15,10">
+
+                <dxcv:DXCollectionView
+                    ItemsSource="{Binding SettingsItems}"
+                    SelectionMode="Single"
+                    ItemSpacing="0"
+                    IsScrollBarVisible="False">
+
+                    <dxcv:DXCollectionView.ItemTemplate>
+
+                        <DataTemplate x:DataType="models:SettingsMenuItem">
+
+                            <Grid
+                                ColumnDefinitions="46, *, Auto"
+                                Padding="0,12"
+                                ColumnSpacing="8">
+
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:SettingsViewModel}}, Path=NavigateToItemCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+
+                                <!-- ICON -->
+                                <Border
+                                    BackgroundColor="#AAAAAA"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    HeightRequest="40"
+                                    WidthRequest="40">
+
+                                    <Image
+                                        Source="{Binding IconSource}"
+                                        HeightRequest="20"
+                                        WidthRequest="20"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center"/>
+                                </Border>
+
+                                <!-- TEXT -->
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="2"
+                                    VerticalOptions="Center">
+
+                                    <Label
+                                        Text="{Binding Title}"
+                                        FontSize="14"
+                                        FontFamily="RobotoSerifMedium"
+                                        TextColor="White"/>
+
+                                    <Label
+                                        Text="{Binding SubTitle}"
+                                        FontSize="11"
+                                        FontFamily="RobotoSerifLight"
+                                        TextColor="#AAAAAA"/>
+                                </VerticalStackLayout>
+
+                                <!-- ARROW -->
+                                <Label
+                                    Grid.Column="2"
+                                    Text="›"
+                                    FontSize="24"
+                                    TextColor="#888888"
+                                    VerticalOptions="Center"/>
+                            </Grid>
+
+                        </DataTemplate>
+
+                    </dxcv:DXCollectionView.ItemTemplate>
+
+                </dxcv:DXCollectionView>
+
+            </Border>
+
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>

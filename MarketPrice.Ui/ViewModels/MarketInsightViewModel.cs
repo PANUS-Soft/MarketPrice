@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Market.DTOs;
+using MarketPrice.Domain.Position.Commands;
+using MarketPrice.Domain.Reference.DTOs;
 using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
-using MarketPrice.Ui.Views;
 using MarketPrice.Ui.Services.Api;
-using MarketPrice.Domain.Market.DTOs;
+using MarketPrice.Ui.Views;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
 using MarketPrice.Domain.Position.Commands;
@@ -122,6 +124,13 @@ namespace MarketPrice.Ui.ViewModels
         {
             _referenceDataApi = referenceDataApiService;
             _marketApi = marketApiService;
+
+            ChangeRangeCommand = new Command<string>(async (range) =>
+            {
+                SelectedRange = range;
+
+                await LoadChartDataAsync(CurrentCommodityId);
+            });
         }
 
         #region Initialization
@@ -225,6 +234,7 @@ namespace MarketPrice.Ui.ViewModels
             await Task.WhenAll(
                 GetCommodityMarketInsightAsync(commodityId),
                 LoadChartDataAsync(commodityId));
+            StartAutoRefresh();
         }
 
         // Gets market depth and price summary
@@ -316,6 +326,24 @@ namespace MarketPrice.Ui.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Chart Error: {ex.Message}");
             }
+            finally
+                {
+                    IsLoading = false;
+            }
+        }
+
+        // Method used to update the TimeAxis format based on the selected range. This is to ensure that the graph remains readable and appropriately formatted for different time ranges.
+
+        private void UpdateAxisFormat()
+        {
+            AxisFormat = SelectedRange switch
+            {
+                "1D" => "HH:mm",
+                "1W" => "ddd",
+                "1M" => "dd MMM",
+                "1Y" => "MMM yyyy",
+                _ => "dd/MM"
+            };
         }
 
         // Loads commodity filter dropdown data

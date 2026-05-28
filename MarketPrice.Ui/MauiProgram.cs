@@ -82,6 +82,11 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<EditProfileViewModel>();
             builder.Services.AddTransient<ChangePasswordViewModel>();
             builder.Services.AddTransient<ActivityViewModel>();
+            builder.Services.AddTransient<CommodityListingViewModel>();
+            builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<AccountViewModel>();
+            builder.Services.AddTransient<ChangePhoneNumberIntroViewModel>();
+            builder.Services.AddTransient<ChangePhoneNumberInputViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -96,6 +101,12 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<EditProfile>();
             builder.Services.AddTransient<ChangePassword>();
             builder.Services.AddTransient<Activity>();
+            builder.Services.AddTransient<CommodityListing>();
+            builder.Services.AddTransient<Settings>();
+            builder.Services.AddTransient<Account>();
+            builder.Services.AddTransient<ChangePhoneNumberIntro>();
+            builder.Services.AddTransient<ChangePhoneNumberInput>();
+            builder.Services.AddTransient<ChangeEmailAddress>();
 
 #if DEBUG
             builder.Logging.AddDebug();

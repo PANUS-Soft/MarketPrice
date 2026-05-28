@@ -15,6 +15,7 @@ namespace MarketPrice.Ui.ViewModels
 {
     public partial class MarketViewModel : ObservableObject
     {
+        private readonly SessionService _sessionService;
         private readonly ReferenceDataApiService _referenceDataApi;
         private readonly MarketApiService _marketApi;
         private readonly ApiSettings _apiSettingOptions;
@@ -60,6 +61,7 @@ namespace MarketPrice.Ui.ViewModels
             MarketApiService marketApi,
             IOptions<ApiSettings> apiSettingOptions)
         {
+            _sessionService = sessionService;
             _referenceDataApi = referenceDataApi;
             _marketApi = marketApi;
             _apiSettingOptions = apiSettingOptions.Value;
@@ -285,6 +287,19 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (item == null)
                 return;
+
+            bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
+
+            if (!accessAllowed)
+            {
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform. \n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
+
+                if (!accessAccount) return;
+
+                await Shell.Current.GoToAsync("//Welcome");
+
+                return;
+            }
 
             var args = new PositionListingCommand
             {

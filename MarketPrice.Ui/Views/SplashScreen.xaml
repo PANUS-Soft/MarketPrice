@@ -13,7 +13,7 @@
                WidthRequest ="200"
                Aspect="AspectFit"/>
 
-        <ActivityIndicator IsRunning="True"
+        <!--<ActivityIndicator IsRunning="True"
                            VerticalOptions="End"
                            HorizontalOptions="Center"
                            Margin="0,0,0,80"
