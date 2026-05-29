@@ -1,15 +1,19 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MarketPrice.Domain.Profile.DTOs;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Session;
 using System.Collections.ObjectModel;
-using MarketPrice.Domain.Profile.DTOs;
+using System.Net.Http.Json;
+using System.Net.Mail;
+using MarketPrice.Ui.Services.Api;
 
 namespace MarketPrice.Ui.ViewModels
 {
     public partial class SettingsViewModel : ObservableObject, IQueryAttributable
     {
         private readonly SessionService _sessionService;
+        private readonly ProfileApiService _profileApi;
 
         [ObservableProperty] private string fullName;
         [ObservableProperty] private string phoneNumber;
@@ -17,11 +21,13 @@ namespace MarketPrice.Ui.ViewModels
 
         public ObservableCollection<SettingsMenuItem> SettingsItems { get; } = new();
 
-        public SettingsViewModel(SessionService sessionService)
+        public SettingsViewModel(SessionService sessionService, ProfileApiService profileApiService)
         {
             _sessionService = sessionService;
+            _profileApi = profileApiService;
 
             LoadHeader();
+            LoadUserProfileAsync();
             LoadSettings();
         }
 
@@ -31,6 +37,30 @@ namespace MarketPrice.Ui.ViewModels
 
             if (session == null)
                 return;
+        }
+
+        public async void LoadUserProfileAsync()
+        {
+            var session = await _sessionService.GetCurrentSessionAsync();
+
+            if (session == null) return;
+
+            var userId = session.UserId;
+
+            var userProfileResponse = await _profileApi.GetUserProfileAsync(userId);
+            if (!userProfileResponse.IsSuccessStatusCode) return;
+            var userProfileDto = await userProfileResponse.Content.ReadFromJsonAsync<UserProfileResponseDto>();
+            if (userProfileDto == null) return;
+
+            userProfile = userProfileDto;
+
+            FullName = userProfile.OtherName == ""
+                ? $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()}"
+                : $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()} {userProfile.OtherName.ToUpper()}";
+
+            long number = long.Parse(userProfile.PhoneNumber);
+
+            PhoneNumber = $"{number:+### ### ## ## ##}";
         }
 
         private void LoadSettings()
@@ -105,18 +135,27 @@ namespace MarketPrice.Ui.ViewModels
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            if (query.ContainsKey("UserProfile"))
+            // 1. Safe check: Only run if the parameter exists and matches the right type
+            if (query.TryGetValue("UserProfile", out var profileObj) && profileObj is UserProfileResponseDto updatedProfile)
             {
-                userProfile = query["UserProfile"] as UserProfileResponseDto;
+                userProfile = updatedProfile;
+
+                // 2. Safely parse names using string.IsNullOrWhiteSpace
+                FullName = string.IsNullOrWhiteSpace(userProfile.OtherName)
+                    ? $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()}"
+                    : $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()} {userProfile.OtherName.ToUpper()}";
+
+                // 3. Safely parse phone number to avoid unhandled formatting crashes
+                if (long.TryParse(userProfile.PhoneNumber, out long number))
+                {
+                    PhoneNumber = $"{number:+### ### ## ## ##}";
+                }
+                else
+                {
+                    PhoneNumber = userProfile.PhoneNumber; // Fallback if parsing fails
+                }
             }
-
-            FullName = userProfile.OtherName == ""
-                ? $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()}"
-                : $"{userProfile.FirstName.ToUpper()} {userProfile.FamilyName.ToUpper()} {userProfile.OtherName.ToUpper()}";
-
-            long number = long.Parse(userProfile.PhoneNumber);
-
-            PhoneNumber = $"{number:+### ### ## ## ##}";
+            // 4. If query doesn't contain "UserProfile", it safely exits without crashing.
         }
     }
 }

@@ -31,7 +31,8 @@
             var response = new T
             {
                 Status = status,
-                Errors = errors.ToArray()
+                Errors = errors.ToArray(),
+                Success = false
             };
             return response;
         }

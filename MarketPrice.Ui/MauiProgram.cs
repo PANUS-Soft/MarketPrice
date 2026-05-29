@@ -79,14 +79,15 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<PositionListingViewModel>();
             builder.Services.AddTransient<PositionDetailViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
-            builder.Services.AddTransient<EditProfileViewModel>();
             builder.Services.AddTransient<ChangePasswordViewModel>();
             builder.Services.AddTransient<ActivityViewModel>();
             builder.Services.AddTransient<CommodityListingViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<AccountViewModel>();
-            builder.Services.AddTransient<ChangePhoneNumberIntroViewModel>();
-            builder.Services.AddTransient<ChangePhoneNumberInputViewModel>();
+            builder.Services.AddTransient<ChangePhoneNumberIntroViewModel>(); 
+            builder.Services.AddTransient<ChangePhoneNumberInputViewModel>(); 
+            builder.Services.AddTransient<ChangeEmailAddressIntroViewModel>();
+            builder.Services.AddTransient<ChangeEmailAddressInputViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -98,7 +99,6 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<PositionListing>();
             builder.Services.AddTransient<PositionDetail>();
             builder.Services.AddTransient<Profile>();
-            builder.Services.AddTransient<EditProfile>();
             builder.Services.AddTransient<ChangePassword>();
             builder.Services.AddTransient<Activity>();
             builder.Services.AddTransient<CommodityListing>();
@@ -106,7 +106,8 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<Account>();
             builder.Services.AddTransient<ChangePhoneNumberIntro>();
             builder.Services.AddTransient<ChangePhoneNumberInput>();
-            builder.Services.AddTransient<ChangeEmailAddress>();
+            builder.Services.AddTransient<ChangeEmailAddressIntro>();
+            builder.Services.AddTransient<ChangeEmailAddressInput>();
 
 #if DEBUG
             builder.Logging.AddDebug();

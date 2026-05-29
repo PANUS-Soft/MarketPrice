@@ -10,21 +10,43 @@ using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.ViewModels;
 
-public partial class ChangePhoneNumberInputViewModel : ObservableObject, IQueryAttributable
+public partial class ChangeEmailAddressInputViewModel : ObservableObject, IQueryAttributable
 {
-    private readonly SessionService _sessionService;    
+    private readonly SessionService _sessionService;
     private readonly ProfileApiService _profileApi;
 
     [ObservableProperty]
-    private string currentPhoneNumber;
+    private string currentEmailAddress;
 
     [ObservableProperty]
-    private string newPhoneNumber;
+    private string newEmailAddress;
 
-    public ChangePhoneNumberInputViewModel(SessionService sessionService, ProfileApiService profileApiService)
+    public ChangeEmailAddressInputViewModel(ProfileApiService profileApiService, SessionService sessionService)
     {
         _sessionService = sessionService;
         _profileApi = profileApiService;
+    }
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.ContainsKey("EmailAddress"))
+        {
+            CurrentEmailAddress = query["EmailAddress"]?.ToString();
+        }
+    }
+
+    bool IsValidEmailAddress(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return false;
+        try
+        {
+            var address = new System.Net.Mail.MailAddress(email);
+            return address.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     [RelayCommand]
@@ -36,45 +58,30 @@ public partial class ChangePhoneNumberInputViewModel : ObservableObject, IQueryA
     [RelayCommand]
     private async Task ContinueAsync()
     {
-        if (string.IsNullOrWhiteSpace(NewPhoneNumber))
+        if (string.IsNullOrWhiteSpace(NewEmailAddress))
         {
             await Shell.Current.DisplayAlert(
                 "Error ⚠️",
-                "Please enter your new phone number.",
+                "Please enter a new email address.",
                 "OK");
 
             return;
         }
 
-        if (NewPhoneNumber.Length != 9)
+        if (!IsValidEmailAddress(NewEmailAddress))
         {
-            await Shell.Current.DisplayAlert(
-                "Invalid Phone Number ⚠️",
-                "Please enter a valid phone number. Phone number must contain exactly 9 digits.",
-                "OK");
-
+            await Shell.Current.DisplayAlert("Invalid Email ⚠️", "Please enter a valid email address format", "OK");
             return;
         }
 
-        string normalizedCurrent = CurrentPhoneNumber.Replace("+237", "").Replace(" ", "").Trim();
-
-        if (normalizedCurrent == NewPhoneNumber)
+        if (CurrentEmailAddress == NewEmailAddress)
         {
-            await Shell.Current.DisplayAlert(
-                "Error ⚠️",
-                "Your new phone number must be different from the current one.",
-                "OK");
-
+            await Shell.Current.DisplayAlert("Error ⚠️",
+                "Both emails are the same. Enter a different email address from the current email address.", "OK");
             return;
         }
 
-        string formattedNewPhoneNumber = $"+237{NewPhoneNumber}";
-
-        long number = long.Parse(formattedNewPhoneNumber);
-        string finalPhoneNumber = $"{number:+### ### ## ## ##}";
-
-
-        // Later: Implement the update phone number logic
+        // Later: Implement the update email address logic
         try
         {
             var userSession = await _sessionService.GetCurrentSessionAsync();
@@ -82,7 +89,7 @@ public partial class ChangePhoneNumberInputViewModel : ObservableObject, IQueryA
             var command = new UpdateUserProfileCommand
             {
                 UserId = userSession!.UserId,
-                PhoneNumber = formattedNewPhoneNumber
+                EmailAddress = NewEmailAddress
             };
 
             var response = await _profileApi.UpdateUserProfileAsync(command);
@@ -95,13 +102,11 @@ public partial class ChangePhoneNumberInputViewModel : ObservableObject, IQueryA
 
                 if (dto.Success)
                 {
-                    await Toast.Make("Phone number updated successfully.", ToastDuration.Short).Show();
+                    await Toast.Make("Email updated successfully.", ToastDuration.Short).Show();
                     await Shell.Current.GoToAsync("Settings");
-                }
-                else
+                } else
                 {
                     await Shell.Current.DisplayAlert("Error ⚠️", dto.Status, "OK");
-                    return;
                 }
             }
             else
@@ -117,15 +122,6 @@ public partial class ChangePhoneNumberInputViewModel : ObservableObject, IQueryA
         catch (Exception e)
         {
             await Shell.Current.DisplayAlert("Error ⚠️", $"An error occured. {e.Message}", "OK");
-        }
-
-    }
-
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
-    {
-        if (query.ContainsKey("PhoneNumber"))
-        {
-            CurrentPhoneNumber = query["PhoneNumber"]?.ToString();
         }
     }
 }
