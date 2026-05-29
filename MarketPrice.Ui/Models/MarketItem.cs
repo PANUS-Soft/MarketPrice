@@ -4,6 +4,8 @@
     {
         public Guid CommodityId { get; set; }
 
+        public MarketItemFilter MarketItemFilter { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public ImageSource? ImageSource { get; set; }

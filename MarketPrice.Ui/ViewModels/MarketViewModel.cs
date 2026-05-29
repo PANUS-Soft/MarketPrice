@@ -171,6 +171,12 @@ namespace MarketPrice.Ui.ViewModels
 
                         tempItems.Add(new MarketItem
                         {
+                            MarketItemFilter = new MarketItemFilter
+                            {
+                                CommodityId = item.CommodityId,
+                                Name = item.CommodityName
+                            },
+
                             CommodityId = item.CommodityId,
 
                             Name = item.CommodityName,
@@ -271,9 +277,12 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task NavigateToMarketInsightAsync(MarketItemFilter? selectedItem)
+        private async Task NavigateToMarketInsightAsync(MarketItemFilter? selectedItemFilter)
         {
-            if (selectedItem == null) return;
+            if (selectedItemFilter == null)
+            {
+                await Shell.Current.DisplayAlert("Error ⚠️", "No Market Item Filter passed for navigation", "OK");
+            }
 
             bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
 
@@ -289,7 +298,7 @@ namespace MarketPrice.Ui.ViewModels
 
             await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
             {
-                {"SelectedMarketItemFilter", selectedItem }
+                {"SelectedMarketItemFilter", selectedItemFilter }
             });
         }
 

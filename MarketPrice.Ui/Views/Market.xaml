@@ -271,8 +271,8 @@
                                     <!-- 1. MAIN CARD GESTURE (Goes to Market insight) -->
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer 
-                                            Command="{Binding BindingContext.NavigateToMarketDetailCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
-                                            CommandParameter="{Binding .}"/>
+                                            Command="{Binding BindingContext.NavigateToMarketInsightCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                            CommandParameter="{Binding MarketItemFilter}"/>
                                     </Grid.GestureRecognizers>
 
                                     <!-- Commodity section -->

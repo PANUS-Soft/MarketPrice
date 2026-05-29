@@ -23,7 +23,7 @@
         <!-- ── ROW 0: HEADER ── -->
         <Grid Grid.Row="0"
               BackgroundColor="{StaticResource BgHeader}"
-              Padding="16,48,16,14"
+              Padding="16,14"
               ColumnDefinitions="44,*,44">
 
             <Border Grid.Column="0"
@@ -223,12 +223,12 @@
                                                                    HorizontalTextAlignment="Center"/>
                                                         </Border>
                                                         <Label Text="{Binding NextBid1, StringFormat='{0:N0}'}"
-                                                               TextColor="{StaticResource AccentGreenDim}"
+                                                               TextColor="{StaticResource TextSecondary}"
                                                                FontSize="10"
                                                                IsVisible="{Binding NextBid1, Converter={StaticResource NotZeroConverter}}"
                                                                HorizontalTextAlignment="Center"/>
                                                         <Label Text="{Binding NextBid2, StringFormat='{0:N0}'}"
-                                                               TextColor="{StaticResource AccentGreenFaint}"
+                                                               TextColor="{StaticResource TextMuted}"
                                                                FontSize="10"
                                                                IsVisible="{Binding NextBid2, Converter={StaticResource NotZeroConverter}}"
                                                                HorizontalTextAlignment="Center"/>
@@ -252,12 +252,12 @@
                                                                    HorizontalTextAlignment="Center"/>
                                                         </Border>
                                                         <Label Text="{Binding NextOffer1, StringFormat='{0:N0}'}"
-                                                               TextColor="{StaticResource AccentRedDim}"
+                                                               TextColor="{StaticResource TextSecondary}"
                                                                FontSize="10"
                                                                IsVisible="{Binding NextOffer1, Converter={StaticResource NotZeroConverter}}"
                                                                HorizontalTextAlignment="Center"/>
                                                         <Label Text="{Binding NextOffer2, StringFormat='{0:N0}'}"
-                                                               TextColor="{StaticResource AccentRedFaint}"
+                                                               TextColor="{StaticResource TextMuted}"
                                                                FontSize="10"
                                                                IsVisible="{Binding NextOffer2, Converter={StaticResource NotZeroConverter}}"
                                                                HorizontalTextAlignment="Center"/>
@@ -280,13 +280,13 @@
                                                            TextColor="{StaticResource TextSecondary}"
                                                            FontSize="8"
                                                            Margin="4,6,4,7"
-                                                           VerticalOptions="Center"/>
+                                                           HorizontalOptions="Center"/>
                                                     <Label Grid.Row="2" Grid.Column="2"
                                                            Text="{Binding BestOfferLocation}"
                                                            TextColor="{StaticResource TextSecondary}"
                                                            FontSize="8"
                                                            Margin="4,6,10,7"
-                                                           VerticalOptions="Center"/>
+                                                           HorizontalOptions="Center"/>
                                                 </Grid>
                                             </Border>
 
