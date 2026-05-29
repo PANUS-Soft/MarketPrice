@@ -111,19 +111,13 @@
 
                             <dxe:MultilineEdit LabelText="Bio"
                                                Margin="20, 20"
+                                               Text="{Binding Bio}"
+                                               MaxCharacterCount="255"
                                                BackgroundColor="Transparent"
                                                FocusedBorderColor="{StaticResource PrimaryBase}"
                                                TextFontFamily="RobotoSerifRegular"
                                                TextColor="#AAAAAA"/>
 
-                            <Label
-                                Text="255 Words"
-                                FontFamily="RobotoSerifLight"
-                                FontSize="12"
-                                Padding="15, 3"
-                                HorizontalOptions="End"
-                                VerticalOptions="End"
-                                TextColor="#777777"/>
                         </VerticalStackLayout>
 
                     </Border>
@@ -162,12 +156,6 @@
                                 HeightRequest="50"
                                 WidthRequest="50"
                                 StrokeShape="RoundRectangle 12">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:AccountViewModel}}, Path=GoToChangePhoneNumberCommand}"
-                                                          CommandParameter="{Binding .}"/>
-
-                                </Border.GestureRecognizers>
-
                                 <Image
                                     Source="call_icon.png"
                                     HeightRequest="22"
@@ -177,6 +165,10 @@
                             </Border>
 
                             <VerticalStackLayout Grid.Column="1">
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:AccountViewModel}}, Path=GoToChangePhoneNumberCommand}"
+                                                          CommandParameter="{Binding .}"/>
+                                </VerticalStackLayout.GestureRecognizers>
                                 <Label
                                     Text="{Binding PhoneNumber}"
                                     FontFamily="RobotoSerifMedium"
@@ -204,11 +196,6 @@
                                 HeightRequest="50"
                                 WidthRequest="50"
                                 StrokeShape="RoundRectangle 12">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:AccountViewModel}}, Path=GoToChangeEmailAddressCommand}"
-                                                          CommandParameter="{Binding .}"/>
-
-                                </Border.GestureRecognizers>
 
                                 <Image
                                     Source="email_icon.png"
@@ -219,10 +206,15 @@
                             </Border>
 
                             <VerticalStackLayout Grid.Column="1">
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:AccountViewModel}}, Path=GoToChangeEmailAddressCommand}"
+                                                          CommandParameter="{Binding .}"/>
+
+                                </VerticalStackLayout.GestureRecognizers>
                                 <Label
                                     Text="{Binding EmailAddress}"
                                     FontFamily="RobotoSerifMedium"
-                                    FontSize="20"
+                                    FontSize="17"
                                     TextColor="White"/>
 
                                 <Label
@@ -259,7 +251,7 @@
                                 <Label
                                     Text="{Binding AccountType}"
                                     FontFamily="RobotoSerifMedium"
-                                    FontSize="20"
+                                    FontSize="15"
                                     TextColor="White"/>
 
                                 <Label
