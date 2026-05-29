@@ -53,7 +53,6 @@
 
                 <VerticalStackLayout Spacing="20">
                     <Label Text="Welcome back!"
-                           TextColor="{StaticResource PrimaryBase}"
                            FontSize="24"
                            FontFamily="RobotoSerifBold"
                            HorizontalOptions="Center"
@@ -80,12 +79,11 @@
                     <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight" TextColor="White"/>
 
                     <dxe:CheckEdit Label="Remember me?"
-                                   LabelColor="{StaticResource TextMuted}"
                                    LabelFontFamily="RobotoSerifMedium"
                                    IsChecked="{Binding LoginInfo.RememberMe, Mode=TwoWay}"
                                    CheckBoxColor="White"
                                    CheckedCheckBoxColor="White"
-                                  LabelColor="White"/>
+                                   LabelColor="White"/>
 
                     <dxc:DXButton Content="Login"
                                   BackgroundColor= "{StaticResource PrimaryBase }"

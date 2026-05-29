@@ -336,7 +336,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 })
                 .ToListAsync();
 
-            var now = DateTimeOffset.UtcNow;
+            //var now = DateTimeOffset.UtcNow;
 
             // Map the raw data to the final DTO
             var listings = rawListings.Select(p =>
@@ -420,7 +420,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 CommodityNames = categoryInfo.AllCommodities,
                 Listings = listings,
                 UnitPrice = command.UnitPrice,
-                LotSize = $"{ls} {uom}",
+                LotSize = $"{ls}",
                 ShelfLife = shelfLife != null ? $"{shelfLife} Days" : "---",
 
                 // ADD THE NEW LISTS HERE
@@ -430,18 +430,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 Status = "Data Retrieved"
             });
 
-            // 3. Compose Response
-            return DtoManager.Succeed(new PositionListingResponseDto
-            {
-                CommodityTypeName = categoryInfo.TypeName,
-                PositionTypeName = positionTypeName,
-                CommodityNames = categoryInfo.AllCommodities, // All items for the filter UI
-                Listings = listings, // Filtered result set
-                UnitPrice = command.UnitPrice,
-                LotSize = $"{ls} {uom}",
-                ShelfLife = shelfLife != null ? $"{shelfLife} Days" : "---",
-                Status = "Data Retrieved"
-            });
+       
         }
         catch (Exception ex)
         {

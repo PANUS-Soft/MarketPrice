@@ -6,19 +6,19 @@
              Shell.NavBarIsVisible="False">
 
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill">
-        
+
         <Image Source="marketprice.svg"
                VerticalOptions="Center"
                HorizontalOptions="Center"
                WidthRequest ="200"
                Aspect="AspectFit"/>
 
-        <!--<ActivityIndicator IsRunning="True"
+        <ActivityIndicator IsRunning="True"
                            VerticalOptions="End"
                            HorizontalOptions="Center"
                            Margin="0,0,0,80"
                            Color="{StaticResource PrimaryAccent}"
                            HeightRequest="45"/>
     </Grid>
-    
+
 </ContentPage>

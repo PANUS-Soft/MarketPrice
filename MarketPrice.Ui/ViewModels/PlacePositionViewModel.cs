@@ -148,7 +148,7 @@ namespace MarketPrice.Ui.ViewModels
         public Color Step1Color => _activeColor;
         public Color Step2Color => CurrentStep >= PositionStep.PricingInformation ? _activeColor : _inactiveColor;
         public Color Step3Color => CurrentStep == PositionStep.LogisticsInformation ? _activeColor : _inactiveColor;
-        
+
         public PlacePositionViewModel(ReferenceDataApiService referenceDataApiService, SessionService sessionService, PositionApiService positionApiService)
         {
             CurrentStep = PositionStep.CommodityDetails;
@@ -331,7 +331,7 @@ namespace MarketPrice.Ui.ViewModels
 
             SelectedCommodity = null;
             Commodities.Clear();
-            
+
             if (value == null) return;
 
             if (!_isInitializing) LoadCommoditiesByCommodityTypesCommand.Execute(value.Id);
@@ -545,7 +545,7 @@ namespace MarketPrice.Ui.ViewModels
                 StartDateError = "- Start Date is required.\n";
                 isValid = false;
             }
-            
+
             if (!IsEditMode && !StartPositionImmediately && StartDate < DateTime.Now)
             {
                 StartDateError = "- Start of the position cannot be in the past.\n";
@@ -637,7 +637,7 @@ namespace MarketPrice.Ui.ViewModels
                     DestinationDetailError += DestinationQuarterError;
                     isValid = false;
                 }
-                
+
                 if (DeliveryFee <= 0)
                 {
                     DeliveryFeeError = "Delivery Fee should be greater than 0";
@@ -746,7 +746,7 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
                 else await _sessionService.TryRefreshTokenAsync();
-                
+
                 var userSession = await _sessionService.GetCurrentSessionAsync();
                 var command = new CreatePositionCommand
                 {
@@ -796,7 +796,8 @@ namespace MarketPrice.Ui.ViewModels
                         await Toast.Make("Bid placed successfully", ToastDuration.Long).Show();
                         await Shell.Current.GoToAsync("//Market");
                     }
-                } else
+                }
+                else
                 {
                     await Shell.Current.DisplayAlert("Bid Placement Failed", "There was an error while placing your bid. Please try later.", "OK");
                 }
@@ -885,7 +886,8 @@ namespace MarketPrice.Ui.ViewModels
                         await Toast.Make("Offer placed successfully", ToastDuration.Long).Show();
                         await Shell.Current.GoToAsync("//Market");
                     }
-                } else
+                }
+                else
                 {
                     await Shell.Current.DisplayAlert("Offer Placement Failed", "There was an error while placing your offer. Please try later.", "OK");
                 }
@@ -1018,7 +1020,7 @@ namespace MarketPrice.Ui.ViewModels
                                End date/time: {EndDate:g}
                                Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
                                """";
-                               
+
                 var deliveryDetails = IsDeliverable ? $""""
                                           Destination: {SelectedDestinationRegion!.NameInEnglish}, {DestinationTown}, {DestinationQuarter}
                                           Delivery Fee: {DeliveryFee} FCFA

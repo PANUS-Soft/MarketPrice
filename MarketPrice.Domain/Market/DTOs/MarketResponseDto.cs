@@ -11,6 +11,8 @@
         public string? UnitOfMeasure { get; set; }
         public bool IsBidImproved { get; set; }
         public bool IsOfferImproved { get; set; }
+        public decimal BestBid { get; set; }
+        public decimal BestOffer { get; set; }
         public bool IsBestBidSoonToExpire { get; set; }
         public bool IsBestOfferSoonToExpire { get; set; }
         public List<MarketDepthDto> BidDepth { get; set; } = new();

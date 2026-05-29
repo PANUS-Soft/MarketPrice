@@ -44,7 +44,7 @@
                 Padding="10,0">
                 <ImageButton
                     Grid.Column="0"
-                    Source="back"
+                    Source="activity.png"
                     IsVisible="{Binding IsContactStep }"
                     WidthRequest="15"
                     HeightRequest="15"

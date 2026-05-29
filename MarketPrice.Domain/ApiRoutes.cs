@@ -30,6 +30,7 @@ public static class ApiRoutes
     // Market Data Routes       
     public const string LOAD_MARKET_DATA = "market-data";
     public const string GET_MARKET_INSIGHT = "insight";
+    public const string GET_MARKET_OVERVIEW = "overview";
     public const string GET_CHART_DATA = "insight/{commodityId}/chart";
 
     // Home Data Routes

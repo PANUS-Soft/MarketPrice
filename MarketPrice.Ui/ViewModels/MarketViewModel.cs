@@ -10,6 +10,7 @@ using MarketPrice.Ui.Common;
 using Microsoft.Extensions.Options;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Ui.Models;
+using MarketPrice.Ui.Services.Session;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -59,6 +60,7 @@ namespace MarketPrice.Ui.ViewModels
         public MarketViewModel(
             ReferenceDataApiService referenceDataApi,
             MarketApiService marketApi,
+            SessionService sessionService,
             IOptions<ApiSettings> apiSettingOptions)
         {
             _sessionService = sessionService;
@@ -269,17 +271,26 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task NavigateToMarketDetailAsync(MarketItem item)
+        private async Task NavigateToMarketInsightAsync(MarketItemFilter? selectedItem)
         {
-            if (item == null)
-                return;
+            if (selectedItem == null) return;
 
-            await Shell.Current.GoToAsync(
-                "MarketInsight",
-                new Dictionary<string, object>
-                {
-                    { "SelectedMarketItem", item }
-                });
+            bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
+
+            if (!accessAllowed)
+            {
+                bool accessAccount = await Shell.Current.DisplayAlert("Access Required", "You need to have an account in order to deeper explore the platform.\n\nYou can either create an account or login into an existing one", "Register or Login", "Cancel");
+
+                if (!accessAccount) return;
+
+                await Shell.Current.GoToAsync("//Welcome");
+                return;
+            }
+
+            await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
+            {
+                {"SelectedMarketItemFilter", selectedItem }
+            });
         }
 
         [RelayCommand]
