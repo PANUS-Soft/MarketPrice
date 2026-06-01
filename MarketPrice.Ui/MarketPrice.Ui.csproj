@@ -98,52 +98,61 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="Views\PlacePosition.xaml.cs">
+		<Compile Update="Views\Settings\ChangePhoneNumberInput.xaml.cs">
+		  <DependentUpon>ChangePhoneNumberInput.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\Position\PlacePosition.xaml.cs">
 			<DependentUpon>PlacePosition.xaml</DependentUpon>
 		</Compile>
-		<Compile Update="Views\Register.xaml.cs">
+		<Compile Update="Views\Auth\Register.xaml.cs">
 			<DependentUpon>Register.xaml</DependentUpon>
 		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-		<MauiXaml Update="Views\Activity.xaml">
+		<MauiXaml Update="Views\TabBar\Activity.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\ChangePassword.xaml">
+		<MauiXaml Update="Views\Settings\ChangeEmailAddressInput.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Settings\ChangeEmailAddressIntro.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Settings\ChangePassword.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\EditPosition.xaml">
+		<MauiXaml Update="Views\Settings\ChangePhoneNumberInput.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Settings\ChangePhoneNumberIntro.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\TabBar\Home.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\EditProfile.xaml">
+		<MauiXaml Update="Views\Auth\Login.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\Home.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Update="Views\Login.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</MauiXaml>
-		<MauiXaml Update="Views\Market.xaml">
+		<MauiXaml Update="Views\TabBar\Market.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Views\Onboarding.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\PlacePosition.xaml">
+		<MauiXaml Update="Views\Position\PlacePosition.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\PositionDetail.xaml">
+		<MauiXaml Update="Views\Position\PositionDetail.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\PositionListing.xaml">
+		<MauiXaml Update="Views\Position\PositionListing.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\Profile.xaml">
+		<MauiXaml Update="Views\TabBar\Profile.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\Register.xaml">
+		<MauiXaml Update="Views\Auth\Register.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Views\SplashScreen.xaml">

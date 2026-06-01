@@ -9,10 +9,11 @@ namespace MarketPrice.Domain.Profile.Commands
     public class UpdateUserProfileCommand
     {
         public Guid UserId { get; set; }
-        public required string FirstName { get; set; }
-        public required string FamilyName { get; set; }
+        public string? FirstName { get; set; }
+        public string? FamilyName { get; set; }
         public string? OtherNames { get; set; }
-        public required string EmailAddress { get; set; }
-        public required string PhoneNumber { get; set; }
+        public string? Bio { get; set; }
+        public string? EmailAddress { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 }

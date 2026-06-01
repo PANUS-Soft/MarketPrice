@@ -31,7 +31,7 @@
             <!-- Illustration -->
             <Image
                 Source="change_phone_number"
-                HeightRequest="180"
+                HeightRequest="250"
                 HorizontalOptions="Center"/>
 
             <!-- Title -->
@@ -49,13 +49,6 @@
                 FontSize="16"
                 FontFamily="RobotoSerifRegular"
                 TextColor="#AAAAAA"
-                HorizontalTextAlignment="Center"/>
-
-            <!-- Current Number -->
-            <Label
-                Text="{Binding CurrentPhoneNumber}"
-                FontSize="16"
-                TextColor="#64B5F6"
                 HorizontalTextAlignment="Center"/>
 
             <!-- Button -->

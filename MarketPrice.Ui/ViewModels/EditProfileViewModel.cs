@@ -140,15 +140,15 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (response.IsSuccessStatusCode)
                 {
-                    if (dto.Status)
+                    if (dto.Success)
                     {
-                        await Toast.Make(dto.Message, ToastDuration.Long).Show();
+                        await Toast.Make(dto.Status, ToastDuration.Short).Show();
                         await Shell.Current.GoToAsync("..");
                     }
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Profile Update Failed", dto.Message, "OK");
+                    await Shell.Current.DisplayAlert("Profile Update Failed", dto.Status, "OK");
                 }
             }
             catch(Exception e)

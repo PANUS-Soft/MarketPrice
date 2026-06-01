@@ -97,7 +97,7 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToEditProfileAsync()
         {
-            await Shell.Current.GoToAsync("EditProfile", new Dictionary<string, object>
+            await Shell.Current.GoToAsync("Account", new Dictionary<string, object>
             {
                 {"UserProfile", userProfile}
             });

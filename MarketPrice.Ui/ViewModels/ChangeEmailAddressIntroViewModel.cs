@@ -4,16 +4,16 @@ using MarketPrice.Ui.Views;
 
 namespace MarketPrice.Ui.ViewModels;
 
-public partial class ChangePhoneNumberIntroViewModel : ObservableObject, IQueryAttributable
+public partial class ChangeEmailAddressIntroViewModel : ObservableObject, IQueryAttributable
 {
     [ObservableProperty]
-    private string currentPhoneNumber;
+    private string currentEmailAddress;
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.ContainsKey("PhoneNumber"))
+        if (query.ContainsKey("EmailAddress"))
         {
-            CurrentPhoneNumber = query["PhoneNumber"]?.ToString();
+            CurrentEmailAddress = query["EmailAddress"]?.ToString();
         }
     }
 
@@ -24,11 +24,11 @@ public partial class ChangePhoneNumberIntroViewModel : ObservableObject, IQueryA
     }
 
     [RelayCommand]
-    private async Task NavigateToNewPhoneAsync()
+    private async Task NavigateToNewEmailAsync()
     {
-        await Shell.Current.GoToAsync("ChangePhoneNumberInput", new Dictionary<string, object>
+        await Shell.Current.GoToAsync("ChangeEmailAddressInput", new Dictionary<string, object>
         {
-            { "PhoneNumber", CurrentPhoneNumber}
+            {"EmailAddress", CurrentEmailAddress}
         });
     }
 }

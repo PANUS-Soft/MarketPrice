@@ -89,7 +89,7 @@ namespace MarketPrice.Api.Controllers
         {
             var result = await profileService.UpdateUserProfileAsync(command);
 
-            if (result.Status)
+            if (result.Success)
             {
                 return Ok(result);
             }
