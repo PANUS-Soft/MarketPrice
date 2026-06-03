@@ -20,7 +20,7 @@ namespace MarketPrice.Ui.Services.Api
                 ApiControllers.CommodityTypeImages
             };
 
-            // if the request is targeting ao public route (endpoint), skip adding the token
+            // if the request is targeting a public route (endpoint), skip adding the token
             if (request.RequestUri != null && 
                 publicRoutes.Any(route => request.RequestUri.AbsolutePath.Contains(route, StringComparison.OrdinalIgnoreCase)))
             {

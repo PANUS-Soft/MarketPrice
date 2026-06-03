@@ -206,16 +206,6 @@
                             </Grid>
 
                             <Label Text="{Binding DateError}" TextColor="Red" FontFamily="RobotoSerifRegular" FontSize="10"/>
-
-                            <dxe:FormSwitchItem Text="Is Deliverable ?" 
-                                                TextColor="White"
-                                                TextFontFamily="RobotoSerifRegular" 
-                                                Margin="0,10,0,0"
-                                                IsVisible="{Binding IsOffer}"
-                                                IsToggled="{Binding IsDeliverable}"
-                                                OnColor="{StaticResource PrimaryBase}"/>
-
-                            <Label Text="{Binding TotalValueDisplay}" FontFamily="RobotoSerifBold" HorizontalOptions="End" FontSize="16" TextColor="White" Margin="0,10,0,0"/>
                         </VerticalStackLayout>
                     </Border>
 

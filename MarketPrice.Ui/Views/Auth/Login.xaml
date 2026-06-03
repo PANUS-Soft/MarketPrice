@@ -9,6 +9,19 @@
              BackgroundColor="{StaticResource Background}"
              Title="Login">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="dxe:TextEdit">
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="TextColor" Value="#AAAAAA" />
+            </Style>
+            <Style TargetType="dxe:PasswordEdit">
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="TextColor" Value="#AAAAAA" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid RowDefinitions="Auto, *">
         <BoxView Grid.RowSpan ="2" VerticalOptions="End" HeightRequest="450" Color="{StaticResource PrimaryBase}"/>
         <VerticalStackLayout Grid.Row="0" >
@@ -23,25 +36,28 @@
 
             <Label Text="Login"
                    FontSize="38"
-                   FontFamily="RobotoSerifBold" 
+                   FontFamily="RobotoSerifSemibold" 
                    TextColor="{StaticResource PrimaryBase}"
                    HorizontalOptions="Center" 
                    Margin="0, 70, 0,30"/>
 
             <dxc:DXBorder BackgroundColor="{StaticResource Background}"
                           CornerRadius="40" 
+                          BorderColor="#AAAAAA"
+                          BorderThickness="1"
                           Padding="30" 
                           Margin="30,0" >
                 <dxc:DXBorder.Shadow>
                     <Shadow Brush="Black"
                             Offset="0,10"
                             Radius="20"
-                            Opacity="0.8"/>
+                            Opacity="0.7"/>
                 </dxc:DXBorder.Shadow>
 
                 <VerticalStackLayout Spacing="20">
                     <Label Text="Welcome back!"
                            FontSize="24"
+                           TextColor="White"
                            FontFamily="RobotoSerifBold"
                            HorizontalOptions="Center"
                            Margin="0,0,0,10"/>
@@ -50,6 +66,7 @@
                         LabelText="Email Address"
                         Keyboard="Email" 
                         CornerRadius="12" 
+                        TextColor="#AAAAAA"
                         BoxMode="Outlined"
                         HeightRequest="60" 
                         Text="{Binding LoginInfo.EmailAddress, Mode=TwoWay}"
@@ -63,9 +80,13 @@
                         Text="{Binding LoginInfo.Password, Mode=TwoWay}"
                         TextFontFamily="RobotoSerifRegular"/>
 
-                    <Label Text="Forgot password?" HorizontalOptions="End" FontFamily="RobotoSerifLight"/>
+                    <Label Text="Forgot password?" 
+                           TextColor="White"
+                           HorizontalOptions="End" 
+                           FontFamily="RobotoSerifLight"/>
 
                     <dxe:CheckEdit Label="Remember me?"
+                                   LabelColor="White"
                                    LabelFontFamily="RobotoSerifMedium"
                                    IsChecked="{Binding LoginInfo.RememberMe, Mode=TwoWay}"
                                    CheckBoxColor="{StaticResource TextSecondary}"
