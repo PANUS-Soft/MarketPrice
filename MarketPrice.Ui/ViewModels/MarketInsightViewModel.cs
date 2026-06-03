@@ -16,19 +16,25 @@ namespace MarketPrice.Ui.ViewModels
     [QueryProperty(nameof(SelectedMarketItemFilter), "SelectedMarketItemFilter")]
     public partial class MarketInsightViewModel : ObservableObject
     {
+        // --- Dependencies ---
         private readonly ReferenceDataApiService _referenceDataApi;
         private readonly MarketApiService _marketApi;
 
-        [ObservableProperty] MarketItemFilter? selectedMarketItemFilter;
+        // --- Fields & States ---
+        [ObservableProperty]
+        private MarketItemFilter? selectedMarketItemFilter;
         private MarketItemFilter? _incomingMarketItemFilter;
+        private bool _autoRefreshStarted;
 
+        // --- Core UI Collections ---
         public ObservableCollection<MarketItemFilter> Commodities { get; } = new();
-
-        [ObservableProperty] private MarketInsightResponseDto? dto;
         public ObservableCollection<MarketInsightChartResponseDto> PriceHistory { get; } = new();
 
-        // Properties defined to make the graph functionality dynamic
+        // --- Core Market Data Payload ---
+        [ObservableProperty]
+        private MarketInsightResponseDto? dto;
 
+        // --- Dynamic Graph Configurations ---
         private string _selectedRange = "1D";
         public string SelectedRange
         {
@@ -39,7 +45,6 @@ namespace MarketPrice.Ui.ViewModels
                 {
                     _selectedRange = value;
                     OnPropertyChanged();
-
                     UpdateAxisFormat();
                 }
             }
@@ -55,7 +60,7 @@ namespace MarketPrice.Ui.ViewModels
                 OnPropertyChanged();
             }
         }
-        
+
         private bool _isLoading;
         public bool IsLoading
         {
@@ -69,37 +74,35 @@ namespace MarketPrice.Ui.ViewModels
 
         public Guid CurrentCommodityId { get; set; }
 
-        private bool _autoRefreshStarted;
-
+        // --- Interactivity Commands ---
         public ICommand ChangeRangeCommand { get; }
 
-
+        // --- Constructor ---
         public MarketInsightViewModel(ReferenceDataApiService referenceDataApiService, MarketApiService marketApiService)
         {
-            _referenceDataApi = referenceDataApiService;
-            _marketApi = marketApiService;
+            _referenceDataApi = referenceDataApiService ?? throw new ArgumentNullException(nameof(referenceDataApiService));
+            _marketApi = marketApiService ?? throw new ArgumentNullException(nameof(marketApiService));
 
             ChangeRangeCommand = new Command<string>(async (range) =>
             {
                 SelectedRange = range;
-
                 await LoadChartDataAsync(CurrentCommodityId);
             });
         }
 
+        // --- Lifecycle Initialization ---
         public async Task InitializeAsync()
         {
             await LoadCommoditiesFilterAsync();
-
             ApplySelectedCommodity();
         }
 
+        // --- Business Logic & Data Ingestion Pipelines ---
         partial void OnSelectedMarketItemFilterChanged(MarketItemFilter? value)
         {
             if (value == null) return;
 
             _incomingMarketItemFilter = value;
-
             if (Commodities.Count > 0) ApplySelectedCommodity();
         }
 
@@ -107,24 +110,25 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (_incomingMarketItemFilter == null) return;
 
-            SelectedMarketItemFilter =
-                Commodities.FirstOrDefault(c => c.CommodityId == _incomingMarketItemFilter.CommodityId);
+            SelectedMarketItemFilter = Commodities.FirstOrDefault(c => c.CommodityId == _incomingMarketItemFilter.CommodityId);
 
-            if (SelectedMarketItemFilter != null) _ = LoadMarketInsightAsync(SelectedMarketItemFilter.CommodityId);
+            if (SelectedMarketItemFilter != null)
+            {
+                _ = LoadMarketInsightAsync(SelectedMarketItemFilter.CommodityId);
+            }
         }
-
-        //partial void OnSelectedMarketItemFilterChanged(MarketItemFilter? value)
-        //{
-        //    if (value != null) _ = LoadMarketInsightAsync(value.CommodityId);
-        //}
 
         private async Task LoadMarketInsightAsync(Guid commodityId)
         {
             CurrentCommodityId = commodityId;
+
+            // Optimization: Execute both independent domain network operations in parallel
             await Task.WhenAll(GetCommodityMarketInsightAsync(commodityId), LoadChartDataAsync(commodityId));
+
             StartAutoRefresh();
         }
 
+        // --- Computed Properties for Explicit View Bindings ---
         public string CommodityName => Dto?.CommodityName.ToUpper() ?? "---";
         public string BestBid => Dto?.BestBid.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
         public string BestOffer => Dto?.BestOffer.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
@@ -134,6 +138,8 @@ namespace MarketPrice.Ui.ViewModels
         public string MinOffer24H => Dto?.MinOffer24H.ToString("N0", new System.Globalization.CultureInfo("en-CM")) ?? "---";
         public decimal? BidPercentage => Dto?.BidPercentage;
         public decimal? OfferPercentage => Dto?.OfferPercentage;
+
+        // Perfectly synchronized names to match your modified XAML changes (Bids & Offers)
         public List<MarketDepthItemDto> Bids => Dto?.Bids ?? new List<MarketDepthItemDto>();
         public List<MarketDepthItemDto> Offers => Dto?.Offers ?? new List<MarketDepthItemDto>();
 
@@ -150,12 +156,32 @@ namespace MarketPrice.Ui.ViewModels
 
                 Dto = await marketInsightResponse.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
 
-                OnPropertyChanged(string.Empty);
+                // Pro Notification Pipeline: Forcefully alerts all listening UI bindings to flush and redraw
+                NotifyMarketInsightDataChanged();
             }
             catch (Exception e)
             {
                 await Shell.Current.DisplayAlert("Error", $"Something went wrong while loading market insight. {e.Message} Please try again later.", "OK");
             }
+        }
+
+        private void NotifyMarketInsightDataChanged()
+        {
+            OnPropertyChanged(nameof(CommodityName));
+            OnPropertyChanged(nameof(BestBid));
+            OnPropertyChanged(nameof(BestOffer));
+            OnPropertyChanged(nameof(MaxBid24H));
+            OnPropertyChanged(nameof(MinBid24H));
+            OnPropertyChanged(nameof(MaxOffer24H));
+            OnPropertyChanged(nameof(MinOffer24H));
+            OnPropertyChanged(nameof(BidPercentage));
+            OnPropertyChanged(nameof(OfferPercentage));
+            OnPropertyChanged(nameof(BidWidth));
+            OnPropertyChanged(nameof(OfferWidth));
+
+            // Triggers the depth tables collection elements explicitly
+            OnPropertyChanged(nameof(Bids));
+            OnPropertyChanged(nameof(Offers));
         }
 
         private async Task LoadChartDataAsync(Guid commodityId)
@@ -168,15 +194,13 @@ namespace MarketPrice.Ui.ViewModels
                 {
                     var result = await response.Content.ReadFromJsonAsync<MarketChartDataWrapper>();
 
-                    if (result?.Data == null || !result.Data.Any())
-                    {
-                        PriceHistory.Clear();
-                        return;
-                    }
                     PriceHistory.Clear();
-                    foreach (var point in result.Data.OrderBy(x => x.Timestamp))
+                    if (result?.Data != null && result.Data.Any())
                     {
-                        PriceHistory.Add(point);
+                        foreach (var point in result.Data.OrderBy(x => x.Timestamp))
+                        {
+                            PriceHistory.Add(point);
+                        }
                     }
                 }
             }
@@ -190,8 +214,6 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
-        // Method used to update the TimeAxis format based on the selected range. This is to ensure that the graph remains readable and appropriately formatted for different time ranges.
-
         private void UpdateAxisFormat()
         {
             AxisFormat = SelectedRange switch
@@ -204,21 +226,18 @@ namespace MarketPrice.Ui.ViewModels
             };
         }
 
-
-        // Method used to start the auto-refresh timer for updating the chart data every 30 seconds.
         private void StartAutoRefresh()
         {
-            if (_autoRefreshStarted)
-                return;
+            if (_autoRefreshStarted) return;
             _autoRefreshStarted = true;
 
-            Application.Current.Dispatcher.StartTimer(TimeSpan.FromSeconds(30), () =>
+            Application.Current?.Dispatcher.StartTimer(TimeSpan.FromSeconds(30), () =>
             {
                 _ = LoadChartDataAsync(CurrentCommodityId);
-
                 return true;
             });
         }
+
         private async Task LoadCommoditiesFilterAsync()
         {
             try
@@ -228,14 +247,18 @@ namespace MarketPrice.Ui.ViewModels
                 {
                     var commodities = await response.Content.ReadFromJsonAsync<List<CommodityDto>>();
                     Commodities.Clear();
-                    foreach (var commodity in commodities!)
+
+                    if (commodities != null)
                     {
-                        Commodities.Add(new MarketItemFilter
+                        foreach (var commodity in commodities)
                         {
-                            CommodityTypeId = commodity.CommodityTypeId,
-                            CommodityId = commodity.Id,
-                            Name = commodity.Name.ToUpper()
-                        });
+                            Commodities.Add(new MarketItemFilter
+                            {
+                                CommodityTypeId = commodity.CommodityTypeId,
+                                CommodityId = commodity.Id,
+                                Name = commodity.Name.ToUpper()
+                            });
+                        }
                     }
                 }
             }
@@ -245,11 +268,9 @@ namespace MarketPrice.Ui.ViewModels
             }
         }
 
+        // --- Navigation Actions ---
         [RelayCommand]
-        private async Task BackAsync()
-        {
-            await Shell.Current.GoToAsync("..");
-        }
+        private async Task BackAsync() => await Shell.Current.GoToAsync("..");
 
         [RelayCommand]
         private async Task NavigateToPlaceBidAsync()
@@ -272,14 +293,15 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToBidPositionListingAsync(MarketDepthItemDto item)
         {
+            if (item == null || Dto == null) return;
+
             var args = new PositionListingCommand
             {
-                CommodityTypeId = Dto!.CommodityTypeId,
-                CommodityId = Dto?.CommodityId,
-                CommodityName = Dto?.CommodityName,
-                PositionTypeId = 6001,
+                CommodityTypeId = Dto.CommodityTypeId,
+                CommodityId = Dto.CommodityId,
+                CommodityName = Dto.CommodityName,
+                PositionTypeId = 6001, // Domain specific Bid identification
                 UnitPrice = item.Price
-
             };
 
             await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
@@ -291,12 +313,14 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToOfferPositionListingAsync(MarketDepthItemDto item)
         {
+            if (item == null || Dto == null) return;
+
             var args = new PositionListingCommand
             {
-                CommodityTypeId = Dto!.CommodityTypeId,
-                CommodityId = Dto?.CommodityId,
-                CommodityName = Dto?.CommodityName,
-                PositionTypeId = 6002,
+                CommodityTypeId = Dto.CommodityTypeId,
+                CommodityId = Dto.CommodityId,
+                CommodityName = Dto.CommodityName,
+                PositionTypeId = 6002, // Domain specific Offer identification
                 UnitPrice = item.Price
             };
 
@@ -305,13 +329,11 @@ namespace MarketPrice.Ui.ViewModels
                 { "Args", args }
             });
         }
-
     }
 
     public partial class MarketDepthItem
     {
         public decimal Price { get; set; }
         public decimal Quantity { get; set; }
-
     }
 }

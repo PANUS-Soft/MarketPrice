@@ -12,7 +12,7 @@
 
     <Grid RowDefinitions="Auto, *, Auto" RowSpacing="0" Padding="0">
 
-        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, Auto" Padding="15,20,15,10" ColumnSpacing="15" BackgroundColor="Transparent">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="15,20,15,10" BackgroundColor="Transparent">
             <ImageButton Grid.Column="0" 
                          Source="back.png" 
                          HeightRequest="24" 
@@ -21,37 +21,21 @@
                          Command="{Binding BackCommand}" 
                          BackgroundColor="Transparent"/>
 
-            <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
-                <Border StrokeShape="RoundRectangle 30" 
-                        HeightRequest="60" 
-                        WidthRequest="60" 
-                        HorizontalOptions="Center" 
-                        Padding="0" 
-                        StrokeThickness="0">
-                    <Image Source="{Binding CommodityImage}" Aspect="AspectFill"/>
-                </Border>
+            <Label Grid.Column="1" 
+                   Text="{Binding CommodityName}" 
+                   FontAttributes="Bold"
+                   FontSize="20" 
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontFamily="RobotoSerifBold"/>
 
-                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
-                    <Label Text="{Binding CommodityName}" 
-                           FontAttributes="Bold"
-                           FontSize="18" 
-                           TextColor="White"
-                           FontFamily="RobotoSerifBold"/>
-
-                    <Label Text="{Binding LotSizeDisplay}" 
-                           FontSize="13" 
-                           TextColor="White"
-                           FontFamily="RobotoSerifRegular"/>
-
-                    <Label Text="{Binding ShelfLifeDisplay}" 
-                           FontSize="13" 
-                           TextColor="White"
-                           FontFamily="RobotoSerifRegular"/>
-                </VerticalStackLayout>
-            </HorizontalStackLayout>
-
-            <ImageButton Grid.Column="2" Source="search_icon.png" HeightRequest="24" WidthRequest="24" BackgroundColor="Transparent" VerticalOptions="Center"/>
-            <ImageButton Grid.Column="3" Source="favourite_icon.png" HeightRequest="24" WidthRequest="24" BackgroundColor="Transparent" VerticalOptions="Center"/>
+            <ImageButton Grid.Column="2" 
+                         Source="favourite_icon.png" 
+                         HeightRequest="30" 
+                         WidthRequest="30" 
+                         BackgroundColor="Transparent" 
+                         VerticalOptions="Center"/>
         </Grid>
 
         <ScrollView Grid.Row="1">
@@ -63,9 +47,9 @@
                         BackgroundColor="#1E293B" 
                         StrokeShape="RoundRectangle 12" 
                         Padding="15,10">
-                    <Grid ColumnDefinitions="Auto, *, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="5">
+                    <Grid ColumnDefinitions="Auto, *, *, Auto" ColumnSpacing="5">
 
-                        <VerticalStackLayout Grid.Column="0" Grid.RowSpan="3" VerticalOptions="Center" Spacing="2">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
                             <Label Text="Max(24h)" FontSize="10" TextColor="#94A3B8" FontFamily="RobotoSerifRegular"/>
                             <Label Text="{Binding MaxBid24H, StringFormat='CFA {0:N0}'}" FontSize="11" TextColor="White" FontFamily="RobotoSerifBold"/>
                             <Label Text="Min(24h)" FontSize="10" TextColor="#94A3B8" FontFamily="RobotoSerifRegular" Margin="0,8,0,0"/>
@@ -88,7 +72,7 @@
                             <Label Text="{Binding OfferCount}" FontSize="12" TextColor="#94A3B8" HorizontalOptions="Center"/>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Grid.Column="3" Grid.RowSpan="3" VerticalOptions="Center" HorizontalOptions="End" Spacing="2">
+                        <VerticalStackLayout Grid.Column="3" VerticalOptions="Center" HorizontalOptions="End" Spacing="2">
                             <Label Text="Max(24h)" FontSize="10" TextColor="#94A3B8" HorizontalOptions="End" FontFamily="RobotoSerifRegular"/>
                             <Label Text="{Binding MaxOffer24H, StringFormat='CFA {0:N0}'}" FontSize="11" TextColor="White" HorizontalOptions="End" FontFamily="RobotoSerifBold"/>
                             <Label Text="Min(24h)" FontSize="10" TextColor="#94A3B8" HorizontalOptions="End" FontFamily="RobotoSerifRegular" Margin="0,8,0,0"/>
@@ -153,7 +137,7 @@
                     <dxc:ChartView.AxisY>
                         <dxc:NumericAxisY AlwaysShowZeroLevel="False">
                             <dxc:NumericAxisY.Label>
-                                <dxc:AxisLabel TextFormat="N0"/>
+                                <dxc:AxisLabel TextFormat="'N'0"/>
                             </dxc:NumericAxisY.Label>
                             <dxc:NumericAxisY.Style>
                                 <dxc:AxisStyle LineVisible="False" MajorGridlinesVisible="True" MajorGridlinesColor="#334155"/>
@@ -174,35 +158,30 @@
                             <Label Grid.Column="1" Text="{Binding OfferPercentage, StringFormat='{0:F0}%'}" FontSize="12" TextColor="#3B82F6" HorizontalOptions="End" FontFamily="RobotoSerifMedium"/>
                         </Grid>
 
-                        <Grid ColumnDefinitions="2*, 8*" HeightRequest="6">
-                            <BoxView Grid.Column="0" Color="#22C55E" CornerRadius="3,0,0,3"/>
-                            <BoxView Grid.Column="1" Color="#3B82F6" CornerRadius="0,3,3,0"/>
+                        <Grid HeightRequest="6" BackgroundColor="#3B82F6">
+                            <BoxView Color="#22C55E" 
+                                     HorizontalOptions="Start" 
+                                     WidthRequest="{Binding BidVisualWidth}"/>
                         </Grid>
                     </VerticalStackLayout>
 
-                    <Grid ColumnDefinitions="*,*,*,*" Padding="0,5">
+                    <Grid ColumnDefinitions="25*, 25*, 25*, 25*" Padding="0,5">
                         <Label Grid.Column="0" Text="Bidders" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold"/>
                         <Label Grid.Column="1" Text="Amount" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold"/>
                         <Label Grid.Column="2" Text="Offerors" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold" HorizontalOptions="Center"/>
                         <Label Grid.Column="3" Text="Amount" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold" HorizontalOptions="End"/>
                     </Grid>
 
-                    <Grid ColumnDefinitions="*,*,*,*">
-                        <CollectionView Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding TopBids}">
+                    <Grid ColumnDefinitions="50*, 50*">
+                        <CollectionView Grid.Column="0" ItemsSource="{Binding TBids}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="dto:MarketDepthItemDto">
-                                    <Grid ColumnDefinitions="*,*">
+                                    <Grid ColumnDefinitions="50*, 50*">
                                         <Label Grid.Column="0" Text="{Binding PositionCount}" TextColor="#22C55E" FontSize="12" Margin="0,5"/>
-                                        <Label Grid.Column="1" 
-                                               Text="{Binding Price, StringFormat='{0:N0}'}" 
-                                               TextColor="#22C55E" 
-                                               FontSize="12" 
-                                               Margin="0,5">
-
+                                        <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#22C55E" FontSize="12" Margin="0,5">
                                             <Label.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToPositionListingCommand}"
-                                                    CommandParameter="{Binding .}"/>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToBidPositionListingCommand}" 
+                        CommandParameter="{Binding .}" />
                                             </Label.GestureRecognizers>
                                         </Label>
                                     </Grid>
@@ -210,22 +189,15 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
-                        <CollectionView Grid.Column="2" Grid.ColumnSpan="2" ItemsSource="{Binding TopOffers}">
+                        <CollectionView Grid.Column="1" ItemsSource="{Binding Offers}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="dto:MarketDepthItemDto">
-                                    <Grid ColumnDefinitions="*,*">
+                                    <Grid ColumnDefinitions="50*, 50*">
                                         <Label Grid.Column="0" Text="{Binding PositionCount}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="Center" Margin="0,5"/>
-                                        <Label Grid.Column="1" 
-                                               Text="{Binding Price, StringFormat='{0:N0}'}" 
-                                               TextColor="#3B82F6" 
-                                               FontSize="12" 
-                                               HorizontalOptions="End" 
-                                               Margin="0,5">
-
+                                        <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="End" Margin="0,5">
                                             <Label.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToPositionListingCommand}"
-                                                    CommandParameter="{Binding .}"/>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToOfferPositionListingCommand}" 
+                        CommandParameter="{Binding .}"/>
                                             </Label.GestureRecognizers>
                                         </Label>
                                     </Grid>
