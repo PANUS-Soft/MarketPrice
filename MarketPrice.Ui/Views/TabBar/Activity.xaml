@@ -12,7 +12,7 @@
     <ContentPage.Resources>
         <Style TargetType="dx:DXButton" x:Key="ButtonStyle">
             <Setter Property="BackgroundColor" Value="{StaticResource PrimaryBase}" />
-            <Setter Property="IconColor" Value="White" />
+            <Setter Property="IconColor" Value="WhiteSmoke" />
             <Setter Property="TextColor" Value="White" />
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
@@ -122,7 +122,7 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Stroke="#AAAAAA" StrokeThickness="3" StrokeShape="RoundRectangle 5" BackgroundColor="#172033" Margin="0,0,0,10" Padding="15">
+                    <Border StrokeShape="RoundRectangle 25" BackgroundColor="#172033" Margin="0,0,0,10" Padding="15">
 
                         <!--<Border.GestureRecognizers>
                             <TapGestureRecognizer 
@@ -301,9 +301,10 @@
 
         <dx:BottomSheet Grid.RowSpan="3"
                         State="{Binding ActivityDetailsBottomSheetState, Mode=TwoWay}"
-                        HalfExpandedRatio="0.7"
+                        HalfExpandedRatio="0.85"
                         ShowGrabber="True"
-                        BackgroundColor="White">
+                        GrabberColor="White"
+                        BackgroundColor="#172033">
             <Grid RowDefinitions="Auto, Auto, *" Padding="15, 0" RowSpacing="15">
 
                 <Grid Grid.Row="0" RowDefinitions="*,*,*"  Padding="15" RowSpacing="15">
@@ -315,14 +316,15 @@
                     <Label Grid.Row="1"
                            HorizontalTextAlignment="Center"
                            Text="GENERAL POSITION INFO"
+                           TextColor="White"
                            FontFamily="RobotoSerifBold"
                            FontSize="15"/>
 
                     <Grid Grid.Row="2" RowDefinitions="*,*" ColumnDefinitions="*,*">
-                        <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" Text="Position Type" FontFamily="RobotoSerifSemibold" FontSize="15" />
-                        <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.PositionType}" FontFamily="RobotoSerifRegular" FontSize="15" />
+                        <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" Text="Position Type:" FontFamily="RobotoSerifSemibold" FontSize="15" TextColor="White" />
+                        <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.PositionType}" FontFamily="RobotoSerifRegular" FontSize="15" TextColor="White" />
 
-                        <Label Grid.Row="1" Grid.Column="0" HorizontalOptions="Start" Text="Status" FontFamily="RobotoSerifSemibold" FontSize="15"/>
+                        <Label Grid.Row="1" Grid.Column="0" HorizontalOptions="Start" Text="Status:" FontFamily="RobotoSerifSemibold" FontSize="15" TextColor="White"/>
                         <Label Grid.Row="1" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.State}" FontFamily="RobotoSerifRegular" TextColor="{Binding SelectedActivityDetails.StateColor}" />
                     </Grid>
                 </Grid>
@@ -330,12 +332,12 @@
                 <BoxView Grid.Row="1" HeightRequest="3" Color="{StaticResource PrimaryBase}" Margin="0" />
 
                 <dx:TabView Grid.Row="2"
-                            BackgroundColor="White"
-                            HeaderPanelBackgroundColor="White"
-                            SelectedItemHeaderBackgroundColor="White"
-                            SelectedItemHeaderTextColor="Black"
-                            ItemHeaderTextColor="Black"
-                            SelectedItemIndicatorColor="{StaticResource PrimaryAccent}"
+                            BackgroundColor="#172033"
+                            HeaderPanelBackgroundColor="#172033"
+                            SelectedItemHeaderBackgroundColor="#172033"
+                            SelectedItemHeaderTextColor="{StaticResource PrimaryAccent}"
+                            ItemHeaderTextColor="White"
+                            SelectedItemIndicatorColor="{StaticResource White}"
                             SelectedItemIndicatorHeight="5">
 
                     <dx:TabViewItem HeaderText="Commodity" 
@@ -344,29 +346,29 @@
                         <VerticalStackLayout Padding="15,10"
                                              Margin="10"
                                              Spacing="10">
-                            <Label Text="COMMODITY DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17"/>
+                            <Label Text="COMMODITY DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
 
                             <Grid ColumnDefinitions="Auto,*"
                                   RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
                                   RowSpacing="13">
 
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Commodity: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.CommodityName}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Commodity: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.CommodityName}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Lot Sze: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LotSize}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Lot Sze: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LotSize}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quantity: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Quantity}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quantity: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Quantity}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Grade: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Grade}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Grade: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Grade}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Total Quantity: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalQuantity}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Total Quantity: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalQuantity}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Description: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Description}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Description: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Description}" FontFamily="RobotoSerifSemibold" TextColor="White" />
                             </Grid>
                         </VerticalStackLayout>
                     </dx:TabViewItem>
@@ -375,34 +377,50 @@
                         <VerticalStackLayout Padding="10,10"
                                              Margin="10"
                                              Spacing="10">
-                            <Label Text="PRICING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17"/>
+                            <Label Text="PRICING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
 
                             <Grid ColumnDefinitions="Auto,*"
                                   RowDefinitions="Auto, Auto"
                                   RowSpacing="13">
 
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Unit Price / Lot Size: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Price}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Unit Price / Lot Size: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Price}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Total Price: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalPrice}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Total Price: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalPrice}" FontFamily="RobotoSerifSemibold" TextColor="White" />
                             </Grid>
 
 
-                            <Label Text="TIMING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17"/>
+                            <Label Text="TIMING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
 
                             <Grid ColumnDefinitions="Auto,*"
                                   RowDefinitions="Auto, Auto, Auto" 
-                                  RowSpacing="13">
+                                  RowSpacing="15">
 
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Start Date: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Start Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Grid Grid.Column="1" 
+                                      Grid.Row="0"
+                                      RowDefinitions="Auto, Auto">
+                                    <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                </Grid>
 
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Expiry Date: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Expiry Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Grid Grid.Column="1" 
+                                      Grid.Row="1"
+                                      RowDefinitions="Auto, Auto">
+                                    <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                </Grid>
 
-                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Date Created: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Created Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Grid Grid.Column="1"
+                                      Grid.Row="2"
+                                      RowDefinitions="Auto, Auto">
+                                    <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                </Grid>
+
                             </Grid>
                         </VerticalStackLayout>
                     </dx:TabViewItem>
@@ -410,49 +428,49 @@
 
                     <dx:TabViewItem HeaderText="Logistics" HeaderFontFamily="RobotoSerifBold" HeaderFontSize="15">
                         <VerticalStackLayout Padding="35, 10">
-                            <Label Text="ORIGIN LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17"/>
+                            <Label Text="ORIGIN LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
 
                             <Grid ColumnDefinitions="Auto,*"
                                   RowDefinitions="Auto, Auto, Auto, Auto"
                                   RowSpacing="13">
 
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.OriginRegion}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region:" FontFamily="RobotoSerifRegular" TextColor="White"/>
+                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.OriginRegion}" FontFamily="RobotoSerifSemibold" TextColor="White"/>
 
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Town}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town:" FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Town}" FontFamily="RobotoSerifSemibold" TextColor="White"/>
 
-                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Quarter}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter:" FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Quarter}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street: " FontFamily="RobotoSerifRegular" />
-                                <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Street}" FontFamily="RobotoSerifSemibold"/>
+                                <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street:" FontFamily="RobotoSerifRegular" TextColor="White" />
+                                <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Street}" FontFamily="RobotoSerifSemibold" TextColor="White" />
                             </Grid>
 
                             <VerticalStackLayout Padding="0, 25" IsVisible="{Binding SelectedActivityDetails.IsDeliverable}">
-                                <Label Text="DESTINATION LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17"/>
+                                <Label Text="DESTINATION LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
 
                                 <Grid ColumnDefinitions="Auto,*"
                                       RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
                                       RowSpacing="13">
 
-                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region: " FontFamily="RobotoSerifRegular" />
-                                    <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DestinationRegion}" FontFamily="RobotoSerifSemibold"/>
+                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DestinationRegion}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town: " FontFamily="RobotoSerifRegular" />
-                                    <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Town}" FontFamily="RobotoSerifSemibold"/>
+                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Town}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                    <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter: " FontFamily="RobotoSerifRegular" />
-                                    <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Quarter}" FontFamily="RobotoSerifSemibold"/>
+                                    <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Quarter}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                    <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street: " FontFamily="RobotoSerifRegular" />
-                                    <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Street}" FontFamily="RobotoSerifSemibold"/>
+                                    <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Street}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                    <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Lead Time in Days: " FontFamily="RobotoSerifRegular" />
-                                    <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LeadTime}" FontFamily="RobotoSerifSemibold"/>
+                                    <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Lead Time in Days: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LeadTime}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                    <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Delivery fee: " FontFamily="RobotoSerifRegular" />
-                                    <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DeliveryFee}" FontFamily="RobotoSerifSemibold"/>
+                                    <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Delivery fee: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DeliveryFee}" FontFamily="RobotoSerifSemibold" TextColor="White" />
                                 </Grid>
                             </VerticalStackLayout>
                         </VerticalStackLayout>
