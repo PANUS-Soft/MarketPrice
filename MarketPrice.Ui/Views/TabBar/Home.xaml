@@ -39,6 +39,7 @@
 
             <Label Grid.Column="1"
                    Text="MarketPrice"
+                   FontFamily="RobotoSerifSemibold"
                    TextColor="{StaticResource TextPrimary}"
                    FontSize="17" FontAttributes="Bold"
                    HorizontalOptions="Center" VerticalOptions="Center"/>

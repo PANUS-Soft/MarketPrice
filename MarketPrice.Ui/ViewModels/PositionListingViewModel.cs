@@ -79,13 +79,13 @@ namespace MarketPrice.Ui.ViewModels
         private string bidPrice = "-";
 
         [ObservableProperty]
-        private string bidCount = "0 People";
+        private string bidCount = "0 Buyer(s)";
 
         [ObservableProperty]
         private string offerPrice = "-";
 
         [ObservableProperty]
-        private string offerCount = "0 People";
+        private string offerCount = "0 Seller(s)";
 
         public PositionListingViewModel(
             SessionService sessionService,
@@ -255,12 +255,12 @@ namespace MarketPrice.Ui.ViewModels
                     currentBid.Price.ToString("N0", culture);
 
                 BidCount =
-                    $"{currentBid.Count} People";
+                    $"{currentBid.Count} Buyer(s)";
             }
             else
             {
                 BidPrice = "-";
-                BidCount = "0 People";
+                BidCount = "0 Buyer(s)";
             }
 
             if (_offerPriceLadder.Any())
@@ -271,12 +271,12 @@ namespace MarketPrice.Ui.ViewModels
                     currentOffer.Price.ToString("N0", culture);
 
                 OfferCount =
-                    $"{currentOffer.Count} People";
+                    $"{currentOffer.Count} Seller(s)";
             }
             else
             {
                 OfferPrice = "-";
-                OfferCount = "0 People";
+                OfferCount = "0 (Seller)";
             }
         }
 

@@ -156,7 +156,38 @@ namespace MarketPrice.Ui.ViewModels
 
                 Dto = await marketInsightResponse.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
 
-                // Pro Notification Pipeline: Forcefully alerts all listening UI bindings to flush and redraw
+                if (Dto?.Bids != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Bids Count: {Dto.Bids.Count}");
+
+                    foreach (var bid in Dto.Bids)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"Bid Price={bid.Price} PositionCount={bid.PositionCount}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Bids is NULL");
+                }
+
+                if (Dto?.Offers != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Offers Count: {Dto.Offers.Count}");
+
+                    foreach (var offer in Dto.Offers)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"Offer Price={offer.Price} PositionCount={offer.PositionCount}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Offers is NULL");
+                }
+
+
+
                 NotifyMarketInsightDataChanged();
             }
             catch (Exception e)

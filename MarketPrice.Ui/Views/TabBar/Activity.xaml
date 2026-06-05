@@ -18,25 +18,26 @@
         </Style>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto, Auto, Auto, *" Padding="20,20,20,0">
+    <Grid RowDefinitions="Auto, Auto, *" Padding="20,20,20,0">
 
-        <Label Grid.Row="0" 
-               Text="Activity"
-               FontFamily="RobotoSerifBold"
-               FontSize="28"
-               TextColor="{StaticResource White}"
-               Margin="0,0,0,15"/>
-
-        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,0,0,15">
-            <Border Grid.Column="0" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40">
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,0,0,15">
+            <Border Grid.Column="0" 
+                    StrokeThickness="0" 
+                    StrokeShape="RoundRectangle 20" 
+                    BackgroundColor="#2A2A2A" 
+                    HeightRequest="45">
+                
                 <SearchBar Placeholder="Search" 
                            Text="{Binding SearchText}" 
                            SearchCommand="{Binding ApplyFiltersCommand}" 
                            BackgroundColor="Transparent" 
+                           TextColor="White"
+                           PlaceholderColor="#888888"
+                           CancelButtonColor="White"
                            VerticalOptions="Center"/>
             </Border>
 
-            <Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
+            <!--<Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
                 <Picker ItemsSource="{Binding PositionTypes}" 
                         SelectedItem="{Binding SelectedPositionType}"
                         TextColor="Black"
@@ -45,13 +46,23 @@
                         TitleColor="{StaticResource PrimaryBase}"
                         FontFamily="RobotoSerifRegular"
                         VerticalOptions="Center"/>
-            </Border>
+            </Border>-->
+
+            <dx:DXButton
+                Grid.Column="1"
+                WidthRequest="45"
+                HeightRequest="45"
+                CornerRadius="20"
+                PressedBackgroundColor="#AAAAAA"
+                BackgroundColor="{StaticResource Background}"
+                Icon="filter"
+                Command="{Binding ShowFiltersCommand}"/>
         </Grid>
 
-        <CollectionView Grid.Row="2" 
+        <CollectionView Grid.Row="1" 
                         ItemsSource="{Binding CommodityTypesList}" 
                         HeightRequest="40" 
-                        Margin="0,0,0,15" 
+                        Margin="0,0,0,25" 
                         SelectionMode="Single" 
                         SelectedItem="{Binding SelectedCommodityType}">
 
@@ -63,8 +74,8 @@
                 <DataTemplate>
                     <Border Stroke="#fff" 
                             StrokeThickness="1" 
-                            StrokeShape="RoundRectangle 5" 
-                            BackgroundColor="{StaticResource OffBlack}" 
+                            StrokeShape="RoundRectangle 15" 
+                            BackgroundColor="{StaticResource Background}" 
                             Padding="20,0" 
                             VerticalOptions="Center" 
                             HeightRequest="35">
@@ -92,7 +103,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <CollectionView Grid.Row="3" 
+        <CollectionView Grid.Row="2" 
                         ItemsSource="{Binding GroupedActivities}" 
                         IsGrouped="True" 
                         SelectionMode="Single"
@@ -104,14 +115,14 @@
                     <Label Text="{Binding Name}"
                            FontFamily="RobotoSerifBold"
                            FontSize="20" 
-                           TextColor="Black" 
+                           TextColor="White" 
                            Margin="0,10,0,10"/>
                 </DataTemplate>
             </CollectionView.GroupHeaderTemplate>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Stroke="#00569D" StrokeThickness="3" StrokeShape="RoundRectangle 5" BackgroundColor="White" Margin="0,0,0,10" Padding="15">
+                    <Border Stroke="#AAAAAA" StrokeThickness="3" StrokeShape="RoundRectangle 5" BackgroundColor="#172033" Margin="0,0,0,10" Padding="15">
 
                         <!--<Border.GestureRecognizers>
                             <TapGestureRecognizer 
@@ -126,7 +137,7 @@
                             </Frame>-->
 
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                <Label TextColor="Black">
+                                <Label TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Commodity Name: " FontFamily="RobotoSerifBold" />
@@ -134,7 +145,7 @@
                                         </FormattedString>
                                     </Label.FormattedText>
                                 </Label>
-                                <Label TextColor="Black">
+                                <Label TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Quantity: " FontFamily="RobotoSerifBold" />
@@ -142,7 +153,7 @@
                                         </FormattedString>
                                     </Label.FormattedText>
                                 </Label>
-                                <Label TextColor="Black">
+                                <Label TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Lot Size: " FontFamily="RobotoSerifBold" />
@@ -150,7 +161,7 @@
                                         </FormattedString>
                                     </Label.FormattedText>
                                 </Label>
-                                <Label TextColor="Black">
+                                <Label TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Position Type: " FontFamily="RobotoSerifBold" />
@@ -158,7 +169,7 @@
                                         </FormattedString>
                                     </Label.FormattedText>
                                 </Label>
-                                <Label TextColor="Black">
+                                <Label TextColor="White">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="Unit Price/Lot Size: " FontFamily="RobotoSerifBold" />
@@ -180,7 +191,115 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <dx:BottomSheet Grid.RowSpan="4"
+        <dx:BottomSheet
+            Grid.RowSpan="2"
+            State="{Binding FilterBottomSheetState}"
+            HalfExpandedRatio="0.30"
+            ShowGrabber="True"
+            GrabberColor="White"
+            BackgroundColor="#172033">
+
+            <VerticalStackLayout
+                Padding="25, 10"
+                VerticalOptions="Center"
+                Spacing="20">
+
+                <Label
+                    Text="Position type filters"
+                    TextColor="White"
+                    FontFamily="RobotoSerifRegular"
+                    FontSize="20"
+                    HorizontalOptions="Center"/>
+
+                <CollectionView
+                    ItemsSource="{Binding PositionTypes}"
+                    SelectionMode="Single"
+                    HorizontalOptions="Center"
+                    SelectedItem="{Binding SelectedPositionType}"
+                    HeightRequest="50">
+
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout
+                            Orientation="Horizontal"
+                            ItemSpacing="10"/>
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+
+                            <Border
+                                Stroke="{StaticResource PrimaryBase}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 25"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Start"
+                                Padding="20,10">
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup Name="CommonStates">
+
+                                        <VisualState Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor"
+                                                    Value="White"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                        <VisualState Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor"
+                                                    Value="{StaticResource PrimaryBase}"/>
+                                                <Setter
+                                                    TargetName="FilterLabel"
+                                                    Property="Label.TextColor"
+                                                    Value="White"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Label
+                                    x:Name="FilterLabel"
+                                    Text="{Binding .}"
+                                    TextColor="{StaticResource PrimaryBase}"
+                                    FontFamily="RobotoSerifSemibold"/>
+                            </Border>
+
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="10">
+
+                    <dx:DXButton
+                        Grid.Column="0"
+                        Content="Reset"
+                        FontSize="15"
+                        CornerRadius="15"
+                        BackgroundColor="White"
+                        FontFamily="RobotoSerifLight"
+                        TextColor="{StaticResource PrimaryBase}"
+                        Command="{Binding ClearFiltersCommand}"/>
+                    
+                    <dx:DXButton
+                        Grid.Column="1"
+                        Content="Apply"
+                        FontSize="15"
+                        CornerRadius="15"
+                        BackgroundColor="{StaticResource PrimaryBase}"
+                        FontFamily="RobotoSerifLight"
+                        TextColor="White"
+                        Command="{Binding ApplyFilterAndCloseCommand}"/>
+                </Grid>
+
+            </VerticalStackLayout>
+
+        </dx:BottomSheet>
+
+        <dx:BottomSheet Grid.RowSpan="3"
                         State="{Binding ActivityDetailsBottomSheetState, Mode=TwoWay}"
                         HalfExpandedRatio="0.7"
                         ShowGrabber="True"
