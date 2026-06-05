@@ -212,13 +212,13 @@
                 </Border>
             </HorizontalStackLayout>
 
-            <Grid Grid.Row="3" ColumnDefinitions="160, 100, *" Padding="10, 5" Margin="0, 5" >
+            <Grid Grid.Row="3" ColumnDefinitions="140, 100, 120" ColumnSpacing="15"  Padding="10, 5" Margin="0, 5" >
                 <Label Grid.Column="0"
                        Text="Commodities"
                        FontSize="16"
                        FontFamily="RobotoSerifBold"
-                       HorizontalTextAlignment="Start"
-                       HorizontalOptions="Start"
+                       HorizontalTextAlignment="Center"
+                       HorizontalOptions="Center"
                        VerticalTextAlignment="Center"
                        TextColor="White"
                        FontAttributes="Bold"/>
@@ -233,13 +233,15 @@
                        FontAttributes="Bold"/>
 
                 <Label Grid.Column="2"
-                       Text="Variation (24H)"
-                       FontSize="16"
+                       Text="24H Change"
+                       FontSize="14"
                        VerticalTextAlignment="Center"
                        FontFamily="RobotoSerifBold"
                        TextColor="White"
                        HorizontalTextAlignment="Start"
                        HorizontalOptions="Start"
+                       LineBreakMode="NoWrap"
+                       MaxLines="1"
                        FontAttributes="Bold"/>
             </Grid>
             
@@ -248,10 +250,19 @@
                 Grid.Row="4" 
                 Padding="0,0">
 
+                <ActivityIndicator
+                    IsRunning="{Binding IsLoading}"
+                    IsVisible="{Binding IsLoading}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    WidthRequest="50"
+                    HeightRequest="50"
+                    Color="White"/>     
+
                 <CollectionView 
                     ItemsSource="{Binding MarketItems}" 
                     SelectionMode="None" 
-                    IsVisible="{Binding IsListEmpty, Converter={StaticResource InvertedBoolConverter}}">
+                    IsVisible="{Binding ShowMarketData}">
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
@@ -375,7 +386,7 @@
 
                 <!-- EMPTY STATE -->
                 <VerticalStackLayout 
-                    IsVisible="{Binding IsListEmpty}" 
+                    IsVisible="{Binding ShowEmptyState}" 
                     VerticalOptions="Center" 
                     HorizontalOptions="Center" 
                     Spacing="10">

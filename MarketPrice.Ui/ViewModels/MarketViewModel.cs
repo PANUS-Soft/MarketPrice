@@ -37,7 +37,13 @@ namespace MarketPrice.Ui.ViewModels
         private bool isListEmpty;
 
         [ObservableProperty]
-        private bool isLoading;
+        private bool isLoading = true;
+
+        public bool ShowEmptyState => 
+            !IsLoading && 
+            IsListEmpty &&
+            _allMarketItems.Count == 0;
+        public bool ShowMarketData => !IsLoading && !IsListEmpty;
 
         [ObservableProperty]
         private bool isBidHighlighted = true;
@@ -68,7 +74,7 @@ namespace MarketPrice.Ui.ViewModels
             _marketApi = marketApi;
             _apiSettingOptions = apiSettingOptions.Value;
 
-            _ = InitializeAsync();
+             
         }
 
         public MarketViewModel() { }
@@ -364,5 +370,17 @@ namespace MarketPrice.Ui.ViewModels
 
             SelectedCommodityTypeName = string.Empty;
         }
+        partial void OnIsLoadingChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowEmptyState));
+            OnPropertyChanged(nameof(ShowMarketData));
+        }
+
+        partial void OnIsListEmptyChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowEmptyState));
+            OnPropertyChanged(nameof(ShowMarketData));
+        }
+
     }
 }
