@@ -9,7 +9,7 @@
     xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
     x:Class="MarketPrice.Ui.Views.Profile"
     Title="Profile"
-    BackgroundColor="#13131F">
+    BackgroundColor="{StaticResource Background}">
 
     <ContentPage.Resources>
         <converters:NameToInitialsConverter x:Key="NameToInitialsConverter" />
@@ -27,20 +27,22 @@
                    HeightRequest="250"/>
 
             <Label Text="No profile. You are here as a guest."
+                   TextColor="White"
                    FontFamily="RobotoSerifRegular"
                    FontSize="18"
                    HorizontalTextAlignment="Center"
                    HorizontalOptions="Center"/>
 
             <Label Text="Register or log in to manage your profile."
+                   TextColor="White"
                    FontSize="15"
                    FontFamily="RobotoSerifRegular"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"/>
 
             <Grid ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10">
-                <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Register" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="10" Command="{Binding NavigateToRegisterCommand}"/>
-                <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Log in" BackgroundColor="White" BorderColor="{StaticResource PrimaryBase}" BorderWidth="3" TextColor="{StaticResource PrimaryBase}" CornerRadius="10" Command="{Binding NavigateToLoginCommand}"/>
+                <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Register" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="15" Command="{Binding NavigateToRegisterCommand}"/>
+                <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Log in" BackgroundColor="White" TextColor="{StaticResource PrimaryBase}" CornerRadius="15" Command="{Binding NavigateToLoginCommand}"/>
             </Grid>
         </StackLayout>
 

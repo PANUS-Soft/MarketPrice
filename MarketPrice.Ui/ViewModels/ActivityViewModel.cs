@@ -29,6 +29,8 @@ namespace MarketPrice.Ui.ViewModels
         public ObservableCollection<string> CommodityTypesList { get; } =
             new(); // The list of commodity types that will serve for filtering
 
+        [ObservableProperty] private BottomSheetState _filterBottomSheetState = BottomSheetState.Hidden;
+
         [ObservableProperty] private string searchText;
         [ObservableProperty] private string selectedPositionType = "All";
         [ObservableProperty] private string selectedCommodityType = "ALL";
@@ -153,6 +155,8 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (value == null) return;
 
+            FilterBottomSheetState = BottomSheetState.Hidden;
+
             SelectedActivityDetails = value;            
             ActivityDetailsBottomSheetState = BottomSheetState.HalfExpanded;
 
@@ -176,6 +180,27 @@ namespace MarketPrice.Ui.ViewModels
             }
             _lastCommodityType = value;
             ApplyFilters();
+        }
+
+        [RelayCommand]
+        private void ShowFilters()
+        {
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+            FilterBottomSheetState = BottomSheetState.HalfExpanded;
+        }
+
+        [RelayCommand]
+        private void ApplyFilterAndClose()
+        {
+            ApplyFilters();
+            FilterBottomSheetState = BottomSheetState.Hidden;
+        }
+
+        [RelayCommand]
+        private void ClearFilters()
+        {
+            SelectedPositionType = "All";
+            FilterBottomSheetState = BottomSheetState.Hidden;
         }
 
         [RelayCommand]

@@ -173,7 +173,7 @@
                     </Grid>
 
                     <Grid ColumnDefinitions="50*, 50*">
-                        <CollectionView Grid.Column="0" ItemsSource="{Binding TBids}">
+                        <CollectionView Grid.Column="0" ItemsSource="{Binding Bids}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="dto:MarketDepthItemDto">
                                     <Grid ColumnDefinitions="50*, 50*">
