@@ -239,6 +239,7 @@ namespace MarketPrice.Services.Implementations
                 .Select(g => new MarketDepthItemDto
                 {
                     Price = g.Key,
+                    PositionCount = g.Count(),
                     Quantity = g.Sum(x => x.Quantity)
                 })
                 .OrderByDescending(x => x.Price)
@@ -250,6 +251,7 @@ namespace MarketPrice.Services.Implementations
                 .Select(g => new MarketDepthItemDto
                 {
                     Price = g.Key,
+                    PositionCount = g.Count(),
                     Quantity = g.Sum(x => x.Quantity)
                 })
                 .OrderBy(x => x.Price)

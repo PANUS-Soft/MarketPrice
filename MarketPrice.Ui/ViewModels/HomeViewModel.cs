@@ -121,8 +121,10 @@ namespace MarketPrice.Ui.ViewModels
                             BestBidQuantity = bid0?.TotalActivePosforPrice ?? 0,
                             BestBidLocation = bid0?.Locations.FirstOrDefault() ?? string.Empty,
                             NextBid1 = bid1?.Price ?? 0,
+                            NextBid1Display = bid1 != null && bid1.Price > 0 ? bid1.Price.ToString("N0", new CultureInfo("en-CM")) : "-",
                             NextBid1Location = bid1?.Locations.FirstOrDefault() ?? string.Empty,
                             NextBid2 = bid2?.Price ?? 0,
+                            NextBid2Display = bid2 != null && bid2.Price > 0 ? bid2.Price.ToString("N0", new CultureInfo("en-CM")) : "-",
                             NextBid2Location = bid2?.Locations.FirstOrDefault() ?? string.Empty,
 
                             // Best Offer
@@ -134,10 +136,15 @@ namespace MarketPrice.Ui.ViewModels
                             BestOfferQuantity = offer0?.TotalActivePosforPrice ?? 0,
                             BestOfferLocation = offer0?.Locations.FirstOrDefault() ?? string.Empty,
                             NextOffer1 = offer1?.Price ?? 0,
+                            NextOffer1Display = offer1 != null && offer1.Price > 0 ? offer1.Price.ToString("N0", new CultureInfo("en-CM")) : "-",
                             NextOffer1Location = offer1?.Locations.FirstOrDefault() ?? string.Empty,
                             NextOffer2 = offer2?.Price ?? 0,
+                            NextOffer2Display = offer2 != null && offer2.Price > 0 ? offer2.Price.ToString("N0", new CultureInfo("en-CM")) : "-",
                             NextOffer2Location = offer2?.Locations.FirstOrDefault() ?? string.Empty,
-                        });
+
+                            // Buyer/Seller counts
+                            BuyerCountDisplay = bid0 != null && bid0.TotalActivePosforPrice > 0 ? $"x{bid0.TotalActivePosforPrice:N0} Buyer(s)" : "x0 Buyer(s)",
+                            SellerCountDisplay = offer0 != null && offer0.TotalActivePosforPrice > 0 ? $"x{offer0.TotalActivePosforPrice:N0} Seller(s)" : "x0 Seller(s)",});
                     }
 
                     Commodities.Add(groupModel);

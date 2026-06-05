@@ -6,7 +6,7 @@
              xmlns:viewModel="clr-namespace:MarketPrice.Ui.ViewModels"
              x:Class="MarketPrice.Ui.Views.Login"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{StaticResource Background}"
+             BackgroundColor="{StaticResource BgPage}"
              Title="Login">
 
     <ContentPage.Resources>
@@ -43,7 +43,7 @@
 
             <dxc:DXBorder BackgroundColor="{StaticResource Background}"
                           CornerRadius="40" 
-                          BorderColor="#AAAAAA"
+                          BorderColor="{StaticResource BorderColor}"
                           BorderThickness="1"
                           Padding="30" 
                           Margin="30,0" >
