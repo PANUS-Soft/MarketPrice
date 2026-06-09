@@ -287,14 +287,14 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (selectedItem == null) return;
 
-            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
-
             var confirm = await Shell.Current.DisplayAlert("Confirm Deletion",
-                $"Are you sure you want to delete the activity for {selectedItem.CommodityName}?",
-                "Yes", "No");
+                $"Are you sure you want to delete this activity ? This action cannot be undone.",
+                "Confirm Delete", "Cancel");
             if (confirm)
             {
-                await Shell.Current.DisplayAlert("Infos ⚠️", "The activity was successfully deleted.", "OK");
+                // TODO: Call API to delete the activity 
+                ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+
             }
             else
             {
