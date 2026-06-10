@@ -67,7 +67,7 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet(ApiRoutes.AUTH_PING)]
         public IActionResult Ping()
         {
@@ -109,13 +109,27 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
-        //[Authorize]
-        [HttpGet(ApiRoutes.GET_USER_ACTIVITY + "/{id}")]
+        [Authorize]
+        [HttpGet(ApiRoutes.USER_ACTIVITY + "/{id}")]
         public async Task<ActionResult<ActivityGroupDto>> GetActivity(Guid id)
         {
             var result = await positionService.GetActivityAsync(id);
             return Ok(result);
         }
 
+
+        [Authorize]
+        [HttpDelete(ApiRoutes.USER_ACTIVITY + "/{id}")]
+        public async Task<ActionResult<DeleteActivityResponseDto>> DeleteActivity(Guid id)
+        {
+            var result = await positionService.DeleteActivityAsync(id);
+            
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            return NotFound(result);
+        }
     }
 }

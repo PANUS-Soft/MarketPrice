@@ -15,7 +15,7 @@ namespace MarketPrice.Ui.Services.Api
     {
         public async Task<HttpResponseMessage> GetUserActivityAsync(Guid userId)
         {
-            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.GET_USER_ACTIVITY, userId.ToString());
+            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.USER_ACTIVITY, userId.ToString());
             var response = await GettingAsync(url);
             return response;
         }
