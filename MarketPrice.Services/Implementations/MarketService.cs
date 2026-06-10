@@ -324,7 +324,7 @@ namespace MarketPrice.Services.Implementations
                                         p.ExpiryDate > now)
                             .Min(p => (decimal?)p.UnitPrice) ?? 0m,
 
-                    YesterdayBestPrice = positionTypeId == BidPosition
+                    PreviousBestPrice = positionTypeId == BidPosition
                         ? _context.Positions
                             .Where(p => p.CommodityId == c.CommodityId &&
                                         p.PositionTypeId == positionTypeId &&
@@ -345,9 +345,9 @@ namespace MarketPrice.Services.Implementations
             {
                 decimal difference = 0;
 
-                if (item.CurrentBestPrice > 0 && item.YesterdayBestPrice > 0)
+                if (item.CurrentBestPrice > 0 && item.PreviousBestPrice > 0)
                 {
-                    difference = item.CurrentBestPrice - item.YesterdayBestPrice;
+                    difference = item.CurrentBestPrice - item.PreviousBestPrice;
                 }
 
                 marketData.Add(new MarketCommodityDto

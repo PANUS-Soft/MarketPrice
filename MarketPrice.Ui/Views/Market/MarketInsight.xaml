@@ -201,7 +201,7 @@
                                         <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="End" Margin="0,5">
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToOfferPositionListingCommand}" 
-                        CommandParameter="{Binding .}"/>
+                                                CommandParameter="{Binding .}"/>
                                             </Label.GestureRecognizers>
                                         </Label>
                                     </Grid>
