@@ -43,7 +43,6 @@
     {
         public string? Status { get; set; }
         public IEnumerable<string> Errors { get; set; } = [];
-
         public bool Success { get; set; }
     }
 }

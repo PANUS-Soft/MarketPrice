@@ -551,14 +551,14 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         };
     }
 
-    public async Task<ActivityGroupDto> GetActivityAsync(Guid id)
+    public async Task<ActivityGroupDto> GetActivityAsync(Guid userId)
     {
-        if (id == Guid.Empty)
-            throw new ArgumentException("USerId is required.");
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId is required.");
 
         var now = DateTime.UtcNow;
 
-        var positions = await _context.Positions.AsNoTracking().Where(p => p.UserId == id).Include(p => p.Commodity)
+        var positions = await _context.Positions.AsNoTracking().Where(p => p.UserId == userId).Include(p => p.Commodity)
             .ThenInclude(c => c.UnitOfMeasure).OrderByDescending(p => p.Date).ToListAsync();
 
         if (!positions.Any()) return new ActivityGroupDto();
@@ -668,6 +668,62 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             LastMonth = data.Where(x => x.CreatedAt >= startOfLastMonth && x.CreatedAt < startOfMonth).ToList(),
 
         };
+    }
+
+    public async Task<DeleteActivityResponseDto> DeleteActivityAsync(Guid positionId)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            if (positionId == Guid.Empty)
+                throw new ArgumentException("PositionId is required.");
+
+            var position = await _context.Positions.FirstOrDefaultAsync(p => p.PositionId == positionId);
+
+            if (position == null)
+                return DtoManager.Failed<DeleteActivityResponseDto>("Not Found", "Activity with PositionId not found.");
+
+            // Getting the delivery details of the position
+            var deliveryDetail = await _context.DeliveryDetails.FirstOrDefaultAsync(dd => dd.PositionId == positionId);
+
+            if (deliveryDetail != null)
+            {
+                // Deleting the origin location
+                var origin =
+                    await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.OriginLocationId);
+
+                if (origin != null)
+                    _context.Locations.Remove(origin);
+
+                // Deleting the destination location (if it exists)
+                if (deliveryDetail.DestinationLocationId.HasValue)
+                {
+                    var destination = await _context.Locations.FirstOrDefaultAsync(l =>
+                        l.LocationId == deliveryDetail.DestinationLocationId.Value);
+
+                    if (destination != null)
+                        _context.Locations.Remove(destination);
+                }
+
+                // Deleting delivery detail of the position
+                _context.DeliveryDetails.Remove(deliveryDetail);
+            }
+
+
+            // Deleting the position entry
+            _context.Positions.Remove(position);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return DtoManager.Succeed(new DeleteActivityResponseDto { Status = "Activity deleted successfully." });
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     // FIX: Using DateTimeOffset instead of DateTime

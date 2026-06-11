@@ -158,10 +158,14 @@
                             <Label Grid.Column="1" Text="{Binding OfferPercentage, StringFormat='{0:F0}%'}" FontSize="12" TextColor="#3B82F6" HorizontalOptions="End" FontFamily="RobotoSerifMedium"/>
                         </Grid>
 
-                        <Grid HeightRequest="6" BackgroundColor="#3B82F6">
-                            <BoxView Color="#22C55E" 
-                                     HorizontalOptions="Start" 
-                                     WidthRequest="{Binding BidVisualWidth}"/>
+                        <Grid HeightRequest="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding BidWidth}"/>
+                                <ColumnDefinition Width="{Binding OfferWidth}"/>
+                            </Grid.ColumnDefinitions>
+
+                            <BoxView Grid.Column="0" Color="#22C55E"/>
+                            <BoxView Grid.Column="1" Color="#3B82F6"/>
                         </Grid>
                     </VerticalStackLayout>
 

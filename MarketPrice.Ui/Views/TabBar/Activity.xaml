@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:dx="http://schemas.devexpress.com/maui"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
              x:Class="MarketPrice.Ui.Views.Activity"
              x:Name="ActivityPage"
              BackgroundColor="{StaticResource Background}"
@@ -10,6 +11,9 @@
              Title="Activity">
 
     <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+        </ResourceDictionary>
         <Style TargetType="dx:DXButton" x:Key="ButtonStyle">
             <Setter Property="BackgroundColor" Value="{StaticResource PrimaryBase}" />
             <Setter Property="IconColor" Value="WhiteSmoke" />
@@ -308,9 +312,30 @@
             <Grid RowDefinitions="Auto, Auto, *" Padding="15, 0" RowSpacing="15">
 
                 <Grid Grid.Row="0" RowDefinitions="*,*,*"  Padding="15" RowSpacing="15">
-                    <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="10">
-                        <dx:DXButton Grid.Column="0" Grid.Row="0" Content="Edit" Icon="edit" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding EditActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}" />
-                        <dx:DXButton Grid.Column="1" Grid.Row="0" Content="Delete" Icon="trash" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding DeleteActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}"/>
+
+                    <Grid Grid.Row="0">
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10" IsVisible="{Binding IsDeleting, Converter={StaticResource InvertedBoolConverter}}">
+                            <dx:DXButton Grid.Column="0" Grid.Row="0" Content="Edit" Icon="edit" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding EditActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}" />
+                            <dx:DXButton Grid.Column="1" Grid.Row="0" Content="Delete" Icon="trash" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding DeleteActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}"/>
+                        </Grid>
+
+                        <VerticalStackLayout
+                            IsVisible="{Binding IsDeleting}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Spacing="10">
+                            <ActivityIndicator 
+                                IsRunning="{Binding IsDeleting}"
+                                Color="White" 
+                                HorizontalOptions="Center" 
+                                VerticalOptions="Center" />
+
+                            <Label Text="Deleting position..."
+                                   HorizontalOptions="Center"
+                                   FontFamily="RobotoSerifSemibold"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+
                     </Grid>
 
                     <Label Grid.Row="1"

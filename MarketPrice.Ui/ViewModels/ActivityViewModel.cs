@@ -36,6 +36,7 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private string selectedCommodityType = "ALL";
         [ObservableProperty] private Activity selectedItem;
         [ObservableProperty] private bool isLoading;
+        [ObservableProperty] private bool isDeleting;
         [ObservableProperty] private BottomSheetState _activityDetailsBottomSheetState = BottomSheetState.Hidden;
         [ObservableProperty] private Activity selectedActivityDetails;
 
@@ -287,18 +288,47 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (selectedItem == null) return;
 
-            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+            var confirm = await Shell.Current.DisplayAlert(
+                "Confirm Deletion",
+                "Are you sure you want to delete this activity ? This action cannot be undone.",
+                "Confirm Delete",
+                "Cancel");
 
-            var confirm = await Shell.Current.DisplayAlert("Confirm Deletion",
-                $"Are you sure you want to delete the activity for {selectedItem.CommodityName}?",
-                "Yes", "No");
-            if (confirm)
+            if (!confirm) return;
+
+            try
             {
-                await Shell.Current.DisplayAlert("Infos ⚠️", "The activity was successfully deleted.", "OK");
+                IsDeleting = true;
+
+                var response = await _activityApiService.DeleteActivityAsync(selectedItem.PositionId);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Remove the deleted activity from the local collection and re-apply filters to update the UI
+                    var activity = _allActivities.FirstOrDefault(x => x.PositionId == selectedItem.PositionId);
+
+                    if (activity != null)
+                    {
+                        _allActivities.Remove(activity);
+                    }
+
+                    ApplyFilters();
+
+                    ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+                    await Shell.Current.DisplayAlert("Success ✅", "Activity deleted successfully.", "OK");
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error ⚠️", "Failed to delete the activity. Please try again.", "OK");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return;
+                await Shell.Current.DisplayAlert("Error ⚠️", e.Message, "OK");
+            }
+            finally
+            {
+                IsDeleting = false;
             }
         }
     }

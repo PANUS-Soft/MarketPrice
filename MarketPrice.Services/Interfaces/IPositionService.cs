@@ -10,8 +10,8 @@ namespace MarketPrice.Services.Interfaces
         Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command);
         Task<UpdatePositionResponseDto> UpdatePositionAsync(UpdatePositionCommand command, bool isOffer);
         Task<PositionResponseDto> ProcessPositionAsync(CreatePositionCommand command, bool isOffer);
-        Task<ActivityGroupDto> GetActivityAsync(Guid id);
+        Task<ActivityGroupDto> GetActivityAsync(Guid userId);
+        Task<DeleteActivityResponseDto> DeleteActivityAsync(Guid positionId);
         Task<PositionDetailResponseDto> GetPositionDetailAsync(Guid id);
-
     }
 }
