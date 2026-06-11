@@ -19,5 +19,12 @@ namespace MarketPrice.Ui.Services.Api
             var response = await GettingAsync(url);
             return response;
         }
+
+        public async Task<HttpResponseMessage> DeleteActivityAsync(Guid positionId)
+        {
+            var url = ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.USER_ACTIVITY, positionId.ToString());
+            var response = await DeleteAsync(url);
+            return response;
+        }
     }
 }
