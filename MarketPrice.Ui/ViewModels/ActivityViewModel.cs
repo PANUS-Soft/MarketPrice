@@ -53,6 +53,8 @@ namespace MarketPrice.Ui.ViewModels
             _ = InitializeAsync();
         }
 
+        public bool IsUserLoggedIn => _sessionService.IsLoggedIn;
+
         private async Task InitializeAsync()
         {
             await LoadCommodityTypesAsync();
@@ -258,6 +260,18 @@ namespace MarketPrice.Ui.ViewModels
                 if (lastMonth.Any()) GroupedActivities.Add(new ActivityGroup("Last Month", lastMonth));
                 if (older.Any()) GroupedActivities.Add(new ActivityGroup("Older", older));
             });
+        }
+
+        [RelayCommand]
+        private async Task NavigateToRegisterAsync()
+        {
+            await Shell.Current.GoToAsync("//Register");
+        }
+
+        [RelayCommand]
+        private async Task NavigateToLoginAsync()
+        {
+            await Shell.Current.GoToAsync("//Login");
         }
 
         [RelayCommand]

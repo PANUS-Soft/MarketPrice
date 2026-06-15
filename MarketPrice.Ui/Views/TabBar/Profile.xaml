@@ -40,9 +40,9 @@
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"/>
 
-            <Grid ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10">
-                <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Register" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="15" Command="{Binding NavigateToRegisterCommand}"/>
-                <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Log in" BackgroundColor="White" TextColor="{StaticResource PrimaryBase}" CornerRadius="15" Command="{Binding NavigateToLoginCommand}"/>
+            <Grid RowDefinitions="*, *" Padding="15" RowSpacing="10">
+                <Button Grid.Row="0" FontFamily="RobotoSerifBold" Text="Register to View Profile" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="15" Command="{Binding NavigateToRegisterCommand}"/>
+                <Button Grid.Row="1" FontFamily="RobotoSerifBold" Text="Log in to View Profile" BackgroundColor="White" TextColor="{StaticResource PrimaryBase}" CornerRadius="15" Command="{Binding NavigateToLoginCommand}"/>
             </Grid>
         </StackLayout>
 
