@@ -22,489 +22,519 @@
         </Style>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto, Auto, *" Padding="20,20,20,0">
+    <Grid>
+        <StackLayout IsVisible="{Binding IsUserLoggedIn, Converter={StaticResource InvertedBoolConverter}}"
+             VerticalOptions="CenterAndExpand"
+             Spacing="3"
+             HorizontalOptions="Center">
 
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,0,0,15">
-            <Border Grid.Column="0" 
-                    StrokeThickness="0" 
-                    StrokeShape="RoundRectangle 20" 
-                    BackgroundColor="#2A2A2A" 
-                    HeightRequest="45">
-                
-                <SearchBar Placeholder="Search" 
-                           Text="{Binding SearchText}" 
-                           SearchCommand="{Binding ApplyFiltersCommand}" 
-                           BackgroundColor="Transparent" 
-                           TextColor="White"
-                           PlaceholderColor="#888888"
-                           CancelButtonColor="White"
-                           VerticalOptions="Center"/>
-            </Border>
+            <Image Source="no_activity.png"
+           HeightRequest="250"/>
 
-            <!--<Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
-                <Picker ItemsSource="{Binding PositionTypes}" 
-                        SelectedItem="{Binding SelectedPositionType}"
-                        TextColor="Black"
-                        Title="Select filtering option"
-                        HorizontalTextAlignment="Center"
-                        TitleColor="{StaticResource PrimaryBase}"
-                        FontFamily="RobotoSerifRegular"
-                        VerticalOptions="Center"/>
-            </Border>-->
+            <Label Text="No Activity. You are here as a guest."
+           TextColor="White"
+           FontFamily="RobotoSerifRegular"
+           FontSize="18"
+           HorizontalTextAlignment="Center"
+           HorizontalOptions="Center"/>
 
-            <dx:DXButton
-                Grid.Column="1"
-                WidthRequest="45"
-                HeightRequest="45"
-                CornerRadius="20"
-                PressedBackgroundColor="#AAAAAA"
-                BackgroundColor="{StaticResource Background}"
-                Icon="filter"
-                Command="{Binding ShowFiltersCommand}"/>
-        </Grid>
+            <Label Text="Register or log in to manage your activity."
+           TextColor="White"
+           FontSize="15"
+           FontFamily="RobotoSerifRegular"
+           HorizontalOptions="Center"
+           HorizontalTextAlignment="Center"/>
 
-        <CollectionView Grid.Row="1" 
-                        ItemsSource="{Binding CommodityTypesList}" 
-                        HeightRequest="40" 
-                        Margin="0,0,0,25" 
-                        SelectionMode="Single" 
-                        SelectedItem="{Binding SelectedCommodityType}">
+            <Grid RowDefinitions="*, *" Padding="15" RowSpacing="10">
+                <Button Grid.Row="0" FontFamily="RobotoSerifBold" Text="Register to View Activity" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="15" Command="{Binding NavigateToRegisterCommand}"/>
+                <Button Grid.Row="1" FontFamily="RobotoSerifBold" Text="Log in to View Activity" BackgroundColor="White" TextColor="{StaticResource PrimaryBase}" CornerRadius="15" Command="{Binding NavigateToLoginCommand}"/>
+            </Grid>
+        </StackLayout>
 
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
-            </CollectionView.ItemsLayout>
+        <Grid RowDefinitions="Auto, Auto, *" Padding="20,20,20,0" IsVisible="{Binding IsUserLoggedIn}">
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Stroke="#fff" 
-                            StrokeThickness="1" 
-                            StrokeShape="RoundRectangle 15" 
-                            BackgroundColor="{StaticResource Background}" 
-                            Padding="20,0" 
-                            VerticalOptions="Center" 
-                            HeightRequest="35">
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,0,0,15">
+                <Border Grid.Column="0" 
+                StrokeThickness="0" 
+                StrokeShape="RoundRectangle 20" 
+                BackgroundColor="#2A2A2A" 
+                HeightRequest="45">
 
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup Name="CommonStates">
-                                <VisualState Name="Normal" />
-                                <VisualState Name="Selected">
-                                    <VisualState.Setters>
-                                        <Setter Property="BackgroundColor" Value="#fff" />
-                                        <Setter TargetName="ChipLabel" Property="Label.TextColor" Value="#000" />
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
+                    <SearchBar Placeholder="Search" 
+                       Text="{Binding SearchText}" 
+                       SearchCommand="{Binding ApplyFiltersCommand}" 
+                       BackgroundColor="Transparent" 
+                       TextColor="White"
+                       PlaceholderColor="#888888"
+                       CancelButtonColor="White"
+                       VerticalOptions="Center"/>
+                </Border>
 
-                        <Label x:Name="ChipLabel" 
-                               Text="{Binding .}" 
-                               TextColor="{StaticResource White}" 
-                               FontFamily="RobotoSerifBold" 
-                               VerticalOptions="Center" 
-                               HorizontalOptions="Center"/>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                <!--<Border Grid.Column="1" Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 15" BackgroundColor="White" HeightRequest="40" WidthRequest="100">
+            <Picker ItemsSource="{Binding PositionTypes}" 
+                    SelectedItem="{Binding SelectedPositionType}"
+                    TextColor="Black"
+                    Title="Select filtering option"
+                    HorizontalTextAlignment="Center"
+                    TitleColor="{StaticResource PrimaryBase}"
+                    FontFamily="RobotoSerifRegular"
+                    VerticalOptions="Center"/>
+        </Border>-->
 
-        <CollectionView Grid.Row="2" 
-                        ItemsSource="{Binding GroupedActivities}" 
-                        IsGrouped="True" 
-                        SelectionMode="Single"
-                        SelectedItem="{Binding SelectedItem}"
-                        VerticalScrollBarVisibility="Never">
+                <dx:DXButton
+            Grid.Column="1"
+            WidthRequest="45"
+            HeightRequest="45"
+            CornerRadius="20"
+            PressedBackgroundColor="#AAAAAA"
+            BackgroundColor="{StaticResource Background}"
+            Icon="filter"
+            Command="{Binding ShowFiltersCommand}"/>
+            </Grid>
 
-            <CollectionView.GroupHeaderTemplate>
-                <DataTemplate>
-                    <Label Text="{Binding Name}"
-                           FontFamily="RobotoSerifBold"
-                           FontSize="20" 
-                           TextColor="White" 
-                           Margin="0,10,0,10"/>
-                </DataTemplate>
-            </CollectionView.GroupHeaderTemplate>
+            <CollectionView Grid.Row="1" 
+                    ItemsSource="{Binding CommodityTypesList}" 
+                    HeightRequest="40" 
+                    Margin="0,0,0,25" 
+                    SelectionMode="Single" 
+                    SelectedItem="{Binding SelectedCommodityType}">
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border StrokeShape="RoundRectangle 25" BackgroundColor="#172033" Margin="0,0,0,10" Padding="15">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
 
-                        <!--<Border.GestureRecognizers>
-                            <TapGestureRecognizer 
-                                Command="{Binding BindingContext.GoToDetailsCommand, Source={x:Reference ActivityPage}}"
-                                CommandParameter="{Binding .}"/>
-                        </Border.GestureRecognizers>-->
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Stroke="#fff" 
+                        StrokeThickness="1" 
+                        StrokeShape="RoundRectangle 15" 
+                        BackgroundColor="{StaticResource Background}" 
+                        Padding="20,0" 
+                        VerticalOptions="Center" 
+                        HeightRequest="35">
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal" />
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="#fff" />
+                                            <Setter TargetName="ChipLabel" Property="Label.TextColor" Value="#000" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Label x:Name="ChipLabel" 
+                           Text="{Binding .}" 
+                           TextColor="{StaticResource White}" 
+                           FontFamily="RobotoSerifBold" 
+                           VerticalOptions="Center" 
+                           HorizontalOptions="Center"/>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <CollectionView Grid.Row="2" 
+                    ItemsSource="{Binding GroupedActivities}" 
+                    IsGrouped="True" 
+                    SelectionMode="Single"
+                    SelectedItem="{Binding SelectedItem}"
+                    VerticalScrollBarVisibility="Never">
+
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}"
+                       FontFamily="RobotoSerifBold"
+                       FontSize="20" 
+                       TextColor="White" 
+                       Margin="0,10,0,10"/>
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 25" BackgroundColor="#172033" Margin="0,0,0,10" Padding="15">
+
+                            <!--<Border.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding BindingContext.GoToDetailsCommand, Source={x:Reference ActivityPage}}"
+                            CommandParameter="{Binding .}"/>
+                    </Border.GestureRecognizers>-->
 
                             <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="15">
 
-                            <!--<Frame Grid.Column="0" WidthRequest="70" HeightRequest="70" CornerRadius="35" IsClippedToBounds="True" Padding="0" VerticalOptions="Center">
-                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill" BackgroundColor="#F0F0F0" />
-                            </Frame>-->
+                                <!--<Frame Grid.Column="0" WidthRequest="70" HeightRequest="70" CornerRadius="35" IsClippedToBounds="True" Padding="0" VerticalOptions="Center">
+                            <Image Source="{Binding ImageUrl}" Aspect="AspectFill" BackgroundColor="#F0F0F0" />
+                        </Frame>-->
 
-                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                <Label TextColor="White">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Commodity Name: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding CommodityName}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label TextColor="White">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Quantity: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding Quantity}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label TextColor="White">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Lot Size: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding LotSize}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label TextColor="White">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Position Type: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding PositionType}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label TextColor="White">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Unit Price/Lot Size: " FontFamily="RobotoSerifBold" />
-                                            <Span Text="{Binding Price}" FontFamily="RobotoSerifRegular" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label TextColor="White">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Commodity Name: " FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding CommodityName}" FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label TextColor="White">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Quantity: " FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding Quantity}" FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label TextColor="White">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Lot Size: " FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding LotSize}" FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label TextColor="White">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Position Type: " FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding PositionType}" FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label TextColor="White">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Unit Price/Lot Size: " FontFamily="RobotoSerifBold" />
+                                                <Span Text="{Binding Price}" FontFamily="RobotoSerifRegular" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="2" 
+                               Text="{Binding State}" 
+                               FontFamily="RobotoSerifBold" 
+                               TextColor="{Binding StateColor}" 
+                               VerticalOptions="Center" />
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <dx:BottomSheet
+        Grid.RowSpan="2"
+        State="{Binding FilterBottomSheetState}"
+        HalfExpandedRatio="0.30"
+        ShowGrabber="True"
+        GrabberColor="White"
+        BackgroundColor="#172033">
+
+                <VerticalStackLayout
+            Padding="25, 10"
+            VerticalOptions="Center"
+            Spacing="20">
+
+                    <Label
+                Text="Position type filters"
+                TextColor="White"
+                FontFamily="RobotoSerifRegular"
+                FontSize="20"
+                HorizontalOptions="Center"/>
+
+                    <CollectionView
+                ItemsSource="{Binding PositionTypes}"
+                SelectionMode="Single"
+                HorizontalOptions="Center"
+                SelectedItem="{Binding SelectedPositionType}"
+                HeightRequest="50">
+
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout
+                        Orientation="Horizontal"
+                        ItemSpacing="10"/>
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+
+                                <Border
+                            Stroke="{StaticResource PrimaryBase}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 25"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Start"
+                            Padding="20,10">
+
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup Name="CommonStates">
+
+                                            <VisualState Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor"
+                                                Value="White"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+
+                                            <VisualState Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor"
+                                                Value="{StaticResource PrimaryBase}"/>
+                                                    <Setter
+                                                TargetName="FilterLabel"
+                                                Property="Label.TextColor"
+                                                Value="White"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+
+                                    <Label
+                                x:Name="FilterLabel"
+                                Text="{Binding .}"
+                                TextColor="{StaticResource PrimaryBase}"
+                                FontFamily="RobotoSerifSemibold"/>
+                                </Border>
+
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+
+                    <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="10">
+
+                        <dx:DXButton
+                    Grid.Column="0"
+                    Content="Reset"
+                    FontSize="15"
+                    CornerRadius="15"
+                    BackgroundColor="White"
+                    FontFamily="RobotoSerifLight"
+                    TextColor="{StaticResource PrimaryBase}"
+                    Command="{Binding ClearFiltersCommand}"/>
+
+                        <dx:DXButton
+                    Grid.Column="1"
+                    Content="Apply"
+                    FontSize="15"
+                    CornerRadius="15"
+                    BackgroundColor="{StaticResource PrimaryBase}"
+                    FontFamily="RobotoSerifLight"
+                    TextColor="White"
+                    Command="{Binding ApplyFilterAndCloseCommand}"/>
+                    </Grid>
+
+                </VerticalStackLayout>
+
+            </dx:BottomSheet>
+
+            <dx:BottomSheet Grid.RowSpan="3"
+                    State="{Binding ActivityDetailsBottomSheetState, Mode=TwoWay}"
+                    HalfExpandedRatio="0.85"
+                    ShowGrabber="True"
+                    GrabberColor="White"
+                    BackgroundColor="#172033">
+                <Grid RowDefinitions="Auto, Auto, *" Padding="15, 0" RowSpacing="15">
+
+                    <Grid Grid.Row="0" RowDefinitions="*,*,*"  Padding="15" RowSpacing="15">
+
+                        <Grid Grid.Row="0">
+                            <Grid ColumnDefinitions="*, *" ColumnSpacing="10" IsVisible="{Binding IsDeleting, Converter={StaticResource InvertedBoolConverter}}">
+                                <dx:DXButton Grid.Column="0" Grid.Row="0" Content="Edit" Icon="edit" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding EditActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}" />
+                                <dx:DXButton Grid.Column="1" Grid.Row="0" Content="Delete" Icon="trash" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding DeleteActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}"/>
+                            </Grid>
+
+                            <VerticalStackLayout
+                        IsVisible="{Binding IsDeleting}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="10">
+                                <ActivityIndicator 
+                            IsRunning="{Binding IsDeleting}"
+                            Color="White" 
+                            HorizontalOptions="Center" 
+                            VerticalOptions="Center" />
+
+                                <Label Text="Deleting position..."
+                               HorizontalOptions="Center"
+                               FontFamily="RobotoSerifSemibold"
+                               TextColor="White" />
                             </VerticalStackLayout>
 
-                            <Label Grid.Column="2" 
-                                   Text="{Binding State}" 
-                                   FontFamily="RobotoSerifBold" 
-                                   TextColor="{Binding StateColor}" 
-                                   VerticalOptions="Center" />
-
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <dx:BottomSheet
-            Grid.RowSpan="2"
-            State="{Binding FilterBottomSheetState}"
-            HalfExpandedRatio="0.30"
-            ShowGrabber="True"
-            GrabberColor="White"
-            BackgroundColor="#172033">
-
-            <VerticalStackLayout
-                Padding="25, 10"
-                VerticalOptions="Center"
-                Spacing="20">
-
-                <Label
-                    Text="Position type filters"
-                    TextColor="White"
-                    FontFamily="RobotoSerifRegular"
-                    FontSize="20"
-                    HorizontalOptions="Center"/>
-
-                <CollectionView
-                    ItemsSource="{Binding PositionTypes}"
-                    SelectionMode="Single"
-                    HorizontalOptions="Center"
-                    SelectedItem="{Binding SelectedPositionType}"
-                    HeightRequest="50">
-
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout
-                            Orientation="Horizontal"
-                            ItemSpacing="10"/>
-                    </CollectionView.ItemsLayout>
-
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-
-                            <Border
-                                Stroke="{StaticResource PrimaryBase}"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 25"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Start"
-                                Padding="20,10">
-
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup Name="CommonStates">
-
-                                        <VisualState Name="Normal">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor"
-                                                    Value="White"/>
-                                            </VisualState.Setters>
-                                        </VisualState>
-
-                                        <VisualState Name="Selected">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor"
-                                                    Value="{StaticResource PrimaryBase}"/>
-                                                <Setter
-                                                    TargetName="FilterLabel"
-                                                    Property="Label.TextColor"
-                                                    Value="White"/>
-                                            </VisualState.Setters>
-                                        </VisualState>
-
-                                    </VisualStateGroup>
-                                </VisualStateManager.VisualStateGroups>
-
-                                <Label
-                                    x:Name="FilterLabel"
-                                    Text="{Binding .}"
-                                    TextColor="{StaticResource PrimaryBase}"
-                                    FontFamily="RobotoSerifSemibold"/>
-                            </Border>
-
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-
-                </CollectionView>
-
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="10">
-
-                    <dx:DXButton
-                        Grid.Column="0"
-                        Content="Reset"
-                        FontSize="15"
-                        CornerRadius="15"
-                        BackgroundColor="White"
-                        FontFamily="RobotoSerifLight"
-                        TextColor="{StaticResource PrimaryBase}"
-                        Command="{Binding ClearFiltersCommand}"/>
-                    
-                    <dx:DXButton
-                        Grid.Column="1"
-                        Content="Apply"
-                        FontSize="15"
-                        CornerRadius="15"
-                        BackgroundColor="{StaticResource PrimaryBase}"
-                        FontFamily="RobotoSerifLight"
-                        TextColor="White"
-                        Command="{Binding ApplyFilterAndCloseCommand}"/>
-                </Grid>
-
-            </VerticalStackLayout>
-
-        </dx:BottomSheet>
-
-        <dx:BottomSheet Grid.RowSpan="3"
-                        State="{Binding ActivityDetailsBottomSheetState, Mode=TwoWay}"
-                        HalfExpandedRatio="0.85"
-                        ShowGrabber="True"
-                        GrabberColor="White"
-                        BackgroundColor="#172033">
-            <Grid RowDefinitions="Auto, Auto, *" Padding="15, 0" RowSpacing="15">
-
-                <Grid Grid.Row="0" RowDefinitions="*,*,*"  Padding="15" RowSpacing="15">
-
-                    <Grid Grid.Row="0">
-                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10" IsVisible="{Binding IsDeleting, Converter={StaticResource InvertedBoolConverter}}">
-                            <dx:DXButton Grid.Column="0" Grid.Row="0" Content="Edit" Icon="edit" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding EditActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}" />
-                            <dx:DXButton Grid.Column="1" Grid.Row="0" Content="Delete" Icon="trash" Style="{StaticResource ButtonStyle}" CornerRadius="15" FontFamily="RobotoSerifSemibold" Command="{Binding DeleteActivityCommand}" CommandParameter="{Binding SelectedActivityDetails}"/>
                         </Grid>
 
-                        <VerticalStackLayout
-                            IsVisible="{Binding IsDeleting}"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center"
-                            Spacing="10">
-                            <ActivityIndicator 
-                                IsRunning="{Binding IsDeleting}"
-                                Color="White" 
-                                HorizontalOptions="Center" 
-                                VerticalOptions="Center" />
+                        <Label Grid.Row="1"
+                       HorizontalTextAlignment="Center"
+                       Text="GENERAL POSITION INFO"
+                       TextColor="White"
+                       FontFamily="RobotoSerifBold"
+                       FontSize="15"/>
 
-                            <Label Text="Deleting position..."
-                                   HorizontalOptions="Center"
-                                   FontFamily="RobotoSerifSemibold"
-                                   TextColor="White" />
-                        </VerticalStackLayout>
+                        <Grid Grid.Row="2" RowDefinitions="*,*" ColumnDefinitions="*,*">
+                            <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" Text="Position Type:" FontFamily="RobotoSerifSemibold" FontSize="15" TextColor="White" />
+                            <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.PositionType}" FontFamily="RobotoSerifRegular" FontSize="15" TextColor="White" />
 
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalOptions="Start" Text="Status:" FontFamily="RobotoSerifSemibold" FontSize="15" TextColor="White"/>
+                            <Label Grid.Row="1" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.State}" FontFamily="RobotoSerifRegular" TextColor="{Binding SelectedActivityDetails.StateColor}" />
+                        </Grid>
                     </Grid>
 
-                    <Label Grid.Row="1"
-                           HorizontalTextAlignment="Center"
-                           Text="GENERAL POSITION INFO"
-                           TextColor="White"
-                           FontFamily="RobotoSerifBold"
-                           FontSize="15"/>
+                    <BoxView Grid.Row="1" HeightRequest="3" Color="{StaticResource PrimaryBase}" Margin="0" />
 
-                    <Grid Grid.Row="2" RowDefinitions="*,*" ColumnDefinitions="*,*">
-                        <Label Grid.Row="0" Grid.Column="0" HorizontalOptions="Start" Text="Position Type:" FontFamily="RobotoSerifSemibold" FontSize="15" TextColor="White" />
-                        <Label Grid.Row="0" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.PositionType}" FontFamily="RobotoSerifRegular" FontSize="15" TextColor="White" />
+                    <dx:TabView Grid.Row="2"
+                        BackgroundColor="#172033"
+                        HeaderPanelBackgroundColor="#172033"
+                        SelectedItemHeaderBackgroundColor="#172033"
+                        SelectedItemHeaderTextColor="{StaticResource PrimaryAccent}"
+                        ItemHeaderTextColor="White"
+                        SelectedItemIndicatorColor="{StaticResource White}"
+                        SelectedItemIndicatorHeight="5">
 
-                        <Label Grid.Row="1" Grid.Column="0" HorizontalOptions="Start" Text="Status:" FontFamily="RobotoSerifSemibold" FontSize="15" TextColor="White"/>
-                        <Label Grid.Row="1" Grid.Column="1" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.State}" FontFamily="RobotoSerifRegular" TextColor="{Binding SelectedActivityDetails.StateColor}" />
-                    </Grid>
-                </Grid>
+                        <dx:TabViewItem HeaderText="Commodity" 
+                                HeaderFontFamily="RobotoSerifBold" 
+                                HeaderFontSize="15">
+                            <VerticalStackLayout Padding="15,10"
+                                         Margin="10"
+                                         Spacing="10">
+                                <Label Text="COMMODITY DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
 
-                <BoxView Grid.Row="1" HeightRequest="3" Color="{StaticResource PrimaryBase}" Margin="0" />
+                                <Grid ColumnDefinitions="Auto,*"
+                              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
+                              RowSpacing="13">
 
-                <dx:TabView Grid.Row="2"
-                            BackgroundColor="#172033"
-                            HeaderPanelBackgroundColor="#172033"
-                            SelectedItemHeaderBackgroundColor="#172033"
-                            SelectedItemHeaderTextColor="{StaticResource PrimaryAccent}"
-                            ItemHeaderTextColor="White"
-                            SelectedItemIndicatorColor="{StaticResource White}"
-                            SelectedItemIndicatorHeight="5">
+                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Commodity: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.CommodityName}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                    <dx:TabViewItem HeaderText="Commodity" 
-                                    HeaderFontFamily="RobotoSerifBold" 
-                                    HeaderFontSize="15">
-                        <VerticalStackLayout Padding="15,10"
-                                             Margin="10"
-                                             Spacing="10">
-                            <Label Text="COMMODITY DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
+                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Lot Sze: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LotSize}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                            <Grid ColumnDefinitions="Auto,*"
+                                    <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quantity: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Quantity}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+
+                                    <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Grade: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Grade}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+
+                                    <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Total Quantity: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalQuantity}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+
+                                    <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Description: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Description}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </dx:TabViewItem>
+
+                        <dx:TabViewItem HeaderText="Terms" HeaderFontFamily="RobotoSerifBold" HeaderFontSize="15">
+                            <VerticalStackLayout Padding="10,10"
+                                         Margin="10"
+                                         Spacing="10">
+                                <Label Text="PRICING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
+
+                                <Grid ColumnDefinitions="Auto,*"
+                              RowDefinitions="Auto, Auto"
+                              RowSpacing="13">
+
+                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Unit Price / Lot Size: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Price}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+
+                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Total Price: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalPrice}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                </Grid>
+
+
+                                <Label Text="TIMING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
+
+                                <Grid ColumnDefinitions="Auto,*"
+                              RowDefinitions="Auto, Auto, Auto" 
+                              RowSpacing="15">
+
+                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Start Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Grid Grid.Column="1" 
+                                  Grid.Row="0"
+                                  RowDefinitions="Auto, Auto">
+                                        <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    </Grid>
+
+                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Expiry Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Grid Grid.Column="1" 
+                                  Grid.Row="1"
+                                  RowDefinitions="Auto, Auto">
+                                        <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    </Grid>
+
+                                    <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Created Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Grid Grid.Column="1"
+                                  Grid.Row="2"
+                                  RowDefinitions="Auto, Auto">
+                                        <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    </Grid>
+
+                                </Grid>
+                            </VerticalStackLayout>
+                        </dx:TabViewItem>
+
+
+                        <dx:TabViewItem HeaderText="Logistics" HeaderFontFamily="RobotoSerifBold" HeaderFontSize="15">
+                            <VerticalStackLayout Padding="35, 10">
+                                <Label Text="ORIGIN LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
+
+                                <Grid ColumnDefinitions="Auto,*"
+                              RowDefinitions="Auto, Auto, Auto, Auto"
+                              RowSpacing="13">
+
+                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region:" FontFamily="RobotoSerifRegular" TextColor="White"/>
+                                    <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.OriginRegion}" FontFamily="RobotoSerifSemibold" TextColor="White"/>
+
+                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town:" FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Town}" FontFamily="RobotoSerifSemibold" TextColor="White"/>
+
+                                    <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter:" FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Quarter}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+
+                                    <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street:" FontFamily="RobotoSerifRegular" TextColor="White" />
+                                    <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Street}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                </Grid>
+
+                                <VerticalStackLayout Padding="0, 25" IsVisible="{Binding SelectedActivityDetails.IsDeliverable}">
+                                    <Label Text="DESTINATION LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
+
+                                    <Grid ColumnDefinitions="Auto,*"
                                   RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
                                   RowSpacing="13">
 
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Commodity: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.CommodityName}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                        <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DestinationRegion}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Lot Sze: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LotSize}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                        <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Town}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quantity: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Quantity}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                        <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Quarter}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Grade: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Grade}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                        <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Street}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Total Quantity: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalQuantity}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                        <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Lead Time in Days: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                        <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LeadTime}" FontFamily="RobotoSerifSemibold" TextColor="White" />
 
-                                <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Description: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Description}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                            </Grid>
-                        </VerticalStackLayout>
-                    </dx:TabViewItem>
-
-                    <dx:TabViewItem HeaderText="Terms" HeaderFontFamily="RobotoSerifBold" HeaderFontSize="15">
-                        <VerticalStackLayout Padding="10,10"
-                                             Margin="10"
-                                             Spacing="10">
-                            <Label Text="PRICING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
-
-                            <Grid ColumnDefinitions="Auto,*"
-                                  RowDefinitions="Auto, Auto"
-                                  RowSpacing="13">
-
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Unit Price / Lot Size: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Price}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Total Price: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.TotalPrice}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                            </Grid>
-
-
-                            <Label Text="TIMING DETAILS" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
-
-                            <Grid ColumnDefinitions="Auto,*"
-                                  RowDefinitions="Auto, Auto, Auto" 
-                                  RowSpacing="15">
-
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Start Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Grid Grid.Column="1" 
-                                      Grid.Row="0"
-                                      RowDefinitions="Auto, Auto">
-                                    <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                    <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.StartDate, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                </Grid>
-
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Expiry Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Grid Grid.Column="1" 
-                                      Grid.Row="1"
-                                      RowDefinitions="Auto, Auto">
-                                    <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                    <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.EndDate, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                </Grid>
-
-                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Created Date/Time: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Grid Grid.Column="1"
-                                      Grid.Row="2"
-                                      RowDefinitions="Auto, Auto">
-                                    <Label Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date, StringFormat='{0:ddd, MMM dd, yyyy}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                    <Label Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Date, StringFormat='{0:hh:mm tt}'}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                </Grid>
-
-                            </Grid>
-                        </VerticalStackLayout>
-                    </dx:TabViewItem>
-
-
-                    <dx:TabViewItem HeaderText="Logistics" HeaderFontFamily="RobotoSerifBold" HeaderFontSize="15">
-                        <VerticalStackLayout Padding="35, 10">
-                            <Label Text="ORIGIN LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
-
-                            <Grid ColumnDefinitions="Auto,*"
-                                  RowDefinitions="Auto, Auto, Auto, Auto"
-                                  RowSpacing="13">
-
-                                <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region:" FontFamily="RobotoSerifRegular" TextColor="White"/>
-                                <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.OriginRegion}" FontFamily="RobotoSerifSemibold" TextColor="White"/>
-
-                                <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town:" FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Town}" FontFamily="RobotoSerifSemibold" TextColor="White"/>
-
-                                <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter:" FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Quarter}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street:" FontFamily="RobotoSerifRegular" TextColor="White" />
-                                <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Origin.Street}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                            </Grid>
-
-                            <VerticalStackLayout Padding="0, 25" IsVisible="{Binding SelectedActivityDetails.IsDeliverable}">
-                                <Label Text="DESTINATION LOCATION" FontFamily="RobotoSerifBold" HorizontalOptions="Center" FontSize="17" TextColor="White" />
-
-                                <Grid ColumnDefinitions="Auto,*"
-                                      RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
-                                      RowSpacing="13">
-
-                                    <Label Grid.Column="0" Grid.Row="0" FontSize="15" HorizontalOptions="Start" Text="Region: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                    <Label Grid.Column="1" Grid.Row="0" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DestinationRegion}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                    <Label Grid.Column="0" Grid.Row="1" FontSize="15" HorizontalOptions="Start" Text="Town: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                    <Label Grid.Column="1" Grid.Row="1" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Town}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                    <Label Grid.Column="0" Grid.Row="2" FontSize="15" HorizontalOptions="Start" Text="Quarter: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                    <Label Grid.Column="1" Grid.Row="2" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Quarter}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                    <Label Grid.Column="0" Grid.Row="3" FontSize="15" HorizontalOptions="Start" Text="Street: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                    <Label Grid.Column="1" Grid.Row="3" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.Destination.Street}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                    <Label Grid.Column="0" Grid.Row="4" FontSize="15" HorizontalOptions="Start" Text="Lead Time in Days: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                    <Label Grid.Column="1" Grid.Row="4" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.LeadTime}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-
-                                    <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Delivery fee: " FontFamily="RobotoSerifRegular" TextColor="White" />
-                                    <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DeliveryFee}" FontFamily="RobotoSerifSemibold" TextColor="White" />
-                                </Grid>
+                                        <Label Grid.Column="0" Grid.Row="5" FontSize="15" HorizontalOptions="Start" Text="Delivery fee: " FontFamily="RobotoSerifRegular" TextColor="White" />
+                                        <Label Grid.Column="1" Grid.Row="5" FontSize="15" HorizontalOptions="End" Text="{Binding SelectedActivityDetails.DeliveryFee}" FontFamily="RobotoSerifSemibold" TextColor="White" />
+                                    </Grid>
+                                </VerticalStackLayout>
                             </VerticalStackLayout>
-                        </VerticalStackLayout>
-                    </dx:TabViewItem>
+                        </dx:TabViewItem>
 
-                </dx:TabView>
+                    </dx:TabView>
 
-            </Grid>
-            
-        </dx:BottomSheet>
+                </Grid>
+
+            </dx:BottomSheet>
+        </Grid>
     </Grid>
 </ContentPage>
