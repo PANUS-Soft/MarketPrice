@@ -23,7 +23,7 @@
         <!-- ── ROW 0: HEADER ── -->
         <Grid Grid.Row="0"
               BackgroundColor="{StaticResource BgHeader}"
-              Padding="16,14"
+              Padding="16,5"
               ColumnDefinitions="44,*,44">
 
             <Border Grid.Column="0"
