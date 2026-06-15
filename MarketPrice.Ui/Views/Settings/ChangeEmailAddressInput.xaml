@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dx="http://schemas.devexpress.com/maui"
+    x:Class="MarketPrice.Ui.Views.ChangeEmailAddressInput"
+    BackgroundColor="#13131F"
+    Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER -->
+        <Grid Padding="20,10,20,20">
+
+            <ImageButton
+                Source="back.png"
+                HeightRequest="22"
+                WidthRequest="22"
+                HorizontalOptions="Start"
+                Command="{Binding GoBackCommand}"/>
+        </Grid>
+
+        <!-- CONTENT -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            Padding="25"
+            Spacing="28">
+
+            
+
+            <!-- TITLE -->
+            <Label
+                Text="Change Email Address"
+                FontFamily="RobotoSerifMedium"
+                FontSize="28"
+                FontAttributes="Bold"
+                TextColor="White"
+                HorizontalTextAlignment="Center"/>
+
+            <!-- DESCRIPTION -->
+            <Label
+                Text="Enter your new email address below. You will have to verify your new email address."
+                FontFamily="RobotoSerifLight"
+                FontSize="15"
+                TextColor="#AAAAAA"
+                HorizontalTextAlignment="Center"/>
+
+            <!-- CURRENT EMAIL -->
+            <VerticalStackLayout Spacing="8">
+
+                <Label
+                    Text="Current Email Address"
+                    FontSize="14"
+                    TextColor="{StaticResource PrimaryAccent}"/>
+
+                <Border
+                    BackgroundColor="#1E1E2E"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18"
+                    Padding="18,16">
+
+                    <Label
+                        Text="{Binding CurrentEmailAddress}"
+                        FontSize="16"
+                        TextColor="#AAAAAA"/>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- NEW EMAIL -->
+            <VerticalStackLayout Spacing="8">
+
+                <Label
+                    Text="New Email Address"
+                    FontSize="14"
+                    TextColor="{StaticResource PrimaryAccent}"/>
+
+                <dx:TextEdit
+                    Text="{Binding NewEmailAddress}"
+                    Keyboard="Email"
+                    BorderThickness="2"
+                    CornerRadius="18"
+                    BorderColor="{StaticResource PrimaryBase}"
+                    PlaceholderColor="#777777"
+                    TextColor="White"
+                    BackgroundColor="Transparent"/>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+
+        <!-- FLOATING CONTINUE BUTTON -->
+        <Button
+            Grid.RowSpan="2"
+            Text="➜"
+            WidthRequest="65"
+            HeightRequest="65"
+            CornerRadius="32"
+            FontSize="24"
+            BackgroundColor="{StaticResource PrimaryBase}"
+            TextColor="White"
+            HorizontalOptions="End"
+            VerticalOptions="End"
+            Margin="0,0,25,35"
+            Command="{Binding ContinueCommand}"/>
+
+    </Grid>
+
+</ContentPage>

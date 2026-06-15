@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MarketPrice.Services.Interfaces;
-using MarketPrice.Domain.Home.DTOs;
 using MarketPrice.Domain;
+using MarketPrice.Domain.Home.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MarketPrice.Api.Controllers
@@ -17,7 +17,6 @@ namespace MarketPrice.Api.Controllers
         /// Loads home market data for all commodity types
         /// </summary>
 
-        //[Authorize]
         [HttpGet(ApiRoutes.LOAD_HOME_DATA)]
         public async Task<ActionResult<List<LoadHomeResponseDto>>> LoadHome()
         {

@@ -9,7 +9,9 @@ namespace MarketPrice.Api.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ReferenceDataController (IReferenceDataService referenceDataService, ILogger<ReferenceDataController> logger) : ControllerBase
+    public class ReferenceDataController(
+        IReferenceDataService referenceDataService,
+        ILogger<ReferenceDataController> logger) : ControllerBase
     {
         private readonly ILogger _logger = logger;
 
@@ -21,7 +23,7 @@ namespace MarketPrice.Api.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet(ApiRoutes.REF_COMMODITY_TYPE)]
         public async Task<ActionResult<CommodityTypeDto>> GetCommodityTypes()
         {
@@ -34,6 +36,14 @@ namespace MarketPrice.Api.Controllers
         public async Task<ActionResult<CommodityDto>> GetCommoditiesByTypeId([FromRoute] Guid id)
         {
             var result = await referenceDataService.GetCommodityByIdAsync(id);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.REF_COMMODITY)]
+        public async Task<ActionResult<CommodityDto>> GetAllCommodities()
+        {
+            var result = await referenceDataService.GetAllCommoditiesAsync();
             return Ok(result);
         }
     }

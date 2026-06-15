@@ -4,39 +4,22 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
-
-    <!-- Primary Colors -->
+    <!-- ══ Primary / Secondary (keep for other pages) ══ -->
     <Color x:Key="PrimaryBase">#004D99</Color>
     <Color x:Key="PrimaryAccent">#007FFF</Color>
-
-    <!-- Secondary Colors -->
     <Color x:Key="SecondaryBase">#2ECC71</Color>
     <Color x:Key="Danger">#E74C3C</Color>
-
-    <!-- Neutral Colors -->
-    <Color x:Key="Background">#FAFAFA</Color>
-    <Color x:Key="TextPrimary">#333333</Color>
-    <Color x:Key="TextSecondary">#808080</Color>
     <Color x:Key="Separator">#CCCCCC</Color>
-    
-    <Color x:Key="LightGrayText">#A0A0A0</Color>
-    <Color x:Key="PriceBoxBorder">#E0E0E0</Color>
-   
-
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="PrimaryDark">#ac99ea</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>
     <Color x:Key="Secondary">#DFD8F7</Color>
     <Color x:Key="SecondaryDarkText">#9880e5</Color>
     <Color x:Key="Tertiary">#2B0B98</Color>
-
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>
     <Color x:Key="Magenta">#D600AA</Color>
     <Color x:Key="MidnightBlue">#190649</Color>
-    <Color x:Key="OffBlack">#1f1f1f</Color>
-
     <Color x:Key="Gray100">#E1E1E1</Color>
     <Color x:Key="Gray200">#C8C8C8</Color>
     <Color x:Key="Gray300">#ACACAC</Color>
@@ -46,12 +29,72 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <!-- ══ Binance-matched dark palette ══ -->
+
+    <!-- Page backgrounds — layered depth -->
+    <Color x:Key="BgPage">#13161C</Color>
+    <!-- deepest — page bg -->
+    <Color x:Key="BgCard">#1A1F28</Color>
+    <!-- floats above page -->
+    <Color x:Key="BgCardInner">#1E2330</Color>
+    <!-- sits inside BgCard -->
+    <Color x:Key="BgChip">#252B35</Color>
+    <!-- chips, inputs, image bg -->
+    <Color x:Key="BgHeader">#13161C</Color>
+    <!-- same as page -->
+    <Color x:Key="SearchBg">#1A1F28</Color>
+    <!-- same as card -->
+
+    <!-- Borders — subtle, used sparingly -->
+    <Color x:Key="BorderColor">#252B35</Color>
+    <!-- ✅ fixed — visible but subtle -->
+    <Color x:Key="BorderSubtle">#1E2330</Color>
+    <Color x:Key="BorderNone">Transparent</Color>
+    <Color x:Key="InnerBorderColor">#1A1E2A</Color>
+    <Color x:Key="PriceBoxBorder">#2B2F36</Color>
+
+    <!-- Typography -->
+    <Color x:Key="TextPrimary">#EAECEF</Color>
+    <Color x:Key="TextSecondary">#848E9C</Color>
+    <Color x:Key="TextMuted">#474D57</Color>
+    <Color x:Key="TextLabel">#5E6673</Color>
+    <!-- ✅ fixed casing: TextLabel not Textlabel -->
+    <Color x:Key="LightGrayText">#848E9C</Color>
+
+    <!-- Market colors — Binance signature -->
+    <Color x:Key="AccentGreen">#0ECB81</Color>
+    <Color x:Key="AccentGreenBg">#071F14</Color>
+    <Color x:Key="AccentGreenBorder">#0E3D26</Color>
+    <Color x:Key="AccentGreenDim">#0A9060</Color>
+    <Color x:Key="AccentGreenFaint">#0B6B47</Color>
+
+    <Color x:Key="AccentRed">#F6465D</Color>
+    <!-- ✅ fixed — Binance signature red -->
+    <Color x:Key="AccentRedBg">#200D10</Color>
+    <Color x:Key="AccentRedBorder">#4A1520</Color>
+    <Color x:Key="AccentRedDim">#C73550</Color>
+    <Color x:Key="AccentRedFaint">#8B2535</Color>
+
+    <Color x:Key="AccentBlue">#1890FF</Color>
+
+    <!-- Tab bar — slightly lighter than page creates separator effect -->
+    <Color x:Key="TabBarBg">#1A1F28</Color>
+    <!-- ✅ fixed — was #0B0E11, now contrasts with page -->
+    <Color x:Key="TabActive">#1890FF</Color>
+    <!-- Binance gold -->
+    <Color x:Key="TabInactive">#848E9C</Color>
+
+    <!-- Legacy keys — keep for other pages -->
+    <Color x:Key="TextMutedLegacy">#94A3B8</Color>
+    <Color x:Key="Background">#0B0E11</Color>
+    <Color x:Key="OffBlack">#0B0E11</Color>
+
+    <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
     <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
-
     <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
     <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
     <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
@@ -60,4 +103,5 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
 </ResourceDictionary>

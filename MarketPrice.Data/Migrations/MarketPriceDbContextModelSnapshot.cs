@@ -69,7 +69,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UnitOfMeasureId");
 
-                    b.ToTable("Commodities");
+                    b.ToTable("Commodities", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityImage", b =>
@@ -97,7 +97,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("CommodityId");
 
-                    b.ToTable("CommodityImage");
+                    b.ToTable("CommodityImage", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityType", b =>
@@ -145,7 +145,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("CommodityTypes");
+                    b.ToTable("CommodityTypes", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.CommodityTypeImage", b =>
@@ -173,7 +173,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("CommodityTypeId");
 
-                    b.ToTable("CommodityTypeImage");
+                    b.ToTable("CommodityTypeImage", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
@@ -183,6 +183,9 @@ namespace MarketPrice.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
+                    b.Property<Guid?>("DestinationLocationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal?>("Fee")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -190,25 +193,29 @@ namespace MarketPrice.Data.Migrations
                     b.Property<bool>("IsDeliverable")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LeadTime")
+                    b.Property<string>("LeadTimeInDays")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("MaxDistance")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<Guid>("OriginLocationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("DeliveryDetailId");
 
+                    b.HasIndex("DestinationLocationId");
+
+                    b.HasIndex("OriginLocationId");
+
                     b.HasIndex("PositionId")
                         .IsUnique();
 
-                    b.ToTable("DeliveryDetails");
+                    b.ToTable("DeliveryDetails", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>
@@ -254,7 +261,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupData", b =>
@@ -281,7 +288,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("LookupDataTypeId");
 
-                    b.ToTable("LookupData");
+                    b.ToTable("LookupData", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.LookupDataType", b =>
@@ -295,7 +302,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("LookupDataTypeId");
 
-                    b.ToTable("LookupDataTypes");
+                    b.ToTable("LookupDataTypes", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Position", b =>
@@ -353,7 +360,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Positions");
+                    b.ToTable("Positions", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Rating", b =>
@@ -388,7 +395,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("RatedUserId", "RaterUserId")
                         .IsUnique();
 
-                    b.ToTable("Ratings", t =>
+                    b.ToTable("Ratings", null, t =>
                         {
                             t.HasCheckConstraint("CHK_Ratings_Score", "[Score] BETWEEN 1 AND 5");
                         });
@@ -419,7 +426,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasKey("UnitOfMeasureId");
 
-                    b.ToTable("UnitOfMeasures");
+                    b.ToTable("UnitOfMeasures", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.User", b =>
@@ -482,7 +489,7 @@ namespace MarketPrice.Data.Migrations
                         .IsUnique()
                         .HasFilter("[IdCardNumber] IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.UserSecurityDetail", b =>
@@ -509,7 +516,7 @@ namespace MarketPrice.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserSecurityDetails");
+                    b.ToTable("UserSecurityDetails", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Verification", b =>
@@ -545,7 +552,7 @@ namespace MarketPrice.Data.Migrations
 
                     b.HasIndex("VerificationTypeId");
 
-                    b.ToTable("Verifications");
+                    b.ToTable("Verifications", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>
@@ -606,11 +613,25 @@ namespace MarketPrice.Data.Migrations
 
             modelBuilder.Entity("MarketPrice.Data.Models.DeliveryDetail", b =>
                 {
+                    b.HasOne("MarketPrice.Data.Models.Location", "DestinationLocation")
+                        .WithMany()
+                        .HasForeignKey("DestinationLocationId");
+
+                    b.HasOne("MarketPrice.Data.Models.Location", "OriginLocation")
+                        .WithMany()
+                        .HasForeignKey("OriginLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MarketPrice.Data.Models.Position", null)
                         .WithOne()
                         .HasForeignKey("MarketPrice.Data.Models.DeliveryDetail", "PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DestinationLocation");
+
+                    b.Navigation("OriginLocation");
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Location", b =>

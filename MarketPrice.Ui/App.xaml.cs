@@ -1,4 +1,6 @@
 ﻿using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.ViewModels;
+using MarketPrice.Ui.Views;
 
 namespace MarketPrice.Ui
 {
@@ -6,55 +8,40 @@ namespace MarketPrice.Ui
     {
         private readonly SessionService _sessionService;
 
-        public App(SessionService sessionService)
+        public App(SessionService sessionService, ActivityViewModel activityViewModel)
         {
             InitializeComponent();
-
             _sessionService = sessionService;
-        
-            MainPage = new AppShell();
+
+            // 1. Immediately show the SplashPage to match the OS loading screen
+            MainPage = new SplashScreen();
+            //MainPage = new NavigationPage(new Views.Activity(activityViewModel));
         }
 
         protected override async void OnStart()
         {
             base.OnStart();
-            await _sessionService.InitializeAsync();
-            await _sessionService.ValidateAndRefreshSessionAsync();
 
             try
             {
-                await HandleStartupNavigationAsync();
+                // 2. Run all background checks while SplashPage is active
+                await _sessionService.InitializeAsync();
+
+                //// We check these two variables to decide the path
+                //var hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);
+
+                // 3. Initialize the Shell (but don't show it yet)
+                MainPage = new AppShell();
+
+                // Always go to Market first
+                await Shell.Current.GoToAsync("//Market");
             }
-            catch
+            catch (Exception)
             {
+                // Safety net: If anything fails, go to Welcome
+                MainPage = new AppShell();
                 await Shell.Current.GoToAsync("//Welcome");
             }
         }
-
-        private async Task HandleStartupNavigationAsync()
-        {
-            var hasOnboarded = Preferences.Get("HasCompletedOnboarding", false);
-            if (!hasOnboarded)
-            {
-                await Shell.Current.GoToAsync("//Onboarding");
-                return;
-            }
-
-            bool hasValidSession = await _sessionService.ValidateAndRefreshSessionAsync();
-
-            if (hasValidSession)
-            {
-                await Shell.Current.GoToAsync("//Home");
-            }
-            else
-            {
-                await Shell.Current.GoToAsync("//Welcome");
-            }
-        }
-
-        //protected override Window CreateWindow(IActivationState? activationState)
-        //{
-        //    return new Window(new AppShell());
-        //}
     }
 }

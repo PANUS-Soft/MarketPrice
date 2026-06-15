@@ -53,7 +53,7 @@ namespace MarketPrice.Services.Implementations
                 PasswordHash = hashedPassword,
                 AccountTypeId = command.AccountTypeId,
                 IsPremiumUser = false,
-                DateRecorded = DateTimeOffset.UtcNow,
+                DateRecorded = DateTime.UtcNow,
                 PasswordSalt = passwordSalt,
                 IdCardNumber = null,
                 Note = null,

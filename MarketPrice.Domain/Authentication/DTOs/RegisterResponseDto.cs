@@ -31,7 +31,8 @@
             var response = new T
             {
                 Status = status,
-                Errors = errors.ToArray()
+                Errors = errors.ToArray(),
+                Success = false
             };
             return response;
         }
@@ -42,7 +43,6 @@
     {
         public string? Status { get; set; }
         public IEnumerable<string> Errors { get; set; } = [];
-
         public bool Success { get; set; }
     }
 }

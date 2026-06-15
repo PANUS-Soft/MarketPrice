@@ -11,13 +11,46 @@ namespace MarketPrice.Ui.Services.Session
     {
         private readonly string _sessionKey = "UserSession";
 
+        public bool IsLoggedIn { get; private set; }
+
+        public async Task<bool> EnsureUserAccessAsync()
+        {
+            bool hasCompletedOnboarding = Preferences.Get("HasCompletedOnboarding", false);
+
+            if (!hasCompletedOnboarding)
+            {
+                await Shell.Current.GoToAsync("//Onboarding");
+                return false;
+            }
+
+            return await ValidateAndRefreshSessionAsync();
+
+            //var isSessionValid = await ValidateAndRefreshSessionAsync();
+
+            //if (!isSessionValid)
+            //{
+            //    await Shell.Current.GoToAsync("//Welcome");
+            //    return false;
+            //}
+
+            //return true;
+        }
+
         public async Task<UserSession?> GetCurrentSessionAsync()
         {
-            var sessionString = await SecureStorage.GetAsync(_sessionKey);
-            if (string.IsNullOrEmpty(sessionString))
-                return null;
+            try
+            {
+                var sessionString = await SecureStorage.GetAsync(_sessionKey);
+                if (string.IsNullOrEmpty(sessionString))
+                    return null;
 
-            return sessionString.FromJson<UserSession?>();
+                return sessionString.FromJson<UserSession?>();
+            }
+            catch (Exception e)
+            {
+                SecureStorage.Remove(_sessionKey);
+                return null;
+            }
         }
 
         public async Task<bool> StartSessionAsync(UserSession session)
@@ -26,6 +59,8 @@ namespace MarketPrice.Ui.Services.Session
             {
                 // Persist session in storage
                 await SecureStorage.SetAsync(_sessionKey, session.ToJson());
+
+                IsLoggedIn = true;
 
                 return true;
             }
@@ -43,6 +78,7 @@ namespace MarketPrice.Ui.Services.Session
                 try
                 {
                     SecureStorage.Remove(_sessionKey);
+                    IsLoggedIn = false;
                     return true;
                 }
                 catch (Exception e)
@@ -121,9 +157,11 @@ namespace MarketPrice.Ui.Services.Session
         public async Task InitializeAsync()
         {
             var currentSession = await GetCurrentSessionAsync();
-            if(currentSession is null) return;
+            if (currentSession is null) return;
 
             await StartSessionAsync(currentSession);
+
+            IsLoggedIn = await ValidateAndRefreshSessionAsync();
         }
 
         public async Task<bool> StartSessionAsync(AuthenticationResponseDto authResponseDto)

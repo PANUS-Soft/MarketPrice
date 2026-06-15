@@ -12,5 +12,6 @@ namespace MarketPrice.Services.Interfaces
         Task<List<RegionDto>> GetRegionAsync();
         Task<List<CommodityTypeDto>> GetCommodityTypeAsync();
         Task<List<CommodityDto>> GetCommodityByIdAsync(Guid id);
+        Task<List<CommodityDto>> GetAllCommoditiesAsync();
     }
 }

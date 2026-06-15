@@ -59,14 +59,16 @@ namespace MarketPrice.Ui.Services.Api
         public HttpClient HttpClient { get; }
 
         // Create base method to send post requests
-        public Task<HttpResponseMessage> PostAsync(string url, object data)
-        {
-            return HttpClient.PostAsJsonAsync(url, data);
-        }
+        public Task<HttpResponseMessage> PostAsync(string url, object data) => HttpClient.PostAsJsonAsync(url, data);
 
         // Create base method to send get requests
         public Task<HttpResponseMessage> GettingAsync(string url) => HttpClient.GetAsync(url);
 
+        // Create base method to send patch requests
+        public Task<HttpResponseMessage> PatchAsync(string url, object data) => HttpClient.PatchAsJsonAsync(url, data);
+
+        // Create base method to send delete requests
+        public Task<HttpResponseMessage> DeleteAsync(string url) => HttpClient.DeleteAsync(url);
 
     }
 }

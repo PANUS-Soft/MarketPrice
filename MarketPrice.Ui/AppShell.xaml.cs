@@ -9,6 +9,17 @@ namespace MarketPrice.Ui
             InitializeComponent();
             Routing.RegisterRoute(nameof(MarketInsight), typeof(MarketInsight));
             Routing.RegisterRoute(nameof(PlacePosition), typeof(PlacePosition));
+            Routing.RegisterRoute(nameof(PositionListing), typeof(PositionListing));
+            Routing.RegisterRoute(nameof(PositionDetail), typeof(PositionDetail));
+            Routing.RegisterRoute(nameof(ChangePassword), typeof(ChangePassword));
+            Routing.RegisterRoute(nameof(CommodityListing), typeof(CommodityListing));
+            Routing.RegisterRoute(nameof(Settings), typeof(Settings));
+            Routing.RegisterRoute(nameof(Account), typeof(Account));
+            Routing.RegisterRoute(nameof(ChangePhoneNumberIntro), typeof(ChangePhoneNumberIntro));
+            Routing.RegisterRoute(nameof(ChangePhoneNumberInput), typeof(ChangePhoneNumberInput));
+            Routing.RegisterRoute(nameof(ChangeEmailAddressIntro), typeof(ChangeEmailAddressIntro));
+            Routing.RegisterRoute(nameof(ChangeEmailAddressInput), typeof(ChangeEmailAddressInput));
+            Routing.RegisterRoute(nameof(Privacy), typeof(Privacy));
         }
     }
 }
