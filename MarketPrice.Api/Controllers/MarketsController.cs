@@ -20,7 +20,7 @@ namespace MarketPrice.Api.Controllers
         private readonly ILogger<MarketsController> _logger = logger;
 
         // Load Market Data
-        //[Authorize]
+        [Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {
@@ -87,7 +87,7 @@ namespace MarketPrice.Api.Controllers
             }
         }
 
-        [Authorize]
+        // Public route does not require the [Authorize] attribute
         [HttpGet(ApiRoutes.GET_MARKET_OVERVIEW + "/{positionTypeId}")]
         public async Task<ActionResult<List<MarketCommodityDto>>> GetMarketOverview(int positionTypeId)
         {

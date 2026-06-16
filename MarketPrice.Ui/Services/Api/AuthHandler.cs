@@ -14,7 +14,7 @@ namespace MarketPrice.Ui.Services.Api
             {
                 ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH),
                 ApiControllers.Home.AppendRoute(ApiRoutes.LOAD_HOME_DATA),
-                ApiControllers.Markets.AppendRoute(ApiRoutes.LOAD_MARKET_DATA),
+                ApiControllers.Markets.AppendRoute(ApiRoutes.GET_MARKET_OVERVIEW),
                 ApiControllers.ReferenceData.AppendRoute(ApiRoutes.REF_COMMODITY_TYPE),
                 ApiControllers.CommodityImages,
                 ApiControllers.CommodityTypeImages

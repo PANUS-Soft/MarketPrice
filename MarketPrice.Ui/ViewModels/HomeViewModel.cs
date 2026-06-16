@@ -47,9 +47,9 @@ namespace MarketPrice.Ui.ViewModels
         {
             System.Diagnostics.Debug.WriteLine("[HOME] LoadHomeDataAsync started");
 
-            var isSessionValid = await sessionService.ValidateAndRefreshSessionAsync();
-            if (isSessionValid) await sessionService.GetCurrentSessionAsync();
-            else await sessionService.TryRefreshTokenAsync();
+            //var isSessionValid = await sessionService.ValidateAndRefreshSessionAsync();
+            //if (isSessionValid) await sessionService.GetCurrentSessionAsync();
+            //else await sessionService.TryRefreshTokenAsync();
 
             try
             {

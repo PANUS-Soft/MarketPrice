@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MarketPrice.Ui.Converters
 {
-    class InvertedBoolConverter : IValueConverter
+    public class InvertedBoolConverter : IValueConverter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
@@ -18,7 +18,10 @@ namespace MarketPrice.Ui.Converters
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value is bool booleValue)
+                return !booleValue;
+
+            return false;
         }
     }
 }
