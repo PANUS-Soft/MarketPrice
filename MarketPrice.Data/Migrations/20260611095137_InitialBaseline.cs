@@ -1,16 +1,38 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MarketPrice.Migrations
+namespace MarketPrice.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialBaseline : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // This up method is the copy of the up method from the ModelDatePropertyModifications migration file.
+            migrationBuilder.CreateTable(
+                name: "AggregatedPrices",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CommodityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Interval = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AvgBid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    HighBid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    LowBid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    AvgOffer = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    HighOffer = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    LowOffer = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PositionCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AggregatedPrices", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "LookupDataTypes",
                 columns: table => new
@@ -39,6 +61,21 @@ namespace MarketPrice.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserSecurityDetails",
+                columns: table => new
+                {
+                    SecurityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastActivityDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserSecurityDetails", x => x.SecurityId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LookupData",
                 columns: table => new
                 {
@@ -60,6 +97,36 @@ namespace MarketPrice.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Commodities",
+                columns: table => new
+                {
+                    CommodityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    CommodityTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UnitOfMeasureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CommodityName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShelfLifeInDays = table.Column<int>(type: "int", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LotSize = table.Column<short>(type: "smallint", nullable: true),
+                    PreviousBestBid = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
+                    LastBestBid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PreviousBestOffer = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
+                    LastBestOffer = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    IsBidImproved = table.Column<bool>(type: "bit", nullable: false),
+                    IsOfferImproved = table.Column<bool>(type: "bit", nullable: false),
+                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Commodities", x => x.CommodityId);
+                    table.ForeignKey(
+                        name: "FK_Commodities_UnitOfMeasures_UnitOfMeasureId",
+                        column: x => x.UnitOfMeasureId,
+                        principalTable: "UnitOfMeasures",
+                        principalColumn: "UnitOfMeasureId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CommodityTypes",
                 columns: table => new
                 {
@@ -67,7 +134,12 @@ namespace MarketPrice.Migrations
                     CommodityGroupId = table.Column<int>(type: "int", nullable: false),
                     NameId = table.Column<int>(type: "int", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DefaultUnitOfMeasureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    DefaultUnitOfMeasureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastBestBid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    LastBestOffer = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    IsBidImproved = table.Column<bool>(type: "bit", nullable: false),
+                    IsOfferImproved = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,6 +176,7 @@ namespace MarketPrice.Migrations
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsPremiumUser = table.Column<bool>(type: "bit", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordSalt = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateRecorded = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateUpdate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -119,32 +192,45 @@ namespace MarketPrice.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Commodities",
+                name: "CommodityImage",
                 columns: table => new
                 {
-                    CommodityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    CommodityTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UnitOfMeasureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CommodityName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ShelfLifeInDays = table.Column<byte>(type: "tinyint", nullable: true),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LotSize = table.Column<short>(type: "smallint", nullable: true)
+                    CommodityImageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CommodityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Commodities", x => x.CommodityId);
+                    table.PrimaryKey("PK_CommodityImage", x => x.CommodityImageId);
                     table.ForeignKey(
-                        name: "FK_Commodities_CommodityTypes_CommodityTypeId",
+                        name: "FK_CommodityImage_Commodities_CommodityId",
+                        column: x => x.CommodityId,
+                        principalTable: "Commodities",
+                        principalColumn: "CommodityId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommodityTypeImage",
+                columns: table => new
+                {
+                    CommodityTypeImageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CommodityTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommodityTypeImage", x => x.CommodityTypeImageId);
+                    table.ForeignKey(
+                        name: "FK_CommodityTypeImage_CommodityTypes_CommodityTypeId",
                         column: x => x.CommodityTypeId,
                         principalTable: "CommodityTypes",
                         principalColumn: "CommodityTypeId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Commodities_UnitOfMeasures_UnitOfMeasureId",
-                        column: x => x.UnitOfMeasureId,
-                        principalTable: "UnitOfMeasures",
-                        principalColumn: "UnitOfMeasureId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,6 +266,51 @@ namespace MarketPrice.Migrations
                         principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Positions",
+                columns: table => new
+                {
+                    PositionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CommodityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PositionTypeId = table.Column<int>(type: "int", nullable: false),
+                    CurrentStatusId = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Quantity = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
+                    Grade = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ExpiryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Positions", x => x.PositionId);
+                    table.ForeignKey(
+                        name: "FK_Positions_Commodities_CommodityId",
+                        column: x => x.CommodityId,
+                        principalTable: "Commodities",
+                        principalColumn: "CommodityId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Positions_LookupData_CurrentStatusId",
+                        column: x => x.CurrentStatusId,
+                        principalTable: "LookupData",
+                        principalColumn: "LookupDataId");
+                    table.ForeignKey(
+                        name: "FK_Positions_LookupData_PositionTypeId",
+                        column: x => x.PositionTypeId,
+                        principalTable: "LookupData",
+                        principalColumn: "LookupDataId");
+                    table.ForeignKey(
+                        name: "FK_Positions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -246,65 +377,32 @@ namespace MarketPrice.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Positions",
-                columns: table => new
-                {
-                    PositionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CommodityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PositionTypeId = table.Column<int>(type: "int", nullable: false),
-                    CurrentStatusId = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
-                    Grade = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StartDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ExpiryDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    Date = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DateUpdated = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Positions", x => x.PositionId);
-                    table.ForeignKey(
-                        name: "FK_Positions_Commodities_CommodityId",
-                        column: x => x.CommodityId,
-                        principalTable: "Commodities",
-                        principalColumn: "CommodityId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Positions_LookupData_CurrentStatusId",
-                        column: x => x.CurrentStatusId,
-                        principalTable: "LookupData",
-                        principalColumn: "LookupDataId");
-                    table.ForeignKey(
-                        name: "FK_Positions_LookupData_PositionTypeId",
-                        column: x => x.PositionTypeId,
-                        principalTable: "LookupData",
-                        principalColumn: "LookupDataId");
-                    table.ForeignKey(
-                        name: "FK_Positions_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "DeliveryDetails",
                 columns: table => new
                 {
                     DeliveryDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     PositionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OriginLocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DestinationLocationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsDeliverable = table.Column<bool>(type: "bit", nullable: false),
-                    LeadTime = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LeadTimeInDays = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Fee = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    MaxDistance = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                    MaxDistance = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeliveryDetails", x => x.DeliveryDetailId);
+                    table.ForeignKey(
+                        name: "FK_DeliveryDetails_Locations_DestinationLocationId",
+                        column: x => x.DestinationLocationId,
+                        principalTable: "Locations",
+                        principalColumn: "LocationId");
+                    table.ForeignKey(
+                        name: "FK_DeliveryDetails_Locations_OriginLocationId",
+                        column: x => x.OriginLocationId,
+                        principalTable: "Locations",
+                        principalColumn: "LocationId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DeliveryDetails_Positions_PositionId",
                         column: x => x.PositionId,
@@ -314,14 +412,25 @@ namespace MarketPrice.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Commodities_CommodityTypeId",
-                table: "Commodities",
-                column: "CommodityTypeId");
+                name: "IX_AggregatedPrices_Lookup",
+                table: "AggregatedPrices",
+                columns: new[] { "CommodityId", "Interval", "Timestamp" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Commodities_UnitOfMeasureId",
                 table: "Commodities",
                 column: "UnitOfMeasureId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommodityImage_CommodityId",
+                table: "CommodityImage",
+                column: "CommodityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommodityTypeImage_CommodityTypeId",
+                table: "CommodityTypeImage",
+                column: "CommodityTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CommodityTypes_CommodityGroupId",
@@ -337,6 +446,16 @@ namespace MarketPrice.Migrations
                 name: "IX_CommodityTypes_NameId",
                 table: "CommodityTypes",
                 column: "NameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeliveryDetails_DestinationLocationId",
+                table: "DeliveryDetails",
+                column: "DestinationLocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeliveryDetails_OriginLocationId",
+                table: "DeliveryDetails",
+                column: "OriginLocationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeliveryDetails_PositionId",
@@ -408,6 +527,12 @@ namespace MarketPrice.Migrations
                 filter: "[IdCardNumber] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserSecurityDetails_UserId",
+                table: "UserSecurityDetails",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Verifications_CurrentVerificationStatusId",
                 table: "Verifications",
                 column: "CurrentVerificationStatusId");
@@ -427,16 +552,31 @@ namespace MarketPrice.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DeliveryDetails");
+                name: "AggregatedPrices");
 
             migrationBuilder.DropTable(
-                name: "Locations");
+                name: "CommodityImage");
+
+            migrationBuilder.DropTable(
+                name: "CommodityTypeImage");
+
+            migrationBuilder.DropTable(
+                name: "DeliveryDetails");
 
             migrationBuilder.DropTable(
                 name: "Ratings");
 
             migrationBuilder.DropTable(
+                name: "UserSecurityDetails");
+
+            migrationBuilder.DropTable(
                 name: "Verifications");
+
+            migrationBuilder.DropTable(
+                name: "CommodityTypes");
+
+            migrationBuilder.DropTable(
+                name: "Locations");
 
             migrationBuilder.DropTable(
                 name: "Positions");
@@ -448,13 +588,10 @@ namespace MarketPrice.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "CommodityTypes");
+                name: "UnitOfMeasures");
 
             migrationBuilder.DropTable(
                 name: "LookupData");
-
-            migrationBuilder.DropTable(
-                name: "UnitOfMeasures");
 
             migrationBuilder.DropTable(
                 name: "LookupDataTypes");
