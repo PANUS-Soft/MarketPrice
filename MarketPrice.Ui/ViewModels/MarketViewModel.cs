@@ -298,14 +298,21 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (!accessAccount) return;
 
-                await Shell.Current.GoToAsync("//Welcome");
-                return;
-            }
+                _sessionService.SavePendingNavigation(new PendingNavigation
+                {
+                    Route = "MarketInsight",
+                    MarketItemFilter = selectedItemFilter
+                });
 
-            await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
+                await Shell.Current.GoToAsync("//Welcome");
+            }
+            else
             {
-                {"SelectedMarketItemFilter", selectedItemFilter }
-            });
+                await Shell.Current.GoToAsync("MarketInsight", new Dictionary<string, object>()
+                {
+                    {"SelectedMarketItemFilter", selectedItemFilter }
+                });
+            }
         }
 
         [RelayCommand]
@@ -322,30 +329,35 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (!accessAccount) return;
 
-                await Shell.Current.GoToAsync("//Welcome");
-
-                return;
-            }
-
-            var args = new PositionListingCommand
-            {
-                CommodityId = item.CommodityId,
-                PositionTypeId = IsBidHighlighted ? 6001 : 6002,
-                UnitPrice = item.CurrentPrice,
-                CommodityName = item.Name,
-            };
-
-            await Shell.Current.GoToAsync(
-                "PositionListing",
-                new Dictionary<string, object>
+                _sessionService.SavePendingNavigation(new PendingNavigation
                 {
-                    { "Args", args },
-                    { "PassedImage", item.ImageSource },
-                    { "PassedCommodityName", item.Name },
-                    { "PassedLotSize", item.LotSizeDisplay },
-                    { "PassedBid", IsBidHighlighted ? item.CurrentPrice.ToString("N0") : "-" },
-                    { "PassedOffer", IsOfferHighlighted ? item.CurrentPrice.ToString("N0") : "-" }
+                    Route = "PositionListing"
                 });
+
+                await Shell.Current.GoToAsync("//Welcome");
+            }
+            else
+            {
+                var args = new PositionListingCommand
+                {
+                    CommodityId = item.CommodityId,
+                    PositionTypeId = IsBidHighlighted ? 6001 : 6002,
+                    UnitPrice = item.CurrentPrice,
+                    CommodityName = item.Name,
+                };
+
+                await Shell.Current.GoToAsync(
+                    "PositionListing",
+                    new Dictionary<string, object>
+                    {
+                        { "Args", args },
+                        { "PassedImage", item.ImageSource },
+                        { "PassedCommodityName", item.Name },
+                        { "PassedLotSize", item.LotSizeDisplay },
+                        { "PassedBid", IsBidHighlighted ? item.CurrentPrice.ToString("N0") : "-" },
+                        { "PassedOffer", IsOfferHighlighted ? item.CurrentPrice.ToString("N0") : "-" }
+                    });
+            }
         }
 
         [RelayCommand]

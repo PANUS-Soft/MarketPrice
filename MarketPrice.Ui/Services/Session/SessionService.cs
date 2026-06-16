@@ -1,6 +1,7 @@
 ﻿using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using System.Net.Http.Json;
+using System.Text.Json;
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Ui.Extensions;
@@ -10,6 +11,7 @@ namespace MarketPrice.Ui.Services.Session
     public class SessionService(AuthenticationApiService authenticationApiService)
     {
         private readonly string _sessionKey = "UserSession";
+        private const string PendingNavigationKey = "PendingNavigation";
 
         public bool IsLoggedIn { get; private set; }
 
@@ -178,6 +180,56 @@ namespace MarketPrice.Ui.Services.Session
             };
 
             return await StartSessionAsync(session);
+        }
+
+        public void SavePendingNavigation(PendingNavigation navigation)
+        {
+            var pendingNavigation = new PendingNavigation
+            {
+                Route = navigation.Route,
+                MarketItemFilter= navigation.MarketItemFilter
+            };
+
+            var json = JsonSerializer.Serialize(pendingNavigation);
+
+            Preferences.Set(PendingNavigationKey, json);
+        }
+
+        public PendingNavigation? GetPendingNavigation()
+        {
+            var json = Preferences.Get(PendingNavigationKey, string.Empty);
+
+            if (string.IsNullOrWhiteSpace(json)) return null;
+
+            return JsonSerializer.Deserialize<PendingNavigation>(json);
+        }
+
+        public void ClearPendingNavigation()
+        {
+            Preferences.Remove(PendingNavigationKey);
+        }
+
+        public async Task RestorePendingNavigationAsync()
+        {
+            var pendingNavigation = GetPendingNavigation();
+
+            if (pendingNavigation == null) return;
+
+            ClearPendingNavigation();
+
+            switch (pendingNavigation.Route)
+            {
+                case "MarketInsight":
+                    await Shell.Current.GoToAsync("//Market/MarketInsight", new Dictionary<string, object>
+                    {
+                        {
+                            "SelectedMarketItemFilter",
+                            pendingNavigation.MarketItemFilter
+                        }
+                    });
+
+                    break;
+            }
         }
     }
 }

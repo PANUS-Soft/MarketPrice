@@ -32,18 +32,20 @@
            HeightRequest="250"/>
 
             <Label Text="No Activity. You are here as a guest."
-           TextColor="White"
-           FontFamily="RobotoSerifRegular"
-           FontSize="18"
-           HorizontalTextAlignment="Center"
-           HorizontalOptions="Center"/>
+                   TextColor="White"
+                   FontFamily="RobotoSerifRegular"
+                   FontSize="18"
+                   HorizontalTextAlignment="Center"
+                   HorizontalOptions="Center"/>
 
-            <Label Text="Register or log in to manage your activity."
-           TextColor="White"
-           FontSize="15"
-           FontFamily="RobotoSerifRegular"
-           HorizontalOptions="Center"
-           HorizontalTextAlignment="Center"/>
+            <Label Text="Register or log in, in order to save hisrorical insights data."
+                   Padding="5"
+                   Margin="5"
+                   TextColor="White"
+                   FontSize="15"
+                   FontFamily="RobotoSerifRegular"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
 
             <Grid RowDefinitions="*, *" Padding="15" RowSpacing="10">
                 <Button Grid.Row="0" FontFamily="RobotoSerifBold" Text="Register to View Activity" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="15" Command="{Binding NavigateToRegisterCommand}"/>

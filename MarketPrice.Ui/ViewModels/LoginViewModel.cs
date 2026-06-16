@@ -63,7 +63,17 @@ namespace MarketPrice.Ui.ViewModels
                         
                         await sessionService.StartSessionAsync(dto);
                         await Toast.Make($"Welcome back, {dto.FirstName} 👋", ToastDuration.Long).Show();
-                        await Shell.Current.GoToAsync("//Home");
+
+                        var pendingNavigation = sessionService.GetPendingNavigation();
+
+                        if (pendingNavigation != null)
+                        {
+                            await sessionService.RestorePendingNavigationAsync();
+                        }
+                        else
+                        {
+                            await Shell.Current.GoToAsync("//Home");
+                        }
                     }
                 }
                 else

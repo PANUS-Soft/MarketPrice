@@ -134,7 +134,17 @@ namespace MarketPrice.Ui.ViewModels
                         if (await _sessionService.StartSessionAsync(dto))
                         {
                             await Toast.Make("Your account was successfully created.", ToastDuration.Long).Show();
-                            await Shell.Current.GoToAsync("//Home");
+
+                            var pendingNavigation = _sessionService.GetPendingNavigation();
+
+                            if (pendingNavigation != null)
+                            {
+                                await _sessionService.RestorePendingNavigationAsync();
+                            }
+                            else
+                            {
+                                await Shell.Current.GoToAsync("//Home");
+                            }
                         }
                     }
                 }
