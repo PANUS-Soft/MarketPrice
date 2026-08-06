@@ -233,7 +233,7 @@
                        FontAttributes="Bold"/>
 
                 <Label Grid.Column="2"
-                       Text="24H Change"
+                       Text="Variation"
                        FontSize="14"
                        VerticalTextAlignment="Center"
                        FontFamily="RobotoSerifBold"

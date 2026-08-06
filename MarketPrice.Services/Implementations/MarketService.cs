@@ -110,39 +110,38 @@ namespace MarketPrice.Services.Implementations
                 var bestBid = bestBidPos?.Position.UnitPrice ?? 0m;
                 var bestOffer = bestOfferPos?.Position.UnitPrice ?? 0m;
 
-                // Handle Bid Logic (higher price is better)
-                if (bestBid > commodity.LastBestBid && bestBid > 0)
+                bool changed = false;
+
+                // BID
+                if (bestBid != commodity.LastBestBid)
                 {
-                    commodity.IsBidImproved = true;
+                    commodity.PreviousBestBid = commodity.LastBestBid;
                     commodity.LastBestBid = bestBid;
-                }
-                else if (bestBid < commodity.LastBestBid && bestBid > 0)
-                {
-                    commodity.IsBidImproved = false;
-                    commodity.LastBestBid = bestBid;
+
+                    commodity.IsBidImproved =
+                        commodity.PreviousBestBid > 0 &&
+                        commodity.LastBestBid > commodity.PreviousBestBid;
+
+                    changed = true;
                 }
 
-                // Handle Offer Logic (lower price is better)
-                if (bestOffer < commodity.LastBestOffer && bestOffer > 0)
+                // OFFER
+                if (bestOffer != commodity.LastBestOffer)
                 {
-                    commodity.IsOfferImproved = true;
+                    commodity.PreviousBestOffer = commodity.LastBestOffer;
                     commodity.LastBestOffer = bestOffer;
-                }
-                else if (commodity.LastBestOffer == 0 && bestOffer > 0)
-                {
-                    commodity.IsOfferImproved = true;
-                    commodity.LastBestOffer = bestOffer;
-                }
-                else if (bestOffer > commodity.LastBestOffer && bestOffer > 0)
-                {
-                    commodity.IsOfferImproved = false;
-                    commodity.LastBestOffer = bestOffer;
+
+                    commodity.IsOfferImproved =
+                        commodity.PreviousBestOffer > 0 &&
+                        commodity.LastBestOffer < commodity.PreviousBestOffer;
+
+                    changed = true;
                 }
 
-                commodity.DateUpdated = DateTimeOffset.Now;
-
-                // In case GroupBy broke tracking, this ensures the update is sent.
-                _context.Entry(commodity).State = EntityState.Modified;
+                if (changed)
+                {
+                    commodity.DateUpdated = DateTimeOffset.UtcNow;
+                }
 
                 // 3 Build response DTO
                 response.Add(new MarketResponseDto
@@ -291,7 +290,7 @@ namespace MarketPrice.Services.Implementations
         public async Task<List<MarketCommodityDto>> GetMarketOverviewAsync(int positionTypeId)
         {
             var now = DateTime.UtcNow;
-            var yesterday = now.AddHours(-24);
+           
 
             var query = await (
                 from c in _context.Commodities
@@ -311,32 +310,13 @@ namespace MarketPrice.Services.Implementations
                         : "",
 
                     CurrentBestPrice = positionTypeId == BidPosition
-                        ? _context.Positions
-                            .Where(p => p.CommodityId == c.CommodityId &&
-                                        p.PositionTypeId == positionTypeId &&
-                                        p.StartDate <= now &&
-                                        p.ExpiryDate > now)
-                            .Max(p => (decimal?)p.UnitPrice) ?? 0m
-                        : _context.Positions
-                            .Where(p => p.CommodityId == c.CommodityId &&
-                                        p.PositionTypeId == positionTypeId &&
-                                        p.StartDate <= now &&
-                                        p.ExpiryDate > now)
-                            .Min(p => (decimal?)p.UnitPrice) ?? 0m,
+                    ? c.LastBestBid
+                    : c.LastBestOffer,
 
-                    YesterdayBestPrice = positionTypeId == BidPosition
-                        ? _context.Positions
-                            .Where(p => p.CommodityId == c.CommodityId &&
-                                        p.PositionTypeId == positionTypeId &&
-                                        p.StartDate <= yesterday &&
-                                        p.ExpiryDate > yesterday)
-                            .Max(p => (decimal?)p.UnitPrice) ?? 0m
-                        : _context.Positions
-                            .Where(p => p.CommodityId == c.CommodityId &&
-                                        p.PositionTypeId == positionTypeId &&
-                                        p.StartDate <= yesterday &&
-                                        p.ExpiryDate > yesterday)
-                            .Min(p => (decimal?)p.UnitPrice) ?? 0m
+                                    PreviousBestPrice = positionTypeId == BidPosition
+                    ? c.PreviousBestBid
+                    : c.PreviousBestOffer
+
                 }).ToListAsync();
 
             var marketData = new List<MarketCommodityDto>();
@@ -345,9 +325,9 @@ namespace MarketPrice.Services.Implementations
             {
                 decimal difference = 0;
 
-                if (item.CurrentBestPrice > 0 && item.YesterdayBestPrice > 0)
+                if (item.CurrentBestPrice > 0 && item.PreviousBestPrice > 0)
                 {
-                    difference = item.CurrentBestPrice - item.YesterdayBestPrice;
+                    difference = item.CurrentBestPrice - item.PreviousBestPrice;
                 }
 
                 marketData.Add(new MarketCommodityDto
