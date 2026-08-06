@@ -1,5 +1,6 @@
 ﻿using MarketPrice.Domain;
 using MarketPrice.Domain.Market.DTOs;
+using MarketPrice.Services.Implementations;
 using MarketPrice.Services.Interfaces;
 using MarketPrice.Services.Workers;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +20,7 @@ namespace MarketPrice.Api.Controllers
         private readonly ILogger<MarketsController> _logger = logger;
 
         // Load Market Data
-        //[Authorize]
+        [Authorize]
         [HttpGet(ApiRoutes.LOAD_MARKET_DATA)]
         public async Task<ActionResult<List<MarketResponseDto>>> LoadMarketData()
         {
@@ -46,7 +47,7 @@ namespace MarketPrice.Api.Controllers
         // Get Price Chart Data
         [Authorize]
         [HttpGet(ApiRoutes.GET_CHART_DATA)]
-        public async Task<ActionResult> GetChartData( [FromRoute] Guid commodityId, [FromQuery] string range = "1D")
+        public async Task<ActionResult> GetChartData( [FromRoute] Guid commodityId, [FromQuery] string range)
         {
             try
             {
@@ -83,6 +84,22 @@ namespace MarketPrice.Api.Controllers
                     commodityId, range);
 
                 return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Public route does not require the [Authorize] attribute
+        [HttpGet(ApiRoutes.GET_MARKET_OVERVIEW + "/{positionTypeId}")]
+        public async Task<ActionResult<List<MarketCommodityDto>>> GetMarketOverview(int positionTypeId)
+        {
+            try
+            {
+                var result = await _marketService.GetMarketOverviewAsync(positionTypeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching market overview for PositionType: {PositionTypeId}", positionTypeId);
+                return StatusCode(500, "An error occurred while processing the request.");
             }
         }
     }

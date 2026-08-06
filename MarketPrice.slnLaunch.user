@@ -10,7 +10,7 @@
       {
         "Path": "MarketPrice.Ui\\MarketPrice.Ui.csproj",
         "Action": "Start",
-        "DebugTarget": "Samsung SM-G960U (Android 10.0 - API 29)"
+        "DebugTarget": "Pixel 7 - API 35 (1) (Android 15.0 - API 35)"
       }
     ]
   }

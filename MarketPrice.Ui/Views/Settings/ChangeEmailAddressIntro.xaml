@@ -11,7 +11,7 @@
         <Grid Padding="20,10,20,20">
 
             <ImageButton
-                Source="white_back_icon.png"
+                Source="back.png"
                 BackgroundColor="Transparent"
                 HeightRequest="22"
                 WidthRequest="22"

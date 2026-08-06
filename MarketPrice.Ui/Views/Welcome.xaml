@@ -5,7 +5,7 @@
              x:Class="MarketPrice.Ui.Views.Welcome"
              Shell.NavBarIsVisible ="False"
              NavigationPage.HasNavigationBar="False"
-             BackgroundColor="{StaticResource BgPage}"
+             BackgroundColor="{StaticResource Background}"
              Title="Welcome">
 
     <ContentPage.BindingContext>

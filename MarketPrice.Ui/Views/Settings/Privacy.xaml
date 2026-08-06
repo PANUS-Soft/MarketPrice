@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dx="http://schemas.devexpress.com/maui"
+             BackgroundColor="#13131F"
+             x:Class="MarketPrice.Ui.Views.Privacy"
+             x:Name="PrivacyPage"
+             Shell.TabBarIsVisible="False"
+             Title="Privacy">
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER -->
+        <Grid Padding="20,10,20,20">
+
+            <ImageButton
+            Source="back.png"
+            HeightRequest="22"
+            WidthRequest="22"
+            HorizontalOptions="Start"
+            Command="{Binding GoBackCommand}"/>
+        </Grid>
+
+
+        <CollectionView
+            Grid.Row="1"
+            ItemsSource="{Binding PrivacyItems}"
+            SelectionMode="None">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <Grid Padding="15">
+
+                        <Grid.GestureRecognizers>
+                                
+                                <TapGestureRecognizer
+                                  Command="{Binding Source={x:Reference PrivacyPage}, Path=BindingContext.NavigateToItemCommand}"
+                                 CommandParameter="{Binding}" />
+                             
+                        </Grid.GestureRecognizers>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Image
+                            Grid.Column="0"
+                            Source="{Binding IconSource}"
+                            HeightRequest="24"
+                            WidthRequest="24"/>
+
+                        <VerticalStackLayout Grid.Column="1">
+
+                            <Label
+                                Text="{Binding Title}"
+                                FontAttributes="Bold"/>
+
+                            <Label
+                                Text="{Binding SubTitle}"
+                                FontSize="12"/>
+                        </VerticalStackLayout>
+
+                        <Image
+                            Grid.Column="2"
+                            Source="arrow_right.png"
+                            HeightRequest="16"/>
+                    </Grid>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </Grid>
+
+    
+</ContentPage>

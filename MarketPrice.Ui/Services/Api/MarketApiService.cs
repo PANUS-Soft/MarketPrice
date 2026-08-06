@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace MarketPrice.Ui.Services.Api
 {
-    public class MarketApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingOptions) : BaseApiService(httpClient, apiSettingOptions) 
+    public class MarketApiService(HttpClient httpClient, IOptions<ApiSettings> apiSettingOptions) : BaseApiService(httpClient, apiSettingOptions)
     {
         public async Task<HttpResponseMessage> LoadMarketAsync()
         {
@@ -20,7 +20,14 @@ namespace MarketPrice.Ui.Services.Api
             return response;
         }
 
-        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range = "1D")
+        public async Task<HttpResponseMessage> GetMarketOverviewAsync(int positionTypeId)
+        {
+            var url = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_MARKET_OVERVIEW, positionTypeId.ToString());
+            var response = await GettingAsync(url);
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> GetChartDataAsync(Guid commodityId, string range)
         {
             var route = ApiControllers.Markets.AppendRoute(ApiRoutes.GET_CHART_DATA);
             var url = route.Replace("{commodityId}", commodityId.ToString());

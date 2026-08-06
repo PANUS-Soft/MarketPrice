@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             x:Class="MarketPrice.Ui.Views.Verification"
+             Shell.NavBarIsVisible="False"
+              NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource Background}">
+
+    <Grid RowDefinitions="Auto, *, Auto" 
+          Padding="20">
+
+        <Grid Grid.Row="0" 
+              ColumnDefinitions="Auto, *" 
+              Margin="0,0,0,30">
+
+            <ImageButton Source="back.png" 
+                         HeightRequest="24" 
+                         WidthRequest="24" 
+                         HorizontalOptions="Start" 
+                         Command="{Binding GoBackCommand}"/>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="1" 
+                             Spacing="20" 
+                             IsVisible="{Binding IsStep1}">
+
+            <Label Text="Verify your identity" 
+                   FontFamily="RobotoSerifBold" 
+                   FontSize="28" 
+                   TextColor="Black" />
+
+            <VerticalStackLayout Spacing="5">
+                <Label Text="{Binding Step1Subtitle}" 
+                       FontFamily="RobotoSerifBold" 
+                       FontSize="16" 
+                       TextColor="Black" />
+
+                <Label Text="{Binding Step1Description}" 
+                       FontFamily="RobotoSerifRegular" 
+                       FontSize="14" 
+                       TextColor="Gray" />
+            </VerticalStackLayout>
+
+            <Border Stroke="#E0E0E0" 
+                    StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 8" 
+                    BackgroundColor="White" 
+                    HeightRequest="55" 
+                    Padding="15,0" 
+                    IsVisible="{Binding IsPhoneMode}">
+
+                <Grid ColumnDefinitions="Auto, Auto, Auto, *" 
+                      ColumnSpacing="10" 
+                      VerticalOptions="Center">
+
+                    <Image Grid.Column="0" 
+                           Source="flag_cm.png" 
+                           HeightRequest="20" 
+                           WidthRequest="30" />
+
+                    <Label Grid.Column="1" 
+                           Text="+237" 
+                           FontFamily="RobotoSerifMedium" 
+                           TextColor="Black" 
+                           VerticalOptions="Center" />
+
+                    <BoxView Grid.Column="2" 
+                             WidthRequest="1" 
+                             Color="#E0E0E0" 
+                             Margin="0,10" />
+
+                    <Entry Grid.Column="3" 
+                           Placeholder="6XXXXXXXX" 
+                           Text="{Binding PhoneNumber}" 
+                           Keyboard="Telephone" 
+                           TextColor="Black" 
+                           BackgroundColor="Transparent" />
+                </Grid>
+            </Border>
+
+            <Border Stroke="#E0E0E0" 
+                    StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 8" 
+                    BackgroundColor="White" 
+                    HeightRequest="55" 
+                    Padding="15,0" 
+                    IsVisible="{Binding IsEmailMode}">
+
+                <Grid ColumnDefinitions="Auto, Auto, *" 
+                      ColumnSpacing="10" 
+                      VerticalOptions="Center">
+
+                    <Image Grid.Column="0" 
+                           Source="email_icon.png" 
+                           HeightRequest="24" 
+                           WidthRequest="24" />
+
+                    <BoxView Grid.Column="1" 
+                             WidthRequest="1" 
+                             Color="#E0E0E0" 
+                             Margin="0,10" />
+
+                    <Entry Grid.Column="2" 
+                           Placeholder="example@email.com" 
+                           Text="{Binding EmailAddress}" 
+                           Keyboard="Email" 
+                           TextColor="Black" 
+                           BackgroundColor="Transparent" />
+                </Grid>
+            </Border>
+
+            <Button Text="Send Code" 
+                    Command="{Binding SendCodeCommand}" 
+                    BackgroundColor="#00569D" 
+                    TextColor="White" 
+                    FontFamily="RobotoSerifBold" 
+                    CornerRadius="8" 
+                    HeightRequest="55" 
+                    Margin="0,20,0,0" />
+
+            <Label Text="{Binding ToggleModeText}" 
+                   TextColor="#00569D" 
+                   FontFamily="RobotoSerifBold" 
+                   HorizontalOptions="Center" 
+                   Margin="0,15,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleModeCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+
+
+        <VerticalStackLayout Grid.Row="1" 
+                             Spacing="20" 
+                             IsVisible="{Binding IsStep2}">
+
+            <Label Text="Enter Verification Code" 
+                   FontFamily="RobotoSerifBold" 
+                   FontSize="28" 
+                   TextColor="Black" />
+
+            <Label Text="{Binding Step2Description}" 
+                   FontFamily="RobotoSerifRegular" 
+                   FontSize="14" 
+                   TextColor="Gray" />
+
+            <HorizontalStackLayout Spacing="10" 
+                                   HorizontalOptions="Center" 
+                                   Margin="0,20">
+
+                <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="50" WidthRequest="45">
+                    <Entry Text="{Binding Digit1}" Keyboard="Numeric" MaxLength="1" HorizontalTextAlignment="Center" TextColor="Black" FontSize="20" FontFamily="RobotoSerifBold" BackgroundColor="Transparent"/>
+                </Border>
+                <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="50" WidthRequest="45">
+                    <Entry Text="{Binding Digit2}" Keyboard="Numeric" MaxLength="1" HorizontalTextAlignment="Center" TextColor="Black" FontSize="20" FontFamily="RobotoSerifBold" BackgroundColor="Transparent"/>
+                </Border>
+                <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="50" WidthRequest="45">
+                    <Entry Text="{Binding Digit3}" Keyboard="Numeric" MaxLength="1" HorizontalTextAlignment="Center" TextColor="Black" FontSize="20" FontFamily="RobotoSerifBold" BackgroundColor="Transparent"/>
+                </Border>
+                <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="50" WidthRequest="45">
+                    <Entry Text="{Binding Digit4}" Keyboard="Numeric" MaxLength="1" HorizontalTextAlignment="Center" TextColor="Black" FontSize="20" FontFamily="RobotoSerifBold" BackgroundColor="Transparent"/>
+                </Border>
+                <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="50" WidthRequest="45">
+                    <Entry Text="{Binding Digit5}" Keyboard="Numeric" MaxLength="1" HorizontalTextAlignment="Center" TextColor="Black" FontSize="20" FontFamily="RobotoSerifBold" BackgroundColor="Transparent"/>
+                </Border>
+                <Border Stroke="#00569D" StrokeThickness="1" StrokeShape="RoundRectangle 8" HeightRequest="50" WidthRequest="45">
+                    <Entry Text="{Binding Digit6}" Keyboard="Numeric" MaxLength="1" HorizontalTextAlignment="Center" TextColor="Black" FontSize="20" FontFamily="RobotoSerifBold" BackgroundColor="Transparent"/>
+                </Border>
+            </HorizontalStackLayout>
+
+            <Button Text="Verify" 
+                    Command="{Binding VerifyCodeCommand}" 
+                    BackgroundColor="#00569D" 
+                    TextColor="White" 
+                    FontFamily="RobotoSerifBold" 
+                    CornerRadius="8" 
+                    HeightRequest="55" />
+
+            <VerticalStackLayout Spacing="15" 
+                                 Margin="0,20,0,0" 
+                                 HorizontalOptions="Center">
+
+                <Label HorizontalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Didn't receive the code? " 
+                                  TextColor="Gray" 
+                                  FontFamily="RobotoSerifRegular" />
+                            <Span Text="Resend" 
+                                  TextColor="#00569D" 
+                                  FontFamily="RobotoSerifBold" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ResendCodeCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label Text="{Binding ChangeContactText}" 
+                       TextColor="#00569D" 
+                       FontFamily="RobotoSerifBold" 
+                       HorizontalOptions="Center">
+
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ChangeContactCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

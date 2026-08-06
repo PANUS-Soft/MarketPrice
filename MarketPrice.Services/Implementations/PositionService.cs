@@ -22,7 +22,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
     private const int REGIONS = 7000;
     private const int OPEN_POSITION = 5001;
 
-    public async Task<PositionResponseDto> ProcessPositionAsync(PositionCommand command, bool isOffer)
+    public async Task<PositionResponseDto> ProcessPositionAsync(CreatePositionCommand command, bool isOffer)
     {
         //verify if the command is null before process the data 
         if (command == null)
@@ -149,6 +149,100 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         };
     }
 
+    public async Task<UpdatePositionResponseDto> UpdatePositionAsync(UpdatePositionCommand command, bool isOffer)
+    {
+        // Implementation for updating a position
+        var position = await _context.Positions.FirstOrDefaultAsync(p => p.PositionId == command.PositionId && p.UserId == command.UserId);
+        
+        if (position == null)
+        {
+            return DtoManager.Failed<UpdatePositionResponseDto>("Not Found", "Position not found. There was an error in fetching the position. Invalid PositionId or UserId.");
+        }
+
+        var deliveryDetail = await _context.DeliveryDetails.FirstOrDefaultAsync(dd => dd.PositionId == position.PositionId);
+
+        if (deliveryDetail == null)
+        {
+            return DtoManager.Failed<UpdatePositionResponseDto>("Not Found", "Delivery details not found.");
+        }
+
+        var originLocation = await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.OriginLocationId);
+
+        Location? destinationLocation = null;
+
+        if (deliveryDetail.DestinationLocationId != null)
+        {
+            destinationLocation = await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.DestinationLocationId);
+        }
+
+        // Update the position properties
+        position.Grade = command.Grade;
+        position.Quantity = command.Quantity;
+        position.UnitPrice = command.UnitPrice;
+        position.Description = command.Description;
+        position.ExpiryDate = command.EndDate;
+
+        // Update the delivery details
+        // Update the origin location
+         if (originLocation != null)
+         {
+            originLocation.RegionId = command.Origin.RegionId;
+            originLocation.Town = command.Origin.Town;
+            originLocation.Quarter = command.Origin.Quarter;
+            originLocation.Street = command.Origin.Street;
+         }
+        
+         // Update the destination location if it exists and delivery is available
+         if (isOffer && command.CanDeliver)
+         {
+             deliveryDetail.IsDeliverable = true;
+             deliveryDetail.LeadTimeInDays = command.LeadTime;
+             deliveryDetail.Fee = command.DeliveryFee;
+
+             if (destinationLocation == null) 
+             {
+                int destinationLookupId = lookups.GetLookupId("OtherAddress", LOCATION_TYPE);
+
+                destinationLocation = MapToLocationEntity(command.Destination!, command.UserId, destinationLookupId);
+
+                _context.Locations.Add(destinationLocation);
+
+                deliveryDetail.DestinationLocationId = destinationLocation.LocationId;
+             }
+             else
+             {
+                destinationLocation.RegionId = command.Destination!.RegionId;
+                destinationLocation.Town = command.Destination.Town;
+                destinationLocation.Quarter = command.Destination.Quarter;
+                destinationLocation.Street = command.Destination.Street;
+             }
+         }
+         else
+         {
+             deliveryDetail.IsDeliverable = false;
+             deliveryDetail.LeadTimeInDays = null;
+             deliveryDetail.Fee = null;
+
+             if (destinationLocation != null)
+             {
+                _context.Locations.Remove(destinationLocation);
+                deliveryDetail.DestinationLocationId = null;
+             }
+         }
+
+         position.DateUpdated = DateTime.UtcNow;
+
+         await _context.SaveChangesAsync();
+         await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
+         
+         var dto = new UpdatePositionResponseDto
+         {
+             Status = "Position updated successfully."
+         };
+         
+         return DtoManager.Succeed<UpdatePositionResponseDto>(dto);
+    }
+
     public async Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command)
     {
         try
@@ -202,58 +296,141 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 listingsQuery = listingsQuery.Where(p => p.CommodityId == command.CommodityId);
             }
 
-            // Fetch data
+            // --- NEW: First pull raw data so EF Core can translate the sub-queries safely ---
             var rawListings = await listingsQuery
                 .Select(p => new
                 {
                     p.PositionId,
-                    FullName = p.User.FirstName + " " + p.User.FamilyName,
-                    p.Commodity.CommodityName,
-                    p.Quantity,
-                    LotSizeValue = p.Commodity.LotSize,
-                    UomCode = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+                    UserName = p.User.FirstName + " " + p.User.FamilyName,
+                    CommodityName = p.Commodity.CommodityName,
+                    CalculatedQuantity = p.Quantity * (decimal)p.Commodity.LotSize!,
+                    UoM = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
+                    ShelfLifeInDays = p.Commodity.ShelfLifeInDays,
+                    BaseQuantity = p.Quantity,
+                    p.UnitPrice,
                     p.StartDate,
-                    p.ExpiryDate
+                    p.ExpiryDate,
+                    // Sub-query to fetch the town
+                    Town = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => _context.Locations.Where(l => l.LocationId == dd.OriginLocationId).Select(l => l.Town).FirstOrDefault())
+                        .FirstOrDefault(),
+
+                    // NEW: Sub-query to fetch the Region Name (LocationName)
+                    RegionName = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => _context.Locations
+                            .Where(l => l.LocationId == dd.OriginLocationId)
+                            .Select(l => _context.LookupData.Where(ld => ld.LookupDataId == l.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault())
+                            .FirstOrDefault())
+                        .FirstOrDefault(),
+
+                    IsDeliverable = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => dd.IsDeliverable)
+                        .FirstOrDefault(),
+                    Fee = _context.DeliveryDetails
+                        .Where(dd => dd.PositionId == p.PositionId)
+                        .Select(dd => dd.Fee)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
 
+            //var now = DateTimeOffset.UtcNow;
+
+            // Map the raw data to the final DTO
             var listings = rawListings.Select(p =>
             {
-                var totalDuration = p.ExpiryDate - p.StartDate;
-                var elapsedDuration = now - p.StartDate;
-                bool soonToExpire = totalDuration.TotalSeconds > 0 &&
-                                    (elapsedDuration.TotalSeconds / totalDuration.TotalSeconds) >= 0.8;
+                var timeToExpiry = p.ExpiryDate - now;
+                int daysLeft = Math.Max(0, (int)Math.Ceiling(timeToExpiry.TotalDays));
 
                 return new PositionListing
                 {
                     PositionId = p.PositionId,
-                    UserName = p.FullName,
+                    UserName = p.UserName,
                     CommodityName = p.CommodityName,
-                    Quantity = p.Quantity * (decimal)(p.LotSizeValue ?? 1),
-                    UnitOfMeasure = p.UomCode,
-                    IsSoonToExpire = soonToExpire
+                    Quantity = p.CalculatedQuantity,
+                    UnitOfMeasure = p.UoM,
+                    ShelfLifeInDays = p.ShelfLifeInDays,
+                    OriginTown = p.Town ?? "Unknown",
+
+                    // NEW: Map the Region Name so the UI filter can read it!
+                    LocationName = p.RegionName,
+
+                    TotalPrice = p.BaseQuantity * p.UnitPrice,
+                    IsExpiringSoon = IsExpired(p.StartDate, p.ExpiryDate, now),
+                    ExpiryText = daysLeft <= 1 ? "Expiring in 1 day" : $"Expiring in {daysLeft} days",
+                    IsCriticalExpiry = daysLeft <= 1,
+                    IsDeliverable = p.IsDeliverable,
+                    DeliveryFee = p.Fee.HasValue ? (decimal?)p.Fee.Value : null
                 };
             }).ToList();
 
-            // Get LotSize Info (using first commodity in defined type as reference)
-            var commodityRefs = _context.Commodities
+            var ls = _context.Commodities
                 .Where(c => c.CommodityTypeId == command.CommodityTypeId)
                 .Select(c => new { c.LotSize, c.UnitOfMeasure.UnitOfMeasureCodeEnglish})
                 .FirstOrDefault();
 
             
 
+            var shelfLife = _context.Commodities
+                .Where(c => c.CommodityTypeId == command.CommodityTypeId)
+                .Select(c => c.ShelfLifeInDays)
+                .FirstOrDefault();
+
+            // FETCH THE REAL PRICE LADDERS AND PEOPLE COUNTS 
+            var ladderBaseQuery = _context.Positions.Where(p =>
+                p.Commodity.CommodityTypeId == command.CommodityTypeId &&
+                p.StartDate <= DateTime.UtcNow && p.ExpiryDate > DateTime.UtcNow);
+
+            if (command.CommodityId != null && command.CommodityId != Guid.Empty)
+            {
+                ladderBaseQuery = ladderBaseQuery.Where(p => p.CommodityId == command.CommodityId);
+            }
+
+            // Bids are sorted Highest to Lowest
+            var bidPrices = await ladderBaseQuery
+                .Where(p => p.PositionTypeId == 6001)
+                .GroupBy(p => p.UnitPrice)
+                .Select(g => new PricePointDto
+                {
+                    Price = g.Key,
+                    Count = g.Select(p => p.UserId).Distinct().Count() // Number of distinct people
+                })
+                .OrderByDescending(p => p.Price)
+                .ToListAsync();
+
+            // Offers are sorted Lowest to Highest
+            var offerPrices = await ladderBaseQuery
+                .Where(p => p.PositionTypeId == 6002)
+                .GroupBy(p => p.UnitPrice)
+                .Select(g => new PricePointDto
+                {
+                    Price = g.Key,
+                    Count = g.Select(p => p.UserId).Distinct().Count() // Number of distinct people
+                })
+                .OrderBy(p => p.Price)
+                .ToListAsync();
+
             // 3. Compose Response
             return DtoManager.Succeed(new PositionListingResponseDto
             {
                 CommodityTypeName = categoryInfo.TypeName,
                 PositionTypeName = positionTypeName,
-                CommodityNames = categoryInfo.AllCommodities, // All items for the filter UI
-                Listings = listings, // Filtered result set
+                CommodityNames = categoryInfo.AllCommodities,
+                Listings = listings,
                 UnitPrice = command.UnitPrice,
-                LotSize = commodityRefs != null ? $"{commodityRefs.LotSize}{commodityRefs.UnitOfMeasureCodeEnglish}" : "N/A",
+                LotSize = $"{ls}",
+                ShelfLife = shelfLife != null ? $"{shelfLife} Days" : "---",
+
+                // ADD THE NEW LISTS HERE
+                BidPrices = bidPrices,
+                OfferPrices = offerPrices,
+
                 Status = "Data Retrieved"
             });
+
+       
         }
         catch (Exception ex)
         {
@@ -374,14 +551,14 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
         };
     }
 
-    public async Task<ActivityGroupDto> GetActivityAsync(Guid id)
+    public async Task<ActivityGroupDto> GetActivityAsync(Guid userId)
     {
-        if (id == Guid.Empty)
-            throw new ArgumentException("USerId is required.");
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId is required.");
 
         var now = DateTime.UtcNow;
 
-        var positions = await _context.Positions.AsNoTracking().Where(p => p.UserId == id).Include(p => p.Commodity)
+        var positions = await _context.Positions.AsNoTracking().Where(p => p.UserId == userId).Include(p => p.Commodity)
             .ThenInclude(c => c.UnitOfMeasure).OrderByDescending(p => p.Date).ToListAsync();
 
         if (!positions.Any()) return new ActivityGroupDto();
@@ -397,6 +574,11 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
         var locationById = await _context.Locations.AsNoTracking().Where(l => allLocationIds.Contains(l.LocationId))
             .ToDictionaryAsync(l => l.LocationId);
+
+        var allRegionIds = locationById.Values.Select(l => l.RegionId).Distinct().ToList();
+
+        var regionNamesById = await _context.LookupData.AsNoTracking()
+            .Where(ld => allRegionIds.Contains(ld.LookupDataId)).ToDictionaryAsync(ld => ld.LookupDataId, ld => ld.LookupDataTextEnglish);
 
         var deliveryByPositionId = deliveryDetails.ToDictionary(dd => dd.PositionId);
         var bidTypeId = lookups.GetLookupId("Bid", POSITION_TYPE);
@@ -418,6 +600,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             return new ActivityResponseDto
             {
+                PositionId = p.PositionId,
                 CommodityId = p.CommodityId,
                 CommodityTypeId = p.Commodity?.CommodityTypeId ?? Guid.Empty,
                 CommodityName = p.Commodity?.CommodityName ?? string.Empty,
@@ -437,8 +620,8 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
                 CanDeliver = isDeliverable,
                 LeadTime = isDeliverable ? delivery?.LeadTimeInDays : null,
                 DeliveryFee = isDeliverable ? delivery?.Fee : null,
-                OriginRegion = originLocation != null ? _context.LookupData.Where(ld => ld.LookupDataId == originLocation.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault() : null,
-                DestinationRegion = destinationLocation != null ? _context.LookupData.Where(ld => ld.LookupDataId == destinationLocation.RegionId).Select(ld => ld.LookupDataTextEnglish).FirstOrDefault(): null,
+                OriginRegion = originLocation != null && regionNamesById.TryGetValue(originLocation.RegionId, out var orName) ? orName : null,
+                DestinationRegion = destinationLocation != null && regionNamesById.TryGetValue(destinationLocation.RegionId, out var drName) ? drName : null,
 
                 Origin = originLocation != null
                     ? new LocationCommand
@@ -463,12 +646,12 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
         var today = now.Date;
         var yesterday = today.AddDays(-1);
-        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday) % 7);
+        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
         var startOfWeek = today.AddDays(-diff);
         var startOfLastWeek = startOfWeek.AddDays(-7);
+        var endOfLastWeek = startOfWeek;
         var startOfMonth = new DateTime(today.Year, today.Month, 1);
         var startOfLastMonth = startOfMonth.AddMonths(-1);
-        var endOfThisMonth = startOfMonth.AddTicks(-1);
 
         return new ActivityGroupDto
         {
@@ -476,83 +659,79 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
 
             Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
 
-            ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek).ToList(),
+            ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt < yesterday).ToList(),
 
-            LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
+            LastWeek = data.Where(x => x.CreatedAt >= startOfLastWeek && x.CreatedAt < endOfLastWeek).ToList(),
 
-            ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
+            ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth && x.CreatedAt < startOfLastWeek).ToList(),
 
-            LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfThisMonth).ToList(),
+            LastMonth = data.Where(x => x.CreatedAt >= startOfLastMonth && x.CreatedAt < startOfMonth).ToList(),
 
         };
     }
 
+    public async Task<DeleteActivityResponseDto> DeleteActivityAsync(Guid positionId)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
-    // Activity position history for each user.
-    //public async Task<ActivityGroupDto> GetActivityAsync(Guid id)
-    //{
+        try
+        {
+            if (positionId == Guid.Empty)
+                throw new ArgumentException("PositionId is required.");
 
-    //    if (id == Guid.Empty)
-    //        throw new ArgumentException("UserId is required");
+            var position = await _context.Positions.FirstOrDefaultAsync(p => p.PositionId == positionId);
 
-    //    var now = DateTime.UtcNow;
+            if (position == null)
+                return DtoManager.Failed<DeleteActivityResponseDto>("Not Found", "Activity with PositionId not found.");
 
-    //    var positionHistory = _context.Positions.Where(p => p.UserId == id);
+            // Getting the delivery details of the position
+            var deliveryDetail = await _context.DeliveryDetails.FirstOrDefaultAsync(dd => dd.PositionId == positionId);
 
-    //    // Filter: Position type (SAFE using Lookup IDs) and get one position for 
-    //    //if(!string.IsNullOrEmpty(command.PositionType))
-    //    //{
-    //    //    int typeId = command.PositionType switch
-    //    //    {
-    //    //        "Bid" => lookups.GetLookupId("Bid", POSITION_TYPE),
-    //    //        "Offer" => lookups.GetLookupId("Offer", POSITION_TYPE),
-    //    //        _ => throw new ArgumentException($"Unknow PositionType: {command.PositionType}")
-    //    //    };
-    //    //positionHistory = positionHistory.Where(p => p.PositionTypeId == typeId);
+            if (deliveryDetail != null)
+            {
+                // Deleting the origin location
+                var origin =
+                    await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == deliveryDetail.OriginLocationId);
 
-    //    //}
+                if (origin != null)
+                    _context.Locations.Remove(origin);
 
-    //    var data = await positionHistory.Select(p => new ActivityResponseDto
-    //    {
-    //        CommodityName = p.Commodity.CommodityName,
-    //        Quantity = p.Quantity * (decimal)p.Commodity.LotSize,
-    //        UnitPrice = p.UnitPrice,
-    //        PositionType = p.PositionTypeId == lookups.GetLookupId("Bid", POSITION_TYPE) ? "Bid" : "Offer",
-    //        UnitOfMeasure = p.Commodity.UnitOfMeasure.UnitOfMeasureCodeEnglish,
-    //        LotSize = $"{p.Commodity.LotSize} {p.Commodity.UnitOfMeasure.UnitOfMeasureNameEnglish}",
-    //        State = now < p.StartDate ? "Pending" :
-    //                p.ExpiryDate >= now ? "Open" : "Close",
-    //        CreatedAt = p.Date
+                // Deleting the destination location (if it exists)
+                if (deliveryDetail.DestinationLocationId.HasValue)
+                {
+                    var destination = await _context.Locations.FirstOrDefaultAsync(l =>
+                        l.LocationId == deliveryDetail.DestinationLocationId.Value);
 
-    //    }).OrderByDescending(X => X.CreatedAt).ToListAsync();
+                    if (destination != null)
+                        _context.Locations.Remove(destination);
+                }
 
-    //    var today = now.Date;
-    //    var yesterday = today.AddDays(-1);
+                // Deleting delivery detail of the position
+                _context.DeliveryDetails.Remove(deliveryDetail);
+            }
 
-    //    int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday) % 7);
-    //    var startOfWeek = today.AddDays(-diff);
-    //    var startOfLastWeek = startOfWeek.AddDays(-7);
 
-    //    var startOfMonth = new DateTime(today.Year, today.Month, 1);
-    //    var startOfLastMonth = startOfMonth.AddMonths(-1);
-    //    var endOfThisMonth = startOfMonth.AddTicks(-1);
+            // Deleting the position entry
+            _context.Positions.Remove(position);
 
-    //    return new ActivityGroupDto
-    //    {
-    //        Today = data.Where(x => x.CreatedAt >= today).ToList(),
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
-    //        Yesterday = data.Where(x => x.CreatedAt >= yesterday && x.CreatedAt < today).ToList(),
+            return DtoManager.Succeed(new DeleteActivityResponseDto { Status = "Activity deleted successfully." });
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
 
-    //        ThisWeek = data.Where(x => x.CreatedAt >= startOfWeek).ToList(),
-
-    //        LastWeek = data.Where(x => x.CreatedAt < yesterday).ToList(),
-
-    //        ThisMonth = data.Where(x => x.CreatedAt >= startOfMonth).ToList(),
-
-    //        LastMonth = data.Where(x => x.CreatedAt <= startOfLastMonth && x.CreatedAt <= endOfThisMonth).ToList(),
-
-    //    };
-    //}
-
+    // FIX: Using DateTimeOffset instead of DateTime
+    private bool IsExpired(DateTimeOffset start, DateTimeOffset expiry, DateTimeOffset now)
+    {
+        var total = (expiry - start).TotalSeconds;
+        if (total <= 0) return false;
+        return ((now - start).TotalSeconds / total) >= 0.8;
+    }
 
 }

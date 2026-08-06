@@ -38,6 +38,11 @@
         ContentTemplate="{DataTemplate views:Login}"
         Route="Login"/>
 
+    <ShellContent
+        Title="Place Position"
+        ContentTemplate="{DataTemplate views:PositionDetail}"
+        Route="PlacePosition" />
+
     <TabBar>
         <Tab Title="Home" Icon="home.png" Route="Home">
             <ShellContent

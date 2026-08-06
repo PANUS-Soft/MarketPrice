@@ -4,13 +4,14 @@
              x:Class="MarketPrice.Ui.Views.Onboarding"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
              Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
              Title="Onboarding"
              BackgroundColor="{StaticResource Background}">
 
     <ContentPage.BindingContext>
         <viewModels:OnboardingViewModel />
     </ContentPage.BindingContext>
-
+    <ScrollView>
     <VerticalStackLayout>
         <Grid RowDefinitions="Auto,*,Auto,Auto"
               Padding="30"
@@ -21,7 +22,7 @@
                    FontSize="30"
                    FontFamily="RobotoSerifBold"
                    Padding="0,30,0,0"
-                   TextColor="{StaticResource Black}"
+                   TextColor="{StaticResource White}"
                    HorizontalTextAlignment="Center"/>
 
             <Image Grid.Row="1"
@@ -34,7 +35,7 @@
                    Text="Stop guessing. Access real-time, consolidated pricing data across local market, instantly."
                    FontFamily="RobotoSerifSemibold"
                    FontSize="16"
-                   TextColor="{StaticResource TextPrimary}"
+                   TextColor="{StaticResource White}"
                    
                    HorizontalTextAlignment="Center"/>
 
@@ -51,4 +52,5 @@
 
         </Grid>
     </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

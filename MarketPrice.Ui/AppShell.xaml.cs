@@ -19,6 +19,7 @@ namespace MarketPrice.Ui
             Routing.RegisterRoute(nameof(ChangePhoneNumberInput), typeof(ChangePhoneNumberInput));
             Routing.RegisterRoute(nameof(ChangeEmailAddressIntro), typeof(ChangeEmailAddressIntro));
             Routing.RegisterRoute(nameof(ChangeEmailAddressInput), typeof(ChangeEmailAddressInput));
+            Routing.RegisterRoute(nameof(Privacy), typeof(Privacy));
         }
     }
 }

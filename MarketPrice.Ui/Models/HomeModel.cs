@@ -49,6 +49,16 @@ namespace MarketPrice.Ui.Models
         [ObservableProperty] decimal nextOffer1;
         [ObservableProperty] decimal nextOffer2;
 
+        [ObservableProperty] string nextBid1Display = "-";
+        [ObservableProperty] string nextBid2Display = "-";
+
+        [ObservableProperty] string nextOffer1Display = "-";
+        [ObservableProperty] string nextOffer2Display = "-";
+
+
+        [ObservableProperty] string buyerCountDisplay = "x0 Buyer(s)";
+        [ObservableProperty] string sellerCountDisplay = "x0 Seller(s)";
+
         [ObservableProperty] bool _hasBid;
         [ObservableProperty] bool _hasOffer;
     }

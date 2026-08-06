@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
+using MarketPrice.Domain.Activity.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Position.DTOs;
 using MarketPrice.Ui.Common;
@@ -12,9 +13,11 @@ using MarketPrice.Ui.Extensions;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
 using MarketPrice.Domain.Reference.DTOs;
+using MarketPrice.Ui.Models;
 
 namespace MarketPrice.Ui.ViewModels
 {
+    [QueryProperty(nameof(ActivityToEdit), "ActivityToEdit")]
     [QueryProperty(nameof(PositionType), "PositionType")]
     public partial class PlacePositionViewModel : ObservableObject
     {
@@ -25,10 +28,29 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private PositionStep currentStep;
         [ObservableProperty] private PositionType positionType;
 
+        [ObservableProperty] private bool isEditMode;
+        [ObservableProperty] private Guid? editingPositionId;
+
+        private bool _isInitializing;
+        private Activity? _originalActivity;
+
         // Collections used to store reference data 
         public ObservableCollection<CommodityTypeDto> CommodityTypes { get; } = new();
         public ObservableCollection<CommodityDto> Commodities { get; } = new();
         public ObservableCollection<RegionDto> Regions { get; } = new();
+
+        // Properties used for receiving navigation parameters
+        private Activity? activityToEdit;
+
+        public Activity? ActivityToEdit
+        {
+            get => activityToEdit;
+            set
+            {
+                SetProperty(ref activityToEdit, value);
+                if (value != null) LoadFromActivity(value);
+            }
+        }
 
         // Properties used to bound data to the view
         [ObservableProperty] private CommodityTypeDto? selectedCommodityType;
@@ -45,13 +67,13 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private DateTime? effectiveStartDate;
         [ObservableProperty] private DateTime? endDate;
         [ObservableProperty] private string originTown;
-        [ObservableProperty] private string destinationTown;
-        [ObservableProperty] private string originStreet;
-        [ObservableProperty] private string destinationStreet;
+        [ObservableProperty] private string? destinationTown;
+        [ObservableProperty] private string? originStreet;
+        [ObservableProperty] private string? destinationStreet;
         [ObservableProperty] private string originQuarter;
-        [ObservableProperty] private string destinationQuarter;
-        [ObservableProperty] private decimal deliveryFee;
-        [ObservableProperty] private string leadTime;
+        [ObservableProperty] private string? destinationQuarter;
+        [ObservableProperty] private decimal? deliveryFee;
+        [ObservableProperty] private string? leadTime;
 
         // Properties for handling data validation
         [ObservableProperty] private string? commodityTypeError;
@@ -81,7 +103,10 @@ namespace MarketPrice.Ui.ViewModels
         public string? TotalQuantityDisplay => $"{TotalQuantity} {UnitOfMeasure}";
         public string? ShelfLifeInDaysDisplay => SelectedCommodity == null ? "" : $"Shelf Life: {ShelfLifeInDays} days";
         public string? LotSizeDisplay => SelectedCommodity == null ? "" : $"Lot Size: {LotSize} {UnitOfMeasure}";
-        public string? TotalValueDisplay => SelectedCommodity == null || UnitPrice <= 0 ? "" : PositionType == PositionType.Bid ? $"Total Bid Value: {UnitPrice * Quantity} FCFA" : $"Total Offer Value: {UnitPrice * Quantity} FCFA";
+
+        public string? TotalValueDisplay => SelectedCommodity == null || UnitPrice <= 0 ? "" :
+            PositionType == PositionType.Bid ? $"Total Bid Value: {UnitPrice * Quantity} FCFA" :
+            $"Total Offer Value: {UnitPrice * Quantity} FCFA";
 
         // Properties handling UI visibility (state indicators)
         public bool IsCommodityDetailsStep => CurrentStep == PositionStep.CommodityDetails;
@@ -90,19 +115,40 @@ namespace MarketPrice.Ui.ViewModels
         public bool IsBackTextVisible => CurrentStep >= PositionStep.PricingInformation;
         public string CurrentStepDisplay => CurrentStep.GetDisplayName();
         public bool IsOffer => PositionType == PositionType.Offer;
-        public bool IsCommodityTypeEditable => IsCommodityDetailsStep;
-        public bool IsCommodityEditable => SelectedCommodityType != null;
-        public bool IsStartDateTimeEnabled => !StartPositionImmediately;
-        public string PageTitle => PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer";
-        public string ContinueButtonText => CurrentStep == PositionStep.LogisticsInformation ? (PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer") : "Continue";
-        
+        public bool IsDeliverableBoxVisible => PositionType == PositionType.Offer || (IsEditMode && ActivityToEdit!.PositionType == PositionType.Offer);
+        public bool IsStartDateTimeVisible => IsEditMode || !StartPositionImmediately;
+        public bool IsCommodityTypeEditable => IsCommodityDetailsStep && !IsEditMode;
+        public bool IsCommodityEditable => SelectedCommodityType != null && !IsEditMode;
+        public bool IsStartDateTimeEnabled => !IsEditMode;
+        public bool IsStartPositionImmediatelyVisible => !IsEditMode;
+
+        public string PageTitle => IsEditMode && ActivityToEdit != null ? $"Edit {ActivityToEdit.PosType}" :
+            PositionType == PositionType.Bid ? "Place a Bid" : "Place an Offer";
+
+        public string ContinueButtonText => CurrentStep switch
+        {
+            PositionStep.LogisticsInformation when IsEditMode && activityToEdit!.PositionType == PositionType.Bid
+                => "Update Bid",
+
+            PositionStep.LogisticsInformation when IsEditMode && activityToEdit!.PositionType == PositionType.Offer
+                => "Update Offer",
+
+            PositionStep.LogisticsInformation when PositionType == PositionType.Bid
+                => "Place a Bid",
+
+            PositionStep.LogisticsInformation when PositionType == PositionType.Offer
+                => "Place an Offer",
+
+            _ => "Continue"
+        };
+
         private readonly Color _activeColor = Color.FromArgb("#0056A0");
         private readonly Color _inactiveColor = Color.FromArgb("#D1D5DB");
 
         public Color Step1Color => _activeColor;
         public Color Step2Color => CurrentStep >= PositionStep.PricingInformation ? _activeColor : _inactiveColor;
         public Color Step3Color => CurrentStep == PositionStep.LogisticsInformation ? _activeColor : _inactiveColor;
-        
+
         public PlacePositionViewModel(ReferenceDataApiService referenceDataApiService, SessionService sessionService, PositionApiService positionApiService)
         {
             CurrentStep = PositionStep.CommodityDetails;
@@ -116,6 +162,7 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(PageTitle));
             OnPropertyChanged(nameof(IsOffer));
             OnPropertyChanged(nameof(IsDeliverable));
+            OnPropertyChanged(nameof(IsEditMode));
         }
 
         partial void OnCurrentStepChanged(PositionStep value)
@@ -126,6 +173,7 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(IsBackTextVisible));
             OnPropertyChanged(nameof(CurrentStepDisplay));
             OnPropertyChanged(nameof(ContinueButtonText));
+            OnPropertyChanged(nameof(IsDeliverableBoxVisible));
             OnPropertyChanged(nameof(Step1Color));
             OnPropertyChanged(nameof(Step2Color));
             OnPropertyChanged(nameof(Step3Color));
@@ -173,7 +221,17 @@ namespace MarketPrice.Ui.ViewModels
                 bool isValid = ValidateLogistics();
                 if (!isValid) return;
 
-                if (PositionType == PositionType.Bid)
+                if (IsEditMode && activityToEdit!.PositionType == PositionType.Bid)
+                {
+                    await UpdateBidAsync();
+                }
+
+                else if (IsEditMode && activityToEdit!.PositionType == PositionType.Offer)
+                {
+                    await UpdateOfferAsync();
+                }
+
+                else if (PositionType == PositionType.Bid)
                 {
                     await CreateBidAsync();
                 }
@@ -206,6 +264,7 @@ namespace MarketPrice.Ui.ViewModels
             {
                 // Logic to load reference data for CommodityTypes and Regions
                 var commodityTypesResponse = await _referenceDataApi.GetCommodityTypesAsync();
+                var commoditiesResponse = await _referenceDataApi.GetCommoditiesAsync();
                 var regionsResponse = await _referenceDataApi.GetRegionsAsync();
 
                 if (commodityTypesResponse.IsSuccessStatusCode)
@@ -214,6 +273,14 @@ namespace MarketPrice.Ui.ViewModels
                     var commodityTypes = await commodityTypesResponse.Content.ReadFromJsonAsync<List<CommodityTypeDto>>();
                     if (commodityTypes != null)
                         foreach (var ct in commodityTypes) CommodityTypes.Add(ct);
+                }
+
+                if (commoditiesResponse.IsSuccessStatusCode)
+                {
+                    Commodities.Clear();
+                    var commodities = await commoditiesResponse.Content.ReadFromJsonAsync<List<CommodityDto>>();
+                    if (commodities != null)
+                        foreach (var c in commodities) Commodities.Add(c);
                 }
 
                 if (regionsResponse.IsSuccessStatusCode)
@@ -261,12 +328,13 @@ namespace MarketPrice.Ui.ViewModels
         partial void OnSelectedCommodityTypeChanged(CommodityTypeDto? value)
         {
             if (value != null) CommodityTypeError = null;
+
             SelectedCommodity = null;
             Commodities.Clear();
-            if (value == null)
-                return;
 
-            LoadCommoditiesByCommodityTypesCommand.Execute(value.Id);
+            if (value == null) return;
+
+            if (!_isInitializing) LoadCommoditiesByCommodityTypesCommand.Execute(value.Id);
 
             OnPropertyChanged(nameof(UnitOfMeasure));
             OnPropertyChanged(nameof(IsCommodityEditable));
@@ -281,6 +349,19 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(TotalQuantityDisplay));
             OnPropertyChanged(nameof(LotSizeDisplay));
             OnPropertyChanged(nameof(ShelfLifeInDaysDisplay));
+        }
+
+        partial void OnIsEditModeChanged(bool value)
+        {
+            OnPropertyChanged(nameof(PageTitle));
+            OnPropertyChanged(nameof(ContinueButtonText));
+            OnPropertyChanged(nameof(PositionType));
+            OnPropertyChanged(nameof(IsDeliverableBoxVisible));
+            OnPropertyChanged(nameof(IsCommodityEditable));
+            OnPropertyChanged(nameof(IsCommodityTypeEditable));
+            OnPropertyChanged(nameof(IsStartPositionImmediatelyVisible));
+            OnPropertyChanged(nameof(IsStartDateTimeEnabled));
+            OnPropertyChanged(nameof(IsStartDateTimeVisible));
         }
 
         partial void OnSelectedGradeChanged(string value)
@@ -308,12 +389,14 @@ namespace MarketPrice.Ui.ViewModels
                 StartDateError = null;
             }
             CombineDateError();
-            OnPropertyChanged(nameof(IsStartDateTimeEnabled));
+            OnPropertyChanged(nameof(IsStartDateTimeVisible));
         }
 
         partial void OnStartDateChanged(DateTime? value)
         {
-            if (StartPositionImmediately == false && value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
+            if (IsEditMode) StartDateError = null;
+
+            if (!IsEditMode && StartPositionImmediately == false && value <= DateTime.Now) StartDateError = "- Start date cannot be in the past. \n";
 
             if (StartPositionImmediately == false && value != null && value >= DateTime.Now) StartDateError = null;
             CombineDateError();
@@ -363,26 +446,26 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(DestinationDetailError));
         }
 
-        partial void OnDestinationTownChanged(string value)
+        partial void OnDestinationTownChanged(string? value)
         {
             if (!string.IsNullOrEmpty(value)) DestinationTownError = null;
             CombineDestinationDetailError();
             OnPropertyChanged(nameof(DestinationDetailError));
         }
 
-        partial void OnDestinationQuarterChanged(string value)
+        partial void OnDestinationQuarterChanged(string? value)
         {
             if (!string.IsNullOrEmpty(value)) DestinationQuarterError = null;
             CombineDestinationDetailError();
             OnPropertyChanged(nameof(DestinationDetailError));
         }
 
-        partial void OnDeliveryFeeChanged(decimal value)
+        partial void OnDeliveryFeeChanged(decimal? value)
         {
             if (value > 0) DeliveryFeeError = null;
         }
 
-        partial void OnLeadTimeChanged(string value)
+        partial void OnLeadTimeChanged(string? value)
         {
             if (!string.IsNullOrEmpty(value)) LeadTimeError = null;
         }
@@ -462,8 +545,8 @@ namespace MarketPrice.Ui.ViewModels
                 StartDateError = "- Start Date is required.\n";
                 isValid = false;
             }
-            
-            if (!StartPositionImmediately && StartDate < DateTime.Now)
+
+            if (!IsEditMode && !StartPositionImmediately && StartDate < DateTime.Now)
             {
                 StartDateError = "- Start of the position cannot be in the past.\n";
                 isValid = false;
@@ -554,7 +637,7 @@ namespace MarketPrice.Ui.ViewModels
                     DestinationDetailError += DestinationQuarterError;
                     isValid = false;
                 }
-                
+
                 if (DeliveryFee <= 0)
                 {
                     DeliveryFeeError = "Delivery Fee should be greater than 0";
@@ -571,6 +654,88 @@ namespace MarketPrice.Ui.ViewModels
             return isValid;
         }
 
+        // Method to prefill data in edit mode - to be called when editing an existing position (bid or offer)
+        public async Task LoadFromActivity(Activity activity)
+        {
+            _isInitializing = true;
+            _originalActivity = activity;
+
+            try
+            {
+                IsEditMode = true;
+                EditingPositionId = activity.ActivityResponse.PositionId;
+
+                await LoadReferenceDataAsync();
+
+                // Commodity details
+                SelectedCommodityType = CommodityTypes.FirstOrDefault(ct => ct.Id == activity.CommodityTypeId);
+
+                if (SelectedCommodityType != null)
+                {
+                    await LoadCommoditiesByCommodityTypesAsync(SelectedCommodityType.Id);
+
+                    SelectedCommodity = Commodities
+                        .FirstOrDefault(c => c.Id == activity.ActivityResponse.CommodityId);
+                }
+
+                //SelectedCommodity = Commodities.FirstOrDefault(c => c.Id == activity.CommodityId);
+                SelectedGrade = activity.ActivityResponse.Grade;
+                Quantity = activity.ActivityResponse.Quantity;
+                Description = activity.ActivityResponse.Description ?? "";
+
+                // Pricing and timing details
+                UnitPrice = activity.ActivityResponse.UnitPrice;
+                StartPositionImmediately = false;
+                StartDate = activity.ActivityResponse.StartDate.DateTime;
+                EndDate = activity.ActivityResponse.EndDate.DateTime;
+
+                // Logistics Details
+                SelectedOriginRegion = Regions.FirstOrDefault(r => r.Id == activity.Origin?.RegionId);
+                OriginTown = activity.Origin?.Town;
+                OriginQuarter = activity.Origin?.Quarter;
+                OriginStreet = activity.Origin?.Street;
+
+                //IsDeliverable = activity.IsDeliverable;
+
+                if (activity.ActivityResponse.CanDeliver)
+                {
+                    IsDeliverable = true;
+                    DeliveryFee = (decimal)activity.ActivityResponse.DeliveryFee;
+                    LeadTime = activity.LeadTime ?? "";
+                    SelectedDestinationRegion = Regions.FirstOrDefault(r => r.Id == activity.Destination?.RegionId);
+                    DestinationTown = activity.Destination?.Town ?? "";
+                    DestinationQuarter = activity.Destination?.Quarter ?? "";
+                    DestinationStreet = activity.Destination?.Street ?? "";
+                }
+
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
+
+        // Logic to check if position fields were changed before updating
+        private bool HasChanges()
+        {
+            if (_originalActivity == null) return false;
+
+            return
+                Quantity != _originalActivity.ActivityResponse.Quantity ||
+                UnitPrice != _originalActivity.ActivityResponse.UnitPrice ||
+                SelectedGrade != _originalActivity.ActivityResponse.Grade ||
+                Description != _originalActivity.ActivityResponse.Description ||
+                EndDate != _originalActivity.ActivityResponse.EndDate ||
+                IsDeliverable != _originalActivity.ActivityResponse.CanDeliver ||
+                LeadTime != _originalActivity.ActivityResponse.LeadTime ||
+                SelectedOriginRegion?.Id != _originalActivity.ActivityResponse?.Origin?.RegionId ||
+                OriginTown != _originalActivity.ActivityResponse?.Origin?.Town ||
+                OriginQuarter != _originalActivity.ActivityResponse?.Origin?.Quarter ||
+                SelectedDestinationRegion?.Id != _originalActivity.ActivityResponse?.Destination?.RegionId ||
+                DestinationTown != _originalActivity.ActivityResponse?.Origin?.Town ||
+                DestinationQuarter != _originalActivity.ActivityResponse?.Origin?.Quarter;
+        }
+
         // Methods to create bids and offers
         private async Task CreateBidAsync()
         {
@@ -581,9 +746,9 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (isSessionValid) await _sessionService.GetCurrentSessionAsync();
                 else await _sessionService.TryRefreshTokenAsync();
-                
+
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new PositionCommand
+                var command = new CreatePositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -591,7 +756,7 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = (decimal)Quantity!,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!,
+                    StartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
                     Origin = new LocationCommand
                     {
@@ -602,7 +767,7 @@ namespace MarketPrice.Ui.ViewModels
                     }
                 };
 
-                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!;
+                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!;
 
                 string formattedStartDate = StartPositionImmediately ? "Now" : effectiveStartDate.ToString("g");
 
@@ -631,7 +796,8 @@ namespace MarketPrice.Ui.ViewModels
                         await Toast.Make("Bid placed successfully", ToastDuration.Long).Show();
                         await Shell.Current.GoToAsync("//Market");
                     }
-                } else
+                }
+                else
                 {
                     await Shell.Current.DisplayAlert("Bid Placement Failed", "There was an error while placing your bid. Please try later.", "OK");
                 }
@@ -653,7 +819,7 @@ namespace MarketPrice.Ui.ViewModels
                 else await _sessionService.TryRefreshTokenAsync();
 
                 var userSession = await _sessionService.GetCurrentSessionAsync();
-                var command = new PositionCommand
+                var command = new CreatePositionCommand
                 {
                     UserId = userSession!.UserId,
                     CommodityId = SelectedCommodity!.Id,
@@ -661,7 +827,7 @@ namespace MarketPrice.Ui.ViewModels
                     Quantity = (decimal)Quantity!,
                     Grade = SelectedGrade,
                     Description = Description,
-                    StartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!,
+                    StartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!,
                     EndDate = (DateTime)EndDate!,
                     CanDeliver = IsDeliverable,
                     LeadTime = IsDeliverable ? LeadTime : null,
@@ -682,7 +848,7 @@ namespace MarketPrice.Ui.ViewModels
                     } : null,
                 };
 
-                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.Now : (DateTime)StartDate!;
+                DateTime effectiveStartDate = StartPositionImmediately ? DateTime.UtcNow : (DateTime)StartDate!;
 
                 string formattedStartDate = StartPositionImmediately ? "Now" : effectiveStartDate.ToString("g");
 
@@ -720,7 +886,8 @@ namespace MarketPrice.Ui.ViewModels
                         await Toast.Make("Offer placed successfully", ToastDuration.Long).Show();
                         await Shell.Current.GoToAsync("//Market");
                     }
-                } else
+                }
+                else
                 {
                     await Shell.Current.DisplayAlert("Offer Placement Failed", "There was an error while placing your offer. Please try later.", "OK");
                 }
@@ -729,6 +896,166 @@ namespace MarketPrice.Ui.ViewModels
             {
                 await Shell.Current.DisplayAlert("Error", $"There was an error while placing your offer. {e.Message}", "OK");
             }
+        }
+
+
+        // Methods to update a position (Bid & Offer)
+        private async Task UpdateBidAsync()
+        {
+            try
+            {
+                var userSession = await _sessionService.GetCurrentSessionAsync();
+
+                if (!HasChanges())
+                {
+                    await Shell.Current.DisplayAlert("Error ⚠️", "No changes were made, so updates can not be made",
+                        "OK");
+
+                    return;
+                }
+
+                var command = new UpdatePositionCommand
+                {
+                    PositionId = EditingPositionId!.Value,
+                    UserId = userSession!.UserId,
+                    CommodityId = SelectedCommodity.Id,
+                    Grade = SelectedGrade,
+                    Quantity = Quantity,
+                    Description = Description,
+                    UnitPrice = UnitPrice,
+                    EndDate = (DateTime)EndDate,
+                    Origin = new LocationCommand
+                    {
+                        RegionId = SelectedOriginRegion.Id,
+                        Town = OriginTown,
+                        Quarter = OriginQuarter,
+                        Street = originStreet
+                    }
+                };
+
+                var message = $""""
+                               Commodity: {SelectedCommodity.Name}
+                               Total Quantity: {TotalQuantityDisplay}
+                               Unit Price: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
+                               {TotalValueDisplay}
+                               End date/time: {EndDate:g}
+                               Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
+                               """";
+
+                // Call to API to update a bid
+                var confirmBidUpdate = await Shell.Current.DisplayAlert("Confirm Bid Update", message, "Update Bid", "Cancel");
+
+                if (!confirmBidUpdate) return;
+
+                var response = await _positionApi.UpdateBidAsync(command);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<UpdatePositionResponseDto>();
+                    if (dto != null)
+                    {
+                        await Toast.Make(dto.Status!, ToastDuration.Long).Show();
+                        await Shell.Current.GoToAsync("//Activity");
+                    }
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Bid Update Failed", "There was an error while updating your bid. Please try later.", "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", e.Message, "OK");
+            }
+        }
+
+        private async Task UpdateOfferAsync()
+        {
+            try
+            {
+                var userSession = await _sessionService.GetCurrentSessionAsync();
+
+                if (!HasChanges())
+                {
+                    await Shell.Current.DisplayAlert("Error ⚠️", "No changes were made, so updates can not be made",
+                        "OK");
+
+                    return;
+                }
+
+                var command = new UpdatePositionCommand
+                {
+                    PositionId = EditingPositionId!.Value,
+                    UserId = userSession!.UserId,
+                    CommodityId = SelectedCommodity.Id,
+                    Grade = SelectedGrade,
+                    Quantity = Quantity,
+                    Description = Description,
+                    UnitPrice = UnitPrice,
+                    EndDate = (DateTime)EndDate,
+                    CanDeliver = IsDeliverable,
+                    LeadTime = IsDeliverable ? LeadTime : null,
+                    DeliveryFee = IsDeliverable ? DeliveryFee : null,
+                    Origin = new LocationCommand
+                    {
+                        RegionId = SelectedOriginRegion!.Id,
+                        Town = OriginTown,
+                        Quarter = OriginQuarter,
+                        Street = OriginStreet
+                    },
+                    Destination = IsDeliverable ? new LocationCommand
+                    {
+                        RegionId = SelectedDestinationRegion!.Id,
+                        Town = DestinationTown,
+                        Quarter = DestinationQuarter,
+                        Street = DestinationStreet
+                    } : null,
+                };
+
+                var message = $""""
+                               Commodity: {SelectedCommodity.Name}
+                               Total Quantity: {TotalQuantityDisplay}
+                               Unit Price: {(decimal)UnitPrice!} FCFA per {LotSize} {UnitOfMeasure}
+                               {TotalValueDisplay}
+                               End date/time: {EndDate:g}
+                               Origin: {SelectedOriginRegion.NameInEnglish}, {OriginTown}, {OriginQuarter}
+                               """";
+
+                var deliveryDetails = IsDeliverable ? $""""
+                                          Destination: {SelectedDestinationRegion!.NameInEnglish}, {DestinationTown}, {DestinationQuarter}
+                                          Delivery Fee: {DeliveryFee} FCFA
+                                          Lead Time: {LeadTime} days
+                                          """" : null;
+
+
+                if (IsDeliverable) message = message + "\n" + deliveryDetails;
+
+                // Call to API to update an offer
+                var confirmOfferUpdate = await Shell.Current.DisplayAlert("Confirm Offer Update", message, "Update Offer", "Cancel");
+
+                if (!confirmOfferUpdate) return;
+
+                var response = await _positionApi.UpdateOfferAsync(command);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var dto = await response.Content.ReadFromJsonAsync<UpdatePositionResponseDto>();
+                    if (dto != null)
+                    {
+                        await Toast.Make(dto.Status!, ToastDuration.Long).Show();
+                        await Shell.Current.GoToAsync("//Activity");
+                    }
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Offer Update Failed", "There was an error while updating your offer. Please try later.", "OK");
+                }
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert("Error", e.Message, "OK");
+            }
+
         }
     }
 

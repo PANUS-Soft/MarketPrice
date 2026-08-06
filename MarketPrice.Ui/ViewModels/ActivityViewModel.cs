@@ -10,8 +10,11 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using DevExpress.Maui.Controls;
 using MarketPrice.Domain.Activity.DTOs;
+using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
+using MarketPrice.Ui.Views;
+using Activity = MarketPrice.Ui.Models.Activity;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -26,11 +29,14 @@ namespace MarketPrice.Ui.ViewModels
         public ObservableCollection<string> CommodityTypesList { get; } =
             new(); // The list of commodity types that will serve for filtering
 
+        [ObservableProperty] private BottomSheetState _filterBottomSheetState = BottomSheetState.Hidden;
+
         [ObservableProperty] private string searchText;
         [ObservableProperty] private string selectedPositionType = "All";
         [ObservableProperty] private string selectedCommodityType = "ALL";
         [ObservableProperty] private Activity selectedItem;
         [ObservableProperty] private bool isLoading;
+        [ObservableProperty] private bool isDeleting;
         [ObservableProperty] private BottomSheetState _activityDetailsBottomSheetState = BottomSheetState.Hidden;
         [ObservableProperty] private Activity selectedActivityDetails;
 
@@ -46,6 +52,8 @@ namespace MarketPrice.Ui.ViewModels
 
             _ = InitializeAsync();
         }
+
+        public bool IsUserLoggedIn => _sessionService.IsLoggedIn;
 
         private async Task InitializeAsync()
         {
@@ -115,20 +123,22 @@ namespace MarketPrice.Ui.ViewModels
 
         private static Activity MapToUiModel(ActivityResponseDto dto) => new()
         {
+            ActivityResponse = dto,
+            PositionId = dto.PositionId,
             CommodityId = dto.CommodityId,
             CommodityTypeId = dto.CommodityTypeId,
             CommodityName = dto.CommodityName,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
             Date = dto.CreatedAt.DateTime,
-            Description = dto.Description! == string.Empty ? dto.Description! : "---",
-            OriginRegion = dto.OriginRegion!,
-            DestinationRegion = dto.DestinationRegion!,
+            Description = dto.Description,
+            OriginRegion = dto.OriginRegion,
+            DestinationRegion = dto.DestinationRegion,
             Origin = dto.Origin,
             Destination = dto.Destination,
             Grade = dto.Grade,
-            LeadTime = $"{dto.LeadTime!} Days",
-            DeliveryFee = $"{dto.DeliveryFee:N0} FCFA",
+            LeadTime = string.IsNullOrEmpty(dto.LeadTime) ? string.Empty : $"{dto.LeadTime} Days",
+            DeliveryFee = dto.DeliveryFee.HasValue ? $"{dto.DeliveryFee:N0} FCFA" : string.Empty,
             ShelfLifeInDays = dto.ShelfLifeInDays,
             IsDeliverable = dto.CanDeliver,
             Quantity = $"{dto.Quantity:N0}",
@@ -137,7 +147,8 @@ namespace MarketPrice.Ui.ViewModels
             TotalPrice = $"{(dto.Quantity * dto.UnitPrice):N0} FCFA",
             State = dto.State,
             StateColor = dto.State == "Open" ? Color.FromArgb("#2ECC71") : dto.State == "Close" ? Color.FromArgb("#E74C3C") : Color.FromArgb("#F39C12"),
-            PositionType = dto.PositionType,
+            PosType = dto.PositionType,
+            PositionType = dto.PositionType == "Bid" ? PositionType.Bid : PositionType.Offer,
             LotSize = $"{dto.LotSize} {dto.UnitOfMeasure}",
             UnitOfMeasure = dto.UnitOfMeasure,
         };
@@ -146,6 +157,8 @@ namespace MarketPrice.Ui.ViewModels
         partial void OnSelectedItemChanged(Activity value)
         {
             if (value == null) return;
+
+            FilterBottomSheetState = BottomSheetState.Hidden;
 
             SelectedActivityDetails = value;            
             ActivityDetailsBottomSheetState = BottomSheetState.HalfExpanded;
@@ -168,9 +181,29 @@ namespace MarketPrice.Ui.ViewModels
                 MainThread.BeginInvokeOnMainThread(() => { SelectedCommodityType = _lastCommodityType; });
                 return;
             }
-
             _lastCommodityType = value;
             ApplyFilters();
+        }
+
+        [RelayCommand]
+        private void ShowFilters()
+        {
+            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+            FilterBottomSheetState = BottomSheetState.HalfExpanded;
+        }
+
+        [RelayCommand]
+        private void ApplyFilterAndClose()
+        {
+            ApplyFilters();
+            FilterBottomSheetState = BottomSheetState.Hidden;
+        }
+
+        [RelayCommand]
+        private void ClearFilters()
+        {
+            SelectedPositionType = "All";
+            FilterBottomSheetState = BottomSheetState.Hidden;
         }
 
         [RelayCommand]
@@ -230,6 +263,18 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
+        private async Task NavigateToRegisterAsync()
+        {
+            await Shell.Current.GoToAsync("//Register");
+        }
+
+        [RelayCommand]
+        private async Task NavigateToLoginAsync()
+        {
+            await Shell.Current.GoToAsync("//Login");
+        }
+
+        [RelayCommand]
         private void GoToDetailsAsync(Activity selectedItem)
         {
             if (selectedItem == null) return;
@@ -240,13 +285,16 @@ namespace MarketPrice.Ui.ViewModels
         }
 
         [RelayCommand]
-        private async Task EditActivityAsync(Activity selectedItem)
+        private async Task EditActivityAsync(Activity selectedActivity)
         {
-            if (selectedItem == null) return;
+            if (selectedActivity == null) return;
+
+            await Shell.Current.GoToAsync(nameof(PlacePosition), new Dictionary<string, object>
+            {
+                { "ActivityToEdit", selectedActivity}
+            });
 
             ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
-
-            await Shell.Current.GoToAsync("EditPosition");
         }
 
         [RelayCommand]
@@ -254,18 +302,47 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (selectedItem == null) return;
 
-            ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+            var confirm = await Shell.Current.DisplayAlert(
+                "Confirm Deletion",
+                "Are you sure you want to delete this activity ? This action cannot be undone.",
+                "Confirm Delete",
+                "Cancel");
 
-            var confirm = await Shell.Current.DisplayAlert("Confirm Deletion",
-                $"Are you sure you want to delete the activity for {selectedItem.CommodityName}?",
-                "Yes", "No");
-            if (confirm)
+            if (!confirm) return;
+
+            try
             {
-                await Shell.Current.DisplayAlert("Infos ⚠️", "The activity was successfully deleted.", "OK");
+                IsDeleting = true;
+
+                var response = await _activityApiService.DeleteActivityAsync(selectedItem.PositionId);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Remove the deleted activity from the local collection and re-apply filters to update the UI
+                    var activity = _allActivities.FirstOrDefault(x => x.PositionId == selectedItem.PositionId);
+
+                    if (activity != null)
+                    {
+                        _allActivities.Remove(activity);
+                    }
+
+                    ApplyFilters();
+
+                    ActivityDetailsBottomSheetState = BottomSheetState.Hidden;
+                    await Shell.Current.DisplayAlert("Success ✅", "Activity deleted successfully.", "OK");
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error ⚠️", "Failed to delete the activity. Please try again.", "OK");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return;
+                await Shell.Current.DisplayAlert("Error ⚠️", e.Message, "OK");
+            }
+            finally
+            {
+                IsDeleting = false;
             }
         }
     }

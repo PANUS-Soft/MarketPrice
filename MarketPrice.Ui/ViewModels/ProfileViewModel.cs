@@ -74,8 +74,6 @@ namespace MarketPrice.Ui.ViewModels
         {
             MenuItems.Clear();
             MenuItems.Add(new ProfileMenuItem("Settings","Settings", "settings_icon.png", "General app preferences"));
-            MenuItems.Add(new ProfileMenuItem("My Position", "","position_icon.png", "Manage your location"));
-            MenuItems.Add(new ProfileMenuItem("Change Password", "ChangePassword", "lock_icon.png", "Make your account secure"));
             MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png", "Identity status", "NOT VERIFIED"));
         }
 

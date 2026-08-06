@@ -9,6 +9,7 @@ namespace MarketPrice.Domain.Activity.DTOs
 {
     public class ActivityResponseDto
     {
+        public Guid PositionId { get; set; }
         public Guid CommodityId { get; set; }
         public Guid CommodityTypeId { get; set; }
         public string CommodityName { get; set; }

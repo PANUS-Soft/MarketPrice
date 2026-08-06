@@ -14,13 +14,13 @@ namespace MarketPrice.Ui.Services.Api
             {
                 ApiControllers.ApplicationUsers.AppendRoute(ApiRoutes.AUTH),
                 ApiControllers.Home.AppendRoute(ApiRoutes.LOAD_HOME_DATA),
-                ApiControllers.Markets.AppendRoute(ApiRoutes.LOAD_MARKET_DATA),
+                ApiControllers.Markets.AppendRoute(ApiRoutes.GET_MARKET_OVERVIEW),
                 ApiControllers.ReferenceData.AppendRoute(ApiRoutes.REF_COMMODITY_TYPE),
                 ApiControllers.CommodityImages,
                 ApiControllers.CommodityTypeImages
             };
 
-            // if the request is targeting ao public route (endpoint), skip adding the token
+            // if the request is targeting a public route (endpoint), skip adding the token
             if (request.RequestUri != null && 
                 publicRoutes.Any(route => request.RequestUri.AbsolutePath.Contains(route, StringComparison.OrdinalIgnoreCase)))
             {

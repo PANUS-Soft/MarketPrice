@@ -32,16 +32,17 @@ public partial class Home : ContentPage
 
         try
         {
-            bool isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
-            if (!isSessionValid)
-            {
-                bool refreshed = await _sessionService.TryRefreshTokenAsync();
-                if (!refreshed)
-                {
-                    await Shell.Current.GoToAsync("//Welcome");
-                    return;
-                }
-            }
+            // This block of code is not necessary because this is a page to display open data (from a public route) hence no authentication is needed.
+            //bool isSessionValid = await _sessionService.ValidateAndRefreshSessionAsync();
+            //if (!isSessionValid)
+            //{
+            //    bool refreshed = await _sessionService.TryRefreshTokenAsync();
+            //    if (!refreshed)
+            //    {
+            //        await Shell.Current.GoToAsync("//Welcome");
+            //        return;
+            //    }
+            //}
 
             try { await _authenticationApiService.PingAsync(); }
             catch (Exception pingEx)

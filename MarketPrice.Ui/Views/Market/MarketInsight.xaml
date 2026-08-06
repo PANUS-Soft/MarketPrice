@@ -6,214 +6,217 @@
              xmlns:dto="clr-namespace:MarketPrice.Domain.Market.DTOs;assembly=MarketPrice.Domain"
              x:DataType="viewModels:MarketInsightViewModel"
              x:Class="MarketPrice.Ui.Views.MarketInsight"
+             BackgroundColor="{StaticResource Background}"
              Shell.TabBarIsVisible="False"
              Title="MarketInsight">
 
-    
-        
-        <Grid RowDefinitions="Auto, *, Auto" RowSpacing="0" Padding="0">
+    <Grid RowDefinitions="Auto, *, Auto" RowSpacing="0" Padding="0">
 
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="15,20,15,10" BackgroundColor="Transparent">
+            <ImageButton Grid.Column="0" 
+                         Source="back.png" 
+                         HeightRequest="24" 
+                         WidthRequest="24" 
+                         VerticalOptions="Center" 
+                         Command="{Binding BackCommand}" 
+                         BackgroundColor="Transparent"/>
 
-            <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto, Auto" Padding="15,10,15,10" BackgroundColor="white" VerticalOptions="Start" ColumnSpacing="10">
-                <ImageButton Grid.Column="0" Source="back.png" MaximumHeightRequest="22" MaximumWidthRequest="22" VerticalOptions="Center" Command="{Binding BackCommand}" BackgroundColor="Transparent"/>
+            <Label Grid.Column="1" 
+                   Text="{Binding CommodityName}" 
+                   FontAttributes="Bold"
+                   FontSize="20" 
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontFamily="RobotoSerifBold"/>
 
-                <HorizontalStackLayout Grid.Column="1">
-                    <Picker
-                        x:Name="CommodityPicker"
-                        ItemsSource="{Binding Commodities}"
-                        SelectedItem="{Binding SelectedMarketItemFilter}"
-                        ItemDisplayBinding="{Binding Name}"
-                        FontSize="20"
-                        Title="Select commodity"
-                        TitleColor="{StaticResource PrimaryBase}"
-                        HorizontalTextAlignment="Center"
-                        FontFamily="RobotoSerifMedium"/>
-                    <Image Source="dropdown_icon.png" HeightRequest="30" VerticalOptions="Center" Margin="0,5,0,0"/>
-                </HorizontalStackLayout>
+            <ImageButton Grid.Column="2" 
+                         Source="favourite_icon.png" 
+                         HeightRequest="30" 
+                         WidthRequest="30" 
+                         BackgroundColor="Transparent" 
+                         VerticalOptions="Center"/>
+        </Grid>
 
-            <ImageButton Grid.Column="3" Source="favourite_icon.png" MaximumHeightRequest="22" MaximumWidthRequest="22" BackgroundColor="Transparent" HorizontalOptions="Center"/>
-                <ImageButton Grid.Column="4" Source="bell_icon.png" MaximumHeightRequest="22" MaximumWidthRequest="22" BackgroundColor="Transparent" HorizontalOptions="End"/>
-            </Grid>
+        <ScrollView Grid.Row="1">
+            <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="20" Padding="15">
 
-            <ScrollView Grid.Row="1">
-                <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="20" Padding="15">
-                    <Grid Grid.Row="0" ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Border Grid.Column="0" StrokeThickness="1" StrokeShape="RoundRectangle 8">
-                            <Grid ColumnDefinitions="*,Auto" Padding="10">
-                                <VerticalStackLayout>
-                                    <Label Text="Bid" FontSize="14" FontFamily="RobotoSerifMedium"/>
-                                    <Label Text="{Binding BestBid}"  FontSize="18" FontFamily="RobotoSerifBold" TextColor="{StaticResource PrimaryBase}"/>
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
-                                    <Label Text="Max(24h)" FontSize="11" FontFamily="RobotoSerifRegular"/>
-                                    <Label Text="{Binding MaxBid24H, StringFormat='FCFA {0}'}" FontSize="11" FontFamily="RobotoSerifMedium"/>
-                                    <Label Text="Min(24h)" FontSize="11" FontFamily="RobotoSerifRegular" Margin="0,5,0,0"/>
-                                    <Label Text="{Binding MinBid24H, StringFormat='FCFA {0}'}" FontSize="11" FontFamily="RobotoSerifMedium"/>
-                                </VerticalStackLayout>
-                            </Grid>
-                        </Border>
+                <Border Grid.Row="0" 
+                        Stroke="#334155" 
+                        StrokeThickness="1" 
+                        BackgroundColor="#1E293B" 
+                        StrokeShape="RoundRectangle 12" 
+                        Padding="15,10">
+                    <Grid ColumnDefinitions="Auto, *, *, Auto" ColumnSpacing="5">
 
-                        <Border Grid.Column="1" StrokeThickness="1" StrokeShape="RoundRectangle 8">
-                            <Grid ColumnDefinitions="*,Auto" Padding="10">
-                                <VerticalStackLayout>
-                                    <Label Text="Offer" FontSize="14" FontFamily="RobotoSerifMedium"/>
-                                    <Label Text="{Binding BestOffer}" FontSize="18" FontFamily="RobotoSerifBold" TextColor="{StaticResource PrimaryBase}"/>
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
-                                    <Label Text="Max(24h)" FontSize="11" FontFamily="RobotoSerifRegular"/>
-                                    <Label Text="{Binding MaxOffer24H, StringFormat='FCFA {0}'}" FontSize="11" FontFamily="RobotoSerifMedium"/>
-                                    <Label Text="Min(24h)" FontSize="11" FontFamily="RobotoSerifRegular" Margin="0,5,0,0"/>
-                                    <Label Text="{Binding MinOffer24H, StringFormat='FCFA {0}'}" FontSize="11" FontFamily="RobotoSerifMedium"/>
-                                </VerticalStackLayout>
-                            </Grid>
-                        </Border>
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Max(24h)" FontSize="10" TextColor="#94A3B8" FontFamily="RobotoSerifRegular"/>
+                            <Label Text="{Binding MaxBid24H, StringFormat='CFA {0:N0}'}" FontSize="11" TextColor="White" FontFamily="RobotoSerifBold"/>
+                            <Label Text="Min(24h)" FontSize="10" TextColor="#94A3B8" FontFamily="RobotoSerifRegular" Margin="0,8,0,0"/>
+                            <Label Text="{Binding MinBid24H, StringFormat='CFA {0:N0}'}" FontSize="11" TextColor="White" FontFamily="RobotoSerifBold"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                            <Label Text="Bid" FontSize="14" TextColor="White" HorizontalOptions="Center" FontFamily="RobotoSerifMedium"/>
+                            <Border Stroke="White" StrokeThickness="1" BackgroundColor="Transparent" Padding="15,4" StrokeShape="RoundRectangle 4">
+                                <Label Text="{Binding BestBid, StringFormat='{0:N0}'}" FontSize="16" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+                            </Border>
+                            <Label Text="{Binding BidCount}" FontSize="12" TextColor="#94A3B8" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="4">
+                            <Label Text="Offer" FontSize="14" TextColor="White" HorizontalOptions="Center" FontFamily="RobotoSerifMedium"/>
+                            <Border Stroke="White" StrokeThickness="1" BackgroundColor="Transparent" Padding="15,4" StrokeShape="RoundRectangle 4">
+                                <Label Text="{Binding BestOffer, StringFormat='{0:N0}'}" FontSize="16" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontAttributes="Bold"/>
+                            </Border>
+                            <Label Text="{Binding OfferCount}" FontSize="12" TextColor="#94A3B8" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="3" VerticalOptions="Center" HorizontalOptions="End" Spacing="2">
+                            <Label Text="Max(24h)" FontSize="10" TextColor="#94A3B8" HorizontalOptions="End" FontFamily="RobotoSerifRegular"/>
+                            <Label Text="{Binding MaxOffer24H, StringFormat='CFA {0:N0}'}" FontSize="11" TextColor="White" HorizontalOptions="End" FontFamily="RobotoSerifBold"/>
+                            <Label Text="Min(24h)" FontSize="10" TextColor="#94A3B8" HorizontalOptions="End" FontFamily="RobotoSerifRegular" Margin="0,8,0,0"/>
+                            <Label Text="{Binding MinOffer24H, StringFormat='CFA {0:N0}'}" FontSize="11" TextColor="White" HorizontalOptions="End" FontFamily="RobotoSerifBold"/>
+                        </VerticalStackLayout>
+
                     </Grid>
+                </Border>
 
-                     <!-- UI controls to change the time range for the graph-->
-                <Grid RowDefinitions="Auto, Auto, *">
-                    <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="10">
-                        <Button Text="1D" Command="{Binding ChangeRangeCommand}" CommandParameter="1D"/>
-                        <Button Text="1W" Command="{Binding ChangeRangeCommand}" CommandParameter="1W"/>
-                        <Button Text="1M" Command="{Binding ChangeRangeCommand}" CommandParameter="1M"/>
-                        <Button Text="1Y" Command="{Binding ChangeRangeCommand}" CommandParameter="1Y"/>
-                    </HorizontalStackLayout>
-                    
-                    <!-- Loading-->
-                    <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" HorizontalOptions="Center"/>
-                    
-                    <!-- Chart-->
-                    <dxc:ChartView Grid.Row="2" HeightRequest="280">
+                <dxc:ChartView Grid.Row="1" HeightRequest="280" BackgroundColor="Transparent">
+                    <dxc:ChartView.Hint>
+                        <dxc:Hint ShowMode="OnTap">
+                            <dxc:Hint.Style>
+                                <dxc:HintStyle BackgroundColor="#1E293B"/>
+                            </dxc:Hint.Style>
+                        </dxc:Hint>
+                    </dxc:ChartView.Hint>
 
-                        <!--Enable Zooming on graph -->
-                        
-                        <dxc:ChartView.Hint>
-                            <dxc:Hint ShowMode="OnTap"/>
-                        </dxc:ChartView.Hint>
+                    <dxc:ChartView.Series>
+                        <dxc:LineSeries MarkersVisible="True" DisplayName="Bid">
+                            <dxc:LineSeries.Data>
+                                <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
+                                    <dxc:ValueDataMember Type="Value" Member="AvgBid"/>
+                                </dxc:SeriesDataAdapter>
+                            </dxc:LineSeries.Data>
+                            <dxc:LineSeries.Style>
+                                <dxc:LineSeriesStyle Stroke="#22C55E" StrokeThickness="2">
+                                    <dxc:LineSeriesStyle.MarkerStyle>
+                                        <dxc:MarkerStyle Fill="#22C55E"/>
+                                    </dxc:LineSeriesStyle.MarkerStyle>
+                                </dxc:LineSeriesStyle>
+                            </dxc:LineSeries.Style>
+                        </dxc:LineSeries>
 
-                        <dxc:ChartView.Series>
-                            
-                            <!--Bid-->
-                            <dxc:LineSeries MarkersVisible="False" DisplayName="Bid">
-                                <dxc:LineSeries.Data>
-                                    <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
-                                        <dxc:ValueDataMember Type="Value" Member="AvgBid"/>
-                                    </dxc:SeriesDataAdapter>
-                                </dxc:LineSeries.Data>
-                                <dxc:LineSeries.Style>
-                                    <dxc:LineSeriesStyle Stroke="#22C55E" StrokeThickness="2"/>
-                                </dxc:LineSeries.Style>
-                            </dxc:LineSeries>
+                        <dxc:LineSeries MarkersVisible="True" DisplayName="Offer">
+                            <dxc:LineSeries.Data>
+                                <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
+                                    <dxc:ValueDataMember Type="Value" Member="AvgOffer"/>
+                                </dxc:SeriesDataAdapter>
+                            </dxc:LineSeries.Data>
+                            <dxc:LineSeries.Style>
+                                <dxc:LineSeriesStyle Stroke="#3B82F6" StrokeThickness="2">
+                                    <dxc:LineSeriesStyle.MarkerStyle>
+                                        <dxc:MarkerStyle Fill="#3B82F6"/>
+                                    </dxc:LineSeriesStyle.MarkerStyle>
+                                </dxc:LineSeriesStyle>
+                            </dxc:LineSeries.Style>
+                        </dxc:LineSeries>
+                    </dxc:ChartView.Series>
 
-                            <!--Offer-->
-                                <dxc:LineSeries MarkersVisible="False" DisplayName="Offer">
-                                <dxc:LineSeries.Data>
-                                    <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
-                                        <dxc:ValueDataMember Type="Value" Member="AvgOffer"/>
-                                    </dxc:SeriesDataAdapter>
-                                </dxc:LineSeries.Data>
-                                <dxc:LineSeries.Style>
-                                    <dxc:LineSeriesStyle Stroke="#EF4444" StrokeThickness="2"/>
-                                </dxc:LineSeries.Style>
-                            </dxc:LineSeries>
-                        </dxc:ChartView.Series>
+                    <dxc:ChartView.AxisX>
+                        <dxc:DateTimeAxisX Visible="True">
+                            <dxc:DateTimeAxisX.Label>
+                                <dxc:AxisLabel TextFormat="dd MMM"/>
+                            </dxc:DateTimeAxisX.Label>
+                            <dxc:DateTimeAxisX.Style>
+                                <dxc:AxisStyle LineColor="#334155" LineThickness="1"/>
+                            </dxc:DateTimeAxisX.Style>
+                        </dxc:DateTimeAxisX>
+                    </dxc:ChartView.AxisX>
 
-                        <!--<dxc:ChartView.Series>
-                            <dxc:LineSeries MarkersVisible="True" DisplayName="Price Trend">
-                                <dxc:LineSeries.Data>
-                                    <dxc:SeriesDataAdapter DataSource="{Binding PriceHistory}" ArgumentDataMember="Timestamp">
-                                        <dxc:ValueDataMember Type="Value" Member="AvgBid"/>
-                                        <dxc:ValueDataMember Type="Value" Member="AvgOffer"/>
-                                    </dxc:SeriesDataAdapter>
-                                </dxc:LineSeries.Data>
-                                <dxc:LineSeries.Style>
-                                    <dxc:LineSeriesStyle Stroke="#4A90E2" StrokeThickness="2"/>
-                                </dxc:LineSeries.Style>
-                            </dxc:LineSeries>
-                        </dxc:ChartView.Series>-->
-                        
-                        <!-- X Axis -->
-                        <dxc:ChartView.AxisX>
-                            <dxc:DateTimeAxisX Visible="True">
-                                <dxc:DateTimeAxisX.Label>
-                                    <dxc:AxisLabel TextFormat="{Binding AxisFormat}"/>
-                                </dxc:DateTimeAxisX.Label>
-                            </dxc:DateTimeAxisX>
-                        </dxc:ChartView.AxisX>
-                        
-                        <!-- Y Axis -->
-                        <dxc:ChartView.AxisY>
-                            <dxc:NumericAxisY AlwaysShowZeroLevel="False">
-                            </dxc:NumericAxisY>
-                        </dxc:ChartView.AxisY>
+                    <dxc:ChartView.AxisY>
+                        <dxc:NumericAxisY AlwaysShowZeroLevel="False">
+                            <dxc:NumericAxisY.Label>
+                                <dxc:AxisLabel TextFormat="'N'0"/>
+                            </dxc:NumericAxisY.Label>
+                            <dxc:NumericAxisY.Style>
+                                <dxc:AxisStyle LineVisible="False" MajorGridlinesVisible="True" MajorGridlinesColor="#334155"/>
+                            </dxc:NumericAxisY.Style>
+                        </dxc:NumericAxisY>
+                    </dxc:ChartView.AxisY>
 
-                    </dxc:ChartView>
-                </Grid>
+                    <dxc:ChartView.Legend>
+                        <dxc:Legend VerticalPosition="Top" HorizontalPosition="Center" Orientation="LeftToRight"/>
+                    </dxc:ChartView.Legend>
+                </dxc:ChartView>
 
-                    <VerticalStackLayout Grid.Row="2" Spacing="8">
-                        <Label Text="Market Depth" FontSize="16" FontFamily="RobotoSerifMedium"/>
+                <VerticalStackLayout Grid.Row="2" Spacing="15" Margin="0,10,0,0">
 
-                        <Grid ColumnDefinitions="*,*" HeightRequest="25">
-                            <Label Grid.Column="0" Text="{Binding BidPercentage, StringFormat='{0} %'}" FontSize="12" TextColor="#22C55E" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="{Binding OfferPercentage, StringFormat='{0} %'}" FontSize="12" TextColor="#EF4444" HorizontalOptions="End" VerticalOptions="Center"/>
+                    <VerticalStackLayout Spacing="5">
+                        <Grid ColumnDefinitions="*,*">
+                            <Label Grid.Column="0" Text="{Binding BidPercentage, StringFormat='{0:F0}%'}" FontSize="12" TextColor="#22C55E" FontFamily="RobotoSerifMedium"/>
+                            <Label Grid.Column="1" Text="{Binding OfferPercentage, StringFormat='{0:F0}%'}" FontSize="12" TextColor="#3B82F6" HorizontalOptions="End" FontFamily="RobotoSerifMedium"/>
                         </Grid>
-
-                        <!--<Grid ColumnDefinitions="5*, 5*" HeightRequest="5">
-                            <BoxView Grid.Column="0" HeightRequest="4" Color="#22C55E" CornerRadius="2,0,0,2"/>
-                            <BoxView Grid.Column="1" HeightRequest="4" Color="#EF4444" CornerRadius="0,2,2,0"/>
-                        </Grid>-->
 
                         <Grid HeightRequest="5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="{Binding BidWidth}" />
-                                <ColumnDefinition Width="{Binding OfferWidth}" />
+                                <ColumnDefinition Width="{Binding BidWidth}"/>
+                                <ColumnDefinition Width="{Binding OfferWidth}"/>
                             </Grid.ColumnDefinitions>
 
                             <BoxView Grid.Column="0" Color="#22C55E"/>
-                            <BoxView Grid.Column="1" Color="#EF4444"/>
-                        </Grid>
-
-                        <Grid ColumnDefinitions="*,*" Margin="0,10,0,0">
-                            <Label Grid.Column="0" Text="Bid (FCFA)" FontFamily="RobotoSerifRegular" FontSize="14"/>
-                            <Label Grid.Column="1" Text="Offer (FCFA)" FontFamily="RobotoSerifRegular" FontSize="14" HorizontalOptions="End"/>
-                        </Grid>
-
-                        <Grid ColumnDefinitions="*,*">
-                            <CollectionView Grid.Column="0" ItemsSource="{Binding Bids}">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="dto:MarketDepthItemDto">
-                                    <Label Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#22C55E" HorizontalOptions="Start">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToBidPositionListingCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                            <CollectionView Grid.Column="1" ItemsSource="{Binding Offers}">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="dto:MarketDepthItemDto">
-                                    <Label Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#EF4444" HorizontalOptions="End">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToOfferPositionListingCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                            <BoxView Grid.Column="1" Color="#3B82F6"/>
                         </Grid>
                     </VerticalStackLayout>
-                </Grid>
-                
-            </ScrollView>
-            <Grid Grid.Row="2" ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10" BackgroundColor="White">
-                <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Place a Bid" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="10" Command="{Binding NavigateToPlaceBidCommand}"/>
-                <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Place an Offer" BackgroundColor="White" BorderColor="{StaticResource PrimaryBase}" BorderWidth="3" TextColor="{StaticResource PrimaryBase}" CornerRadius="10" Command="{Binding NavigateToPlaceOfferCommand}"/>
+
+                    <Grid ColumnDefinitions="25*, 25*, 25*, 25*" Padding="0,5">
+                        <Label Grid.Column="0" Text="Bidders" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold"/>
+                        <Label Grid.Column="1" Text="Amount" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold"/>
+                        <Label Grid.Column="2" Text="Offerors" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold" HorizontalOptions="Center"/>
+                        <Label Grid.Column="3" Text="Amount" FontSize="13" TextColor="White" FontFamily="RobotoSerifBold" HorizontalOptions="End"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="50*, 50*">
+                        <CollectionView Grid.Column="0" ItemsSource="{Binding Bids}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dto:MarketDepthItemDto">
+                                    <Grid ColumnDefinitions="50*, 50*">
+                                        <Label Grid.Column="0" Text="{Binding PositionCount}" TextColor="#22C55E" FontSize="12" Margin="0,5"/>
+                                        <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#22C55E" FontSize="12" Margin="0,5">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToBidPositionListingCommand}" 
+                        CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <CollectionView Grid.Column="1" ItemsSource="{Binding Offers}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dto:MarketDepthItemDto">
+                                    <Grid ColumnDefinitions="50*, 50*">
+                                        <Label Grid.Column="0" Text="{Binding PositionCount}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="Center" Margin="0,5"/>
+                                        <Label Grid.Column="1" Text="{Binding Price, StringFormat='{0:N0}'}" TextColor="#3B82F6" FontSize="12" HorizontalOptions="End" Margin="0,5">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:MarketInsightViewModel}}, Path=NavigateToOfferPositionListingCommand}" 
+                                                CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+                </VerticalStackLayout>
             </Grid>
+        </ScrollView>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10" BackgroundColor="{StaticResource Background}">
+            <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Place a Bid" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="10" Command="{Binding NavigateToPlaceBidCommand}"/>
+            <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Place an Offer" BackgroundColor="White" BorderColor="{StaticResource PrimaryBase}" BorderWidth="3" TextColor="{StaticResource PrimaryBase}" CornerRadius="10" Command="{Binding NavigateToPlaceOfferCommand}"/>
         </Grid>
-   
-    
+    </Grid>
+
 </ContentPage>

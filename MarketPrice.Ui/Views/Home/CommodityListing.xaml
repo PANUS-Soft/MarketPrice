@@ -9,6 +9,7 @@
              x:DataType="viewModels:CommodityListingViewModel"
              BackgroundColor="{StaticResource BgPage}"
              Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
              Title="CommodityListing">
 
     <ContentPage.Resources>
@@ -27,37 +28,24 @@
         <!--HEADER-->
         <Grid Grid.Row="0"
               BackgroundColor="{StaticResource BgHeader}"
-              Padding="16,48,16,14"
-              ColumnDefinitions="44,*,44">
+              Padding="16,10,16,14">
             
             <!-- Back arrow — plain -->
-            <Label Grid.Column="0"
-                   Text="←"
-                   TextColor="{StaticResource TextPrimary}"
-                   FontSize="18"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
-                </Label.GestureRecognizers>
-            </Label>
+
+            <ImageButton Source="back.png"
+                         BackgroundColor="Transparent"
+                         HeightRequest="22"
+                         HorizontalOptions="Start"
+                         WidthRequest="22"
+                         Command="{Binding GoBackCommand}"/>
+
 
             <!-- Category name -->
-            <Label Grid.Column="1"
-                   Text="{Binding GroupName}"
+            <Label Text="{Binding GroupName}"
                    TextColor="{StaticResource TextPrimary}"
                    FontSize="18"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Start"
-                   VerticalOptions="Center"
-                   Margin="4,0,0,0"/>
-
-            <Label Grid.Column="2"
-                   Text="🔍"
-                   TextColor="{StaticResource TextSecondary}"
-                   FontSize="16"
-                   HorizontalOptions="End"
-                   VerticalOptions="Center"/>
+                   FontFamily="RobotoSerifSemibold"
+                   HorizontalOptions="Center"/>
         </Grid>
 
         <!-- ── SUMMARY ROW ── -->
@@ -107,17 +95,17 @@
                                    TextColor="{StaticResource TextLabel}"
                                    FontSize="8" FontAttributes="Bold"
                                    CharacterSpacing="1.2"
-                                   Margin="10,9,0,5"
+                                   Margin="10,10,0,6"
                                    VerticalOptions="Center"/>
 
                             <Grid Grid.Row="0" Grid.Column="1"
                                   ColumnDefinitions="*,Auto"
-                                  Margin="4,9,4,5">
+                                  Margin="4,0,4,0"
+                                  HeightRequest="34">
                                 <Label Text="BID"
                                        TextColor="{StaticResource TextLabel}"
                                        FontSize="8" FontAttributes="Bold"
                                        CharacterSpacing="1.2"
-                                       Margin="4,9,4,5"
                                        VerticalOptions="Center"/>
                                 <!--<Label Grid.Column="1"
                                        Text="{Binding BestBidQuantity, StringFormat='x{0:N0}buyers'}"
@@ -126,12 +114,14 @@
                             </Grid>
 
                             <Grid Grid.Row="0" Grid.Column="2"
-                                  ColumnDefinitions="*,Auto"
-                                  Margin="4,9,10,5">
+                                  ColumnDefinitions="*"
+                                  Margin="4,0,10,0"
+                                  HeightRequest="34">
                                 <Label Text="OFFER"
                                        TextColor="{StaticResource TextLabel}"
                                        FontSize="8" FontAttributes="Bold"
-                                       CharacterSpacing="1.2"/>
+                                       CharacterSpacing="1.2"
+                                       VerticalOptions="Center"/>
                                 <!--     <Label Grid.Column="1"
                                             Text="{Binding BestOfferQuantity, StringFormat='x{0:N0}Sellers'}"
                                             TextColor="{StaticResource TextSecondary}"
@@ -178,11 +168,11 @@
                                      VerticalOptions="Start">
 
                                 <!-- Quantity above price box -->
-                                <Label Text="{Binding BestBidQuantity, StringFormat='×{0:N0} buyers'}"
-                                       TextColor="{StaticResource TextSecondary}"
-                                       FontSize="8"
-                                       HorizontalTextAlignment="Center"
-                                       IsVisible="{Binding HasBid}"/>
+                                <!--<Label Text="{Binding BestBidQuantity, StringFormat='×{0:N0} Person(s)'}"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           FontSize="8"
+                                           HorizontalTextAlignment="Center"
+                                           IsVisible="{Binding HasBid}"/>-->
                                 
                                 <Border BackgroundColor="{Binding ., Converter={StaticResource BidBgConverter}}"
                                         Stroke="{Binding ., Converter={StaticResource BidBorderConverter}}"
@@ -195,30 +185,37 @@
                                            FontSize="13" FontAttributes="Bold"
                                            HorizontalTextAlignment="Center"/>
                                 </Border>
-                                <Label Text="{Binding NextBid1, StringFormat='{0:N0}'}"
-                                       TextColor="{StaticResource AccentGreenDim}"
-                                       FontSize="10"
-                                       IsVisible="{Binding NextBid1, Converter={StaticResource NotZeroConverter}}"
+
+                                <!-- Buyer count — always visible -->
+                                <Label Text="{Binding BuyerCountDisplay}"
+                                       TextColor="{StaticResource TextMuted}"
+                                       FontSize="8"
                                        HorizontalTextAlignment="Center"/>
-                                <Label Text="{Binding NextBid2, StringFormat='{0:N0}'}"
-                                       TextColor="{StaticResource AccentGreenFaint}"
+
+                                <!-- Depth 1 — always visible -->
+                                <Label Text="{Binding NextBid1Display}"
+                                       TextColor="{StaticResource TextSecondary}"
                                        FontSize="10"
-                                       IsVisible="{Binding NextBid2, Converter={StaticResource NotZeroConverter}}"
+                                       HorizontalTextAlignment="Center"/>
+                                
+                                <Label Text="{Binding NextBid2Display}"
+                                       TextColor="{StaticResource TextMuted}"
+                                       FontSize="10"
                                        HorizontalTextAlignment="Center"/>
                             </VerticalStackLayout>
 
                             <!-- OFFER column -->
                             <VerticalStackLayout Grid.Row="1" Grid.Column="2"
                                          Margin="4,10,10,10"
-                                         Spacing="5"
+                                         Spacing="4"
                                          VerticalOptions="Start">
 
                                 <!-- Quantity above price box -->
-                                <Label Text="{Binding BestOfferQuantity, StringFormat='×{0:N0} sellers'}"
-                                       TextColor="{StaticResource TextSecondary}"
-                                       FontSize="8"
-                                       HorizontalTextAlignment="Center"
-                                       IsVisible="{Binding HasOffer}"/>
+                                <!--<Label Text="{Binding BestOfferQuantity, StringFormat='×{0:N0} Person(s)'}"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           FontSize="8"
+                                           HorizontalTextAlignment="Center"
+                                           IsVisible="{Binding HasOffer}"/>-->
 
                                 <Border BackgroundColor="{Binding ., Converter={StaticResource OfferBgConverter}}"
                                 Stroke="{Binding ., Converter={StaticResource OfferBorderConverter}}"
@@ -231,15 +228,23 @@
                                            FontSize="13" FontAttributes="Bold"
                                            HorizontalTextAlignment="Center"/>
                                 </Border>
-                                <Label Text="{Binding NextOffer1, StringFormat='{0:N0}'}"
-                                       TextColor="{StaticResource AccentRedDim}"
-                                       FontSize="10"
-                                       IsVisible="{Binding NextOffer1, Converter={StaticResource NotZeroConverter}}"
+                                
+                                <!-- Seller count — always visible -->
+                                <Label Text="{Binding SellerCountDisplay}"
+                                       TextColor="{StaticResource TextMuted}"
+                                       FontSize="8"
                                        HorizontalTextAlignment="Center"/>
-                                <Label Text="{Binding NextOffer2, StringFormat='{0:N0}'}"
-                                       TextColor="{StaticResource AccentRedFaint}"
+
+                                <!-- Depth 1 — always visible -->
+                                <Label Text="{Binding NextOffer1Display}"
+                                       TextColor="{StaticResource TextSecondary}"
                                        FontSize="10"
-                                       IsVisible="{Binding NextOffer2, Converter={StaticResource NotZeroConverter}}"
+                                       HorizontalTextAlignment="Center"/>
+
+                                <!-- Depth 2 — always visible -->
+                                <Label Text="{Binding NextOffer2Display}"
+                                       TextColor="{StaticResource TextMuted}"
+                                       FontSize="10"
                                        HorizontalTextAlignment="Center"/>
                             </VerticalStackLayout>
 
@@ -247,7 +252,7 @@
                             <BoxView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
                              HeightRequest="0.5" Color="{StaticResource BgChip}"/>
                             <Label Grid.Row="2" Grid.Column="0"
-                                   Text="LOCATION"
+                                   Text="REGION"
                                    TextColor="{StaticResource TextMuted}"
                                    FontSize="7" FontAttributes="Bold"
                                    CharacterSpacing="1"
@@ -258,13 +263,13 @@
                                    TextColor="{StaticResource TextSecondary}"
                                    FontSize="8"
                                    Margin="4,6,4,8"
-                                   VerticalOptions="Center"/>
+                                   HorizontalOptions="Center"/>
                             <Label Grid.Row="2" Grid.Column="2"
                                    Text="{Binding BestOfferLocation}"
                                    TextColor="{StaticResource TextSecondary}"
                                    FontSize="8"
                                    Margin="4,6,10,8"
-                                   VerticalOptions="Center"/>
+                                   HorizontalOptions="Center"/>
                         </Grid>
                     </Border>
                 </DataTemplate>
