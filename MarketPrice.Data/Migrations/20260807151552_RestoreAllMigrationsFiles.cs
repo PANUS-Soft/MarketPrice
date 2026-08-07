@@ -4,8 +4,10 @@
 
 namespace MarketPrice.Data.Migrations
 {
-    public partial class AddPreviousBestPriceColumns : Migration
+    /// <inheritdoc />
+    public partial class RestoreAllMigrationsFiles : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<decimal>(
@@ -27,6 +29,7 @@ namespace MarketPrice.Data.Migrations
                 defaultValue: 0m);
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

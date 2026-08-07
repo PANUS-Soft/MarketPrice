@@ -23,6 +23,7 @@ namespace MarketPrice.Ui.ViewModels
         private readonly ActivityApiService _activityApiService;
         private readonly SessionService _sessionService;
         private readonly ReferenceDataApiService _referenceDataApi;
+        private bool _isRefreshing;
 
         private List<ActivityResponseDto> _allActivities = new();
 
@@ -49,16 +50,39 @@ namespace MarketPrice.Ui.ViewModels
             _referenceDataApi = referenceDataApiService;
             _sessionService = sessionService;
             _activityApiService = activityApiService;
-
-            _ = InitializeAsync();
         }
 
         public bool IsUserLoggedIn => _sessionService.IsLoggedIn;
 
-        private async Task InitializeAsync()
+        public async Task RefreshAsync()
         {
-            await LoadCommodityTypesAsync();
-            await LoadUserActivityAsync();
+            OnPropertyChanged(nameof(IsUserLoggedIn));
+
+            if (!IsUserLoggedIn)
+            {
+                GroupedActivities.Clear();
+                return;
+            }
+
+            if (_isRefreshing) return;
+
+            try
+            {
+                _isRefreshing = true;
+                await LoadCommodityTypesAsync();
+                await LoadUserActivityAsync();
+            }
+            catch (Exception e)
+            {
+                await Shell.Current.DisplayAlert(
+                    "Error ⚠️",
+                    $"Failed to refresh activity: {e.Message}",
+                    "OK");
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
         }
 
         private async Task LoadCommodityTypesAsync()
@@ -265,13 +289,19 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToRegisterAsync()
         {
+            _sessionService.SavePendingNavigation(new PendingNavigation
+            {
+                Route = "//Activity"
+            });
+
             await Shell.Current.GoToAsync("//Register");
         }
 
         [RelayCommand]
         private async Task NavigateToLoginAsync()
         {
-            await Shell.Current.GoToAsync("//Login");
+            var destination = AuthenticationNavigation.CurrentRouteOr("//Activity");
+            await AuthenticationNavigation.NavigateToLoginAsync(destination);
         }
 
         [RelayCommand]

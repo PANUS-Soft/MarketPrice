@@ -179,6 +179,7 @@ namespace MarketPrice.Ui.ViewModels
                         {
                             MarketItemFilter = new MarketItemFilter
                             {
+                                CommodityTypeId = item.CommodityTypeId,
                                 CommodityId = item.CommodityId,
                                 Name = item.CommodityName
                             },
@@ -288,6 +289,7 @@ namespace MarketPrice.Ui.ViewModels
             if (selectedItemFilter == null)
             {
                 await Shell.Current.DisplayAlert("Error ⚠️", "No Market Item Filter passed for navigation", "OK");
+                return;
             }
 
             bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
@@ -300,11 +302,11 @@ namespace MarketPrice.Ui.ViewModels
 
                 _sessionService.SavePendingNavigation(new PendingNavigation
                 {
-                    Route = "MarketInsight",
+                    Route = "//Market/MarketInsight",
                     MarketItemFilter = selectedItemFilter
                 });
 
-                await Shell.Current.GoToAsync("//Welcome");
+                await AuthenticationNavigation.NavigateToWelcomeAsync("//Market/MarketInsight");
             }
             else
             {
@@ -321,6 +323,15 @@ namespace MarketPrice.Ui.ViewModels
             if (item == null)
                 return;
 
+            var args = new PositionListingCommand
+            {
+                CommodityTypeId = item.MarketItemFilter.CommodityTypeId,
+                CommodityId = item.CommodityId,
+                PositionTypeId = IsBidHighlighted ? 6001 : 6002,
+                UnitPrice = item.CurrentPrice,
+                CommodityName = item.Name,
+            };
+
             bool accessAllowed = await _sessionService.EnsureUserAccessAsync();
 
             if (!accessAllowed)
@@ -331,21 +342,19 @@ namespace MarketPrice.Ui.ViewModels
 
                 _sessionService.SavePendingNavigation(new PendingNavigation
                 {
-                    Route = "PositionListing"
+                    Route = "//Market/PositionListing",
+                    PositionListingCommand = args,
+                    PassedImageLocation = AuthenticationNavigation.GetImageLocation(item.ImageSource),
+                    PassedCommodityName = item.Name,
+                    PassedLotSize = item.LotSizeDisplay,
+                    PassedBid = IsBidHighlighted ? item.CurrentPrice.ToString("N0") : "-",
+                    PassedOffer = IsOfferHighlighted ? item.CurrentPrice.ToString("N0") : "-"
                 });
 
-                await Shell.Current.GoToAsync("//Welcome");
+                await AuthenticationNavigation.NavigateToWelcomeAsync("//Market/PositionListing");
             }
             else
             {
-                var args = new PositionListingCommand
-                {
-                    CommodityId = item.CommodityId,
-                    PositionTypeId = IsBidHighlighted ? 6001 : 6002,
-                    UnitPrice = item.CurrentPrice,
-                    CommodityName = item.Name,
-                };
-
                 await Shell.Current.GoToAsync(
                     "PositionListing",
                     new Dictionary<string, object>

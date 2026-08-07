@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MarketPrice.Domain.Authentication.Commands;
 using MarketPrice.Domain.Authentication.DTOs;
+using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Models;
 using MarketPrice.Ui.Services.Api;
 using MarketPrice.Ui.Services.Session;
@@ -14,13 +15,28 @@ namespace MarketPrice.Ui.ViewModels
     public partial class LoginViewModel(
         AuthenticationApiService authenticationApi,
         SessionService sessionService)
-        : ObservableObject
+        : ObservableObject, IQueryAttributable
     {
+        private string? _redirectTo;
+
         public LoginInformation LoginInfo { get; } = new();
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            _redirectTo = AuthenticationNavigation.ReadDestination(query);
+        }
 
         [RelayCommand]
         private async Task NavigateToRegisterAsync()
         {
+            if (_redirectTo != null && sessionService.GetPendingNavigation() == null)
+            {
+                sessionService.SavePendingNavigation(new PendingNavigation
+                {
+                    Route = _redirectTo
+                });
+            }
+
             await Shell.Current.GoToAsync("//Register");
         }
 
@@ -64,9 +80,25 @@ namespace MarketPrice.Ui.ViewModels
                         await sessionService.StartSessionAsync(dto);
                         await Toast.Make($"Welcome back, {dto.FirstName} 👋", ToastDuration.Long).Show();
 
-                        var pendingNavigation = sessionService.GetPendingNavigation();
+                        var redirectRoute = GetRedirectRoute();
+                        _redirectTo = null;
 
-                        if (pendingNavigation != null)
+                        if (redirectRoute != null)
+                        {
+                            var restored = await sessionService
+                                .RestorePendingNavigationAsync(redirectRoute);
+
+                            if (!restored)
+                            {
+                                sessionService.ClearPendingNavigation();
+
+                                if (AuthenticationNavigation.RequiresPendingState(redirectRoute))
+                                    await Shell.Current.GoToAsync("//Home");
+                                else
+                                    await Shell.Current.GoToAsync(redirectRoute);
+                            }
+                        }
+                        else if (sessionService.GetPendingNavigation() != null)
                         {
                             await sessionService.RestorePendingNavigationAsync();
                         }
@@ -86,6 +118,11 @@ namespace MarketPrice.Ui.ViewModels
             {
                 await Shell.Current.DisplayAlert("Error", $"{e.Message}", "OK");
             }
+        }
+
+        private string? GetRedirectRoute()
+        {
+            return AuthenticationNavigation.ValidateDestination(_redirectTo);
         }
     }
 }

@@ -301,6 +301,7 @@ namespace MarketPrice.Services.Implementations
                 select new
                 {
                     c.CommodityId,
+                    c.CommodityTypeId,
                     c.CommodityName,
                     c.LotSize,
                     ImageFileName = ci != null ? ci.FileName : null,
@@ -333,6 +334,7 @@ namespace MarketPrice.Services.Implementations
                 marketData.Add(new MarketCommodityDto
                 {
                     CommodityId = item.CommodityId,
+                    CommodityTypeId = item.CommodityTypeId,
                     CommodityName = item.CommodityName,
                     LotSizeDisplay = $"{item.LotSize} {item.UomCode}",
                     CurrentPrice = item.CurrentBestPrice,

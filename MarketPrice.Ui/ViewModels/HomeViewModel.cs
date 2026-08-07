@@ -266,18 +266,7 @@ namespace MarketPrice.Ui.ViewModels
         private async Task NavigateToBidPositionListing(CommodityDisplayModel item)
         {
             if (item.BestBidPrice == 0) return;
-
-            var args = new PositionListingCommand
-            {
-                CommodityTypeId = item.CommodityId,
-                UnitPrice = item.BestBidPrice,
-                PositionTypeId = 6001
-            };
-
-            await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
-            {
-                { "Args", args }
-            });
+            await NavigateToPositionListingAsync(item, isBid: true);
         }
 
         [RelayCommand]
@@ -285,16 +274,59 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (item.BestOfferPrice == 0) return;
 
+            await NavigateToPositionListingAsync(item, isBid: false);
+        }
+
+        private async Task NavigateToPositionListingAsync(
+            CommodityDisplayModel item,
+            bool isBid)
+        {
+            var price = isBid ? item.BestBidPrice : item.BestOfferPrice;
+
             var args = new PositionListingCommand
             {
-                CommodityTypeId = item.CommodityId,
-                UnitPrice = item.BestOfferPrice,
-                PositionTypeId = 6002
+                CommodityTypeId = item.CommodityTypeId,
+                CommodityId = item.CommodityId,
+                CommodityName = item.Name,
+                UnitPrice = price,
+                PositionTypeId = isBid ? 6001 : 6002
             };
+
+            var accessAllowed = await sessionService.EnsureUserAccessAsync();
+
+            if (!accessAllowed)
+            {
+                var continueToAuthentication = await Shell.Current.DisplayAlert(
+                    "Access Required",
+                    "You need an account to view individual market positions.",
+                    "Register or Login",
+                    "Cancel");
+
+                if (!continueToAuthentication) return;
+
+                sessionService.SavePendingNavigation(new PendingNavigation
+                {
+                    Route = "//Home/PositionListing",
+                    PositionListingCommand = args,
+                    PassedImageLocation = AuthenticationNavigation.GetImageLocation(item.ImageUrl),
+                    PassedCommodityName = item.Name,
+                    PassedLotSize = item.LotSizeDisplay,
+                    PassedBid = isBid ? price.ToString("N0") : "-",
+                    PassedOffer = isBid ? "-" : price.ToString("N0")
+                });
+
+                await AuthenticationNavigation.NavigateToWelcomeAsync("//Home/PositionListing");
+                return;
+            }
 
             await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
             {
-                { "Args", args }
+                { "Args", args },
+                { "PassedImage", item.ImageUrl },
+                { "PassedCommodityName", item.Name },
+                { "PassedLotSize", item.LotSizeDisplay },
+                { "PassedBid", isBid ? price.ToString("N0") : "-" },
+                { "PassedOffer", isBid ? "-" : price.ToString("N0") }
             });
         }
     }

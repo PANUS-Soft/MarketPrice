@@ -14,6 +14,6 @@ public partial class Profile : ContentPage
     {
         base.OnAppearing();
 
-        if (BindingContext is ProfileViewModel profileViewModel) await profileViewModel.InitializeAsync();
+        if (BindingContext is ProfileViewModel profileViewModel) await profileViewModel.RefreshAsync();
     }
 }

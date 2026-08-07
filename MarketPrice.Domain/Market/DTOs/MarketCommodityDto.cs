@@ -3,6 +3,7 @@
     public class MarketCommodityDto
     {
         public Guid CommodityId { get; set; }
+        public Guid CommodityTypeId { get; set; }
         public string CommodityName { get; set; } = string.Empty;
         public string LotSizeDisplay { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }

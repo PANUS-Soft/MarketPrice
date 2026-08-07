@@ -23,6 +23,7 @@ namespace MarketPrice.Ui.Models
         [ObservableProperty] string _nextOffer2Location = string.Empty;
 
 
+        [ObservableProperty] Guid commodityTypeId;
         [ObservableProperty] Guid commodityId;
         [ObservableProperty] string name = string.Empty;
         [ObservableProperty] ImageSource? imageUrl;

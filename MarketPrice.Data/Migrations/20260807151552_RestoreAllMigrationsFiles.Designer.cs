@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketPrice.Data.Migrations
 {
     [DbContext(typeof(MarketPriceDbContext))]
-    [Migration("20260611095137_InitialBaseline")]
-    partial class InitialBaseline
+    [Migration("20260807151552_RestoreAllMigrationsFiles")]
+    partial class RestoreAllMigrationsFiles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

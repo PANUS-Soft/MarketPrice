@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Net.Http.Json;
 using CommunityToolkit.Maui.Alerts;
 using MarketPrice.Domain.Profile.DTOs;
+using MarketPrice.Ui.Common;
+using MarketPrice.Ui.Models;
 
 namespace MarketPrice.Ui.ViewModels
 {
@@ -70,6 +72,19 @@ namespace MarketPrice.Ui.ViewModels
             LoadProfileComponentAsync();
         }
 
+        public async Task RefreshAsync()
+        {
+            OnPropertyChanged(nameof(IsUserLoggedIn));
+
+            if (!IsUserLoggedIn)
+            {
+                MenuItems.Clear();
+                return;
+            }
+
+            await InitializeAsync();
+        }
+
         private void LoadProfileComponentAsync()
         {
             MenuItems.Clear();
@@ -83,13 +98,19 @@ namespace MarketPrice.Ui.ViewModels
         [RelayCommand]
         private async Task NavigateToRegisterAsync()
         {
+            _sessionService.SavePendingNavigation(new PendingNavigation
+            {
+                Route = "//Profile"
+            });
+
             await Shell.Current.GoToAsync("//Register");
         }
 
         [RelayCommand]
         private async Task NavigateToLoginAsync()
         {
-            await Shell.Current.GoToAsync("//Login");
+            var destination = AuthenticationNavigation.CurrentRouteOr("//Profile");
+            await AuthenticationNavigation.NavigateToLoginAsync(destination);
         }
 
         [RelayCommand]

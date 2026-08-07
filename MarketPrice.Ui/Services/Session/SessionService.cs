@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using MarketPrice.Domain.Authentication;
 using MarketPrice.Domain.Authentication.Commands;
+using MarketPrice.Ui.Common;
 using MarketPrice.Ui.Extensions;
 
 namespace MarketPrice.Ui.Services.Session
@@ -184,13 +185,7 @@ namespace MarketPrice.Ui.Services.Session
 
         public void SavePendingNavigation(PendingNavigation navigation)
         {
-            var pendingNavigation = new PendingNavigation
-            {
-                Route = navigation.Route,
-                MarketItemFilter= navigation.MarketItemFilter
-            };
-
-            var json = JsonSerializer.Serialize(pendingNavigation);
+            var json = JsonSerializer.Serialize(navigation);
 
             Preferences.Set(PendingNavigationKey, json);
         }
@@ -209,27 +204,83 @@ namespace MarketPrice.Ui.Services.Session
             Preferences.Remove(PendingNavigationKey);
         }
 
-        public async Task RestorePendingNavigationAsync()
+        public async Task<bool> RestorePendingNavigationAsync(string? expectedDestination = null)
         {
             var pendingNavigation = GetPendingNavigation();
 
-            if (pendingNavigation == null) return;
+            if (pendingNavigation == null) return false;
+
+            var destination = GetPendingDestination(pendingNavigation.Route);
+            if (destination == null) return false;
+
+            if (expectedDestination != null &&
+                !AuthenticationNavigation.IsSameDestination(destination, expectedDestination))
+                return false;
+
+            switch (destination)
+            {
+                case "//Activity":
+                case "//Profile":
+                    await Shell.Current.GoToAsync(destination);
+                    break;
+
+                case "//Market/MarketInsight" when pendingNavigation.MarketItemFilter != null:
+                    await Shell.Current.GoToAsync(destination, new Dictionary<string, object>
+                    {
+                        { "SelectedMarketItemFilter", pendingNavigation.MarketItemFilter }
+                    });
+                    break;
+
+                case "//Market/PositionListing":
+                case "//Home/PositionListing":
+                    if (pendingNavigation.PositionListingCommand == null) return false;
+
+                    var parameters = new Dictionary<string, object>
+                    {
+                        { "Args", pendingNavigation.PositionListingCommand }
+                    };
+
+                    AddParameter(parameters, "PassedCommodityName", pendingNavigation.PassedCommodityName);
+                    AddParameter(parameters, "PassedLotSize", pendingNavigation.PassedLotSize);
+                    AddParameter(parameters, "PassedBid", pendingNavigation.PassedBid);
+                    AddParameter(parameters, "PassedOffer", pendingNavigation.PassedOffer);
+
+                    if (!string.IsNullOrWhiteSpace(pendingNavigation.PassedImageLocation))
+                    {
+                        var imageSource = Uri.TryCreate(
+                            pendingNavigation.PassedImageLocation,
+                            UriKind.Absolute,
+                            out var imageUri)
+                            ? ImageSource.FromUri(imageUri)
+                            : ImageSource.FromFile(pendingNavigation.PassedImageLocation);
+
+                        parameters["PassedImage"] = imageSource;
+                    }
+
+                    await Shell.Current.GoToAsync(destination, parameters);
+                    break;
+
+                default:
+                    return false;
+            }
 
             ClearPendingNavigation();
+            return true;
+        }
 
-            switch (pendingNavigation.Route)
-            {
-                case "MarketInsight":
-                    await Shell.Current.GoToAsync("//Market/MarketInsight", new Dictionary<string, object>
-                    {
-                        {
-                            "SelectedMarketItemFilter",
-                            pendingNavigation.MarketItemFilter
-                        }
-                    });
+        private static string? GetPendingDestination(string route) => route switch
+        {
+            "MarketInsight" => "//Market/MarketInsight",
+            "PositionListing" => "//Market/PositionListing",
+            _ => AuthenticationNavigation.ValidateDestination(route)
+        };
 
-                    break;
-            }
+        private static void AddParameter(
+            IDictionary<string, object> parameters,
+            string key,
+            string? value)
+        {
+            if (!string.IsNullOrWhiteSpace(value)) parameters[key] = value;
         }
     }
 }
