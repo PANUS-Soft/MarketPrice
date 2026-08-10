@@ -122,14 +122,21 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (dto == null) return;
 
-                _allActivities = new List<ActivityResponseDto>();
+                var activities = new List<ActivityResponseDto>();
 
-                if (dto.Today != null) _allActivities.AddRange(dto.Today);
-                if (dto.Yesterday != null) _allActivities.AddRange(dto.Yesterday);
-                if (dto.ThisWeek != null) _allActivities.AddRange(dto.ThisWeek);
-                if (dto.LastWeek != null) _allActivities.AddRange(dto.LastWeek);
-                if (dto.ThisMonth != null) _allActivities.AddRange(dto.ThisMonth);
-                if (dto.LastMonth != null) _allActivities.AddRange(dto.LastMonth);
+                if (dto.Today != null) activities.AddRange(dto.Today);
+                if (dto.Yesterday != null) activities.AddRange(dto.Yesterday);
+                if (dto.ThisWeek != null) activities.AddRange(dto.ThisWeek);
+                if (dto.LastWeek != null) activities.AddRange(dto.LastWeek);
+                if (dto.ThisMonth != null) activities.AddRange(dto.ThisMonth);
+                if (dto.LastMonth != null) activities.AddRange(dto.LastMonth);
+
+                // A position is the identity of an activity. This protects the UI from
+                // repeated items without merging legitimate, similar-looking positions.
+                _allActivities = activities
+                    .GroupBy(x => x.PositionId)
+                    .Select(x => x.First())
+                    .ToList();
 
                 ApplyFilters();
             }
