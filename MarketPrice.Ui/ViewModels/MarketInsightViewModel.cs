@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DevExpress.Maui.Controls;
 using MarketPrice.Domain.Market.DTOs;
 using MarketPrice.Domain.Position.Commands;
 using MarketPrice.Domain.Reference.DTOs;
@@ -25,10 +26,17 @@ namespace MarketPrice.Ui.ViewModels
         private MarketItemFilter? selectedMarketItemFilter;
         private MarketItemFilter? _incomingMarketItemFilter;
         private bool _autoRefreshStarted;
+        private int _refreshVersion;
 
         // --- Core UI Collections ---
         public ObservableCollection<MarketItemFilter> Commodities { get; } = new();
         public ObservableCollection<MarketInsightChartResponseDto> PriceHistory { get; } = new();
+
+        [ObservableProperty]
+        private MarketItemFilter? selectedCommodity;
+
+        [ObservableProperty]
+        private BottomSheetState commodityBottomSheetState = BottomSheetState.Hidden;
 
         // --- Core Market Data Payload ---
         [ObservableProperty]
@@ -86,14 +94,17 @@ namespace MarketPrice.Ui.ViewModels
             ChangeRangeCommand = new Command<string>(async (range) =>
             {
                 SelectedRange = range;
-                await LoadChartDataAsync(CurrentCommodityId);
+                if (CurrentCommodityId != Guid.Empty)
+                    await LoadChartDataAsync(CurrentCommodityId, Volatile.Read(ref _refreshVersion));
             });
         }
 
         // --- Lifecycle Initialization ---
         public async Task InitializeAsync()
         {
-            await LoadCommoditiesFilterAsync();
+            if (Commodities.Count == 0)
+                await LoadCommoditiesFilterAsync();
+
             ApplySelectedCommodity();
         }
 
@@ -110,20 +121,40 @@ namespace MarketPrice.Ui.ViewModels
         {
             if (_incomingMarketItemFilter == null) return;
 
-            SelectedMarketItemFilter = Commodities.FirstOrDefault(c => c.CommodityId == _incomingMarketItemFilter.CommodityId);
+            var commodity = Commodities.FirstOrDefault(c => c.CommodityId == _incomingMarketItemFilter.CommodityId);
 
-            if (SelectedMarketItemFilter != null)
-            {
-                _ = LoadMarketInsightAsync(SelectedMarketItemFilter.CommodityId);
-            }
+            if (commodity != null && SelectedCommodity?.CommodityId != commodity.CommodityId)
+                SelectedCommodity = commodity;
+        }
+
+        partial void OnSelectedCommodityChanged(MarketItemFilter? value)
+        {
+            if (value == null) return;
+
+            CommodityBottomSheetState = BottomSheetState.Hidden;
+            SelectedMarketItemFilter = value;
+
+            if (value.CommodityId != CurrentCommodityId)
+                _ = LoadMarketInsightAsync(value.CommodityId);
         }
 
         private async Task LoadMarketInsightAsync(Guid commodityId)
         {
+            var version = Interlocked.Increment(ref _refreshVersion);
             CurrentCommodityId = commodityId;
+            IsLoading = true;
 
-            // Optimization: Execute both independent domain network operations in parallel
-            await Task.WhenAll(GetCommodityMarketInsightAsync(commodityId), LoadChartDataAsync(commodityId));
+            try
+            {
+                await Task.WhenAll(
+                    GetCommodityMarketInsightAsync(commodityId, version),
+                    LoadChartDataAsync(commodityId, version));
+            }
+            finally
+            {
+                if (version == Volatile.Read(ref _refreshVersion))
+                    IsLoading = false;
+            }
 
             StartAutoRefresh();
         }
@@ -146,7 +177,7 @@ namespace MarketPrice.Ui.ViewModels
         public GridLength BidWidth => new GridLength((double)(BidPercentage ?? 0), GridUnitType.Star);
         public GridLength OfferWidth => new GridLength((double)(OfferPercentage ?? 0), GridUnitType.Star);
 
-        private async Task GetCommodityMarketInsightAsync(Guid id)
+        private async Task GetCommodityMarketInsightAsync(Guid id, int version)
         {
             try
             {
@@ -154,7 +185,10 @@ namespace MarketPrice.Ui.ViewModels
 
                 if (!marketInsightResponse.IsSuccessStatusCode) return;
 
-                Dto = await marketInsightResponse.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
+                var result = await marketInsightResponse.Content.ReadFromJsonAsync<MarketInsightResponseDto>();
+                if (version != Volatile.Read(ref _refreshVersion)) return;
+
+                Dto = result;
 
                 if (Dto?.Bids != null)
                 {
@@ -215,15 +249,15 @@ namespace MarketPrice.Ui.ViewModels
             OnPropertyChanged(nameof(Offers));
         }
 
-        private async Task LoadChartDataAsync(Guid commodityId)
+        private async Task LoadChartDataAsync(Guid commodityId, int version)
         {
             try
             {
-                IsLoading = true;
                 var response = await _marketApi.GetChartDataAsync(commodityId, SelectedRange);
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadFromJsonAsync<MarketChartDataWrapper>();
+                    if (version != Volatile.Read(ref _refreshVersion)) return;
 
                     PriceHistory.Clear();
                     if (result?.Data != null && result.Data.Any())
@@ -238,10 +272,6 @@ namespace MarketPrice.Ui.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"API Error: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
             }
         }
 
@@ -264,10 +294,16 @@ namespace MarketPrice.Ui.ViewModels
 
             Application.Current?.Dispatcher.StartTimer(TimeSpan.FromSeconds(30), () =>
             {
-                _ = LoadChartDataAsync(CurrentCommodityId);
+                var version = Volatile.Read(ref _refreshVersion);
+                if (CurrentCommodityId != Guid.Empty)
+                    _ = LoadChartDataAsync(CurrentCommodityId, version);
                 return true;
             });
         }
+
+        [RelayCommand]
+        private void ShowCommoditySelector() =>
+            CommodityBottomSheetState = BottomSheetState.HalfExpanded;
 
         private async Task LoadCommoditiesFilterAsync()
         {

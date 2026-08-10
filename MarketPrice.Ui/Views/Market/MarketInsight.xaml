@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dx="http://schemas.devexpress.com/maui"
              xmlns:dxc="clr-namespace:DevExpress.Maui.Charts;assembly=DevExpress.Maui.Charts"
              xmlns:viewModels="clr-namespace:MarketPrice.Ui.ViewModels"
+             xmlns:models="clr-namespace:MarketPrice.Ui.Models"
+             xmlns:converters="clr-namespace:MarketPrice.Ui.Converters"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              xmlns:dto="clr-namespace:MarketPrice.Domain.Market.DTOs;assembly=MarketPrice.Domain"
              x:DataType="viewModels:MarketInsightViewModel"
              x:Class="MarketPrice.Ui.Views.MarketInsight"
              BackgroundColor="{StaticResource Background}"
              Shell.TabBarIsVisible="False"
              Title="MarketInsight">
+
+    <ContentPage.Resources>
+        <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, *, Auto" RowSpacing="0" Padding="0">
 
@@ -21,14 +29,30 @@
                          Command="{Binding BackCommand}" 
                          BackgroundColor="Transparent"/>
 
-            <Label Grid.Column="1" 
-                   Text="{Binding CommodityName}" 
-                   FontAttributes="Bold"
-                   FontSize="20" 
-                   TextColor="White"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   FontFamily="RobotoSerifBold"/>
+            <HorizontalStackLayout Grid.Column="1"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Spacing="7"
+                                   Padding="8,0">
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShowCommoditySelectorCommand}"/>
+                </HorizontalStackLayout.GestureRecognizers>
+                <Label Text="{Binding CommodityName}"
+                       FontAttributes="Bold"
+                       FontSize="20"
+                       TextColor="White"
+                       FontFamily="RobotoSerifBold"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"
+                       MaximumWidthRequest="220"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="1"/>
+                <Image Source="dropdown_icon.png"
+                       WidthRequest="20"
+                       HeightRequest="20"
+                       Aspect="AspectFit"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
 
             <ImageButton Grid.Column="2" 
                          Source="favourite_icon.png" 
@@ -38,7 +62,7 @@
                          VerticalOptions="Center"/>
         </Grid>
 
-        <ScrollView Grid.Row="1">
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
             <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="20" Padding="15">
 
                 <Border Grid.Row="0" 
@@ -213,10 +237,109 @@
             </Grid>
         </ScrollView>
 
+        <!-- Static skeletons keep the layout stable while both insight requests complete. -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsLoading}">
+            <VerticalStackLayout Padding="15" Spacing="20">
+                <Border HeightRequest="115" BackgroundColor="#26354B" StrokeThickness="0" StrokeShape="RoundRectangle 12"/>
+                <Border HeightRequest="280" BackgroundColor="#26354B" StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       Color="{StaticResource PrimaryBase}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                </Border>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border HeightRequest="28" BackgroundColor="#26354B" StrokeThickness="0" StrokeShape="RoundRectangle 8"/>
+                    <Border Grid.Column="1" HeightRequest="28" BackgroundColor="#26354B" StrokeThickness="0" StrokeShape="RoundRectangle 8"/>
+                </Grid>
+                <Border HeightRequest="145" BackgroundColor="#26354B" StrokeThickness="0" StrokeShape="RoundRectangle 12"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
         <Grid Grid.Row="2" ColumnDefinitions="*, *" Padding="15" ColumnSpacing="10" BackgroundColor="{StaticResource Background}">
             <Button Grid.Column="0" FontFamily="RobotoSerifBold" Text="Place a Bid" BackgroundColor="{StaticResource PrimaryBase}" TextColor="White" CornerRadius="10" Command="{Binding NavigateToPlaceBidCommand}"/>
             <Button Grid.Column="1" FontFamily="RobotoSerifBold" Text="Place an Offer" BackgroundColor="White" BorderColor="{StaticResource PrimaryBase}" BorderWidth="3" TextColor="{StaticResource PrimaryBase}" CornerRadius="10" Command="{Binding NavigateToPlaceOfferCommand}"/>
         </Grid>
+
+        <dx:BottomSheet Grid.RowSpan="3"
+                        State="{Binding CommodityBottomSheetState, Mode=TwoWay}"
+                        HalfExpandedRatio="0.55"
+                        ShowGrabber="True"
+                        GrabberColor="White"
+                        BackgroundColor="#172033">
+            <Grid RowDefinitions="Auto,*" Padding="20,10,20,25" RowSpacing="14">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Switch commodity"
+                           TextColor="White"
+                           FontFamily="RobotoSerifBold"
+                           FontSize="20"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Select a commodity to view its insights"
+                           TextColor="#94A3B8"
+                           FontFamily="RobotoSerifRegular"
+                           FontSize="12"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <CollectionView Grid.Row="1"
+                                ItemsSource="{Binding Commodities}"
+                                SelectedItem="{Binding SelectedCommodity, Mode=TwoWay}"
+                                SelectionMode="Single"
+                                VerticalOptions="Fill"
+                                VerticalScrollBarVisibility="Always"
+                                ItemsUpdatingScrollMode="KeepScrollOffset">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:MarketItemFilter">
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="14"
+                                  Padding="8,11"
+                                  BackgroundColor="Transparent">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup Name="CommonStates">
+                                        <VisualState Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                <Setter TargetName="RadioOutline" Property="Border.Stroke" Value="#3B82F6"/>
+                                                <Setter TargetName="RadioDot" Property="shapes:Ellipse.Opacity" Value="1"/>
+                                                <Setter TargetName="CommodityLabel" Property="Label.TextColor" Value="White"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Border x:Name="RadioOutline"
+                                        WidthRequest="24"
+                                        HeightRequest="24"
+                                        Stroke="#94A3B8"
+                                        StrokeThickness="2"
+                                        BackgroundColor="Transparent"
+                                        StrokeShape="RoundRectangle 12"
+                                        Padding="4"
+                                        VerticalOptions="Center">
+                                    <shapes:Ellipse x:Name="RadioDot"
+                                                    Fill="#3B82F6"
+                                                    Opacity="0"/>
+                                </Border>
+
+                                <Label x:Name="CommodityLabel"
+                                       Grid.Column="1"
+                                       Text="{Binding Name}"
+                                       TextColor="White"
+                                       FontFamily="RobotoSerifRegular"
+                                       FontSize="17"
+                                       VerticalTextAlignment="Center"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="1"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </dx:BottomSheet>
     </Grid>
 
 </ContentPage>
