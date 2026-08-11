@@ -21,6 +21,8 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
     private const int POSITION_TYPE = 6000;
     private const int REGIONS = 7000;
     private const int OPEN_POSITION = 5001;
+    private const int BID_POSITION = 6001;
+    private const int OFFER_POSITION = 6002;
 
     public async Task<PositionResponseDto> ProcessPositionAsync(CreatePositionCommand command, bool isOffer)
     {
@@ -123,6 +125,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
             DateTime.UtcNow <= position.ExpiryDate ? "Open" : "Close";
 
         await _context.SaveChangesAsync();
+        await UpdateBestPriceHistoryAsync(position.CommodityId, posTypeId);
         await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
         await _realtime.BroadcastActivityPositionStatusUpdateAsync(position,state);
 
@@ -233,6 +236,7 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
          position.DateUpdated = DateTime.UtcNow;
 
          await _context.SaveChangesAsync();
+         await UpdateBestPriceHistoryAsync(position.CommodityId, position.PositionTypeId);
          await _realtime.BroadcastPositionUpdateAsync(position, isOffer);
          
          var dto = new UpdatePositionResponseDto
@@ -241,6 +245,52 @@ public class PositionService(MarketPriceDbContext context, ILookupProviderServic
          };
          
          return DtoManager.Succeed<UpdatePositionResponseDto>(dto);
+    }
+
+    private async Task UpdateBestPriceHistoryAsync(Guid commodityId, int positionTypeId)
+    {
+        var commodity = await _context.Commodities
+            .FirstOrDefaultAsync(c => c.CommodityId == commodityId);
+
+        if (commodity == null)
+            return;
+
+        var now = DateTime.UtcNow;
+        var activePrices = _context.Positions
+            .Where(p => p.CommodityId == commodityId &&
+                        p.PositionTypeId == positionTypeId &&
+                        p.StartDate <= now &&
+                        p.ExpiryDate > now)
+            .Select(p => p.UnitPrice);
+
+        if (positionTypeId == BID_POSITION)
+        {
+            var bestBid = await activePrices.MaxAsync(p => (decimal?)p) ?? 0m;
+
+            if (bestBid != commodity.LastBestBid)
+            {
+                commodity.PreviousBestBid = commodity.LastBestBid;
+                commodity.LastBestBid = bestBid;
+                commodity.IsBidImproved = commodity.PreviousBestBid > 0 &&
+                                          bestBid > commodity.PreviousBestBid;
+                commodity.DateUpdated = DateTimeOffset.UtcNow;
+            }
+        }
+        else if (positionTypeId == OFFER_POSITION)
+        {
+            var bestOffer = await activePrices.MinAsync(p => (decimal?)p) ?? 0m;
+
+            if (bestOffer != commodity.LastBestOffer)
+            {
+                commodity.PreviousBestOffer = commodity.LastBestOffer;
+                commodity.LastBestOffer = bestOffer;
+                commodity.IsOfferImproved = commodity.PreviousBestOffer > 0 &&
+                                            bestOffer < commodity.PreviousBestOffer;
+                commodity.DateUpdated = DateTimeOffset.UtcNow;
+            }
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task<PositionListingResponseDto> GetPositionListingsAsync(PositionListingCommand command)

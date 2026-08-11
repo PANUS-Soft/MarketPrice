@@ -25,7 +25,7 @@ namespace MarketPrice.Ui.Mappers
 
                 foreach (var dto in group.Commodities)
                 {
-                    displayGroup.Commodities.Add(ToDisplayModel(dto));
+                    displayGroup.Commodities.Add(ToDisplayModel(dto, group.CommodityTypeId));
                 }
 
                 groups.Add(displayGroup);
@@ -33,7 +33,7 @@ namespace MarketPrice.Ui.Mappers
             return groups;
         }
 
-        private static CommodityDisplayModel ToDisplayModel(HomeCommodityDetailDto dto)
+        private static CommodityDisplayModel ToDisplayModel(HomeCommodityDetailDto dto, Guid commodityTypeId)
         {
             var bid0 = dto.BidDepth.ElementAtOrDefault(0);
             var bid1 = dto.BidDepth.ElementAtOrDefault(1);
@@ -45,6 +45,7 @@ namespace MarketPrice.Ui.Mappers
 
             return new CommodityDisplayModel()
             {
+                CommodityTypeId = commodityTypeId,
                 CommodityId = dto.CommodityId,
                 Name = dto.CommodityName ?? string.Empty,
                 ImageUrl = dto.ImageUrl ?? string.Empty,

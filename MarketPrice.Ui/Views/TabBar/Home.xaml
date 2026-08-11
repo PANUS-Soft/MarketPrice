@@ -217,6 +217,11 @@
                                                         <Border BackgroundColor="{Binding ., Converter={StaticResource BidBgConverter}}"
                                                                 Stroke="{Binding ., Converter={StaticResource BidBorderConverter}}"
                                                                 StrokeThickness="1" Padding="6,6">
+                                                            <Border.GestureRecognizers>
+                                                                <TapGestureRecognizer
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToBidPositionListingCommand}"
+                                                                    CommandParameter="{Binding .}"/>
+                                                            </Border.GestureRecognizers>
                                                             <Border.StrokeShape>
                                                                 <RoundRectangle CornerRadius="6"/>
                                                             </Border.StrokeShape>
@@ -254,6 +259,11 @@
                                                         <Border BackgroundColor="{Binding ., Converter={StaticResource OfferBgConverter}}"
                                                                 Stroke="{Binding ., Converter={StaticResource OfferBorderConverter}}"
                                                                 StrokeThickness="1" Padding="6,6">
+                                                            <Border.GestureRecognizers>
+                                                                <TapGestureRecognizer
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToOfferPositionListingCommand}"
+                                                                    CommandParameter="{Binding .}"/>
+                                                            </Border.GestureRecognizers>
                                                             <Border.StrokeShape>
                                                                 <RoundRectangle CornerRadius="6"/>
                                                             </Border.StrokeShape>
@@ -536,6 +546,11 @@
                                                 Stroke="{Binding ., Converter={StaticResource BidBorderConverter}}"
                                                 StrokeThickness="1"
                                                 Padding="6,6">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToBidPositionListingCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="6"/>
                                             </Border.StrokeShape>
@@ -565,6 +580,11 @@
                                                 Stroke="{Binding ., Converter={StaticResource OfferBorderConverter}}"
                                                 StrokeThickness="1"
                                                 Padding="6,6">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HomeViewModel}}, Path=NavigateToOfferPositionListingCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
                                             <Border.StrokeShape>
                                                 <RoundRectangle CornerRadius="6"/>
                                             </Border.StrokeShape>

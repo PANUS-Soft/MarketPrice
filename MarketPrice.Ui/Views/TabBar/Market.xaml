@@ -361,6 +361,10 @@
                                                 <Setter Property="BackgroundColor"  Value="#4CAF50" />
                                             </DataTrigger>
 
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsPriceUnchanged}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="#888888"/>
+                                            </DataTrigger>
+
                                             <!-- so if there's no bid and no offere the color will br grey -->
                                             <DataTrigger TargetType="Border" Binding="{Binding FormattedDifference}"  Value="-">
                                                 <Setter Property="BackgroundColor" Value="#888888"/>

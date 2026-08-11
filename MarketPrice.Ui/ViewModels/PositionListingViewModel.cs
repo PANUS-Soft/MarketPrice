@@ -107,14 +107,22 @@ namespace MarketPrice.Ui.ViewModels
                 return;
 
             _isInitializing = true;
+            NavArgs = args;
+            IsBidHighlighted = args.PositionTypeId == 6001;
+            IsOfferHighlighted = args.PositionTypeId == 6002;
 
-            await EnsureSessionActiveAsync();
+            try
+            {
+                await EnsureSessionActiveAsync();
 
-            await LoadRegionsAsync();
+                await LoadRegionsAsync();
 
-            await LoadPositionListingAsync();
-
-            _isInitializing = false;
+                await LoadPositionListingAsync();
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
         }
 
         private async Task EnsureSessionActiveAsync()

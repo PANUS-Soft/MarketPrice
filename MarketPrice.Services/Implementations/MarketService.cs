@@ -337,6 +337,9 @@ namespace MarketPrice.Services.Implementations
                     LotSizeDisplay = $"{item.LotSize} {item.UomCode}",
                     CurrentPrice = item.CurrentBestPrice,
                     PriceDifference = difference,
+                    IsPositiveTrend = positionTypeId == BidPosition
+                        ? difference > 0
+                        : difference < 0,
 
                     // IMPORTANT
                     ImageUrl = item.ImageFileName != null

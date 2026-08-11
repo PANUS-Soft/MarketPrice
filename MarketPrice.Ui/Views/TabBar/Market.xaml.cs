@@ -15,19 +15,17 @@ public partial class Market : ContentPage
     {
         base.OnAppearing();
 
-        if (_initialized)
-            return;
-
-        _initialized = true;
-
         if (BindingContext is MarketViewModel marketViewModel)
         {
-            //while (marketViewModel.IsLoading)
-            //{
-            //    await this.FadeTo(0.5, 800, Easing.CubicIn);
-            //    await this.FadeTo(1.0, 800, Easing.CubicOut);
-            //}
-            await marketViewModel.InitializeAsync();
+            if (!_initialized)
+            {
+                _initialized = true;
+                await marketViewModel.InitializeAsync();
+            }
+            else
+            {
+                await marketViewModel.LoadMarketDataAsync();
+            }
         }
     }
 }

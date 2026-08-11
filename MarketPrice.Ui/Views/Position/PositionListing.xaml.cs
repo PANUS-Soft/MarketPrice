@@ -3,23 +3,19 @@ using MarketPrice.Ui.ViewModels;
 
 namespace MarketPrice.Ui.Views;
 
-[QueryProperty(nameof(Args), "Args")]
-public partial class PositionListing : ContentPage
+public partial class PositionListing : ContentPage, IQueryAttributable
 {
-    public PositionListingCommand Args
-    {
-        set
-        {
-            if (BindingContext is PositionListingViewModel positionListingViewModel)
-            {
-                _ = positionListingViewModel.InitializeAsync(value);
-            }
-        }
-    }
-
 	public PositionListing(PositionListingViewModel positionListingViewModel)
 	{
 		InitializeComponent();
         BindingContext = positionListingViewModel;
+    }
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (BindingContext is PositionListingViewModel positionListingViewModel)
+        {
+            positionListingViewModel.ApplyQueryAttributes(query);
+        }
     }
 }

@@ -37,6 +37,7 @@ namespace MarketPrice.Ui.ViewModels
         [ObservableProperty] private Activity selectedItem;
         [ObservableProperty] private bool isLoading;
         [ObservableProperty] private bool isDeleting;
+        [ObservableProperty] private bool isUserLoggedIn;
         [ObservableProperty] private BottomSheetState _activityDetailsBottomSheetState = BottomSheetState.Hidden;
         [ObservableProperty] private Activity selectedActivityDetails;
 
@@ -49,15 +50,21 @@ namespace MarketPrice.Ui.ViewModels
             _referenceDataApi = referenceDataApiService;
             _sessionService = sessionService;
             _activityApiService = activityApiService;
-
-            _ = InitializeAsync();
         }
 
-        public bool IsUserLoggedIn => _sessionService.IsLoggedIn;
-
-        private async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
             await LoadCommodityTypesAsync();
+
+            IsUserLoggedIn = await _sessionService.ValidateAndRefreshSessionAsync();
+
+            if (!IsUserLoggedIn)
+            {
+                _allActivities.Clear();
+                GroupedActivities.Clear();
+                return;
+            }
+
             await LoadUserActivityAsync();
         }
 
@@ -108,6 +115,12 @@ namespace MarketPrice.Ui.ViewModels
                 if (dto.LastMonth != null) _allActivities.AddRange(dto.LastMonth);
 
                 ApplyFilters();
+            }
+            catch (Exception e) when (e.Message == "Session expired")
+            {
+                IsUserLoggedIn = false;
+                _allActivities.Clear();
+                GroupedActivities.Clear();
             }
             catch (Exception e)
             {

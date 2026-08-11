@@ -100,6 +100,7 @@ namespace MarketPrice.Ui.ViewModels
 
                         groupModel.Commodities.Add(new CommodityDisplayModel
                         {
+                            CommodityTypeId = group.CommodityTypeId,
                             CommodityId = dto.CommodityId,
                             Name = dto.CommodityName ?? string.Empty,
                             ImageUrl = ImageSource.FromUri(new Uri(
@@ -269,14 +270,21 @@ namespace MarketPrice.Ui.ViewModels
 
             var args = new PositionListingCommand
             {
-                CommodityTypeId = item.CommodityId,
+                CommodityTypeId = item.CommodityTypeId,
+                CommodityId = item.CommodityId,
+                CommodityName = item.Name,
                 UnitPrice = item.BestBidPrice,
                 PositionTypeId = 6001
             };
 
             await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
             {
-                { "Args", args }
+                { "Args", args },
+                { "PassedImage", item.ImageUrl! },
+                { "PassedCommodityName", item.Name },
+                { "PassedLotSize", item.LotSizeDisplay },
+                { "PassedBid", item.BestBidDisplay },
+                { "PassedOffer", item.BestOfferDisplay }
             });
         }
 
@@ -287,14 +295,21 @@ namespace MarketPrice.Ui.ViewModels
 
             var args = new PositionListingCommand
             {
-                CommodityTypeId = item.CommodityId,
+                CommodityTypeId = item.CommodityTypeId,
+                CommodityId = item.CommodityId,
+                CommodityName = item.Name,
                 UnitPrice = item.BestOfferPrice,
                 PositionTypeId = 6002
             };
 
             await Shell.Current.GoToAsync(nameof(PositionListing), new Dictionary<string, object>
             {
-                { "Args", args }
+                { "Args", args },
+                { "PassedImage", item.ImageUrl! },
+                { "PassedCommodityName", item.Name },
+                { "PassedLotSize", item.LotSizeDisplay },
+                { "PassedBid", item.BestBidDisplay },
+                { "PassedOffer", item.BestOfferDisplay }
             });
         }
     }

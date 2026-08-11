@@ -24,6 +24,8 @@
 
         public bool IsPositiveTrend { get; set; }
 
+        public bool IsPriceUnchanged { get; set; }
+
         public string? BestBid { get; set; }
 
         public decimal HighBid { get; set; }

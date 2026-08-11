@@ -9,8 +9,10 @@
         public decimal CurrentPrice { get; set; }
         public decimal PriceDifference { get; set; }
 
-        // Tells the UI whether to make the badge Green or Red
-        public bool IsPositiveTrend => PriceDifference >= 0;
+        // For bids, a higher price is positive. For offers, a lower price is positive.
+        public bool IsPositiveTrend { get; set; }
+
+        public bool IsPriceUnchanged => PriceDifference == 0;
 
         // Formats the text inside the badge (e.g., "+550" or "-550")
         public string FormattedDifference => PriceDifference > 0

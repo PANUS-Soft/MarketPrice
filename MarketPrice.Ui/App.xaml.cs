@@ -8,7 +8,7 @@ namespace MarketPrice.Ui
     {
         private readonly SessionService _sessionService;
 
-        public App(SessionService sessionService, ActivityViewModel activityViewModel)
+        public App(SessionService sessionService)
         {
             InitializeComponent();
             _sessionService = sessionService;

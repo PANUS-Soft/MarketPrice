@@ -200,6 +200,8 @@ namespace MarketPrice.Ui.ViewModels
 
                             IsPositiveTrend = item.IsPositiveTrend,
 
+                            IsPriceUnchanged = item.IsPriceUnchanged,
+
                             DisplayPrice =
                                 item.CurrentPrice > 0
                                 ? item.CurrentPrice.ToString("N0")

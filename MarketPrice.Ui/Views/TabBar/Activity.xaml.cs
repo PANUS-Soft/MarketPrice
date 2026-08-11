@@ -9,4 +9,14 @@ public partial class Activity : ContentPage
 		InitializeComponent();
 		BindingContext = activityViewModel;
 	}
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is ActivityViewModel activityViewModel)
+        {
+            await activityViewModel.InitializeAsync();
+        }
+    }
 }
