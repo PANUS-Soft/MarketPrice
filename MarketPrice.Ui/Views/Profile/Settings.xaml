@@ -80,6 +80,11 @@
                             TextColor="#AAAAAA"
                             HorizontalTextAlignment="Center"
                             HorizontalOptions="Center"/>
+
+
+
+
+
                 </VerticalStackLayout>
 
             </Grid>

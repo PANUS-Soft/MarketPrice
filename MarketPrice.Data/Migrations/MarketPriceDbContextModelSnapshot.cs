@@ -73,7 +73,7 @@ namespace MarketPrice.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_AggregatedPrices_Lookup");
 
-                    b.ToTable("AggregatedPrices");
+                    b.ToTable("AggregatedPrices", (string)null);
                 });
 
             modelBuilder.Entity("MarketPrice.Data.Models.Commodity", b =>

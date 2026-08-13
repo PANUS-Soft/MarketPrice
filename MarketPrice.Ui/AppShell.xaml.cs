@@ -20,6 +20,7 @@ namespace MarketPrice.Ui
             Routing.RegisterRoute(nameof(ChangeEmailAddressIntro), typeof(ChangeEmailAddressIntro));
             Routing.RegisterRoute(nameof(ChangeEmailAddressInput), typeof(ChangeEmailAddressInput));
             Routing.RegisterRoute(nameof(Privacy), typeof(Privacy));
+            Routing.RegisterRoute(nameof(Verification), typeof(Verification));
         }
     }
 }

@@ -89,7 +89,7 @@ namespace MarketPrice.Ui.ViewModels
         {
             MenuItems.Clear();
             MenuItems.Add(new ProfileMenuItem("Settings","Settings", "settings_icon.png", "General app preferences"));
-            MenuItems.Add(new ProfileMenuItem("Verification", "", "verification_icon.png", "Identity status", "NOT VERIFIED"));
+            MenuItems.Add(new ProfileMenuItem("Verification", "Verification", "verification_icon.png", "Identity status", "NOT VERIFIED"));
         }
 
         // Menu Collection

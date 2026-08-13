@@ -38,8 +38,8 @@
                     <TapGestureRecognizer Command="{Binding ShowCommoditySelectorCommand}"/>
                 </HorizontalStackLayout.GestureRecognizers>
                 <Label Text="{Binding CommodityName}"
-                       FontAttributes="Bold"
-                       FontSize="20"
+                       FontAttributes="Bold" 
+                    FontSize="20"
                        TextColor="White"
                        FontFamily="RobotoSerifBold"
                        HorizontalTextAlignment="Center"

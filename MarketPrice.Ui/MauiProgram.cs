@@ -89,6 +89,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<ChangeEmailAddressIntroViewModel>();
             builder.Services.AddTransient<ChangeEmailAddressInputViewModel>();
             builder.Services.AddTransient<PrivacyViewModel>();
+            builder.Services.AddTransient<VerificationViewModel>();
 
             // Register views
             builder.Services.AddTransient<Register>();
@@ -110,6 +111,7 @@ namespace MarketPrice.Ui
             builder.Services.AddTransient<ChangeEmailAddressIntro>();
             builder.Services.AddTransient<ChangeEmailAddressInput>();
             builder.Services.AddTransient<Privacy>();
+            builder.Services.AddTransient<Verification>();
 
 #if DEBUG
             builder.Logging.AddDebug();

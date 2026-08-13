@@ -20,6 +20,7 @@ namespace MarketPrice.Data
         public DbSet<CommodityTypeImage> CommodityTypeImage { get; set; }
         public DbSet<CommodityImage> CommodityImage { get; set; }
         public DbSet<AggregatedPrice> AggregatedPrices { get; set; }
+        public DbSet<VerificationOtp> VerificationOtps { get; set; }
 
         public MarketPriceDbContext(DbContextOptions<MarketPriceDbContext> options)
             : base(options)
